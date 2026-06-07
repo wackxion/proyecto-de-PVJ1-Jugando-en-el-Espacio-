@@ -592,7 +592,7 @@ export class PixiHUD {
         const anchoCalc = this.app.screen.width * 0.3;
         const ancho = Math.min(anchoMax, anchoCalc);
         const alto = this._v(2.5);
-        const bottom = this._v(11.9);
+        const bottom = this._v(5);
 
         const xCentro = this.app.screen.width / 2;
         const yBottom = this.app.screen.height - bottom - alto;
