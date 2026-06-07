@@ -2520,7 +2520,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             ? this.pixiHUD.container
             : null;
         if (hudContainer) {
-            hudContainer.removeFromStage();
+            try { hudContainer.removeFromParent(); } catch (e) {}
         }
 
         // Limpiar todo el stage (eliminar todos los objetos anteriores)

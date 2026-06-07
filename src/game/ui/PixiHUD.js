@@ -35,9 +35,10 @@ export class PixiHUD {
         // Contenedor principal del HUD
         this.container = new PIXI.Container();
         this.container.zIndex = 1000;
+        this.container.sortableChildren = true; // Permitir ordenar hijos por zIndex
         this.app.stage.addChild(this.container);
 
-        // Habilitar sorting por zIndex (requerido por PixiJS v8)
+        // Habilitar sorting por zIndex en el stage también
         this.app.stage.sortableChildren = true;
 
         // =========================================
@@ -219,6 +220,7 @@ export class PixiHUD {
             this.uxImage.anchor.set(0.5, 1); // Para usar bottom: 0 con translateX(-50%)
             this.uxImage.x = this.app.screen.width / 2;
             this.uxImage.y = this.app.screen.height;
+            this.uxImage.zIndex = -1; // Detrás de todos los iconos del HUD
             this.container.addChild(this.uxImage);
         } catch (e) {
             // Si falla, no hacer nada
@@ -829,7 +831,7 @@ export class PixiHUD {
      */
     destruir() {
         if (this.container) {
-            this.container.removeFromStage();
+            this.container.removeFromParent();
             this.container.destroy({ children: true });
         }
         this.inicializado = false;
