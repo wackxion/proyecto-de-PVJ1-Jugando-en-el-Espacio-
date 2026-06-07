@@ -658,71 +658,61 @@ export class PixiHUD {
      */
     _posicionarIconosEnFila() {
         // =============================================
-        // Posiciones exactas de los 6 slots en la imagen UX
-        // Medidos de uxExperimental2.png (1512x198):
-        //   Slot 1 (Tiempo):     x=436-533   (28.8%-35.3%)
-        //   Slot 2 (Cohetes):    x=554-652   (36.6%-43.1%)
-        //   Slot 3 (Escudo):     x=672-770   (44.4%-50.9%)
-        //   Slot 4 (Ulti):       x=792-886   (52.4%-58.6%)
-        //   Slot 5 (Propul):     x=906-997   (59.9%-65.9%)
-        //   Slot 6 (Devorador):  x=1017-1112 (67.3%-73.6%)
-        //   Slot vertical:       y≈1%-97% de la imagen
+        // Posiciones de los 6 slots en la imagen UX
+        // (centros medidos de uxExperimental2.png)
         // =============================================
         const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
         const uxAlto = this.app.screen.height * 0.2;
-        const uxX = (this.app.screen.width - uxAncho) / 2; // Borde izquierdo de la imagen
-        const uxY = this.app.screen.height - uxAlto;       // Borde superior de la imagen
+        const uxX = (this.app.screen.width - uxAncho) / 2;
+        const uxY = this.app.screen.height - uxAlto;
 
-        // Posiciones de cada slot como % del ancho de la imagen UX
-        const slotDefs = [
-            { grupo: this.tiempo,    pctLeft: 0.288, pctRight: 0.353 },
-            { grupo: this.cohetes,   pctLeft: 0.366, pctRight: 0.431 },
-            { grupo: this.escudo,    pctLeft: 0.444, pctRight: 0.509 },
-            { grupo: this.ulti,      pctLeft: 0.524, pctRight: 0.586 },
-            { grupo: this.propul,    pctLeft: 0.599, pctRight: 0.659 },
-            { grupo: this.deborador, pctLeft: 0.673, pctRight: 0.736 },
+        // Centros de cada slot como % del ancho de la imagen UX
+        const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
+
+        const tamano = 100; // 100x100 px fijo
+        const medio = tamano / 2;
+
+        const grupos = [
+            this.tiempo, this.cohetes, this.escudo,
+            this.ulti, this.propul, this.deborador,
         ];
 
-        // Slot vertical: de 3% a 97% del alto de la imagen
-        const slotTopPct = 0.03;
-        const slotBotPct = 0.97;
-
-        for (const def of slotDefs) {
-            const g = def.grupo;
+        for (let i = 0; i < grupos.length; i++) {
+            const g = grupos[i];
             if (!g || !g.marco) continue;
 
-            // Calcular posición y tamaño del slot en píxeles
-            const slotX = uxX + uxAncho * def.pctLeft;
-            const slotW = uxAncho * (def.pctRight - def.pctLeft);
-            const slotY = uxY + uxAlto * slotTopPct;
-            const slotH = uxAlto * (slotBotPct - slotTopPct);
+            // Centro del slot en píxeles de pantalla
+            const cx = uxX + uxAncho * slotCentros[i];
+            const cy = uxY + uxAlto * 0.50; // Verticalmente centrado en la imagen
 
-            // Redibujar marco al tamaño del slot
+            // Posición de la esquina superior-izquierda
+            const x = cx - medio;
+            const y = cy - medio;
+
+            // Marco exterior (borde azul)
             g.marco.clear();
-            g.marco.lineStyle(3, 0x0044CC, 1);
-            g.marco.drawRect(0, 0, slotW, slotH);
-            g.marco.x = slotX;
-            g.marco.y = slotY;
+            g.marco.lineStyle(4, 0x0044CC, 1);
+            g.marco.drawRect(0, 0, tamano, tamano);
+            g.marco.x = x;
+            g.marco.y = y;
             g.marco.zIndex = 0;
 
-            // Fondo blanco semi-transparente dentro del slot
-            const borde = 3;
+            // Fondo blanco
             g.fondo.clear();
-            g.fondo.beginFill(0xFFFFFF, 0.15);
-            g.fondo.drawRect(0, 0, slotW - borde * 2, slotH - borde * 2);
+            g.fondo.beginFill(0xFFFFFF);
+            g.fondo.lineStyle(5, 0x0044CC, 1);
+            g.fondo.drawRect(0, 0, tamano - 8, tamano - 8);
             g.fondo.endFill();
-            g.fondo.x = slotX + borde;
-            g.fondo.y = slotY + borde;
+            g.fondo.x = x + 4;
+            g.fondo.y = y + 4;
             g.fondo.zIndex = 1;
 
-            // Icono centrado en el slot
+            // Icono centrado
             if (g.icono) {
-                const iconMaxW = slotW * 0.75;
-                const iconMaxH = slotH * 0.75;
-                g.icono.width = iconMaxW;
-                g.icono.height = iconMaxH;
-                g.icono.x = slotX + slotW / 2;
-                g.icono.y = slotY + slotH / 2;
+                g.icono.width = tamano * 0.65;
+                g.icono.height = tamano * 0.65;
+                g.icono.x = cx;
+                g.icono.y = cy;
                 g.icono.zIndex = 2;
             }
         }
@@ -861,14 +851,10 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco al tamaño del slot
-        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
-        const uxAlto = this.app.screen.height * 0.2;
-        const slotW = uxAncho * (0.509 - 0.444);
-        const slotH = uxAlto * 0.94;
+        // Actualizar marco (100x100)
         this.escudo.marco.clear();
-        this.escudo.marco.lineStyle(3, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, slotW, slotH);
+        this.escudo.marco.lineStyle(4, colorMarco, 1);
+        this.escudo.marco.drawRect(0, 0, 100, 100);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -900,14 +886,10 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco al tamaño del slot
-        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
-        const uxAlto = this.app.screen.height * 0.2;
-        const slotW = uxAncho * (0.586 - 0.524);
-        const slotH = uxAlto * 0.94;
+        // Actualizar marco (100x100)
         this.ulti.marco.clear();
-        this.ulti.marco.lineStyle(3, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, slotW, slotH);
+        this.ulti.marco.lineStyle(4, colorMarco, 1);
+        this.ulti.marco.drawRect(0, 0, 100, 100);
     }
 
     _actualizarContadorDevorador() {
