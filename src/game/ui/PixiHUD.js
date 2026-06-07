@@ -588,14 +588,13 @@ export class PixiHUD {
     // ========================================================================
 
     _crearBarraAceleracion() {
-        // Dentro del cuadrante UX: arriba de los iconos, centrada
-        const uxAlto = this.app.screen.height * 0.2;
-        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
-        const ancho = uxAncho * 0.25; // 25% del ancho UX
-        const alto = uxAlto * 0.12;   // 12% del alto UX
+        const anchoMax = 190;
+        const anchoCalc = this.app.screen.width * 0.3;
+        const ancho = Math.min(anchoMax, anchoCalc);
+        const alto = this._v(2.5);
+        const bottom = this._v(11.9);
+
         const xCentro = this.app.screen.width / 2;
-        // Posicionar arriba de la fila de iconos dentro del cuadrante
-        const bottom = uxAlto * 0.30; // 30% desde el fondo de la imagen UX
         const yBottom = this.app.screen.height - bottom - alto;
 
         // Fondo (borde azul + relleno blanco)
@@ -626,18 +625,15 @@ export class PixiHUD {
     // ========================================================================
 
     _crearPanelPuntuacion() {
-        // Dentro del cuadrante UX: arriba de la barra, centrada
-        const uxAlto = this.app.screen.height * 0.2;
-
         this.puntuacionText = new PIXI.Text('0', {
             fontFamily: 'Segoe Script, cursive',
-            fontSize: Math.max(14, uxAlto * 0.12),
+            fontSize: 18,
             fill: 0x0044CC,
             fontWeight: 'bold'
         });
 
-        const xCentro = this.app.screen.width / 2;
-        const bottom = uxAlto * 0.50; // 50% desde el fondo de la imagen UX
+        const bottom = this._v(11.6);
+        const xCentro = (41.7 / 100) * this.app.screen.width;
         const yBottom = this.app.screen.height - bottom;
 
         this.puntuacionText.anchor.set(0.5, 1);
@@ -661,89 +657,86 @@ export class PixiHUD {
      * @private
      */
     _posicionarIconosEnFila() {
-        // =============================================
-        // Dimensiones del cuadrante UX
-        // =============================================
-        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
-        const uxAlto = this.app.screen.height * 0.2;
-        const uxBordeInferior = this.app.screen.height; // La imagen ancla al fondo
-
-        // Definición de cada icono
+        // Definición de cada icono: grupo PixiJS, ancho total (marco), fondo offset
         const iconos = [
-            { grupo: this.tiempo,    borde: 5 },
-            { grupo: this.cohetes,   borde: 4 },
-            { grupo: this.escudo,    borde: 5 },
-            { grupo: this.ulti,      borde: 5 },
-            { grupo: this.propul,    borde: 4 },
-            { grupo: this.deborador, borde: 4 },
+            {
+                grupo: this.tiempo,
+                ancho: this._v(9.9) + 10,  // fondo + border
+                alto: this._v(7.9) + 10,
+                borde: 5,
+            },
+            {
+                grupo: this.cohetes,
+                ancho: this._v(9.9) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
+            {
+                grupo: this.escudo,
+                ancho: this._v(9.9) + 10,
+                alto: this._v(7.9) + 10,
+                borde: 5,
+            },
+            {
+                grupo: this.ulti,
+                ancho: this._v(9.9) + 10, // Fondo + 2*borde (5px)
+                alto: this._v(7.9) + 10,
+                borde: 5,
+            },
+            {
+                grupo: this.propul,
+                ancho: this._v(9.7) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
+            {
+                grupo: this.deborador,
+                ancho: this._v(9.9) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
         ];
 
+        // Filtrar los que no tienen marco (no se crearon correctamente)
         const visibles = iconos.filter(i => i.grupo && i.grupo.marco);
         if (visibles.length === 0) return;
 
-        // =============================================
-        // Calcular tamaño de icono para que 6 quepan
-        // en el ancho del cuadrante UX
-        // =============================================
-        const separacion = uxAncho * 0.01; // 1% del ancho UX
-        const numIconos = visibles.length;
-        const totalGaps = separacion * (numIconos - 1);
-        const iconoAncho = (uxAncho - totalGaps) / numIconos;
-        const iconoAlto = iconoAncho * 0.8; // Proporción 5:4
-
-        // Posición vertical: centrar en la parte inferior del cuadrante UX
-        const uxTop = uxBordeInferior - uxAlto; // borde superior de la imagen UX
-        const iconoBottomPad = uxAlto * 0.05; // 5% padding desde el fondo de la imagen
-        const yIcono = uxBordeInferior - iconoBottomPad - iconoAlto;
-
-        // Posición horizontal: centrado en el cuadrante UX
-        const totalAncho = iconoAncho * numIconos + totalGaps;
+        const separacion = this._v(0.8); // Separación entre iconos
+        const totalAncho = visibles.reduce((sum, i) => sum + i.ancho, 0)
+                         + separacion * (visibles.length - 1);
         const xInicio = (this.app.screen.width - totalAncho) / 2;
+        const bottom = this._v(2.3);
+        const altoMax = Math.max(...visibles.map(i => i.alto));
+        const yTop = this.app.screen.height - bottom - altoMax;
 
-        // =============================================
-        // Redibujar y posicionar cada icono
-        // =============================================
         let xActual = xInicio;
         for (const icono of visibles) {
-            const g = icono.grupo;
-            const b = icono.borde;       // grosor del borde del marco
-            const fW = iconoAncho - b * 2; // ancho del fondo blanco
-            const fH = iconoAlto - b * 2;  // alto del fondo blanco
+            // Centrar verticalmente si el icono es más bajo que el máximo
+            const yOff = (altoMax - icono.alto) / 2;
 
-            // --- Marco exterior (redibujar al tamaño correcto) ---
-            g.marco.clear();
-            g.marco.lineStyle(b, 0x0044CC, 1);
-            g.marco.drawRect(0, 0, iconoAncho, iconoAlto);
-            g.marco.x = xActual;
-            g.marco.y = yIcono;
-            g.marco.zIndex = 0;
-
-            // --- Fondo blanco (redibujar al tamaño correcto) ---
-            g.fondo.clear();
-            g.fondo.beginFill(0xFFFFFF);
-            g.fondo.lineStyle(b, 0x0044CC, 1);
-            g.fondo.drawRect(0, 0, fW, fH);
-            g.fondo.endFill();
-            g.fondo.x = xActual + b;
-            g.fondo.y = yIcono + b;
-            g.fondo.zIndex = 1;
-
-            // --- Icono central (anchor 0.5 = centrado) ---
-            if (g.icono) {
-                // Ajustar tamaño del sprite proporcional al fondo
-                g.icono.width = fW * 0.8;
-                g.icono.height = fH * 0.8;
-                g.icono.x = xActual + iconoAncho / 2;
-                g.icono.y = yIcono + iconoAlto / 2;
-                g.icono.zIndex = 2;
+            // Marco exterior (zIndex más bajo - atrás)
+            if (icono.grupo.marco) {
+                icono.grupo.marco.x = xActual;
+                icono.grupo.marco.y = yTop + yOff;
+                icono.grupo.marco.zIndex = 0;
             }
 
-            xActual += iconoAncho + separacion;
-        }
+            // Fondo blanco (zIndex medio - en medio)
+            if (icono.grupo.fondo) {
+                icono.grupo.fondo.x = xActual + icono.borde;
+                icono.grupo.fondo.y = yTop + yOff + icono.borde;
+                icono.grupo.fondo.zIndex = 1;
+            }
 
-        // Guardar dimensiones para uso en _actualizarIconoEscudo/Ulti
-        this._iconoAnchoCalc = iconoAncho;
-        this._iconoAltoCalc = iconoAlto;
+            // Icono central (anchor 0.5 = centrado) (zIndex más alto - adelante)
+            if (icono.grupo.icono) {
+                icono.grupo.icono.x = xActual + icono.ancho / 2;
+                icono.grupo.icono.y = yTop + altoMax / 2;
+                icono.grupo.icono.zIndex = 2;
+            }
+
+            xActual += icono.ancho + separacion;
+        }
     }
 
     // ========================================================================
@@ -879,12 +872,10 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco con dimensiones calculadas
-        const w = this._iconoAnchoCalc || (this.app.screen.width * 0.8 / 6);
-        const h = this._iconoAltoCalc || w * 0.8;
+        // Actualizar marco
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(5, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, w, h);
+        this.escudo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -916,12 +907,10 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco con color dinámico y dimensiones calculadas
-        const w = this._iconoAnchoCalc || (this.app.screen.width * 0.8 / 6);
-        const h = this._iconoAltoCalc || w * 0.8;
+        // Actualizar marco con color dinámico
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(5, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, w, h);
+        this.ulti.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
     }
 
     _actualizarContadorDevorador() {
