@@ -50,7 +50,7 @@ export class PixiHUD {
 
         // 2-7. Marcos e iconos de habilidades
         this.cohetes = { marco: null, fondo: null, icono: null };
-        this.tiempo = { marco: null, fondo: null, icono: null };
+        this.tiempo = { marco: null, fondo: null, icono: null, sprites: [] };
         this.escudo = { marco: null, fondo: null, icono: null, sprites: [] };
         this.ulti = { marco: null, fondo: null, icono: null, sprites: [] };
         this.propul = { marco: null, fondo: null, icono: null };
@@ -166,7 +166,7 @@ export class PixiHUD {
         // Resetear referencias
         this.oleadaText = null;
         this.cohetes = { marco: null, fondo: null, icono: null };
-        this.tiempo = { marco: null, fondo: null, icono: null };
+        this.tiempo = { marco: null, fondo: null, icono: null, sprites: [] };
         this.escudo = { marco: null, fondo: null, icono: null, sprites: [] };
         this.ulti = { marco: null, fondo: null, icono: null, sprites: [] };
         this.propul = { marco: null, fondo: null, icono: null };
