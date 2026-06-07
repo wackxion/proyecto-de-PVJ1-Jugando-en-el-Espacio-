@@ -578,7 +578,7 @@ export class PixiHUD {
             dropShadowDistance: 2,
             dropShadowBlur: 4
         });
-        this.contadorDevoradorText.x = (70.5 / 100) * this.app.screen.width + 10;
+        this.contadorDevoradorText.x = (70.5 / 100) * this.app.screen.width + 20;
         this.contadorDevoradorText.y = this.app.screen.height - this._v(3.2) - this.contadorDevoradorText.height;
         this.container.addChild(this.contadorDevoradorText);
     }
