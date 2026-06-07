@@ -657,85 +657,74 @@ export class PixiHUD {
      * @private
      */
     _posicionarIconosEnFila() {
-        // Definición de cada icono: grupo PixiJS, ancho total (marco), fondo offset
-        const iconos = [
-            {
-                grupo: this.tiempo,
-                ancho: this._v(9.9) + 10,  // fondo + border
-                alto: this._v(7.9) + 10,
-                borde: 5,
-            },
-            {
-                grupo: this.cohetes,
-                ancho: this._v(9.9) + 8,
-                alto: this._v(7.9) + 8,
-                borde: 4,
-            },
-            {
-                grupo: this.escudo,
-                ancho: this._v(9.9) + 10,
-                alto: this._v(7.9) + 10,
-                borde: 5,
-            },
-            {
-                grupo: this.ulti,
-                ancho: this._v(9.9) + 10, // Fondo + 2*borde (5px)
-                alto: this._v(7.9) + 10,
-                borde: 5,
-            },
-            {
-                grupo: this.propul,
-                ancho: this._v(9.7) + 8,
-                alto: this._v(7.9) + 8,
-                borde: 4,
-            },
-            {
-                grupo: this.deborador,
-                ancho: this._v(9.9) + 8,
-                alto: this._v(7.9) + 8,
-                borde: 4,
-            },
+        // =============================================
+        // Posiciones exactas de los 6 slots en la imagen UX
+        // Medidos de uxExperimental2.png (1512x198):
+        //   Slot 1 (Tiempo):     x=436-533   (28.8%-35.3%)
+        //   Slot 2 (Cohetes):    x=554-652   (36.6%-43.1%)
+        //   Slot 3 (Escudo):     x=672-770   (44.4%-50.9%)
+        //   Slot 4 (Ulti):       x=792-886   (52.4%-58.6%)
+        //   Slot 5 (Propul):     x=906-997   (59.9%-65.9%)
+        //   Slot 6 (Devorador):  x=1017-1112 (67.3%-73.6%)
+        //   Slot vertical:       y≈1%-97% de la imagen
+        // =============================================
+        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
+        const uxAlto = this.app.screen.height * 0.2;
+        const uxX = (this.app.screen.width - uxAncho) / 2; // Borde izquierdo de la imagen
+        const uxY = this.app.screen.height - uxAlto;       // Borde superior de la imagen
+
+        // Posiciones de cada slot como % del ancho de la imagen UX
+        const slotDefs = [
+            { grupo: this.tiempo,    pctLeft: 0.288, pctRight: 0.353 },
+            { grupo: this.cohetes,   pctLeft: 0.366, pctRight: 0.431 },
+            { grupo: this.escudo,    pctLeft: 0.444, pctRight: 0.509 },
+            { grupo: this.ulti,      pctLeft: 0.524, pctRight: 0.586 },
+            { grupo: this.propul,    pctLeft: 0.599, pctRight: 0.659 },
+            { grupo: this.deborador, pctLeft: 0.673, pctRight: 0.736 },
         ];
 
-        // Filtrar los que no tienen marco (no se crearon correctamente)
-        const visibles = iconos.filter(i => i.grupo && i.grupo.marco);
-        if (visibles.length === 0) return;
+        // Slot vertical: de 3% a 97% del alto de la imagen
+        const slotTopPct = 0.03;
+        const slotBotPct = 0.97;
 
-        const separacion = this._v(0.8); // Separación entre iconos
-        const totalAncho = visibles.reduce((sum, i) => sum + i.ancho, 0)
-                         + separacion * (visibles.length - 1);
-        const xInicio = (this.app.screen.width - totalAncho) / 2;
-        const bottom = this._v(2.3);
-        const altoMax = Math.max(...visibles.map(i => i.alto));
-        const yTop = this.app.screen.height - bottom - altoMax;
+        for (const def of slotDefs) {
+            const g = def.grupo;
+            if (!g || !g.marco) continue;
 
-        let xActual = xInicio;
-        for (const icono of visibles) {
-            // Centrar verticalmente si el icono es más bajo que el máximo
-            const yOff = (altoMax - icono.alto) / 2;
+            // Calcular posición y tamaño del slot en píxeles
+            const slotX = uxX + uxAncho * def.pctLeft;
+            const slotW = uxAncho * (def.pctRight - def.pctLeft);
+            const slotY = uxY + uxAlto * slotTopPct;
+            const slotH = uxAlto * (slotBotPct - slotTopPct);
 
-            // Marco exterior (zIndex más bajo - atrás)
-            if (icono.grupo.marco) {
-                icono.grupo.marco.x = xActual;
-                icono.grupo.marco.y = yTop + yOff;
-                icono.grupo.marco.zIndex = 0;
+            // Redibujar marco al tamaño del slot
+            g.marco.clear();
+            g.marco.lineStyle(3, 0x0044CC, 1);
+            g.marco.drawRect(0, 0, slotW, slotH);
+            g.marco.x = slotX;
+            g.marco.y = slotY;
+            g.marco.zIndex = 0;
+
+            // Fondo blanco semi-transparente dentro del slot
+            const borde = 3;
+            g.fondo.clear();
+            g.fondo.beginFill(0xFFFFFF, 0.15);
+            g.fondo.drawRect(0, 0, slotW - borde * 2, slotH - borde * 2);
+            g.fondo.endFill();
+            g.fondo.x = slotX + borde;
+            g.fondo.y = slotY + borde;
+            g.fondo.zIndex = 1;
+
+            // Icono centrado en el slot
+            if (g.icono) {
+                const iconMaxW = slotW * 0.75;
+                const iconMaxH = slotH * 0.75;
+                g.icono.width = iconMaxW;
+                g.icono.height = iconMaxH;
+                g.icono.x = slotX + slotW / 2;
+                g.icono.y = slotY + slotH / 2;
+                g.icono.zIndex = 2;
             }
-
-            // Fondo blanco (zIndex medio - en medio)
-            if (icono.grupo.fondo) {
-                icono.grupo.fondo.x = xActual + icono.borde;
-                icono.grupo.fondo.y = yTop + yOff + icono.borde;
-                icono.grupo.fondo.zIndex = 1;
-            }
-
-            // Icono central (anchor 0.5 = centrado) (zIndex más alto - adelante)
-            if (icono.grupo.icono) {
-                icono.grupo.icono.x = xActual + icono.ancho / 2;
-                icono.grupo.icono.y = yTop + altoMax / 2;
-                icono.grupo.icono.zIndex = 2;
-            }
-
-            xActual += icono.ancho + separacion;
         }
     }
 
@@ -872,10 +861,14 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco
+        // Actualizar marco al tamaño del slot
+        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
+        const uxAlto = this.app.screen.height * 0.2;
+        const slotW = uxAncho * (0.509 - 0.444);
+        const slotH = uxAlto * 0.94;
         this.escudo.marco.clear();
-        this.escudo.marco.lineStyle(5, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+        this.escudo.marco.lineStyle(3, colorMarco, 1);
+        this.escudo.marco.drawRect(0, 0, slotW, slotH);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -907,10 +900,14 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco con color dinámico
+        // Actualizar marco al tamaño del slot
+        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
+        const uxAlto = this.app.screen.height * 0.2;
+        const slotW = uxAncho * (0.586 - 0.524);
+        const slotH = uxAlto * 0.94;
         this.ulti.marco.clear();
-        this.ulti.marco.lineStyle(5, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+        this.ulti.marco.lineStyle(3, colorMarco, 1);
+        this.ulti.marco.drawRect(0, 0, slotW, slotH);
     }
 
     _actualizarContadorDevorador() {
