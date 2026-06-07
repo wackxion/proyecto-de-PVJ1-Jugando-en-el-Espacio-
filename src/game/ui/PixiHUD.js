@@ -419,11 +419,10 @@ export class PixiHUD {
         const xIzquierda = xCentro + this._v(10); // translateX(100%) = 1 * 10vmin
         const yBottom = this.app.screen.height - bottom - altoMarco;
 
-        // Marco (sin borde, es solo un contenedor)
+        // Marco exterior (con borde visible como los demás iconos)
         this.ulti.marco = new PIXI.Graphics();
-        this.ulti.marco.beginFill(0x000000, 0); // Transparente
+        this.ulti.marco.lineStyle(5, 0x0044CC, 1);
         this.ulti.marco.drawRect(0, 0, anchoMarco, altoMarco);
-        this.ulti.marco.endFill();
         this.ulti.marco.x = xIzquierda;
         this.ulti.marco.y = yBottom;
         this.container.addChild(this.ulti.marco);
@@ -433,15 +432,15 @@ export class PixiHUD {
         this.ulti.fondo.beginFill(0xFFFFFF);
         this.ulti.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.ulti.fondo.endFill();
-        this.ulti.fondo.x = xIzquierda + (anchoMarco - anchoFondo) / 2;
-        this.ulti.fondo.y = yBottom + (altoMarco - altoFondo) / 2;
+        this.ulti.fondo.x = xIzquierda + 5; // 5 = borde del marco
+        this.ulti.fondo.y = yBottom + 5; // 5 = borde del marco
         this.container.addChild(this.ulti.fondo);
 
         // Icono
         this.ulti.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.ulti.icono.anchor.set(0.5);
         this.ulti.icono.x = xIzquierda + anchoMarco / 2;
-        this.ulti.icono.y = yBottom + altoMarco - altoIcono / 2 - this._v(1);
+        this.ulti.icono.y = yBottom + altoMarco / 2;
         this.ulti.icono.width = anchoIcono;
         this.ulti.icono.height = altoIcono;
         this.container.addChild(this.ulti.icono);
@@ -688,9 +687,9 @@ export class PixiHUD {
             },
             {
                 grupo: this.ulti,
-                ancho: this._v(9.9),
-                alto: this._v(7.9),
-                borde: 0,
+                ancho: this._v(9.9) + 10, // Fondo + 2*borde (5px)
+                alto: this._v(7.9) + 10,
+                borde: 5,
             },
             {
                 grupo: this.propul,
@@ -723,22 +722,25 @@ export class PixiHUD {
             // Centrar verticalmente si el icono es más bajo que el máximo
             const yOff = (altoMax - icono.alto) / 2;
 
-            // Marco exterior
+            // Marco exterior (zIndex más bajo - atrás)
             if (icono.grupo.marco) {
                 icono.grupo.marco.x = xActual;
                 icono.grupo.marco.y = yTop + yOff;
+                icono.grupo.marco.zIndex = 0;
             }
 
-            // Fondo blanco (dentro del marco, con offset del borde)
+            // Fondo blanco (zIndex medio - en medio)
             if (icono.grupo.fondo) {
                 icono.grupo.fondo.x = xActual + icono.borde;
                 icono.grupo.fondo.y = yTop + yOff + icono.borde;
+                icono.grupo.fondo.zIndex = 1;
             }
 
-            // Icono central (anchor 0.5 = centrado)
+            // Icono central (anchor 0.5 = centrado) (zIndex más alto - adelante)
             if (icono.grupo.icono) {
                 icono.grupo.icono.x = xActual + icono.ancho / 2;
                 icono.grupo.icono.y = yTop + altoMax / 2;
+                icono.grupo.icono.zIndex = 2;
             }
 
             xActual += icono.ancho + separacion;
@@ -895,12 +897,15 @@ export class PixiHUD {
 
         let indiceIcono;
         let alpha = 1.0;
+        let colorMarco = 0x0044CC;
 
         if (jugador.ultiListo) {
             const tiempo = Date.now();
             indiceIcono = Math.floor(tiempo / 200) % 3 + 3;
             // Efecto de parpadeo cuando está listo
             alpha = 0.7 + Math.sin(tiempo / 200) * 0.3;
+            // Marco dorado pulsante cuando listo
+            colorMarco = 0xFFD700;
         } else {
             indiceIcono = Math.floor(porcentajeCarga / 20) + 1;
             if (indiceIcono < 1) indiceIcono = 1;
@@ -909,6 +914,11 @@ export class PixiHUD {
 
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
+
+        // Actualizar marco con color dinámico
+        this.ulti.marco.clear();
+        this.ulti.marco.lineStyle(5, colorMarco, 1);
+        this.ulti.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
     }
 
     _actualizarContadorDevorador() {
