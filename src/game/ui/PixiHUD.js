@@ -642,13 +642,13 @@ export class PixiHUD {
         this.scoreBg.lineStyle(3, 0x0044CC, 1);
         this.scoreBg.drawRect(0, 0, 100, 26);
         this.scoreBg.endFill();
-        this.scoreBg.x = xCentro - 50;
+        this.scoreBg.x = xCentro - 52;
         this.scoreBg.y = yBottom - 26;
         this.scoreBg.zIndex = -2;
         this.container.addChild(this.scoreBg);
 
         this.puntuacionText.anchor.set(0.5, 1);
-        this.puntuacionText.x = xCentro;
+        this.puntuacionText.x = xCentro - 2;
         this.puntuacionText.y = yBottom;
         this.container.addChild(this.puntuacionText);
     }
