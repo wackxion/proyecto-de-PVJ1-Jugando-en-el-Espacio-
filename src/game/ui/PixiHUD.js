@@ -73,11 +73,29 @@ export class PixiHUD {
         this._escudosAnterior = 100;
         this.inicializado = false;
 
-        // Calcular vmin (1vmin = 1% del lado menor de la pantalla)
-        this._vmin = Math.min(this.app.screen.width, this.app.screen.height) / 100;
+        // DIFERIR inicialización al próximo frame para asegurar que el canvas
+        // tenga dimensiones válidas. Si screen.width/height son 0 al momento
+        // de crear el HUD (típico durante la inicialización), todos los
+        // elementos quedarían con tamaño 0 y serían invisibles.
+        requestAnimationFrame(() => {
+            this._calcularVmin();
+            this._inicializar();
+        });
+    }
 
-        // Llamar al método de inicialización principal
-        this._inicializar();
+    /**
+     * Calcula vmin basado en el tamaño actual de la pantalla
+     * @private
+     */
+    _calcularVmin() {
+        let w = this.app.screen.width;
+        let h = this.app.screen.height;
+        // Si la pantalla aún no tiene tamaño, usar el viewport como fallback
+        if (!w || !h) {
+            w = window.innerWidth || 1920;
+            h = window.innerHeight || 1080;
+        }
+        this._vmin = Math.min(w, h) / 100;
     }
 
     /**
@@ -92,22 +110,71 @@ export class PixiHUD {
 
     /**
      * Inicializa todos los elementos del HUD en el mismo orden que el HTML
+     * Cada llamada está envuelta en try-catch para que un fallo en un
+     * elemento no impida la creación de los demás.
      * @private
      */
     _inicializar() {
-        this._crearPanelOleada();
-        this._crearImagenUX();
-        this._crearCohetes();
-        this._crearTiempoFuera();
-        this._crearEscudo();
-        this._crearUlti();
-        this._crearPropulsor();
-        this._crearDevorador();
-        this._crearContadorDevorador();
-        this._crearBarraAceleracion();
-        this._crearPanelPuntuacion();
+        const creadores = [
+            ['_crearPanelOleada', () => this._crearPanelOleada()],
+            ['_crearImagenUX', () => this._crearImagenUX()],
+            ['_crearCohetes', () => this._crearCohetes()],
+            ['_crearTiempoFuera', () => this._crearTiempoFuera()],
+            ['_crearEscudo', () => this._crearEscudo()],
+            ['_crearUlti', () => this._crearUlti()],
+            ['_crearPropulsor', () => this._crearPropulsor()],
+            ['_crearDevorador', () => this._crearDevorador()],
+            ['_crearContadorDevorador', () => this._crearContadorDevorador()],
+            ['_crearBarraAceleracion', () => this._crearBarraAceleracion()],
+            ['_crearPanelPuntuacion', () => this._crearPanelPuntuacion()],
+        ];
+
+        for (const [nombre, fn] of creadores) {
+            try {
+                fn();
+            } catch (e) {
+                console.error(`[PixiHUD] Error creando ${nombre}:`, e);
+            }
+        }
 
         this.inicializado = true;
+    }
+
+    /**
+     * Re-inicializa el HUD destruyendo los elementos actuales y creándolos de nuevo.
+     * Se usa después de un restart del juego o cuando cambia el tamaño de pantalla.
+     * @public
+     */
+    reinicializar() {
+        // Destruir elementos actuales si existen
+        if (this.container) {
+            try {
+                this.container.removeChildren();
+            } catch (e) {
+                // Si los hijos ya fueron destruidos, continuar
+            }
+        }
+
+        // Resetear referencias
+        this.oleadaText = null;
+        this.cohetes = { marco: null, fondo: null, icono: null };
+        this.tiempo = { marco: null, fondo: null, icono: null };
+        this.escudo = { marco: null, fondo: null, icono: null, sprites: [] };
+        this.ulti = { marco: null, fondo: null, icono: null, sprites: [] };
+        this.propul = { marco: null, fondo: null, icono: null };
+        this.deborador = { marco: null, fondo: null, icono: null };
+        this.contadorDevoradorText = null;
+        this.uxImage = null;
+        this.barraAceleracionBg = null;
+        this.barraAceleracionFill = null;
+        this.puntuacionText = null;
+        this.scorePanel = null;
+        this._escudosAnterior = 100;
+        this.inicializado = false;
+
+        // Re-calcular vmin y crear elementos
+        this._calcularVmin();
+        this._inicializar();
     }
 
     // ========================================================================
@@ -574,13 +641,34 @@ export class PixiHUD {
     // UTILIDADES: CARGA DE TEXTURAS
     // ========================================================================
 
+    /**
+     * Crea una textura placeholder VISIBLE (gris oscuro) que se puede ver
+     * sobre el fondo blanco del HUD. Esto evita el problema de iconos
+     * invisibles cuando PIXI.Texture.WHITE se usa sobre fondo blanco.
+     * @private
+     */
+    _crearTexturaPlaceholder() {
+        const g = new PIXI.Graphics();
+        g.beginFill(0x3344AA); // Azul oscuro visible sobre fondo blanco
+        g.lineStyle(2, 0x0044CC, 1);
+        g.drawRect(0, 0, 32, 32);
+        g.endFill();
+        return this.app.renderer.generateTexture(g);
+    }
+
     async _cargarTexturaIcono(nombre, path, sprite, ancho, alto) {
         try {
             const tex = await PIXI.Assets.load(path);
-            sprite.texture = tex;
-            if (alto) sprite.height = alto;
+            if (tex && sprite) {
+                sprite.texture = tex;
+                if (alto) sprite.height = alto;
+            }
         } catch (e) {
-            // Fallback a textura blanca
+            // Si falla la carga, usar textura placeholder visible
+            if (sprite) {
+                sprite.texture = this._crearTexturaPlaceholder();
+                if (alto) sprite.height = alto;
+            }
         }
     }
 
@@ -590,13 +678,27 @@ export class PixiHUD {
 
     actualizar() {
         if (!this.inicializado) return;
+        // Si el contenedor no está en el stage, no hacer nada
+        if (!this.container || !this.container.parent) return;
 
-        this._actualizarPanelOleada();
-        this._actualizarPuntuacion();
-        this._actualizarBarraAceleracion();
-        this._actualizarIconoEscudo();
-        this._actualizarIconoUlti();
-        this._actualizarContadorDevorador();
+        // Cada actualizador protegido con try-catch para que un error
+        // individual no detenga el game loop (congelaría el juego)
+        const actualizadores = [
+            () => this._actualizarPanelOleada(),
+            () => this._actualizarPuntuacion(),
+            () => this._actualizarBarraAceleracion(),
+            () => this._actualizarIconoEscudo(),
+            () => this._actualizarIconoUlti(),
+            () => this._actualizarContadorDevorador(),
+        ];
+
+        for (const fn of actualizadores) {
+            try {
+                fn();
+            } catch (e) {
+                // Silenciar errores individuales para no detener el game loop
+            }
+        }
     }
 
     _actualizarPanelOleada() {

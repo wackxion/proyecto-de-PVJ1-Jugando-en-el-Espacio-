@@ -2613,114 +2613,123 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     async _gameLoop(ticker) {
         // Si el juego no est├í corriendo, salir
         if (!this.ejecutando) return;
-        
-        // Calcular delta time (tiempo desde el ├║ltimo frame en segundos)
-        // ticker.deltaTime viene en frames, convertir a segundos dividiendo por 60
-        const delta = ticker.deltaTime / 60;
-        
-// === CONTROL DE PAUSA (Tecla P) ===
-        // Si se presiona P, alternar pausa (solo si no est├í en Game Over)
-        if (this.gestorEntrada.debePausar() && !this.enGameOver) {
-            this.pausado = !this.pausado;
-            // Limpiar la tecla para que no se togglee constantemente
-            this.gestorEntrada.reiniciar();
-            
-            if (this.pausado && !this.mostrandoVentanaMejoras) {
-                crearVentanaMejoras(this);
-            } else if (!this.pausado && this.mostrandoVentanaMejoras) {
-                limpiarVentanaMejoras(this);
-            }
-        }
-        
-// Si el juego est├í pausado, actualizar contador y salir del loop
-        if (this.pausado) {
-            // Actualizar contador de part├¡culas aunque est├® pausado
-            if (this.elementoOleada) {
-                const cantidadPBOids = this.particulasBoid ? this.particulasBoid.length : 0;
-                const faltantes = this.objetivoOleada - this.asteroidesDestruidos;
-                this.elementoOleada.textContent = `Oleada: ${this.contadorOleadas} | Faltan: ${faltantes} | Ast: ${this.intervaloSpawn.toFixed(1)}s | Naves: ${this.intervaloNaveEnemiga.toFixed(1)}s | PBOids: ${cantidadPBOids}`;
-            }
-            // No mostrar Top 5 con T - solo funciona desde el menu de pausa
-            return;
-        }
-        
-// Si el juego est├í pausado, salir del loop
-        if (this.pausado) {
-            // No mostrar Top 5 con T - solo funciona desde el menu principal
-            return;
-        }
-        
-        // === ACTUALIZAR JUGADOR ===
-        if (this.jugador && this.jugador.active) {
-            this.jugador.update(delta, this.gestorEntrada);
-        }
-        
-// === DEVORADOR DE PART├ìCULAS BOID (Tecla E) - usando m├│dulo ===
-        const devoradorActivadoAhora = actualizarHabilidadDevorador(this, delta);
-        
-        // === HABILIDAD COHETES (Tecla Q) - usando m├│dulo ===
-        actualizarHabilidadCohetes(this, delta);
-        
-        // === HABILIDAD PROPULSOR (Tecla R) - usando m├│dulo ===
-        actualizarHabilidadPropulsor(this, delta);
-        
-        // === HABILIDAD TIEMPO FUERA (Pasiva) - usando m├│dulo ===
-        actualizarTiempoFuera(this, delta);
-        
-// === ACTUALIZAR PART├ìCULAS BOID - usando m├│dulo ===
-        actualizarSistemaBoid(this, delta);
-        
-// === ACTUALIZAR PROYECTILES - usando m├│dulo ===
-        actualizarProyectilesJugador(this, delta);
-        actualizarProyectilesEnemigos(this, delta);
-        
-        // === ACTUALIZAR ENEMIGOS (usando m├│dulo) ===
-        actualizarEnemigos(this, delta);
-        
-        // === ACTUALIZAR NAVES ENEMIGAS - usando m├│dulo ===
-        actualizarNavesEnemigasCompleto(this, delta);
-        
-        // Eliminar enemigos que est├ín muy lejos de la pantalla (fuera de vista)
-        limpiarEnemigosLejanos(this);
-        
-        // === ACTUALIZAR EFECTO ULTI - usando m├│dulo ===
-        actualizarUlti(this, delta);
-        
-        // === ACTUALIZAR EFECTOS - usando m├│dulo ===
-        actualizarEfectosImpacto(this, delta);
-        
-        // === PROCESAR COLISIONES - usando m├│dulo ===
-        procesarColisionesProyectiles(this);
-        procesarColisionesJugador(this);
-        procesarColisionesEnemigos(this);
-        
-        // === GENERAR NUEVOS ENEMIGOS Y NAVES - usando m├│dulo ===
-        actualizarGeneracion(this, delta);
-        
-        // === ACTUALIZAR UI ===
-        this._actualizarUI();
 
-        // === ACTUALIZAR PIXI HUD (nuevo HUD en PixiJS) ===
-        // Se actualiza cada frame para reflejar el estado del juego
-        if (this.pixiHUD) {
-            this.pixiHUD.actualizar();
-        }
-        
-        // === ACTUALIZAR FONDO INFINITO ===
-        if (this.contenedorFondo && this.mosaicosFondo) {
-            // Mover el fondo lentamente para dar efecto de movimiento
-            // Usar velocidad basada en delta (60fps base)
-            const velocidadFondo = 0.3 * delta;
-            
-            // Mover cada mosaico
-            for (const mosaico of this.mosaicosFondo) {
-                mosaico.x -= velocidadFondo;
-                
-                // Si el mosaico sale de la pantalla por la izquierda, moverlo a la derecha
-                if (mosaico.x < -this._anchoMosaico) {
-                    mosaico.x += this._anchoMosaico * this._columnasMosaico;
+        // Envolver todo el cuerpo del game loop en try-catch para que
+        // cualquier error no controlado NO detenga el ticker de PixiJS.
+        // Sin esto, un error en cualquier subsistema congelaría la pantalla.
+        try {
+            // Calcular delta time (tiempo desde el ├║ltimo frame en segundos)
+            // ticker.deltaTime viene en frames, convertir a segundos dividiendo por 60
+            const delta = ticker.deltaTime / 60;
+
+    // === CONTROL DE PAUSA (Tecla P) ===
+            // Si se presiona P, alternar pausa (solo si no est├í en Game Over)
+            if (this.gestorEntrada.debePausar() && !this.enGameOver) {
+                this.pausado = !this.pausado;
+                // Limpiar la tecla para que no se togglee constantemente
+                this.gestorEntrada.reiniciar();
+
+                if (this.pausado && !this.mostrandoVentanaMejoras) {
+                    crearVentanaMejoras(this);
+                } else if (!this.pausado && this.mostrandoVentanaMejoras) {
+                    limpiarVentanaMejoras(this);
                 }
             }
+
+    // Si el juego est├í pausado, actualizar contador y salir del loop
+            if (this.pausado) {
+                // Actualizar contador de part├¡culas aunque est├® pausado
+                if (this.elementoOleada) {
+                    const cantidadPBOids = this.particulasBoid ? this.particulasBoid.length : 0;
+                    const faltantes = this.objetivoOleada - this.asteroidesDestruidos;
+                    this.elementoOleada.textContent = `Oleada: ${this.contadorOleadas} | Faltan: ${faltantes} | Ast: ${this.intervaloSpawn.toFixed(1)}s | Naves: ${this.intervaloNaveEnemiga.toFixed(1)}s | PBOids: ${cantidadPBOids}`;
+                }
+                // No mostrar Top 5 con T - solo funciona desde el menu de pausa
+                return;
+            }
+
+    // Si el juego est├í pausado, salir del loop
+            if (this.pausado) {
+                // No mostrar Top 5 con T - solo funciona desde el menu principal
+                return;
+            }
+
+            // === ACTUALIZAR JUGADOR ===
+            if (this.jugador && this.jugador.active) {
+                this.jugador.update(delta, this.gestorEntrada);
+            }
+
+    // === DEVORADOR DE PART├ìCULAS BOID (Tecla E) - usando m├│dulo ===
+            const devoradorActivadoAhora = actualizarHabilidadDevorador(this, delta);
+
+            // === HABILIDAD COHETES (Tecla Q) - usando m├│dulo ===
+            actualizarHabilidadCohetes(this, delta);
+
+            // === HABILIDAD PROPULSOR (Tecla R) - usando m├│dulo ===
+            actualizarHabilidadPropulsor(this, delta);
+
+            // === HABILIDAD TIEMPO FUERA (Pasiva) - usando m├│dulo ===
+            actualizarTiempoFuera(this, delta);
+
+    // === ACTUALIZAR PART├ìCULAS BOID - usando m├│dulo ===
+            actualizarSistemaBoid(this, delta);
+
+    // === ACTUALIZAR PROYECTILES - usando m├│dulo ===
+            actualizarProyectilesJugador(this, delta);
+            actualizarProyectilesEnemigos(this, delta);
+
+            // === ACTUALIZAR ENEMIGOS (usando m├│dulo) ===
+            actualizarEnemigos(this, delta);
+
+            // === ACTUALIZAR NAVES ENEMIGAS - usando m├│dulo ===
+            actualizarNavesEnemigasCompleto(this, delta);
+
+            // Eliminar enemigos que est├ín muy lejos de la pantalla (fuera de vista)
+            limpiarEnemigosLejanos(this);
+
+            // === ACTUALIZAR EFECTO ULTI - usando m├│dulo ===
+            actualizarUlti(this, delta);
+
+            // === ACTUALIZAR EFECTOS - usando m├│dulo ===
+            actualizarEfectosImpacto(this, delta);
+
+            // === PROCESAR COLISIONES - usando m├│dulo ===
+            procesarColisionesProyectiles(this);
+            procesarColisionesJugador(this);
+            procesarColisionesEnemigos(this);
+
+            // === GENERAR NUEVOS ENEMIGOS Y NAVES - usando m├│dulo ===
+            actualizarGeneracion(this, delta);
+
+            // === ACTUALIZAR UI ===
+            this._actualizarUI();
+
+            // === ACTUALIZAR PIXI HUD (nuevo HUD en PixiJS) ===
+            // Se actualiza cada frame para reflejar el estado del juego
+            if (this.pixiHUD) {
+                this.pixiHUD.actualizar();
+            }
+
+            // === ACTUALIZAR FONDO INFINITO ===
+            if (this.contenedorFondo && this.mosaicosFondo) {
+                // Mover el fondo lentamente para dar efecto de movimiento
+                // Usar velocidad basada en delta (60fps base)
+                const velocidadFondo = 0.3 * delta;
+
+                // Mover cada mosaico
+                for (const mosaico of this.mosaicosFondo) {
+                    mosaico.x -= velocidadFondo;
+
+                    // Si el mosaico sale de la pantalla por la izquierda, moverlo a la derecha
+                    if (mosaico.x < -this._anchoMosaico) {
+                        mosaico.x += this._anchoMosaico * this._columnasMosaico;
+                    }
+                }
+            }
+        } catch (error) {
+            // Cualquier error no controlado en el game loop se loguea
+            // pero NO detiene el ticker de PixiJS.
+            console.error('[Game] Error en game loop:', error);
         }
     }
     
