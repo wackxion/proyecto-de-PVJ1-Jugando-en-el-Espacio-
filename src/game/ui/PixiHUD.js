@@ -683,7 +683,7 @@ export class PixiHUD {
 
             // Centro del slot en píxeles de pantalla
             const cx = uxX + uxAncho * slotCentros[i];
-            const cy = uxY + uxAlto * 0.50; // Verticalmente centrado en la imagen
+            const cy = uxY + uxAlto * 0.50 + 20; // +20px para bajar
 
             // Posición de la esquina superior-izquierda
             const x = cx - medio;
