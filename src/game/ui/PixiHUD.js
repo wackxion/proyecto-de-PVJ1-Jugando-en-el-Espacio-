@@ -669,7 +669,7 @@ export class PixiHUD {
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const tamano = 100; // 100x100 px fijo
+        const tamano = 90; // 90x90 px fijo
         const medio = tamano / 2;
 
         const grupos = [
@@ -851,10 +851,10 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco (100x100)
+        // Actualizar marco (90x90)
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, 100, 100);
+        this.escudo.marco.drawRect(0, 0, 90, 90);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -886,10 +886,10 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco (100x100)
+        // Actualizar marco (90x90)
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, 100, 100);
+        this.ulti.marco.drawRect(0, 0, 90, 90);
     }
 
     _actualizarContadorDevorador() {
