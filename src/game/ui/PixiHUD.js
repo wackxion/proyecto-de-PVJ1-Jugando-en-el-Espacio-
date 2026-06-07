@@ -329,7 +329,42 @@ export class PixiHUD {
         // this.tiempo.icono.y = yBottom + altoTotal / 2;
         this.tiempo.icono.width = anchoIcono;
         this.container.addChild(this.tiempo.icono);
-        this._cargarTexturaIcono('tiempo', 'assets/tiempo fuera.png', this.tiempo.icono, anchoIcono, null);
+        // Cargar textura original y guardar referencia para restaurar cuando no esté activo
+        this._cargarTexturaTiempoOriginal(anchoIcono);
+
+        // Cargar sprites del reloj para animación (relog1-6, frame 7 = relog6 rotado)
+        this._cargarSpritesTiempo();
+    }
+
+    /**
+     * Carga la textura original de tiempo fuera.png y la guarda como referencia estática.
+     * @param {number} ancho - Ancho del icono
+     */
+    async _cargarTexturaTiempoOriginal(ancho) {
+        try {
+            const tex = await PIXI.Assets.load('assets/tiempo fuera.png');
+            if (tex && this.tiempo.icono) {
+                this.tiempo.icono.texture = tex;
+                this._texturaIconoTiempo = tex;
+            }
+        } catch (e) {
+            this._texturaIconoTiempo = PIXI.Texture.WHITE;
+        }
+    }
+
+    /**
+     * Carga los 6 sprites del reloj para la animación de Tiempo Fuera.
+     * Frame 7 se genera aplicando rotación π al sprite relog6.
+     */
+    async _cargarSpritesTiempo() {
+        for (let i = 1; i <= 6; i++) {
+            try {
+                const tex = await PIXI.Assets.load(`assets/relog${i}.png`);
+                this.tiempo.sprites.push(tex);
+            } catch (e) {
+                this.tiempo.sprites.push(PIXI.Texture.WHITE);
+            }
+        }
     }
 
     // ========================================================================
@@ -775,6 +810,7 @@ export class PixiHUD {
             () => this._actualizarBarraAceleracion(),
             () => this._actualizarIconoEscudo(),
             () => this._actualizarIconoUlti(),
+            () => this._actualizarIconoTiempo(),
             () => this._actualizarContadorDevorador(),
         ];
 
@@ -895,6 +931,108 @@ export class PixiHUD {
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
         this.ulti.marco.drawRect(0, 0, 85, 73);
+    }
+
+    /**
+     * Actualiza el icono de Tiempo Fuera (reloj animado durante sobrecalentamiento).
+     * Cuando el jugador está sobrecalentado, se activa la pasiva:
+     * - Anima frames del reloj (relog1-6, frame 7 = relog6 rotado π)
+     * - Parpadea el marco entre blanco y gris
+     * Al terminar: regenera escudos y resetea.
+     *
+     * Referencia: GameSkills.js actualizarTiempoFuera()
+     */
+    _actualizarIconoTiempo() {
+        if (!this.tiempo.icono || !this.game || !this.game.jugador) return;
+
+        const jugador = this.game.jugador;
+
+        // Activar cuando entra en sobrecalentamiento (solo una vez)
+        if (jugador.sobrecalentado && !this.game.tiempoFueroActivo) {
+            this.game.tiempoFueroActivo = true;
+            this.game.timerTiempoFuera = 0;
+        }
+
+        // Verificar duración de la habilidad
+        if (this.game.tiempoFueroActivo) {
+            this.game.timerTiempoFuera += 1 / 60; // delta ~1 frame a 60fps
+
+            if (this.game.timerTiempoFuera >= this.game.duracionTiempoFuera) {
+                // Terminó: regenerar escudos
+                const regeneracionBase = 10;
+                const regeneracionBonus = this.game.regeneracionTiempoFueraBonus || 0;
+                jugador.agregarEscudos(regeneracionBase + regeneracionBonus);
+
+                // Resetear
+                this.game.tiempoFueroActivo = false;
+                this.game.timerTiempoFuera = 0;
+                this.game.relojFrameActual = 1;
+                this.game.timerAnimacionReloj = 0;
+                return;
+            }
+        }
+
+        // Si está activo y sobrecalentado: animar
+        if (jugador.sobrecalentado && this.game.tiempoFueroActivo && this.tiempo.sprites.length >= 6) {
+            // Avanzar frame del reloj
+            this.game.timerAnimacionReloj += 1 / 60;
+
+            if (this.game.timerAnimacionReloj >= this.game.intervaloAnimacionReloj) {
+                this.game.timerAnimacionReloj = 0;
+                this.game.relojFrameActual++;
+
+                if (this.game.relojFrameActual > 7) {
+                    this.game.relojFrameActual = 1;
+                }
+            }
+
+            // Aplicar textura y rotación
+            if (this.game.relojFrameActual === 7) {
+                // Frame 7: relog6 rotado 360° (π radianes en PixiJS)
+                this.tiempo.icono.texture = this.tiempo.sprites[5]; // relog6
+                this.tiempo.icono.rotation = Math.PI;
+            } else {
+                this.tiempo.icono.texture = this.tiempo.sprites[this.game.relojFrameActual - 1];
+                this.tiempo.icono.rotation = 0;
+            }
+
+            // Parpadeo del marco: blanco / gris
+            const palpito = Math.floor(Date.now() / 300) % 2 === 0;
+            const colorBorde = palpito ? 0xFFFFFF : 0xAAAAAA;
+
+            this.tiempo.marco.clear();
+            this.tiempo.marco.lineStyle(5, colorBorde, 1);
+            this.tiempo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+
+            this.tiempo.fondo.clear();
+            this.tiempo.fondo.beginFill(0xFFFFFF);
+            this.tiempo.fondo.lineStyle(5, colorBorde, 1);
+            this.tiempo.fondo.drawRect(0, 0, this._v(9.9), this._v(7.9));
+            this.tiempo.fondo.endFill();
+        } else {
+            // Estado normal: marco azul, frame inicial
+            if (this.game.tiempoFueroActivo) {
+                this.game.relojFrameActual = 1;
+                this.game.timerAnimacionReloj = 0;
+                this.game.timerTiempoFuera = 0;
+                this.game.tiempoFueroActivo = false;
+            }
+
+            // Restaurar marco azul normal
+            this.tiempo.marco.clear();
+            this.tiempo.marco.lineStyle(5, 0x0044CC, 1);
+            this.tiempo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+
+            this.tiempo.fondo.clear();
+            this.tiempo.fondo.beginFill(0xFFFFFF);
+            this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
+            this.tiempo.fondo.drawRect(0, 0, this._v(9.9), this._v(7.9));
+            this.tiempo.fondo.endFill();
+
+            // Textura estática
+            this.tiempo.icono.texture = this._texturaIconoTiempo || PIXI.Texture.WHITE;
+            this.tiempo.icono.rotation = 0;
+        }
     }
 
     _actualizarContadorDevorador() {
