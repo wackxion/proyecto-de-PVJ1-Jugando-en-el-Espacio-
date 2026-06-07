@@ -588,9 +588,7 @@ export class PixiHUD {
     // ========================================================================
 
     _crearBarraAceleracion() {
-        const anchoMax = 190;
-        const anchoCalc = this.app.screen.width * 0.3;
-        const ancho = Math.min(anchoMax, anchoCalc);
+        const ancho = 120;
         const alto = this._v(2.5);
         const bottom = this._v(11.9);
 
