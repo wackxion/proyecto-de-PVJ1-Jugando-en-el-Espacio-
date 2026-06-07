@@ -245,24 +245,23 @@ export class PixiHUD {
         //           border: 5px solid #0044CC;
         // HTML icono: width: 8vmin; height: auto;
 
-        const tamanoMarco = this._v(10);  // border
+        // const tamanoMarco = this._v(10);  // border -- NO USADO
         const anchoFondo = this._v(9.9);
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(8);
-        const bottom = this._v(2.3);
-        const leftPorcentaje = 48.9;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
-        const altoTotal = altoFondo + 8; // Alto del marco completo
-        const yBottom = this.app.screen.height - bottom - altoTotal; // bottom del CSS = borde inferior del marco
+        // const bottom = this._v(2.3);        // OVERRIDDEN por _posicionarIconosEnFila()
+        // const leftPorcentaje = 48.9;         // OVERRIDDEN
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
+        // const altoTotal = altoFondo + 8; // Alto del marco completo
+        // const yBottom = this.app.screen.height - bottom - altoTotal; // bottom del CSS = borde inferior del marco
 
         // Marco exterior
         this.cohetes.marco = new PIXI.Graphics();
         this.cohetes.marco.lineStyle(4, 0x0044CC, 1);
-        this.cohetes.marco.drawRect(0, 0, anchoFondo + 8, altoTotal);
-        this.cohetes.marco.x = xIzquierda;
-        this.cohetes.marco.y = yBottom;
+        this.cohetes.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
+        // this.cohetes.marco.x = xIzquierda;
+        // this.cohetes.marco.y = yBottom;
         this.container.addChild(this.cohetes.marco);
 
         // Fondo blanco con borde azul
@@ -271,15 +270,15 @@ export class PixiHUD {
         this.cohetes.fondo.lineStyle(5, 0x0044CC, 1);
         this.cohetes.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.cohetes.fondo.endFill();
-        this.cohetes.fondo.x = xIzquierda + 4;
-        this.cohetes.fondo.y = yBottom + 4;
+        // this.cohetes.fondo.x = xIzquierda + 4;
+        // this.cohetes.fondo.y = yBottom + 4;
         this.container.addChild(this.cohetes.fondo);
 
         // Icono
         this.cohetes.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.cohetes.icono.anchor.set(0.5);
-        this.cohetes.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        this.cohetes.icono.y = yBottom + (altoTotal) / 2;
+        // this.cohetes.icono.x = xIzquierda + (anchoFondo + 8) / 2;
+        // this.cohetes.icono.y = yBottom + (altoTotal) / 2;
         this.cohetes.icono.width = anchoIcono;
         this.container.addChild(this.cohetes.icono);
         this._cargarTexturaIcono('cohetes', 'assets/cohetes.png', this.cohetes.icono, anchoIcono, null);
@@ -298,20 +297,19 @@ export class PixiHUD {
         const anchoFondo = this._v(9.9);
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(5);
-        const bottom = this._v(2.3);
-        const leftPorcentaje = 44;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro - this._v(30); // translateX(-300%) = 3 * 10vmin
-        const altoTotal = altoFondo + 10;
-        const yBottom = this.app.screen.height - bottom - altoTotal;
+        // const bottom = this._v(2.3);
+        // const leftPorcentaje = 44;
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro - this._v(30); // translateX(-300%) = 3 * 10vmin
+        // const altoTotal = altoFondo + 10;
+        // const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior
         this.tiempo.marco = new PIXI.Graphics();
         this.tiempo.marco.lineStyle(5, 0x0044CC, 1);
-        this.tiempo.marco.drawRect(0, 0, anchoFondo + 10, altoTotal);
-        this.tiempo.marco.x = xIzquierda;
-        this.tiempo.marco.y = yBottom;
+        this.tiempo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
+        // this.tiempo.marco.x = xIzquierda;
+        // this.tiempo.marco.y = yBottom;
         this.container.addChild(this.tiempo.marco);
 
         // Fondo blanco con borde azul
@@ -320,15 +318,15 @@ export class PixiHUD {
         this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
         this.tiempo.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.tiempo.fondo.endFill();
-        this.tiempo.fondo.x = xIzquierda + 5;
-        this.tiempo.fondo.y = yBottom + 5;
+        // this.tiempo.fondo.x = xIzquierda + 5;
+        // this.tiempo.fondo.y = yBottom + 5;
         this.container.addChild(this.tiempo.fondo);
 
         // Icono
         this.tiempo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.tiempo.icono.anchor.set(0.5);
-        this.tiempo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        this.tiempo.icono.y = yBottom + altoTotal / 2;
+        // this.tiempo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
+        // this.tiempo.icono.y = yBottom + altoTotal / 2;
         this.tiempo.icono.width = anchoIcono;
         this.container.addChild(this.tiempo.icono);
         this._cargarTexturaIcono('tiempo', 'assets/tiempo fuera.png', this.tiempo.icono, anchoIcono, null);
@@ -348,20 +346,19 @@ export class PixiHUD {
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(8);
         const altoIcono = this._v(6);
-        const bottom = this._v(5.1);
-        const leftPorcentaje = 49;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
-        const altoTotal = altoFondo + 10;
-        const yBottom = this.app.screen.height - bottom - altoTotal;
+        // const bottom = this._v(5.1);
+        // const leftPorcentaje = 49;
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
+        // const altoTotal = altoFondo + 10;
+        // const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior
         this.escudo.marco = new PIXI.Graphics();
         this.escudo.marco.lineStyle(5, 0x0044CC, 1);
-        this.escudo.marco.drawRect(0, 0, anchoFondo + 10, altoTotal);
-        this.escudo.marco.x = xIzquierda;
-        this.escudo.marco.y = yBottom;
+        this.escudo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
+        // this.escudo.marco.x = xIzquierda;
+        // this.escudo.marco.y = yBottom;
         this.container.addChild(this.escudo.marco);
 
         // Fondo blanco con borde azul
@@ -370,15 +367,15 @@ export class PixiHUD {
         this.escudo.fondo.lineStyle(5, 0x0044CC, 1);
         this.escudo.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.escudo.fondo.endFill();
-        this.escudo.fondo.x = xIzquierda + 5;
-        this.escudo.fondo.y = yBottom + 5;
+        // this.escudo.fondo.x = xIzquierda + 5;
+        // this.escudo.fondo.y = yBottom + 5;
         this.container.addChild(this.escudo.fondo);
 
         // Icono (sprite que cambiará de textura)
         this.escudo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.escudo.icono.anchor.set(0.5);
-        this.escudo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        this.escudo.icono.y = yBottom + altoTotal / 2;
+        // this.escudo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
+        // this.escudo.icono.y = yBottom + altoTotal / 2;
         this.escudo.icono.width = anchoIcono;
         this.escudo.icono.height = altoIcono;
         this.container.addChild(this.escudo.icono);
@@ -412,20 +409,19 @@ export class PixiHUD {
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(6);
         const altoIcono = this._v(7);
-        const bottom = this._v(1.7);
-        const leftPorcentaje = 46.8;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro + this._v(10); // translateX(100%) = 1 * 10vmin
-        const altoTotal = altoFondo + 10; // Alto del marco completo
-        const yBottom = this.app.screen.height - bottom - altoTotal;
+        // const bottom = this._v(1.7);
+        // const leftPorcentaje = 46.8;
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro + this._v(10); // translateX(100%) = 1 * 10vmin
+        // const altoTotal = altoFondo + 10; // Alto del marco completo
+        // const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior (con borde visible como los demás iconos)
         this.ulti.marco = new PIXI.Graphics();
         this.ulti.marco.lineStyle(5, 0x0044CC, 1);
-        this.ulti.marco.drawRect(0, 0, anchoFondo + 10, altoTotal);
-        this.ulti.marco.x = xIzquierda;
-        this.ulti.marco.y = yBottom;
+        this.ulti.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
+        // this.ulti.marco.x = xIzquierda;
+        // this.ulti.marco.y = yBottom;
         this.container.addChild(this.ulti.marco);
 
         // Fondo blanco
@@ -433,15 +429,15 @@ export class PixiHUD {
         this.ulti.fondo.beginFill(0xFFFFFF);
         this.ulti.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.ulti.fondo.endFill();
-        this.ulti.fondo.x = xIzquierda + 5; // 5 = borde del marco
-        this.ulti.fondo.y = yBottom + 5; // 5 = borde del marco
+        // this.ulti.fondo.x = xIzquierda + 5; // 5 = borde del marco
+        // this.ulti.fondo.y = yBottom + 5; // 5 = borde del marco
         this.container.addChild(this.ulti.fondo);
 
         // Icono
         this.ulti.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.ulti.icono.anchor.set(0.5);
-        this.ulti.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        this.ulti.icono.y = yBottom + altoTotal / 2;
+        // this.ulti.icono.x = xIzquierda + (anchoFondo + 10) / 2;
+        // this.ulti.icono.y = yBottom + altoTotal / 2;
         this.ulti.icono.width = anchoIcono;
         this.ulti.icono.height = altoIcono;
         this.container.addChild(this.ulti.icono);
@@ -474,20 +470,19 @@ export class PixiHUD {
         const anchoFondo = this._v(9.7);
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(8);
-        const bottom = this._v(2);
-        const leftPorcentaje = 48.9;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro + this._v(20); // translateX(200%) = 2 * 10vmin
-        const altoTotal = altoFondo + 8;
-        const yBottom = this.app.screen.height - bottom - altoTotal;
+        // const bottom = this._v(2);
+        // const leftPorcentaje = 48.9;
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro + this._v(20); // translateX(200%) = 2 * 10vmin
+        // const altoTotal = altoFondo + 8;
+        // const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior
         this.propul.marco = new PIXI.Graphics();
         this.propul.marco.lineStyle(4, 0x0044CC, 1);
-        this.propul.marco.drawRect(0, 0, anchoFondo + 8, altoTotal);
-        this.propul.marco.x = xIzquierda;
-        this.propul.marco.y = yBottom;
+        this.propul.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
+        // this.propul.marco.x = xIzquierda;
+        // this.propul.marco.y = yBottom;
         this.container.addChild(this.propul.marco);
 
         // Fondo blanco
@@ -496,15 +491,15 @@ export class PixiHUD {
         this.propul.fondo.lineStyle(5, 0x0044CC, 1);
         this.propul.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.propul.fondo.endFill();
-        this.propul.fondo.x = xIzquierda + 4;
-        this.propul.fondo.y = yBottom + 4;
+        // this.propul.fondo.x = xIzquierda + 4;
+        // this.propul.fondo.y = yBottom + 4;
         this.container.addChild(this.propul.fondo);
 
         // Icono
         this.propul.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.propul.icono.anchor.set(0.5);
-        this.propul.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        this.propul.icono.y = yBottom + altoTotal / 2;
+        // this.propul.icono.x = xIzquierda + (anchoFondo + 8) / 2;
+        // this.propul.icono.y = yBottom + altoTotal / 2;
         this.propul.icono.width = anchoIcono;
         this.container.addChild(this.propul.icono);
         this._cargarTexturaIcono('propul', 'assets/propulsor.png', this.propul.icono, anchoIcono, null);
@@ -518,25 +513,24 @@ export class PixiHUD {
         // HTML marco: position: absolute; bottom: 1.9vmin; left: 50%;
         //           transform: translateX(300%); border: 4px solid #0044CC;
         // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
-        // HTML icono: width: 8vmin; height: auto;
+        // HTML icono: width: 8vmin; height: auto.
 
         const anchoFondo = this._v(9.9);
         const altoFondo = this._v(7.9);
         const anchoIcono = this._v(8);
-        const bottom = this._v(1.9);
-        const leftPorcentaje = 50;
-
-        const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        const xIzquierda = xCentro + this._v(30); // translateX(300%) = 3 * 10vmin
-        const altoTotal = altoFondo + 8;
-        const yBottom = this.app.screen.height - bottom - altoTotal;
+        // const bottom = this._v(1.9);
+        // const leftPorcentaje = 50;
+        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
+        // const xIzquierda = xCentro + this._v(30); // translateX(300%) = 3 * 10vmin
+        // const altoTotal = altoFondo + 8;
+        // const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior
         this.deborador.marco = new PIXI.Graphics();
         this.deborador.marco.lineStyle(4, 0x0044CC, 1);
-        this.deborador.marco.drawRect(0, 0, anchoFondo + 8, altoTotal);
-        this.deborador.marco.x = xIzquierda;
-        this.deborador.marco.y = yBottom;
+        this.deborador.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
+        // this.deborador.marco.x = xIzquierda;
+        // this.deborador.marco.y = yBottom;
         this.container.addChild(this.deborador.marco);
 
         // Fondo blanco
@@ -545,15 +539,15 @@ export class PixiHUD {
         this.deborador.fondo.lineStyle(5, 0x0044CC, 1);
         this.deborador.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.deborador.fondo.endFill();
-        this.deborador.fondo.x = xIzquierda + 4;
-        this.deborador.fondo.y = yBottom + 4;
+        // this.deborador.fondo.x = xIzquierda + 4;
+        // this.deborador.fondo.y = yBottom + 4;
         this.container.addChild(this.deborador.fondo);
 
         // Icono
         this.deborador.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.deborador.icono.anchor.set(0.5);
-        this.deborador.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        this.deborador.icono.y = yBottom + altoTotal / 2;
+        // this.deborador.icono.x = xIzquierda + (anchoFondo + 8) / 2;
+        // this.deborador.icono.y = yBottom + altoTotal / 2;
         this.deborador.icono.width = anchoIcono;
         this.container.addChild(this.deborador.icono);
         this._cargarTexturaIcono('deborador', 'assets/deborador.png', this.deborador.icono, anchoIcono, null);
