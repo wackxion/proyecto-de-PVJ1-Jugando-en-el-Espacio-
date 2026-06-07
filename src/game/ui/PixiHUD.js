@@ -281,6 +281,7 @@ export class PixiHUD {
         this.cohetes.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         this.cohetes.icono.y = yBottom + (altoTotal) / 2;
         this.cohetes.icono.width = anchoIcono;
+        this.container.addChild(this.cohetes.icono);
         this._cargarTexturaIcono('cohetes', 'assets/cohetes.png', this.cohetes.icono, anchoIcono, null);
     }
 
@@ -329,6 +330,7 @@ export class PixiHUD {
         this.tiempo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
         this.tiempo.icono.y = yBottom + altoTotal / 2;
         this.tiempo.icono.width = anchoIcono;
+        this.container.addChild(this.tiempo.icono);
         this._cargarTexturaIcono('tiempo', 'assets/tiempo fuera.png', this.tiempo.icono, anchoIcono, null);
     }
 
@@ -406,10 +408,8 @@ export class PixiHUD {
         // HTML fondo: width: 9vmin; height: 7vmin; background: white; border: none;
         // HTML icono: width: 6vmin; height: 7vmin;
 
-        const anchoMarco = this._v(9.9);
-        const altoMarco = this._v(7.9);
-        const anchoFondo = this._v(9);
-        const altoFondo = this._v(7);
+        const anchoFondo = this._v(9.9);
+        const altoFondo = this._v(7.9);
         const anchoIcono = this._v(6);
         const altoIcono = this._v(7);
         const bottom = this._v(1.7);
@@ -417,12 +417,13 @@ export class PixiHUD {
 
         const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
         const xIzquierda = xCentro + this._v(10); // translateX(100%) = 1 * 10vmin
-        const yBottom = this.app.screen.height - bottom - altoMarco;
+        const altoTotal = altoFondo + 10; // Alto del marco completo
+        const yBottom = this.app.screen.height - bottom - altoTotal;
 
         // Marco exterior (con borde visible como los demás iconos)
         this.ulti.marco = new PIXI.Graphics();
         this.ulti.marco.lineStyle(5, 0x0044CC, 1);
-        this.ulti.marco.drawRect(0, 0, anchoMarco, altoMarco);
+        this.ulti.marco.drawRect(0, 0, anchoFondo + 10, altoTotal);
         this.ulti.marco.x = xIzquierda;
         this.ulti.marco.y = yBottom;
         this.container.addChild(this.ulti.marco);
@@ -439,8 +440,8 @@ export class PixiHUD {
         // Icono
         this.ulti.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.ulti.icono.anchor.set(0.5);
-        this.ulti.icono.x = xIzquierda + anchoMarco / 2;
-        this.ulti.icono.y = yBottom + altoMarco / 2;
+        this.ulti.icono.x = xIzquierda + (anchoFondo + 10) / 2;
+        this.ulti.icono.y = yBottom + altoTotal / 2;
         this.ulti.icono.width = anchoIcono;
         this.ulti.icono.height = altoIcono;
         this.container.addChild(this.ulti.icono);
@@ -505,6 +506,7 @@ export class PixiHUD {
         this.propul.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         this.propul.icono.y = yBottom + altoTotal / 2;
         this.propul.icono.width = anchoIcono;
+        this.container.addChild(this.propul.icono);
         this._cargarTexturaIcono('propul', 'assets/propulsor.png', this.propul.icono, anchoIcono, null);
     }
 
@@ -553,6 +555,7 @@ export class PixiHUD {
         this.deborador.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         this.deborador.icono.y = yBottom + altoTotal / 2;
         this.deborador.icono.width = anchoIcono;
+        this.container.addChild(this.deborador.icono);
         this._cargarTexturaIcono('deborador', 'assets/deborador.png', this.deborador.icono, anchoIcono, null);
     }
 
