@@ -138,6 +138,13 @@ export class PixiHUD {
             }
         }
 
+        // Re-posicionar los 6 iconos en una fila horizontal centrada
+        try {
+            this._posicionarIconosEnFila();
+        } catch (e) {
+            console.error('[PixiHUD] Error posicionando iconos en fila:', e);
+        }
+
         this.inicializado = true;
     }
 
@@ -642,6 +649,100 @@ export class PixiHUD {
         this.puntuacionText.x = xCentro;
         this.puntuacionText.y = yBottom;
         this.container.addChild(this.puntuacionText);
+    }
+
+    // ========================================================================
+    // RE-POSICIONAMIENTO: FILA HORIZONTAL DE ICONOS
+    // ========================================================================
+
+    /**
+     * Re-posiciona los 6 iconos del HUD en una fila horizontal centrada
+     * en la parte inferior de la pantalla, uno al lado del otro con
+     * separación pequeña.
+     *
+     * Cada "grupo" (marco, fondo, icono) se reposiciona independientemente.
+     * La imagen UX queda detrás (zIndex -1) y la barra W + puntuación
+     * quedan arriba de la fila.
+     * @private
+     */
+    _posicionarIconosEnFila() {
+        // Definición de cada icono: grupo PixiJS, ancho total (marco), fondo offset
+        const iconos = [
+            {
+                grupo: this.tiempo,
+                ancho: this._v(9.9) + 10,  // fondo + border
+                alto: this._v(7.9) + 10,
+                borde: 5,
+            },
+            {
+                grupo: this.cohetes,
+                ancho: this._v(9.9) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
+            {
+                grupo: this.escudo,
+                ancho: this._v(9.9) + 10,
+                alto: this._v(7.9) + 10,
+                borde: 5,
+            },
+            {
+                grupo: this.ulti,
+                ancho: this._v(9.9),
+                alto: this._v(7.9),
+                borde: 0,
+            },
+            {
+                grupo: this.propul,
+                ancho: this._v(9.7) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
+            {
+                grupo: this.deborador,
+                ancho: this._v(9.9) + 8,
+                alto: this._v(7.9) + 8,
+                borde: 4,
+            },
+        ];
+
+        // Filtrar los que no tienen marco (no se crearon correctamente)
+        const visibles = iconos.filter(i => i.grupo && i.grupo.marco);
+        if (visibles.length === 0) return;
+
+        const separacion = this._v(0.8); // Separación entre iconos
+        const totalAncho = visibles.reduce((sum, i) => sum + i.ancho, 0)
+                         + separacion * (visibles.length - 1);
+        const xInicio = (this.app.screen.width - totalAncho) / 2;
+        const bottom = this._v(2.3);
+        const altoMax = Math.max(...visibles.map(i => i.alto));
+        const yTop = this.app.screen.height - bottom - altoMax;
+
+        let xActual = xInicio;
+        for (const icono of visibles) {
+            // Centrar verticalmente si el icono es más bajo que el máximo
+            const yOff = (altoMax - icono.alto) / 2;
+
+            // Marco exterior
+            if (icono.grupo.marco) {
+                icono.grupo.marco.x = xActual;
+                icono.grupo.marco.y = yTop + yOff;
+            }
+
+            // Fondo blanco (dentro del marco, con offset del borde)
+            if (icono.grupo.fondo) {
+                icono.grupo.fondo.x = xActual + icono.borde;
+                icono.grupo.fondo.y = yTop + yOff + icono.borde;
+            }
+
+            // Icono central (anchor 0.5 = centrado)
+            if (icono.grupo.icono) {
+                icono.grupo.icono.x = xActual + icono.ancho / 2;
+                icono.grupo.icono.y = yTop + altoMax / 2;
+            }
+
+            xActual += icono.ancho + separacion;
+        }
     }
 
     // ========================================================================
