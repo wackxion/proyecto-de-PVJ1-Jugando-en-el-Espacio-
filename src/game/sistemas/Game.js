@@ -36,6 +36,7 @@ import { crearCohetes, actualizarCohetes, actualizarUIMarcoCohetes, actualizarHa
 import { activarUlti, actualizarUlti, actualizarEfectosImpacto } from './GameEffects.js';
 import { crearParticulaFuera, actualizarParticulasBoid, resetearContadorCapturadas, actualizarSistemaBoid } from './GameBoids.js';
 import { inicializarMejoras, crearVentanaMejoras, comprarMejora, actualizarUIMejoras, limpiarVentanaMejoras } from './GameMejoras.js';
+import { PixiHUD } from '../ui/PixiHUD.js';
 
 export class Game {
     /**
@@ -151,9 +152,13 @@ export class Game {
         
         // Elementos de fin de juego
         this.elementosFinJuego = [];
-        
+
         // Flag para evitar limpieza duplicada
         this.limpiezaEnProgreso = false;
+
+        // === PIXI HUD (HUD en PixiJS) ===
+        // Se inicializa después de crear la aplicación PixiJS
+        this.pixiHUD = null;
         
         // Sistema de Top 5
         this.top5 = new Top5();
@@ -297,7 +302,11 @@ export class Game {
         
         // Configurar la interfaz de usuario (UI)
         this._configurarUI();
-        
+
+        // === INICIALIZAR PIXI HUD (migración desde HTML) ===
+        // Crea todos los elementos del HUD usando PixiJS en lugar de HTML
+        this.pixiHUD = new PixiHUD(this.aplicacion, this);
+
         // Iniciar el bucle del juego
         // ticker.add() registra una funci├│n que se llama en cada frame (60 veces por segundo)
         this.aplicacion.ticker.add(this._gameLoop.bind(this));
@@ -2503,6 +2512,17 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
      * Se llama cuando el jugador pierde y elige jugar de nuevo
      */
     _reiniciarJuego() {
+        // Guardar referencia al contenedor del HUD (PixiHUD) para no perderlo
+        // al limpiar el stage. stage.removeChildren() elimina TODOS los hijos,
+        // incluyendo el contenedor del HUD (zIndex 1000). Sin esto, el HUD
+        // desaparecería al reiniciar el juego.
+        const hudContainer = (this.pixiHUD && this.pixiHUD.container)
+            ? this.pixiHUD.container
+            : null;
+        if (hudContainer) {
+            hudContainer.removeFromStage();
+        }
+
         // Limpiar todo el stage (eliminar todos los objetos anteriores)
         if (this.aplicacion && this.aplicacion.stage) {
             this.aplicacion.stage.removeChildren();
@@ -2572,6 +2592,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this.mostrandoTop5EnPausa = false;
         this.clickHandlerActivo = true;
         this.botonClicked = false;
+        
+        // Re-agregar el contenedor del HUD (PixiHUD) al stage.
+        // Es necesario porque stage.removeChildren() lo eliminó arriba.
+        if (hudContainer && this.aplicacion && this.aplicacion.stage) {
+            this.aplicacion.stage.addChild(hudContainer);
+        }
         
         // Marcar el juego como corriendo
         this.ejecutando = true;
@@ -2673,6 +2699,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         
         // === ACTUALIZAR UI ===
         this._actualizarUI();
+
+        // === ACTUALIZAR PIXI HUD (nuevo HUD en PixiJS) ===
+        // Se actualiza cada frame para reflejar el estado del juego
+        if (this.pixiHUD) {
+            this.pixiHUD.actualizar();
+        }
         
         // === ACTUALIZAR FONDO INFINITO ===
         if (this.contenedorFondo && this.mosaicosFondo) {

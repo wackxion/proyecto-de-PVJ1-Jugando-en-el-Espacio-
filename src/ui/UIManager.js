@@ -32,7 +32,8 @@ export class UIManager {
         this.uiOverlay = null;
         
         // Crear estructura base
-        this.crearEstructuraBase();
+        // NOTA: crearEstructuraBase() ya no se usa - el HUD ahora se renderiza con PixiJS (PixiHUD.js)
+        // this.crearEstructuraBase();
         
         // listener para cambio de tamano de pantalla
         window.addEventListener('resize', () => this.onResize());
@@ -49,155 +50,13 @@ export class UIManager {
     
     /**
      * Crea la estructura base de UI en el DOM
+     * NOTA: Los estilos CSS del HUD ya no se usan - el HUD ahora se renderiza con PixiJS
+     * (ver src/game/ui/PixiHUD.js)
      */
     crearEstructuraBase() {
-        // Agregar estilos CSS para las barras y efectos
-        if (!document.getElementById('hud-styles')) {
-            const style = document.createElement('style');
-            style.id = 'hud-styles';
-            style.textContent = `
-/* === MARCOS DE ICONOS (ESCUDO, COHETES, ULTI) === */
-                #escudo-ux-frame, #ulti-ux-frame, #cohetes-ux-frame {
-                    display: flex !important;
-                    justify-content: center;
-                    align-items: center;
-                    border-width: 5px !important;
-                    border-style: solid !important;
-                    border-color: #0044CC !important;
-                    border-radius: 0px;
-                    background-color: transparent !important;
-                    box-shadow: 0 0 10px #0044CC !important;
-                    transition: all 0.3s ease;
-                    z-index: 100;
-                    position: absolute;
-                    bottom: 1.5vmin;
-                }
-                
-                /* === ESTADO SOBRECALENTADO (ESCUDO) === */
-                #escudo-ux-frame.overheated {
-                    border-color: #CC0000 !important;
-                    box-shadow: 0 0 15px #CC0000 !important;
-                    animation: sobrecalentado-escudo 0.5s ease-in-out infinite;
-                }
-                
-                @keyframes sobrecalentado-escudo {
-                    0%, 100% { box-shadow: 0 0 10px #CC0000; }
-                    50% { box-shadow: 0 0 25px #CC0000; }
-                }
-                
-                /* === EFECTO DE IMPACTO (ESCUDO) === */
-                #escudo-ux-frame.impact, 
-                #escudo-ux-frame .impact {
-                    animation: impacto-escudo 0.3s ease-out;
-                }
-                
-                @keyframes impacto-escudo {
-                    0% { box-shadow: 0 0 5px #FFFFFF; background-color: rgba(255,255,255,0.3) !important; }
-                    50% { box-shadow: 0 0 20px #FFFFFF; background-color: rgba(255,255,255,0.5) !important; }
-                    100% { box-shadow: 0 0 10px #0044CC; background-color: white !important; }
-                }
-                
-                /* === ULTi LISTO (brillo azul) === */
-                #ulti-ux-frame.ready {
-                    animation: ulti-ready-glow 0.5s ease-in-out infinite;
-                }
-                
-                
-                
-                
-                
-                /* ULTi listo - parpadeo */
-                #ulti-ux-icon.ready {
-                    animation: ulti-glow-pulse 0.5s ease-in-out infinite;
-                }
-                
-                @keyframes ulti-glow-pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.7; }
-                }
-                
-                /* === BARRA DE ACELERACIÓN === */
-                #aceleracion-ux-container {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                
-                #aceleracion-ux-bar-bg {
-                    width: 100px;
-                    height: 30px;
-                    background-color: white;
-                    border: 4px solid #0044CC;
-                    border-radius: 0px;
-                    overflow: hidden;
-                    box-shadow: 0 0 10px #0044CC;
-                }
-                
-                #aceleracion-ux-bar-fill {
-                    width: 0%;
-                    height: 100%;
-                    background: linear-gradient(90deg, #0044CC, #0044CC);
-                    box-shadow: 0 0 10px #0044CC;
-                    transition: width 0.3s ease-out;
-                }
-                
-                /* Barra sobrecalentada */
-                #aceleracion-ux-container.overheated #aceleracion-ux-bar-fill {
-                    background: linear-gradient(90deg, #CC0000, #CC0000);
-                    box-shadow: 0 0 10px #CC0000;
-                }
-                
-                #aceleracion-ux-container.overheated #aceleracion-ux-bar-bg {
-                    border-color: #CC0000;
-                    box-shadow: 0 0 10px #CC0000;
-                }
-                
-                /* === SCORE PANEL === */
-                #score-panel {
-                    background-color: rgb(255, 255, 255);
-                    border: 3px solid #0044CC;
-                    border-radius: 0px;
-                    padding: 2px 50px;
-                    box-shadow: 0 0 10px #0044CC;
-                }
-                
-                #score-value {
-                    color: #0044CC;
-                    font-family: 'Segoe Script', cursive;
-                    font-size: 18px;
-                    font-weight: bold;
-                    text-shadow: 0 0 10px #0044CC;
-                }
-                
-                /* === LEFT PANEL (WAVE) === */
-                #left-panel {
-                    position: absolute;
-                    top: 10px;
-                    left: 15px;
-                    padding: 5px;
-                }
-                
-                #wave {
-                    color: white;
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
-                }
-                
-                /* === VERSION DISPLAY === */
-                #version-display {
-                    position: absolute;
-                    bottom: 10px;
-                    right: 15px;
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
-                    color: #FFFFFF;
-                    opacity: 0.7;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        // UI Overlay (capa de UI sobre el juego)
+        // NOTA: Estilos CSS del HUD eliminados - migrados a PixiJS
+
+        // UI Overlay (capa de UI sobre el juego) - ESTE SE MANTIENE
         this.uiOverlay = document.createElement('div');
         this.uiOverlay.id = 'ui-overlay';
         this.uiOverlay.style.cssText = `
@@ -1047,6 +906,11 @@ export class UIManager {
      * @returns {Object} elementos - Referencias a los elementos HTML creados
      */
     crearHUD() {
+        // NOTA: El HUD HTML ya no se usa - ahora se renderiza con PixiJS (PixiHUD.js)
+        // Se retorna un objeto vacío para mantener compatibilidad con los callers.
+        // El código siguiente está deshabilitado pero conservado por referencia histórica.
+        return {};
+        /*
         const elementos = {};
 
         // =====================================================
@@ -1596,23 +1460,14 @@ const uxImage = document.createElement('img');
         
         // --- FIN DEL HUD ---
         return elementos;
+        */
     }
-    
+
     /**
      * Destruye el HUD del juego
+     * NOTA: Ya no se usa - el HUD se destruye con PixiHUD.destruir()
      */
     destruirHUD() {
-        const ids = [
-            'left-panel', 
-            'aceleracion-ux-container', 
-            'score-panel', 
-            'ux-experimental', 
-            'escudo-ux-frame', 
-            'ulti-ux-frame'
-        ];
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        });
+        // No-op: el HUD HTML ya no existe
     }
 }
