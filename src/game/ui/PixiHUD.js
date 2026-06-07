@@ -601,7 +601,7 @@ export class PixiHUD {
         this.barraAceleracionBg.lineStyle(2, 0x0044CC, 1);
         this.barraAceleracionBg.drawRect(0, 0, ancho, alto);
         this.barraAceleracionBg.endFill();
-        this.barraAceleracionBg.x = xCentro - ancho / 2 - 15;
+        this.barraAceleracionBg.x = xCentro - ancho / 2 - 10;
         this.barraAceleracionBg.y = yBottom;
         this.barraAceleracionBg.zIndex = -2;
         this.container.addChild(this.barraAceleracionBg);
@@ -611,7 +611,7 @@ export class PixiHUD {
         this.barraAceleracionFill.beginFill(0x0044CC);
         this.barraAceleracionFill.drawRect(0, 0, 0, alto);
         this.barraAceleracionFill.endFill();
-        this.barraAceleracionFill.x = xCentro - ancho / 2 - 15;
+        this.barraAceleracionFill.x = xCentro - ancho / 2 - 10;
         this.barraAceleracionFill.y = yBottom;
         this.barraAceleracionFill.zIndex = -2;
         this.container.addChild(this.barraAceleracionFill);
