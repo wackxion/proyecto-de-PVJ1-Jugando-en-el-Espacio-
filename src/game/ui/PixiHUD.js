@@ -640,9 +640,9 @@ export class PixiHUD {
         this.scoreBg = new PIXI.Graphics();
         this.scoreBg.beginFill(0xFFFFFF);
         this.scoreBg.lineStyle(3, 0x0044CC, 1);
-        this.scoreBg.drawRect(0, 0, 120, 26);
+        this.scoreBg.drawRect(0, 0, 100, 26);
         this.scoreBg.endFill();
-        this.scoreBg.x = xCentro - 60;
+        this.scoreBg.x = xCentro - 50;
         this.scoreBg.y = yBottom - 26;
         this.scoreBg.zIndex = -2;
         this.container.addChild(this.scoreBg);
