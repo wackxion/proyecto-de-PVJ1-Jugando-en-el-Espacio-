@@ -669,8 +669,8 @@ export class PixiHUD {
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const tamano = 75; // 75x75 px fijo
-        const medio = tamano / 2;
+        const ancho = 80;
+        const alto = 73;
 
         const grupos = [
             this.tiempo, this.cohetes, this.escudo,
@@ -686,13 +686,13 @@ export class PixiHUD {
             const cy = uxY + uxAlto * 0.50 + 37; // +37px para bajar
 
             // Posición de la esquina superior-izquierda
-            const x = cx - medio;
-            const y = cy - medio;
+            const x = cx - ancho / 2;
+            const y = cy - alto / 2;
 
             // Marco exterior (borde azul)
             g.marco.clear();
             g.marco.lineStyle(4, 0x0044CC, 1);
-            g.marco.drawRect(0, 0, tamano, tamano);
+            g.marco.drawRect(0, 0, ancho, alto);
             g.marco.x = x;
             g.marco.y = y;
             g.marco.zIndex = 0;
@@ -701,7 +701,7 @@ export class PixiHUD {
             g.fondo.clear();
             g.fondo.beginFill(0xFFFFFF);
             g.fondo.lineStyle(5, 0x0044CC, 1);
-            g.fondo.drawRect(0, 0, tamano - 8, tamano - 8);
+            g.fondo.drawRect(0, 0, ancho - 8, alto - 8);
             g.fondo.endFill();
             g.fondo.x = x + 4;
             g.fondo.y = y + 4;
@@ -709,8 +709,8 @@ export class PixiHUD {
 
             // Icono centrado
             if (g.icono) {
-                g.icono.width = tamano * 0.65;
-                g.icono.height = tamano * 0.65;
+                g.icono.width = ancho * 0.65;
+                g.icono.height = alto * 0.65;
                 g.icono.x = cx;
                 g.icono.y = cy;
                 g.icono.zIndex = 2;
@@ -854,7 +854,7 @@ export class PixiHUD {
         // Actualizar marco (90x90)
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, 75, 75);
+        this.escudo.marco.drawRect(0, 0, 80, 73);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -889,7 +889,7 @@ export class PixiHUD {
         // Actualizar marco (90x90)
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, 75, 75);
+        this.ulti.marco.drawRect(0, 0, 80, 73);
     }
 
     _actualizarContadorDevorador() {
