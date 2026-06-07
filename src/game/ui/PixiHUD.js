@@ -669,7 +669,7 @@ export class PixiHUD {
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const tamano = 80; // 80x80 px fijo
+        const tamano = 75; // 75x75 px fijo
         const medio = tamano / 2;
 
         const grupos = [
@@ -683,7 +683,7 @@ export class PixiHUD {
 
             // Centro del slot en píxeles de pantalla
             const cx = uxX + uxAncho * slotCentros[i];
-            const cy = uxY + uxAlto * 0.50 + 30; // +30px para bajar
+            const cy = uxY + uxAlto * 0.50 + 35; // +35px para bajar
 
             // Posición de la esquina superior-izquierda
             const x = cx - medio;
@@ -854,7 +854,7 @@ export class PixiHUD {
         // Actualizar marco (90x90)
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, 80, 80);
+        this.escudo.marco.drawRect(0, 0, 75, 75);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -889,7 +889,7 @@ export class PixiHUD {
         // Actualizar marco (90x90)
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, 80, 80);
+        this.ulti.marco.drawRect(0, 0, 75, 75);
     }
 
     _actualizarContadorDevorador() {
