@@ -20,6 +20,10 @@
  * 9. #ux-experimental   - Imagen de fondo del HUD
  * 10. #aceleracion-ux-container - Barra de aceleración (W)
  * 11. #score-panel      - Panel de puntuación
+ *
+ * FIXED PIXEL LAYOUT for 1080×720 base resolution.
+ * The HUD container is scaled to fit the actual screen using:
+ *   scale = Math.min(actualWidth / 1080, actualHeight / 720)
  */
 
 export class PixiHUD {
@@ -79,34 +83,23 @@ export class PixiHUD {
         // de crear el HUD (típico durante la inicialización), todos los
         // elementos quedarían con tamaño 0 y serían invisibles.
         requestAnimationFrame(() => {
-            this._calcularVmin();
+            this._calcularEscala();
             this._inicializar();
         });
     }
 
     /**
-     * Calcula vmin basado en el tamaño actual de la pantalla
+     * Calcula la escala del contenedor HUD para la resolución base 1080×720.
+     * Escala uniforme (min) y centrado horizontal si el aspecto difiere.
      * @private
      */
-    _calcularVmin() {
-        let w = this.app.screen.width;
-        let h = this.app.screen.height;
-        // Si la pantalla aún no tiene tamaño, usar el viewport como fallback
-        if (!w || !h) {
-            w = window.innerWidth || 1920;
-            h = window.innerHeight || 1080;
-        }
-        this._vmin = Math.min(w, h) / 100;
-    }
-
-    /**
-     * Convierte vmin a píxeles
-     * @param {number} vmin - Valor en vmin
-     * @returns {number} Valor en píxeles
-     * @private
-     */
-    _v(vmin) {
-        return vmin * this._vmin;
+    _calcularEscala() {
+        const w = this.app.screen.width || window.innerWidth || 1080;
+        const h = this.app.screen.height || window.innerHeight || 720;
+        this._escala = Math.min(w / 1080, h / 720);
+        this.container.scale.set(this._escala);
+        // Center horizontally if aspect ratio differs
+        this.container.x = (w - 1080 * this._escala) / 2;
     }
 
     /**
@@ -180,8 +173,8 @@ export class PixiHUD {
         this._escudosAnterior = 100;
         this.inicializado = false;
 
-        // Re-calcular vmin y crear elementos
-        this._calcularVmin();
+        // Re-calcular escala y crear elementos
+        this._calcularEscala();
         this._inicializar();
     }
 
@@ -218,15 +211,12 @@ export class PixiHUD {
         try {
             const tex = await PIXI.Assets.load('assets/uxExperimental2.png');
             this.uxImage = new PIXI.Sprite(tex);
-            const anchoMax = 2000;
-            const anchoCalc = this.app.screen.width * 0.8;
-            const ancho = Math.min(anchoMax, anchoCalc);
-            const alto = this.app.screen.height * 0.2;
-            this.uxImage.width = ancho;
-            this.uxImage.height = alto;
+            // Fixed dimensions for 1080×720 base: width=864 (80% of 1080), height=144 (20% of 720)
+            this.uxImage.width = 864;
+            this.uxImage.height = 144;
             this.uxImage.anchor.set(0.5, 1); // Para usar bottom: 0 con translateX(-50%)
-            this.uxImage.x = this.app.screen.width / 2;
-            this.uxImage.y = this.app.screen.height;
+            this.uxImage.x = 540;  // center: 1080 / 2
+            this.uxImage.y = 720;  // bottom: 0
             this.uxImage.zIndex = -1; // Detrás de todos los iconos del HUD
             this.container.addChild(this.uxImage);
         } catch (e) {
@@ -246,9 +236,9 @@ export class PixiHUD {
         // HTML icono: width: 8vmin; height: auto;
 
         // const tamanoMarco = this._v(10);  // border -- NO USADO
-        const anchoFondo = this._v(9.9);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(8);
+        const anchoFondo = 77;  // ≈ 9.9vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 55;  // ≈ 8vmin at 720
         // const bottom = this._v(2.3);        // OVERRIDDEN por _posicionarIconosEnFila()
         // const leftPorcentaje = 48.9;         // OVERRIDDEN
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -294,9 +284,9 @@ export class PixiHUD {
         // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
         // HTML icono: width: 5vmin; height: auto;
 
-        const anchoFondo = this._v(9.9);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(5);
+        const anchoFondo = 77;  // ≈ 9.9vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 55;  // default (overridden by _posicionarIconosEnFila)
         // const bottom = this._v(2.3);
         // const leftPorcentaje = 44;
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -377,10 +367,10 @@ export class PixiHUD {
         // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
         // HTML icono: width: 8vmin; height: 6vmin;
 
-        const anchoFondo = this._v(9.9);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(8);
-        const altoIcono = this._v(6);
+        const anchoFondo = 77;  // ≈ 9.9vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 55;  // ≈ 8vmin at 720
+        const altoIcono = 41;   // ≈ 6vmin at 720
         // const bottom = this._v(5.1);
         // const leftPorcentaje = 49;
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -440,10 +430,10 @@ export class PixiHUD {
         // HTML fondo: width: 9vmin; height: 7vmin; background: white; border: none;
         // HTML icono: width: 6vmin; height: 7vmin;
 
-        const anchoFondo = this._v(9.9);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(6);
-        const altoIcono = this._v(7);
+        const anchoFondo = 77;  // ≈ 9.9vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 41;  // ≈ 6vmin at 720
+        const altoIcono = 49;   // ≈ 7vmin at 720
         // const bottom = this._v(1.7);
         // const leftPorcentaje = 46.8;
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -502,9 +492,9 @@ export class PixiHUD {
         // HTML fondo: width: 9.7vmin; height: 7.9vmin; background: white;
         // HTML icono: width: 8vmin; height: auto;
 
-        const anchoFondo = this._v(9.7);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(8);
+        const anchoFondo = 75;  // ≈ 9.7vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 55;  // ≈ 8vmin at 720
         // const bottom = this._v(2);
         // const leftPorcentaje = 48.9;
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -550,9 +540,9 @@ export class PixiHUD {
         // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
         // HTML icono: width: 8vmin; height: auto.
 
-        const anchoFondo = this._v(9.9);
-        const altoFondo = this._v(7.9);
-        const anchoIcono = this._v(8);
+        const anchoFondo = 77;  // ≈ 9.9vmin at 720
+        const altoFondo = 57;   // ≈ 7.9vmin at 720
+        const anchoIcono = 55;  // ≈ 8vmin at 720
         // const bottom = this._v(1.9);
         // const leftPorcentaje = 50;
         // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
@@ -599,7 +589,7 @@ export class PixiHUD {
 
         this.contadorDevoradorText = new PIXI.Text('0', {
             fontFamily: 'Arial, sans-serif',
-            fontSize: Math.max(12, this._v(2.5)),
+            fontSize: 18,  // ≈ 2.5vmin at 720
             fill: 0xFFFFFF,
             fontWeight: 'bold',
             dropShadow: true,
@@ -607,8 +597,10 @@ export class PixiHUD {
             dropShadowDistance: 2,
             dropShadowBlur: 4
         });
-        this.contadorDevoradorText.x = (70.5 / 100) * this.app.screen.width + 20;
-        this.contadorDevoradorText.y = this.app.screen.height - this._v(3.2) - this.contadorDevoradorText.height;
+        // x: (70.5/100)*1080 + 20 = 781
+        this.contadorDevoradorText.x = 781;
+        // y: 720 - 23 - textHeight (bottom: 3.2vmin ≈ 23px at 720)
+        this.contadorDevoradorText.y = 720 - 23 - this.contadorDevoradorText.height;
         this.container.addChild(this.contadorDevoradorText);
     }
 
@@ -617,12 +609,13 @@ export class PixiHUD {
     // ========================================================================
 
     _crearBarraAceleracion() {
+        // Fixed for 1080×720 base
         const ancho = 120;
-        const alto = this._v(2.5);
-        const bottom = this._v(11.9);
-
-        const xCentro = this.app.screen.width / 2;
-        const yBottom = this.app.screen.height - bottom - alto;
+        const alto = 18;  // ≈ 2.5vmin at 720
+        // x: 540 - 60 - 10 = 470 (centered, offset -10px)
+        const x = 470;
+        // y: 720 - 18 - 86 = 616 (bottom: 11.9vmin ≈ 86px at 720)
+        const y = 616;
 
         // Fondo (borde azul + relleno blanco) - detrás de la imagen UX
         this.barraAceleracionBg = new PIXI.Graphics();
@@ -630,8 +623,8 @@ export class PixiHUD {
         this.barraAceleracionBg.lineStyle(2, 0x0044CC, 1);
         this.barraAceleracionBg.drawRect(0, 0, ancho, alto);
         this.barraAceleracionBg.endFill();
-        this.barraAceleracionBg.x = xCentro - ancho / 2 - 10;
-        this.barraAceleracionBg.y = yBottom;
+        this.barraAceleracionBg.x = x;
+        this.barraAceleracionBg.y = y;
         this.barraAceleracionBg.zIndex = -2;
         this.container.addChild(this.barraAceleracionBg);
 
@@ -640,8 +633,8 @@ export class PixiHUD {
         this.barraAceleracionFill.beginFill(0x0044CC);
         this.barraAceleracionFill.drawRect(0, 0, 0, alto);
         this.barraAceleracionFill.endFill();
-        this.barraAceleracionFill.x = xCentro - ancho / 2 - 10;
-        this.barraAceleracionFill.y = yBottom;
+        this.barraAceleracionFill.x = x;
+        this.barraAceleracionFill.y = y;
         this.barraAceleracionFill.zIndex = -2;
         this.container.addChild(this.barraAceleracionFill);
 
@@ -661,9 +654,14 @@ export class PixiHUD {
             fontWeight: 'bold'
         });
 
-        const bottom = this._v(11.6);
-        const xCentro = (41.7 / 100) * this.app.screen.width;
-        const yBottom = this.app.screen.height - bottom;
+        // Fixed for 1080×720 base
+        // White panel: 100×26
+        // x: (41.7/100)*1080 - 52 = 398
+        // y: 720 - 84 - 26 = 610 (bottom: 11.6vmin ≈ 84px)
+        const scoreBgX = 398;
+        const scoreBgY = 610;
+        const textX = (41.7 / 100) * 1080 - 2;  // center of panel ≈ 448
+        const textY = 720 - 84;  // bottom: 11.6vmin ≈ 84px = 636
 
         // Fondo blanco detrás del texto
         this.scoreBg = new PIXI.Graphics();
@@ -671,14 +669,14 @@ export class PixiHUD {
         this.scoreBg.lineStyle(3, 0x0044CC, 1);
         this.scoreBg.drawRect(0, 0, 100, 26);
         this.scoreBg.endFill();
-        this.scoreBg.x = xCentro - 52;
-        this.scoreBg.y = yBottom - 26;
+        this.scoreBg.x = scoreBgX;
+        this.scoreBg.y = scoreBgY;
         this.scoreBg.zIndex = -2;
         this.container.addChild(this.scoreBg);
 
         this.puntuacionText.anchor.set(0.5, 1);
-        this.puntuacionText.x = xCentro - 2;
-        this.puntuacionText.y = yBottom;
+        this.puntuacionText.x = textX;
+        this.puntuacionText.y = textY;
         this.container.addChild(this.puntuacionText);
     }
 
@@ -694,23 +692,24 @@ export class PixiHUD {
      * Cada "grupo" (marco, fondo, icono) se reposiciona independientemente.
      * La imagen UX queda detrás (zIndex -1) y la barra W + puntuación
      * quedan arriba de la fila.
+     *
+     * FIXED layout for 1080×720 base resolution.
      * @private
      */
     _posicionarIconosEnFila() {
         // =============================================
-        // Posiciones de los 6 slots en la imagen UX
-        // (centros medidos de uxExperimental2.png)
+        // Fixed UX image dimensions for 1080×720 base
         // =============================================
-        const uxAncho = Math.min(2000, this.app.screen.width * 0.8);
-        const uxAlto = this.app.screen.height * 0.2;
-        const uxX = (this.app.screen.width - uxAncho) / 2;
-        const uxY = this.app.screen.height - uxAlto;
+        const uxAncho = 864;  // 80% of 1080
+        const uxAlto = 144;   // 20% of 720
+        const uxX = 108;      // (1080 - 864) / 2
+        const uxY = 576;      // 720 - 144
 
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const ancho = 85;
-        const alto = 73;
+        const ancho = 85;  // Icon container width
+        const alto = 73;   // Icon container height
 
         const grupos = [
             this.tiempo, this.cohetes, this.escudo,
@@ -721,9 +720,10 @@ export class PixiHUD {
             const g = grupos[i];
             if (!g || !g.marco) continue;
 
-            // Centro del slot en píxeles de pantalla
+            // Centro del slot en píxeles de pantalla (1080×720 base)
             const cx = uxX + uxAncho * slotCentros[i];
-            const cy = uxY + uxAlto * 0.50 + 34; // +34px para bajar
+            // cy: 720 - 144*0.50 - 34 = 616 (UX bottom + half height + 34px offset down)
+            const cy = 616;
 
             // Posición de la esquina superior-izquierda
             const x = cx - ancho / 2;
@@ -892,7 +892,7 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco (90x90)
+        // Actualizar marco (fixed 85×73 for 1080×720 base)
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
         this.escudo.marco.drawRect(0, 0, 85, 73);
@@ -927,7 +927,7 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco (90x90)
+        // Actualizar marco (fixed 85×73 for 1080×720 base)
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
         this.ulti.marco.drawRect(0, 0, 85, 73);
@@ -1000,14 +1000,15 @@ export class PixiHUD {
             const palpito = Math.floor(Date.now() / 300) % 2 === 0;
             const colorBorde = palpito ? 0xFFFFFF : 0xAAAAAA;
 
+            // Fixed marco size for 1080×720 base: 87×67
             this.tiempo.marco.clear();
-            this.tiempo.marco.lineStyle(5, colorBorde, 1);
-            this.tiempo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+            this.tiempo.marco.lineStyle(4, colorBorde, 1);
+            this.tiempo.marco.drawRect(0, 0, 85, 73);
 
             this.tiempo.fondo.clear();
             this.tiempo.fondo.beginFill(0xFFFFFF);
             this.tiempo.fondo.lineStyle(5, colorBorde, 1);
-            this.tiempo.fondo.drawRect(0, 0, this._v(9.9), this._v(7.9));
+            this.tiempo.fondo.drawRect(0, 0, 77, 65);
             this.tiempo.fondo.endFill();
         } else {
             // Estado normal: marco azul, frame inicial
@@ -1020,13 +1021,13 @@ export class PixiHUD {
 
             // Restaurar marco azul normal
             this.tiempo.marco.clear();
-            this.tiempo.marco.lineStyle(5, 0x0044CC, 1);
-            this.tiempo.marco.drawRect(0, 0, this._v(9.9) + 10, this._v(7.9) + 10);
+            this.tiempo.marco.lineStyle(4, 0x0044CC, 1);
+            this.tiempo.marco.drawRect(0, 0, 85, 73);
 
             this.tiempo.fondo.clear();
             this.tiempo.fondo.beginFill(0xFFFFFF);
             this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
-            this.tiempo.fondo.drawRect(0, 0, this._v(9.9), this._v(7.9));
+            this.tiempo.fondo.drawRect(0, 0, 77, 65);
             this.tiempo.fondo.endFill();
 
             // Textura estática
@@ -1046,14 +1047,11 @@ export class PixiHUD {
     // ========================================================================
 
     /**
-     * Maneja el redimensionado de la ventana
+     * Maneja el redimensionado de la ventana.
+     * Solo recalcula la escala del contenedor; no recrea elementos.
      */
     onResize() {
-        // Recalcular vmin y reposicionar elementos
-        this._vmin = Math.min(this.app.screen.width, this.app.screen.height) / 100;
-        // Destruir y recrear el HUD
-        this.destruir();
-        this._inicializar();
+        this._calcularEscala();
     }
 
     /**
