@@ -592,12 +592,12 @@ export class PixiHUD {
         const anchoCalc = this.app.screen.width * 0.3;
         const ancho = Math.min(anchoMax, anchoCalc);
         const alto = this._v(2.5);
-        const bottom = this._v(5);
+        const bottom = this._v(11.9);
 
         const xCentro = this.app.screen.width / 2;
         const yBottom = this.app.screen.height - bottom - alto;
 
-        // Fondo (borde azul + relleno blanco)
+        // Fondo (borde azul + relleno blanco) - detrás de la imagen UX
         this.barraAceleracionBg = new PIXI.Graphics();
         this.barraAceleracionBg.beginFill(0xFFFFFF);
         this.barraAceleracionBg.lineStyle(2, 0x0044CC, 1);
@@ -605,15 +605,17 @@ export class PixiHUD {
         this.barraAceleracionBg.endFill();
         this.barraAceleracionBg.x = xCentro - ancho / 2;
         this.barraAceleracionBg.y = yBottom;
+        this.barraAceleracionBg.zIndex = -2;
         this.container.addChild(this.barraAceleracionBg);
 
-        // Relleno (azul)
+        // Relleno (azul) - detrás de la imagen UX
         this.barraAceleracionFill = new PIXI.Graphics();
         this.barraAceleracionFill.beginFill(0x0044CC);
-        this.barraAceleracionFill.drawRect(0, 0, 0, alto); // Empieza en 0
+        this.barraAceleracionFill.drawRect(0, 0, 0, alto);
         this.barraAceleracionFill.endFill();
         this.barraAceleracionFill.x = xCentro - ancho / 2;
         this.barraAceleracionFill.y = yBottom;
+        this.barraAceleracionFill.zIndex = -2;
         this.container.addChild(this.barraAceleracionFill);
 
         this._anchoBarraAceleracion = ancho;
