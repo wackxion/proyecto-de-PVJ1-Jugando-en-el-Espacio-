@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.5.0  
+**Versión actual:** v1.7.30 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -9,6 +9,38 @@
 ---
 
 ## 📜 Registro de Commits por Versión
+
+### v1.7.x (ACTUAL) - HUD PixiJS
+> **Migración completa del HUD de HTML/CSS a PixiJS canvas**
+
+| Commit | Descripción |
+|--------|-------------|
+| `490cfef` | fix: puntuacion font 16px |
+| `d6a1c87` | fix: contador boids +30px right |
+| `4f501b7` | feat: iconos 70x70 |
+| `41c6f55` | feat: UX image 1000x160 |
+| `3f8cde8` | fix: tiempo fuera marco 85x73 igual que los demas iconos |
+| `8b31d39` | fix: inicializar tiempo.sprites como array vacio (v1.7.30) |
+| `e714612` | feat: implementar _actualizarIconoTiempo() con animacion del reloj (v1.7.29) |
+| `ffee008` | chore: comentar codigo muerto en 6 _crear* (v1.7.28) |
+| `0671648` | fix: contador boids +10px mas a la derecha (v1.7.27) |
+| `7bf16bf` | fix: iconos posicionados exactamente en los slots de la imagen UX (v1.7.3) |
+| `6ba343a` | fix: 4 iconos invisibles + marco ULTi dimensiones correctas (v1.6.7) |
+| `b7507a6` | fix: ULTi marco visible, icon z-ordering, ULTi dynamic border (v1.6.6) |
+| `1b537ed` | v1.6.5: Arrange HUD icons in horizontal row with small gaps |
+| `742173a` | v1.6.4: Fix HUD icons positioned too low |
+| `3d412ea` | v1.6.3: Fix icons behind UX image + Fix freeze on restart |
+| `942d4f2` | v1.6.2: Fix PixiHUD icons not visible and game freeze on restart |
+| `bef6aa9` | v1.6.0: Fix HUD disappears on game restart (v1.6.1) |
+
+### v1.5.x
+> **Sobrecalentamiento, IA enemiga, limpieza de codigo**
+
+| Commit | Descripción |
+|--------|-------------|
+| `8f8c8db` | v1.5.2: Ajustes de sobrecarga W (2s aceleracion, 2.5s cooldown), mejorada IA enemigo (100px) |
+| `d8c0465` | v1.5.1: Restructuracion de archivos, documentacion organizada, correccion de bugs criticos |
+| `b82ba3c` | v1.5.0: Sistema de mejoras expandido (5 secciones, 25 mejoras), tutorial paso a paso |
 
 ### v1.5.0
 > **Sistema de mejoras expandido, tutorial mejorado, tiempo fuera aumentado**
@@ -370,8 +402,10 @@
 
 | Versión | Commits | Características Principales |
 |---------|---------|----------------------------|
-| v1.3.8 | 1 | Sistema de habilidades, partículas Boies, SpecialEnemy |
-| v1.3.7 | ~10 | Habilidades Q, E, R, Tiempo Fuera pasivo, animación reloj |
+| v1.7.x | ~40 | HUD PixiJS completo, iconos 70x70, UX 1000x160, animacion tiempo fuera |
+| v1.5.x | ~5 | Sobrecalentamiento W, IA enemiga, limpieza codigo |
+| v1.3.8 | 1 | Sistema de habilidades, particulas Boid, SpecialEnemy |
+| v1.3.7 | ~10 | Habilidades Q, E, R, Tiempo Fuera pasivo, animacion reloj |
 | v1.3.6 | ~8 | Partículas Boies, Devorador, efectos visuales |
 | v1.3.5 | 6 | UI mejorada, iconos de habilidades, efectos de escudo |
 | v1.3.4 | ~18 | Top 5 con Firebase, pausa, botones con imágenes |
@@ -390,10 +424,10 @@
 
 ## 🎯 Versiones Completadas
 
-**v1.3.8:** ✅ Sistema de habilidades, partículas Boies, SpecialEnemy
-**v1.3.7:** ✅ Habilidades Q, E, R, Tiempo Fuera pasivo
-**v1.3.6:** ✅ Partículas Boies, Devorador
+**v1.7.30:** ✅ HUD PixiJS completo con animaciones
+**v1.5.2:** ✅ Sobrecalentamiento W, IA enemiga
+**v1.5.0:** ✅ Sistema de mejoras expandido
 
 ---
 
-**Última actualización:** 02/05/2026
+**Última actualización:** 07/06/2026

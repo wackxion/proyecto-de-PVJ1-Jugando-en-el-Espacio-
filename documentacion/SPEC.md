@@ -3,7 +3,7 @@
 ## 1. Información del Proyecto
 
 - **Nombre del Juego:** Jugando en el Espacio
-- **Versión:** v1.5.0 (COMPLETADO)
+- **Versión:** v1.7.30 (ACTUAL)
 - **Curso:** Programación de Videojuegos 1 - UNAHUR
 - **Profesor:** Facundo Saiegh
 - **Integrantes:** Braian Zapater
@@ -140,12 +140,26 @@ Cuando un asteroide o nave enemiga colisiona con el mini asteroide en órbita:
 
 ---
 
-### 2.8 UI del Juego (v1.3.5)
+### 2.8 UI del Juego (v1.7.30 - PixiJS HUD)
 
-- **Shield** - Barra de escudos (azul, roja en sobrecalentamiento)
-- **ULTi** - Barra de carga ULTi
-- **Acceleration** - Barra de aceleraci:n (W)
-- Indicador: Oleada: X | Faltan: Y | Ast: Zs | Naves: Ws
+El HUD se renderiza completamente en el canvas de PixiJS mediante la clase `PixiHUD.js`.
+
+**Diseño fijo:** Base 1080×720, escalado con `Math.min(w/1080, h/720)`
+
+- **Imagen UX Experimental** - 1000×160px, parte inferior central
+- **6 Iconos de habilidades** - 70×70px cada uno, fila horizontal sobre slots de imagen UX:
+  - Tiempo Fuera | Cohetes (Q) | Escudo | ULTi | Propulsor (R) | Devorador (E)
+- **Barra de aceleración (W)** - 120×18px, detrás de imagen UX (zIndex: -2)
+- **Panel de puntuación** - Panel blanco 90×26px, font 16px azul
+- **Contador de partículas Boids** - Font 18px blanco con sombra
+- **Panel de oleada** - Font 12px blanco, top-left
+
+**Animaciones de iconos:**
+- Escudo: 5 sprites, cambia según % de escudos, parpadeo cuando sobrecalentado
+- ULTi: 5 sprites, animación cuando está listo, borde dorado pulsante
+- Tiempo Fuera: 6 sprites del reloj, parpadeo blanco/gris cuando activo
+
+**Menús (HTML/DOM):** UIManager.js maneja menú principal, tutorial, Top 5 y créditos
 
 **Pantalla de Game Over:**
 - Imagen de fondo (gameOver.jpg)
