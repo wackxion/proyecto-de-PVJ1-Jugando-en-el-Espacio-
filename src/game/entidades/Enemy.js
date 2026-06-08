@@ -12,6 +12,7 @@
  * cuando son destruidos, heredando el movimiento orbital del padre.
  */
 import { GameObject } from './GameObject.js';
+import { CONFIG } from '../../config.js';
 
 // Enum = tipo de dato que define constantes con nombres descriptivos
 // TamanioAsteroide es un objeto con las constantes que representan los tipos de asteroides
@@ -121,107 +122,31 @@ export class Enemigo extends GameObject {
      * @param {boolean} forzarOrbita - Forzar modo órbita (para fragmentos heredados)
      */
     _configurarPorTamanio(forzarOrbita = false) {
-        switch (this.tamanio) {
-            case 'small':
-                // Pequeño: imagen 200x200, reducir escala para que sea ~32px
-                this.radio = 16;
-                this.escala = 0.16;
-                this.velocidad = 150;
-                this.salud = 25;
-                this.puntos = 30;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 10;
-                this.debeOrbitar = forzarOrbita;
-                this.esRomptible = true;
-                break;
-                
-            case 'medium':
-                // Mediano: imagen 200x200, escalar a ~64px
-                this.radio = 32;
-                this.escala = 0.32;
-                this.velocidad = 100;
-                this.salud = 50;
-                this.puntos = 20;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 25;
-                this.debeOrbitar = forzarOrbita;
-                this.esRomptible = true;
-                break;
-                
-            case 'large':
-                // Grande: imagen 200x200, escalar a ~128px
-                this.radio = 64;
-                this.escala = 0.64;
-                this.velocidad = 50;
-                this.salud = 75;
-                this.puntos = 10;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 50;
-                this.debeOrbitar = true;
-                this.esRomptible = true;
-                break;
-                
-            case 'special':
-                // Especial: imagen 200x200, escalar a ~128px (más grande que medium)
-                this.radio = 48;
-                this.escala = 0.48;
-                this.velocidad = 120;
-                this.salud = 200;
-                this.puntos = 100;
-                this.cargaUlti = 0;  // NO da carga de ULTi
-                this.dano = 0;
-                this.debeOrbitar = false;
-                this.esRomptible = true;
-                this.esRezagado = false;
-                break;
-                
-            case 'large_rezagado':
-                // Grande rezagado: pasa de largo, radio = 64
-                this.radio = 64;
-                this.escala = 0.64;
-                this.velocidad = 60;
-                this.salud = 75;
-                this.puntos = 10;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 50;
-                this.debeOrbitar = false;
-                this.esRomptible = true;
-                this.esRezagado = true;
-                this.direccionX = Math.random() < 0.5 ? 1 : -1;
-                this.direccionY = 0;
-                break;
-                
-            case 'medium_rezagado':
-                // Mediano rezagado: radio = 32
-                this.radio = 32;
-                this.escala = 0.32;
-                this.velocidad = 80;
-                this.salud = 50;
-                this.puntos = 20;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 25;
-                this.debeOrbitar = false;
-                this.esRomptible = true;
-                this.esRezagado = true;
-                this.direccionX = Math.random() < 0.5 ? 1 : -1;
-                this.direccionY = 0;
-                break;
-                
-            case 'small_rezagado':
-                // Pequeño rezagado: radio = 16
-                this.radio = 16;
-                this.escala = 0.16;
-                this.velocidad = 120;
-                this.salud = 25;
-                this.puntos = 30;
-                this.cargaUlti = 5;  // Todos dan 5 de carga
-                this.dano = 10;
-                this.debeOrbitar = false;
-                this.esRomptible = true;
-                this.esRezagado = true;
-                this.direccionX = Math.random() < 0.5 ? 1 : -1;
-                this.direccionY = 0;
-                break;
+        // Stats numéricos centralizados en config.js (sección ASTEROIDES)
+        const stats = CONFIG.ASTEROIDES[this.tamanio];
+        this.radio = stats.RADIO;
+        this.escala = stats.ESCALA;
+        this.velocidad = stats.VELOCIDAD;
+        this.salud = stats.SALUD;
+        this.puntos = stats.PUNTOS;
+        this.cargaUlti = stats.CARGA_ULTI;
+        this.dano = stats.DANO;
+        this.esRomptible = true;
+
+        // Comportamiento de movimiento según el tipo
+        this.esRezagado = this.tamanio.endsWith('_rezagado');
+
+        if (this.tamanio === 'large') {
+            this.debeOrbitar = true;            // El grande orbita la nave
+        } else if (this.tamanio === 'special') {
+            this.debeOrbitar = false;
+            this.esRezagado = false;
+        } else if (this.esRezagado) {
+            this.debeOrbitar = false;
+            this.direccionX = Math.random() < 0.5 ? 1 : -1;  // Cruza la pantalla en horizontal
+            this.direccionY = 0;
+        } else {
+            this.debeOrbitar = forzarOrbita;    // small/medium: orbitan solo si son fragmentos heredados
         }
     }
     

@@ -12,6 +12,7 @@
  * - actualizarNavesEnemigas: Actualiza las naves enemigas
  */
 
+import { CONFIG } from '../../config.js';
 import { Enemigo } from '../entidades/Enemy.js';
 import { EnemyShip } from '../entidades/EnemyShip.js';
 import { SpecialEnemy } from '../entidades/SpecialEnemy.js';
@@ -165,7 +166,7 @@ export function generarEnemigo(game) {
         
         // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
         const oleadasAumento = Math.floor(game.contadorOleadas / 5);
-        const aumentoVelocidad = Math.min(oleadasAumento * 0.10, 0.60);
+        const aumentoVelocidad = Math.min(oleadasAumento * CONFIG.GENERACION.VELOCIDAD_AUMENTO_POR_OLEADA, CONFIG.GENERACION.VELOCIDAD_AUMENTO_MAXIMO);
         const multiplicadorVelocidad = 1 + aumentoVelocidad;
         enemigo.multiplicadorVelocidad = multiplicadorVelocidad;
         
@@ -598,7 +599,7 @@ export function actualizarGeneracion(game, delta) {
         // Calcular intervalo: 8s (oleada 0) -> 5s (oleada 15)
         // Reducido de 25s a 8s para que aparezcan más rápido al inicio
         const reduccion = game.contadorOleadas * (3 / 15);
-        game.intervaloNaveEnemiga = Math.max(5, 8 - reduccion);
+        game.intervaloNaveEnemiga = Math.max(CONFIG.GENERACION.NAVE_INTERVALO_MINIMO, CONFIG.GENERACION.NAVE_INTERVALO_BASE - reduccion);
         
         game.temporizadorNaveEnemiga += delta;
         if (game.temporizadorNaveEnemiga >= game.intervaloNaveEnemiga) {
@@ -655,14 +656,14 @@ export function procesarColisionesEnemigos(game) {
                 enemy1.alterDirection();
                 enemy2.alterDirection();
                 
-                enemy1.enfriamientoColision = 0.5;
-                enemy2.enfriamientoColision = 0.5;
+                enemy1.enfriamientoColision = CONFIG.GENERACION.COLISION_ENFRIAMIENTO;
+                enemy2.enfriamientoColision = CONFIG.GENERACION.COLISION_ENFRIAMIENTO;
                 
                 const esGrande1 = enemy1.tamanio === 'large' || enemy1.tamanio === 'large_rezagado';
                 const esGrande2 = enemy2.tamanio === 'large' || enemy2.tamanio === 'large_rezagado';
                 
                 if (esGrande1 && esGrande2) {
-                    const danoColision = 50;
+                    const danoColision = CONFIG.GENERACION.COLISION_DANO_LARGE;
                     enemy1.salud -= danoColision;
                     enemy2.salud -= danoColision;
                     

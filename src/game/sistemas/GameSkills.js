@@ -17,6 +17,7 @@
 import { Cohete } from '../mecanicas/Cohete.js';
 import { SuccionEffect } from '../efectosVisuales/SuccionEffect.js';
 import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
+import { CONFIG } from '../../config.js';
 
 /**
  * Encuentra los N enemigos más cercanos al jugador
@@ -87,7 +88,7 @@ export function crearCohetes(game) {
     }
     
     // Encontrar los 2 enemigos más cercanos
-    const enemigosCercanos = encontrarEnemigosCercanos(game, 2);
+    const enemigosCercanos = encontrarEnemigosCercanos(game, CONFIG.HABILIDADES.COHETES_CANTIDAD);
     
     for (const enemigo of enemigosCercanos) {
         if (enemigo && enemigo.active) {
@@ -293,15 +294,15 @@ export function actualizarHabilidadDevorador(game, delta) {
         game.efectoSuccion = new SuccionEffect(game.jugador.x, game.jugador.y, game.anchoJuego, game.altoJuego);
         game.efectoSuccion.render(game.aplicacion.stage);
         
-        const radioDevorar = 200;
+        const radioDevorar = CONFIG.HABILIDADES.DEVORADOR_RANGO;
         for (const particula of game.particulasBoid) {
             if (!particula.active) continue;
             const dx = game.jugador.x - particula.x;
             const dy = game.jugador.y - particula.y;
             const distancia = Math.sqrt(dx * dx + dy * dy);
             if (distancia < radioDevorar && distancia > 0) {
-                particula.velX = (dx / distancia) * 400;
-                particula.velY = (dy / distancia) * 400;
+                particula.velX = (dx / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
+                particula.velY = (dy / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
                 particula.siendoAtraida = true;
             }
         }
@@ -362,8 +363,8 @@ export function activarDevorador(game) {
         
         if (distancia < radioDevorar && distancia > 0) {
             // Forzar a la partícula a ir directamente a la nave
-            particula.velX = (dx / distancia) * 400;
-            particula.velY = (dy / distancia) * 400;
+            particula.velX = (dx / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
+            particula.velY = (dy / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
             particula.siendoAtraida = true;
         }
     }
@@ -492,7 +493,7 @@ export function actualizarTiempoFuera(game, delta) {
         
         if (game.timerTiempoFuera >= game.duracionTiempoFuera) {
             // Al terminar: regenerar 10 escudos + bonus de mejoras (indices 20-24)
-            const regeneracionBase = 10;
+            const regeneracionBase = CONFIG.HABILIDADES.TIEMPO_FUERA_REGENERACION;
             const regeneracionBonus = game.regeneracionTiempoFueraBonus || 0;
             game.jugador.agregarEscudos(regeneracionBase + regeneracionBonus);
             

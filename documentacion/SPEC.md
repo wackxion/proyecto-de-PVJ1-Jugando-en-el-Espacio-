@@ -41,7 +41,7 @@
 | HP | 25 |
 | Daño al jugador | 25% escudos |
 | Velocidad | 225 px/s |
-| Aparición | Desde oleada 0, intervalo 25s → 5s |
+| Aparición | Desde oleada 0, intervalo 8s → 5s |
 | Disparo | Cada 3 segundos |
 | Movimiento | Orbita al jugador con inercia |
 | Proyectiles | Teledirigidos, evitan asteroides |
@@ -50,10 +50,10 @@
 | Da carga ULTi | 10 al destruirse |
 
 **Sistema de aparición progresiva:**
-- Oleadas 0-9: 1 nave cada 25s → 13s
-- Oleadas 10-29: 2 naves cada 11.7s → 5s
-- Oleadas 30+: 3 naves cada 5s
-- Cada 5 oleadas: +3 naves adicionales (oleadas 5, 10, 15, 20, 25, 30...)
+- Oleadas 0-9: 1 nave, intervalo 8s → 6s
+- Oleadas 10-29: 2 naves, intervalo 6s → 5s
+- Oleadas 30+: 3 naves, intervalo 5s (mínimo)
+- Cada 5 oleadas: +3 naves adicionales (oleadas 5, 10, 15, 20, 25, 30…)
 
 ---
 
@@ -92,16 +92,13 @@
 
 | Oleada | Intervalo Asteroides | Intervalo Naves | Naves por generación |
 |--------|---------------------|-----------------|---------------------|
-| 0 | 1.5s | 25s | 1 |
-| 1 | 1.5s | 23.7s | 1 |
-| 2 | 1.5s | 22.3s | 1 |
-| 3 | 1.5s | 21s | 1 |
-| 4 | 1.5s | 19.7s | 1 |
-| **5** | 1.5s | 18.3s | **4** (1 + 3 extra) |
-| 6-9 | 1.5s | 17s → 13s | 1-2 |
-| **10** | 1.5s | 11.7s | **5** (2 + 3 extra) |
-| 11-14 | 1.5s | 10.3s → 6.3s | 2 |
-| **15** | 1.5s | **5s** | **5** (2 + 3 extra) |
+| 0 | 1.5s | 8s | 1 |
+| 1-4 | 1.5s | 7.8s → 7s | 1 |
+| **5** | 1.5s | 7s | **4** (1 + 3 extra) |
+| 6-9 | 1.5s | 6.8s → 6s | 1 |
+| **10** | 1.5s | 6s | **5** (2 + 3 extra) |
+| 11-14 | 1.5s | 5.8s → 5.2s | 2 |
+| **15** | 1.5s | **5s** (mínimo) | **5** (2 + 3 extra) |
 | 16-29 | 1.5s | 5s | 2 |
 | **30+** | 1.5s | 5s | **6** (3 + 3 extra) |
 
@@ -164,7 +161,7 @@ El HUD se renderiza completamente en el canvas de PixiJS mediante la clase `Pixi
 **Pantalla de Game Over:**
 - Imagen de fondo (gameOver.jpg)
 - Titulo GAME OVER
-- Puntuaci:n conseguida y oleada alcanzada
+- Puntuación conseguida y oleada alcanzada
 - Botones: REINICIAR, TOP 5
 - Al volver del Top 5 se preservan los textos (score, oleada)
 
@@ -310,7 +307,7 @@ El HUD se renderiza completamente en el canvas de PixiJS mediante la clase `Pixi
 - Cambios visuales: parpadeo blanco/azul durante sobrecalentamiento, azul fijo después de activar
 
 #### Archivos Nuevos
-- **Cohete.js**: Cohetes teledirigidos con追踪 hacia objetivos
+- **Cohete.js**: Cohetes teledirigidos con seguimiento hacia objetivos
 
 ### Modificado
 

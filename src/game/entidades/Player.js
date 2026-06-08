@@ -11,6 +11,7 @@
  */
 import { GameObject } from './GameObject.js';
 import { HitEffect } from '../efectosVisuales/HitEffect.js';
+import { CONFIG } from '../../config.js';
 
 export class Jugador extends GameObject {
     /**
@@ -34,11 +35,11 @@ export class Jugador extends GameObject {
 this.rotacion = 0;
         
         // Velocidad de rotación (rad/s)
-        this.velocidadRotacion = 4;
+        this.velocidadRotacion = CONFIG.JUGADOR.VELOCIDAD_ROTACION;
         
         // Radio: radio de colisión para detectar choques con asteroides
         // Se usa para calcular si la nave toca un asteroide
-        this.radio = 32;
+        this.radio = CONFIG.JUGADOR.RADIO_COLISION;
         
         // Ancho/Alto Juego: Dimensiones del área de juego
         // Se usan para mantener la nave dentro de la pantalla
@@ -52,8 +53,8 @@ this.rotacion = 0;
         // cargaMaxUlti: carga necesaria para poder usar el ataque especial
         // 500 = más difícil de cargar (antes era 300)
         // Se reduce según las mejoras compradas (indices 10-14 en Game.js)
-        this.cargaMaxUlti = 500;
-        this.cargaMaxUltiBase = 500;
+        this.cargaMaxUlti = CONFIG.ULTI.CARGA_MAXIMA;
+        this.cargaMaxUltiBase = CONFIG.ULTI.CARGA_MAXIMA;
         // ultiListo: flag que indica si el ataque está listo
         this.ultiListo = false;
         
@@ -61,15 +62,15 @@ this.rotacion = 0;
         // escudos: Escudos actuales del jugador
         // escudosMax: Máximo de escudos (aumenta con mejoras)
         // Cuando llega a 0, es game over
-        this.escudos = 100;
-        this.escudosMax = 100;
+        this.escudos = CONFIG.ESCUDOS.MAXIMO;
+        this.escudosMax = CONFIG.ESCUDOS.MAXIMO;
         
         // SISTEMA DE DISPARO
         // enfriamientoDisparoMax: Tiempo mínimo entre cada disparo (en segundos)
         // Este valor baja cuando agarras power-ups (dispara más rápido)
-        this.enfriamientoDisparoMax = 0.2;
+        this.enfriamientoDisparoMax = CONFIG.DISPARO.ENFRIAMIENTO;
         // enfriamientoDisparoBase: Valor original del enfriamiento para reiniciar
-        this.enfriamientoDisparoBase = 0.2;
+        this.enfriamientoDisparoBase = CONFIG.DISPARO.ENFRIAMIENTO;
         // nivelMejoraVelocidad: Contador de mejoras de velocidad de disparo
         // Se incrementa cada vez que se destruye un asteroide especial
         this.nivelMejoraVelocidad = 0;
@@ -91,7 +92,7 @@ this.rotacion = 0;
         this.temporizadorEnfriamiento = 0;
         
         // duracionEnfriamiento: Duración del modo enfriamiento (10 segundos)
-        this.duracionEnfriamiento = 10;
+        this.duracionEnfriamiento = CONFIG.ESCUDOS.DURACION_SOBRECALENTAMIENTO;
         
         // escudosPreEnfriamiento: Guarda los escudos que tenía al entrar en sobrecalentamiento
         this.escudosPreEnfriamiento = 0;
@@ -100,11 +101,11 @@ this.rotacion = 0;
         // enPropulsor: Flag que indica si el propulsor está activo
         this.enPropulsor = false;
         // duracionPropulsor: Duración del dash (0.2 segundos)
-        this.duracionPropulsor = 0.2;
+        this.duracionPropulsor = CONFIG.PROPULSOR.DURACION;
         // temporizadorPropulsor: Timer para el dash
         this.temporizadorPropulsor = 0;
         // velocidadPropulsor: Velocidad del dash (300px en 0.2s = 1500px/s)
-        this.velocidadPropulsor = 1500;
+        this.velocidadPropulsor = CONFIG.PROPULSOR.VELOCIDAD;
         
         // SPRITE (IMAGEN)
         // Sprite = Imagen del objeto en el juego
@@ -144,11 +145,11 @@ this.rotacion = 0;
         // velocidad: Velocidad actual de la nave
         this.velocidad = 0;
         // velocidadMax: Velocidad máxima hacia adelante
-        this.velocidadMax = 300;
+        this.velocidadMax = CONFIG.JUGADOR.VELOCIDAD_MAX;
         // aceleracion: Cuánto aumenta la velocidad cuando presionas W
-        this.aceleracion = 400;
+        this.aceleracion = CONFIG.JUGADOR.ACELERACION;
         // friccion: Cuánto disminuye la velocidad cuando sueltas W (0.95 = pierde 5% por frame)
-        this.friccion = 0.95;
+        this.friccion = CONFIG.JUGADOR.FRICCION;
         // direccionMovimiento: Dirección en la que se mueve
         this.direccionMovimiento = this.rotacion;
         
@@ -159,13 +160,13 @@ this.rotacion = 0;
         // Te impide acelerar por 2.5 segundos, pero seguís jugando normalmente
         // cargaAceleracion: Carga que se llena mientras presionas W (0-100)
         this.cargaAceleracion = 0;
-        this.cargaMax = 100;
-        this.velocidadCarga = 50; // 50% por segundo (llena en 2 segundos)
+        this.cargaMax = CONFIG.ACELERACION.CARGA_MAXIMA;
+        this.velocidadCarga = CONFIG.ACELERACION.VELOCIDAD_CARGA; // 50% por segundo (llena en 2 segundos)
         // sobrecalentadoAceleracion: Flag que indica si está sobrecalentado por usar W demasiado
         this.sobrecalentadoAceleracion = false;
         // temporizadorEnfriamientoAcel: Temporizador de enfriamiento (2.5 segundos)
         this.temporizadorEnfriamientoAcel = 0;
-        this.duracionEnfriamientoAcel = 2.5;
+        this.duracionEnfriamientoAcel = CONFIG.ACELERACION.DURACION_ENFRIAMIENTO;
     }
     
     /**
@@ -451,7 +452,7 @@ this.rotacion = 0;
         // Reducir el enfriamiento multiplicándolo por 0.8 (80%)
         // Ejemplo: 0.2s -> 0.16s -> 0.128s (más disparos por segundo)
         // Math.max(0.05, ...) = no dejar que baje de 0.05 segundos
-        this.enfriamientoDisparoMax = Math.max(0.05, this.enfriamientoDisparoMax * 0.8);
+        this.enfriamientoDisparoMax = Math.max(CONFIG.DISPARO.ENFRIAMIENTO_MINIMO, this.enfriamientoDisparoMax * CONFIG.DISPARO.MULTIPLICADOR_MEJORA);
         
         // Incrementar contador de mejoras
         this.nivelMejoraVelocidad++;

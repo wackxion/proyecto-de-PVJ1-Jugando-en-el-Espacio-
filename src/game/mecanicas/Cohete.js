@@ -1,6 +1,7 @@
 /**
  * Cohete - Proyectil teledirigido que va hacia el enemigo más cercano
  */
+import { CONFIG } from '../../config.js';
 import { GameObject } from '../entidades/GameObject.js';
 
 export class Cohete extends GameObject {
@@ -15,9 +16,9 @@ export class Cohete extends GameObject {
         super(x, y);
         
         this.objetivo = objetivo;
-        this.velocidad = 400; // Velocidad del cohete
+        this.velocidad = CONFIG.COHETE.VELOCIDAD;
         this.active = true;
-        this.dano = 999; // Destruye cualquier enemigo con un hit
+        this.dano = CONFIG.COHETE.DANO;
         
         // Crear sprite
         this.imagen = new PIXI.Sprite(textura);
@@ -88,7 +89,7 @@ export class Cohete extends GameObject {
         
         const radioObjetivo = this.objetivo.radio || 32;
         
-        return distancia < (8 + radioObjetivo); // 8 = tamaño aproximado del cohete
+        return distancia < (CONFIG.COHETE.RADIO + radioObjetivo);
     }
     
     /**

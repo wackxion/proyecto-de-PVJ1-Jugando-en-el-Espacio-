@@ -13,6 +13,7 @@
  * - capturarParticula: Elimina una partícula capturada
  */
 
+import { CONFIG } from '../../config.js';
 import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
 
 /**
@@ -126,7 +127,7 @@ export function actualizarParticulasBoid(game, delta) {
         return;
     }
     
-    const maxParticulas = 100;
+    const maxParticulas = CONFIG.BOIDS.MAX_PARTICULAS;
     
     for (let i = game.particulasBoid.length - 1; i >= 0; i--) {
         const particula = game.particulasBoid[i];
@@ -136,12 +137,12 @@ export function actualizarParticulasBoid(game, delta) {
             const dx = game.jugador.x - particula.x;
             const dy = game.jugador.y - particula.y;
             const distancia = Math.sqrt(dx * dx + dy * dy);
-            if (distancia > 250) {
+            if (distancia > CONFIG.BOIDS.RANGO_RESET_ATRACCION) {
                 particula.siendoAtraida = false;
             }
             
             // Verificar si la partícula llegó al jugador (capturada por Devorador)
-            if (particula.siendoAtraida && distancia < 30) {
+            if (particula.siendoAtraida && distancia < CONFIG.BOIDS.RANGO_CAPTURA) {
                 // Capturar la partícula
                 _capturarParticulaBoid(game, i);
                 continue;
@@ -271,10 +272,10 @@ export function actualizarSistemaBoid(game, delta) {
     
     // Timer para crear partículas en grupos de 10 (cada 7 segundos)
     game.timerParticulasBoid = (game.timerParticulasBoid || 0) + delta;
-    if (game.timerParticulasBoid >= 7 && game.particulasBoid.length < 100) {
+    if (game.timerParticulasBoid >= CONFIG.BOIDS.SPAWN_INTERVALO && game.particulasBoid.length < CONFIG.BOIDS.MAX_PARTICULAS) {
         game.timerParticulasBoid = 0;
         // Crear grupo de 10 partículas
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < CONFIG.BOIDS.SPAWN_BATCH; i++) {
             const nuevaParticula = crearParticulaFuera(game);
             game.particulasBoid.push(nuevaParticula);
             nuevaParticula.render(game.aplicacion.stage);

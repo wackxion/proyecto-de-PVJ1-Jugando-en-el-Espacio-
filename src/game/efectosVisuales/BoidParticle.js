@@ -8,6 +8,7 @@
  * - Fuga: huir de la nave del jugador y las verdes enemigas
  * - Rebote: rebotar al colisionar con asteroides
  */
+import { CONFIG } from '../../config.js';
 import { GameObject } from '../entidades/GameObject.js';
 
 export class BoidParticle extends GameObject {
@@ -32,11 +33,11 @@ export class BoidParticle extends GameObject {
         this.radio = 5;
 
         // Velocidad de la partícula
-        this.velX = (Math.random() - 0.5) * 150;
-        this.velY = (Math.random() - 0.5) * 150;
+        this.velX = (Math.random() - 0.5) * CONFIG.BOIDS.VELOCIDAD_INICIAL_MAX;
+        this.velY = (Math.random() - 0.5) * CONFIG.BOIDS.VELOCIDAD_INICIAL_MAX;
 
         // Velocidad máxima
-        this.velocidadMax = 180;
+        this.velocidadMax = CONFIG.BOIDS.VELOCIDAD_MAX;
 
         // Crear sprite
         this.imagen = new PIXI.Sprite(textura);
@@ -53,12 +54,12 @@ export class BoidParticle extends GameObject {
         this.siendoAtraida = false;
         
         // Parámetros de Boids - FUERZAS
-        this.fuerzaSeparacion = 0.01;
-        this.fuerzaCohesion = 0.005;
-        this.fuerzaAlineacion = 0.01;
-        this.fuerzaFuga = 0.6;  // DUPLICADO - huye el doble de rápido
-        this.rangoVision = 100;
-        this.rangoFuga = 200;  // DUPLICADO - detecta la nave desde el doble de lejos
+        this.fuerzaSeparacion = CONFIG.BOIDS.FUERZA_SEPARACION;
+        this.fuerzaCohesion = CONFIG.BOIDS.FUERZA_COHESION;
+        this.fuerzaAlineacion = CONFIG.BOIDS.FUERZA_ALINEACION;
+        this.fuerzaFuga = CONFIG.BOIDS.FUERZA_FUGA;
+        this.rangoVision = CONFIG.BOIDS.RANGO_VISION;
+        this.rangoFuga = CONFIG.BOIDS.RANGO_FUGA;
     }
     
     /**

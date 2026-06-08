@@ -1,15 +1,19 @@
 {
-  "name": "space-defender",
-  "version": "1.0.0",
-  "description": "Videojuego 2D - Programación de Videojuegos 1 UNAHUR",
+  "name": "jugando-en-el-espacio",
+  "version": "1.5.2",
+  "description": "Videojuego 2D arcade espacial hecho con PixiJS - Programación de Videojuegos 1, UNAHUR",
   "main": "src/main.js",
   "scripts": {
     "start": "serve .",
     "dev": "serve .",
     "build": "echo 'No build required for static site'"
   },
-  "keywords": ["game", "pixijs", "videojuegos"],
-  "author": "",
+  "keywords": ["game", "videojuego", "pixijs", "arcade", "space", "unahur"],
+  "author": "Braian Zapater",
   "license": "MIT",
-  "homepage": "https://github.com/wackxion/space-defender"
+  "homepage": "https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-.git"
+  }
 }

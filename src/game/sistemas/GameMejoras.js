@@ -14,6 +14,7 @@
  * - limpiarVentanaMejoras: Limpia los elementos de la ventana
  */
 
+import { CONFIG } from '../../config.js';
 // PIXI está disponible globalmente en el proyecto
 
 /**
@@ -26,12 +27,11 @@ export function inicializarMejoras(game) {
     // 5 secciones con 5 mejoras cada una = 25 mejoras totales
     // 0-4: Proyectil, 5-9: Escudo, 10-14: ULTi, 15-19: Proyectil2, 20-24: Tiempo fuera
     game.mejoras = Array(25).fill(0);
-    // Costos temporales - luego se especificarán
-    const costosProyectil = [5, 15, 25, 25, 50];
-    const costosEscudo = [50, 50, 50, 50, 50];
-    const costosUlti = [50, 50, 50, 50, 50];
-    const costosProyectil2 = [10, 15, 25, 30, 60];
-    const costosTiempoFuera = [30, 35, 40, 45, 100];
+    const costosProyectil    = CONFIG.MEJORAS.COSTOS_PROYECTIL;
+    const costosEscudo       = CONFIG.MEJORAS.COSTOS_ESCUDO;
+    const costosUlti         = CONFIG.MEJORAS.COSTOS_ULTI;
+    const costosProyectil2   = CONFIG.MEJORAS.COSTOS_PROYECTIL2;
+    const costosTiempoFuera  = CONFIG.MEJORAS.COSTOS_TIEMPO_FUERA;
     game.costosMejoras = [...costosProyectil, ...costosEscudo, ...costosUlti, ...costosProyectil2, ...costosTiempoFuera];
 }
 
@@ -348,7 +348,7 @@ export function comprarMejora(game, indice) {
     // 0-4: Proyectil, 5-9: Escudo, 10-14: ULTi, 15-19: Proyectil2, 20-24: Tiempo fuera
     if (indice >= 5 && indice <= 9 && game.jugador) {
         // Restaurar escudos (+50%) al comprar mejora de escudos
-        game.jugador.escudos = Math.min(100, game.jugador.escudos + 50);
+        game.jugador.escudos = Math.min(CONFIG.ESCUDOS.MAXIMO, game.jugador.escudos + CONFIG.MEJORAS.ESCUDO_RESTAURACION);
     }
     
     // Actualizar costos en los iconos según la sección

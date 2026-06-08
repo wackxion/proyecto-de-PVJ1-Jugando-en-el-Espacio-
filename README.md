@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.5.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-//releases/tag/v1.5.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.5.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.5.2)
 
 ---
 
@@ -51,7 +51,7 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 | Tecla | Habilidad | Cooldown |
 |-------|-----------|----------|
 | Q | Cohetes - Lanza 2 cohetes hacia enemigos cercanos | 5 seg |
-| E | Devorador - Atrae partículas Boisd dentro de 200px | 5 seg |
+| E | Devorador - Atrae partículas Boid dentro de 200px | 5 seg |
 | R | Propulsor - Dash de 300px | 15 seg |
 | S | ULTi - Pulso expansivo | - |
 
@@ -83,7 +83,7 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 | A / Flecha ← | Rotar nave a la izquierda |
 | D / Flecha → | Rotar nave a la derecha |
 | Q | Cohetes (2 hacia enemigos cercanos) |
-| E | Devorador (atrae partículas Boisd) |
+| E | Devorador (atrae partículas Boid) |
 | R | Propulsor (dash de 300px) |
 | ENTER / Click | Reiniciar (en Game Over) |
 | P | Pausar/Abrir ventana de mejoras |
@@ -108,11 +108,11 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 | SMALL | 32x32 | 16px | 25 HP | 10% | Va directo a la nave | 30 |
 | MEDIUM | 64x64 | 32px | 50 HP | 25% | Va directo a la nave | 20 |
 | LARGE | 128x128 | 64px | 75 HP | 50% | Orbita alrededor de la nave | 10 |
-| SPECIAL | 96x96 | 48px | 100 HP | 0% | Power-up al destruir ( orbita) | 100 |
+| SPECIAL | 96x96 | 48px | 200 HP | 0% | Power-up al destruir (orbita) | 100 |
 
 ### Sistema de Naves Enemigas (v1.3.2)
-- Appeecen desde el **inicio del juego** (oleada 0)
-- Intervalo: 20s → 5s (reduce 3s por oleada)
+- Aparecen desde el **inicio del juego** (oleada 0)
+- Intervalo: 8s → 5s (se reduce con las oleadas)
 - **Cada 5 oleadas**: aparecen **4 naves** (1 normal + 3 extra)
 - HP: 25, Velocidad: 225 px/s
 - Disparan cada 3 segundos
@@ -129,7 +129,7 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 ### Sistema de Oleadas
 | Oleada | Intervalo Naves | Naves por oleada |
 |--------|----------------|-----------------|
-| 0-4 | 20s → 8s | 1 nave |
+| 0-4 | 8s → 7s | 1 nave |
 | **5** | 5s | **4 naves** |
 | 6-9 | 5s | 1 nave |
 | **10** | 5s | **4 naves** |
@@ -167,52 +167,51 @@ serve .
 ## 📁 Estructura del Proyecto
 
 ```
-├── index.html              # Página principal
-├── GDD.md                  # Historial de versiones y commits
-├── SPEC.md                 # Especificaciones del juego
-├── PENDIENTES.md           # Tareas pendientes y roadmap
-├── README.md               # Este archivo
-├── package.json            # Configuración npm
-├── css/
-│   └── style.css          # Estilos (comentados)
-├── assets/
-│   ├── nave.png           # Sprite de la nave
-│   ├── asteroide.png      # Sprite del asteroide
-│   ├── puntuacion2.png    # Imagen decorativa UI
-│   ├── tutorial.png       # Imagen de tutorial
-│   ├── gameOver.jpg       # Imagen de Game Over
-│   └── guardarPuuntos.png # Imagen de formulario Top 5
+├── index.html                   # Página principal
+├── package.json                 # Configuración npm
+├── documentacion/
+│   ├── GDD.md                   # Historial de versiones y commits
+│   ├── SPEC.md                  # Especificaciones del juego
+│   └── PENDIENTES.md            # Tareas pendientes y roadmap
+├── assets/                      # Sprites, imágenes y fondos
 └── src/
-    ├── main.js            # Punto de entrada
+    ├── config.js                # ⚙️ Configuración central de balance (velocidades, daños, cooldowns…)
+    ├── main.js                  # Punto de entrada
     ├── ui/
-    │   └── UIManager.js   # Gestión de UI y menús
-    ├── game/
-    │   ├── Game.js        # Clase principal
-    │   ├── Player.js      # Nave del jugador (clase: Jugador)
-    │   ├── Enemy.js       # Asteroides (clase: Enemigo)
-    │   ├── EnemyShip.js   # Naves enemigas
-    │   ├── SpecialEnemy.js# Asteroide especial
-    │   ├── Projectile.js # Proyectiles aliados (clase: Proyectil)
-    │   ├── EnemyProjectile.js # Proyectiles enemigos
-    │   ├── UltiEffect.js # Efecto especial
-    │   ├── BurstEffect.js# Efecto de explosión
-    │   ├── HitEffect.js  # Efecto de impacto
-    │   ├── ProyectilExplosion.js # Animación de proyectil
-    │   ├── AsteroidExplosion.js # Animación de asteroide
-    │   ├── Top5.js       # Sistema de puntuación Top 5 (Firebase)
-    │   ├── GameObject.js # Clase base
-    │   ├── BoidParticle.js # Partículas Boisd
-    │   ├── Cohete.js     # Cohetes teledirigidos (habilidad Q)
-    │   ├── SuccionEffect.js # Efecto de succión (Devorador)
-    │   ├── ObjectPool.js # Pool de objetos
-    │   ├── GameProjectiles.js # Módulo de proyectiles
-    │   ├── GameEnemies.js # Módulo de enemigos
-    │   ├── GameSkills.js # Módulo de habilidades
-    │   ├── GameEffects.js # Módulo de efectos
-    │   ├── GameBoids.js # Módulo de partículas Boisd
-    │   └── GameMejoras.js # Módulo de mejoras
-    └── systems/
-        └── InputManager.js # Gestión de teclado (clase: GestorEntrada)
+    │   └── UIManager.js         # Menú principal, tutorial, Top 5 y créditos (HTML/DOM)
+    ├── systems/
+    │   └── InputManager.js      # Gestión de teclado (clase: GestorEntrada)
+    └── game/
+        ├── ui/
+        │   └── PixiHUD.js       # HUD renderizado en canvas PixiJS
+        ├── sistemas/
+        │   ├── Game.js          # Clase principal del juego (game loop, estado)
+        │   ├── GameBoids.js     # Módulo: partículas Boid (spawn, reciclaje)
+        │   ├── GameEffects.js   # Módulo: efectos visuales y ULTi
+        │   ├── GameEnemies.js   # Módulo: generación, IA y colisiones de enemigos
+        │   ├── GameMejoras.js   # Módulo: tienda de mejoras (tecla P)
+        │   ├── GameProjectiles.js # Módulo: proyectiles y colisiones
+        │   ├── GameSkills.js    # Módulo: habilidades Q/E/R y Tiempo Fuera
+        │   └── ObjectPool.js    # Pool de objetos (optimización de memoria)
+        ├── entidades/
+        │   ├── GameObject.js    # Clase base de todas las entidades
+        │   ├── Player.js        # Nave del jugador (clase: Jugador)
+        │   ├── Enemy.js         # Asteroides (clase: Enemigo, 7 tipos)
+        │   ├── EnemyShip.js     # Naves enemigas con IA
+        │   ├── SpecialEnemy.js  # Asteroide especial (orbita al destruirse)
+        │   ├── Projectile.js    # Proyectiles aliados (clase: Proyectil)
+        │   └── EnemyProjectile.js # Proyectiles enemigos teledirigidos
+        ├── efectosVisuales/
+        │   ├── BoidParticle.js      # Partículas Boid (enjambre con IA)
+        │   ├── AsteroidExplosion.js # Explosión al destruir asteroide
+        │   ├── ProyectilExplosion.js# Explosión al destruir proyectil
+        │   ├── HitEffect.js         # Efecto de impacto (partículas)
+        │   ├── BurstEffect.js       # Explosión de power-up
+        │   ├── UltiEffect.js        # Aro expansivo del ULTi
+        │   └── SuccionEffect.js     # Efecto visual del Devorador
+        └── mecanicas/
+            ├── Cohete.js   # Proyectil teledirigido (habilidad Q)
+            └── Top5.js     # Sistema de puntuación Top 5 (Firebase Firestore)
 ```
 
 ---
@@ -262,13 +261,13 @@ GameObject (CLASE BASE - entidades/GameObject.js)
 │   ├── EnemyShip (EnemyShip.js) - extends GameObject
 │   │   └── Propiedades:
 │   │       ├── velocidad: 225 px/s
-│   │       ├── salud: 100
-│   │       └── dano: 20
+│   │       ├── salud: 25
+│   │       └── dano: 25
 │   │
 │   ├── EnemyProjectile (EnemyProjectile.js) - extends GameObject
 │   │   └── Propiedades:
 │   │       ├── velocidad: 400 px/s
-│   │       └── dano: 10
+│   │       └── dano: 25
 │   │
 │   ├── SpecialEnemy (SpecialEnemy.js) - extends GameObject
 │   │   └── Propiedades:
@@ -357,7 +356,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.4.6 (Actual)
+### v1.5.2 (Actual)
+> **Refactor de balance — config.js centralizado**
+
+- Nuevo `src/config.js`: punto único para ajustar balance (velocidades, daños, cooldowns, costos de mejoras)
+- 14 archivos leen sus constantes de config — ningún número "mágico" suelto en el código
+- Encoding de `Game.js` reparado: 410 caracteres españoles corruptos restaurados
+- `package.json` actualizado con nombre, versión, autor y repositorio correctos
+- Sobrecalentamiento W ajustado: 2s de aceleración + 2.5s de enfriamiento
+
+### v1.4.6
 > **Sistema de Mejoras y mejoras varias**
 
 **Sistema de Mejoras:**
@@ -371,7 +379,7 @@ main.js
 - Contador del Devorador muestra partículas **recolectadas**
 
 **Otros cambios:**
-- Partículas Boisd ya no empiezan con 10 al iniciar
+- Partículas Boid ya no empiezan con 10 al iniciar
 - ULTi reducida de 30% a 18% de la diagonal
 - Ventana de mejoras mejorada (título, precio, contador)
 - Fix de click en barras después de reiniciar
@@ -464,7 +472,7 @@ main.js
 
 #### Nuevas Características
 - **Naves enemigas desde el inicio:**
-  - Appeecen desde oleada 0 (antes era desde oleada 5)
+  - Aparecen desde oleada 0 (antes era desde oleada 5)
   - Intervalo progresivo: 20s → 5s
   - Cada 5 oleadas: 4 naves (1 normal + 3 extra)
   - Explosión VERDE al destruir
@@ -518,7 +526,7 @@ main.js
 | `proyectil.png` | Proyectiles del jugador |
 | `proyectilEnemigo.png` | Proyectiles de naves enemigas |
 | `cohete.png` | Cohetes de habilidad Q |
-| `Pboids2.png` | Partículas Boisd |
+| `Pboids2.png` | Partículas Boid |
 
 ### UI e Iconos
 | Archivo | Uso |

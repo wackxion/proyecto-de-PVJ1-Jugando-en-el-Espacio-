@@ -11,6 +11,8 @@
  * - A / Flecha Izquierda: Rotar nave hacia la izquierda
  * - D / Flecha Derecha: Rotar nave hacia la derecha
  */
+import { CONFIG } from '../config.js';
+
 export class GestorEntrada {
     /**
      * Constructor del GestorEntrada
@@ -63,23 +65,23 @@ export class GestorEntrada {
         // EnfriamientoDisparo = temporizador entre disparos
         // Evita que el jugador dispare constantemente con una sola tecla
         this.enfriamientoDisparo = 0;
-        this.enfriamientoDisparoMax = 0.2; // 0.2 segundos entre cada disparo
+        this.enfriamientoDisparoMax = CONFIG.DISPARO.ENFRIAMIENTO; // 0.2 segundos entre cada disparo
         
         // EnfriamientoUlti = temporizador para el ataque especial
         this.enfriamientoUlti = 0;
-        this.enfriamientoUltiMax = 0.5; // 0.5 segundos de cooldown
+        this.enfriamientoUltiMax = CONFIG.ULTI.COOLDOWN_TECLA; // 0.5 segundos de cooldown
         
         // EnfriamientoDevorar = temporizador para el devorador de partículas
         this.enfriamientoDevorar = 0;
-        this.enfriamientoDevorarMax = 5; // 5 segundos de cooldown
+        this.enfriamientoDevorarMax = CONFIG.HABILIDADES.DEVORADOR_COOLDOWN; // 5 segundos de cooldown
         
         // EnfriamientoCohetes = temporizador para los cohetes
         this.enfriamientoCohetes = 0;
-        this.enfriamientoCohetesMax = 5; // 5 segundos de cooldown
+        this.enfriamientoCohetesMax = CONFIG.HABILIDADES.COHETES_COOLDOWN; // 5 segundos de cooldown
         
         // EnfriamientoPropulsor = temporizador para el propulsor (dash)
         this.enfriamientoPropulsor = 0;
-        this.enfriamientoPropulsorMax = 15; // 15 segundos de cooldown
+        this.enfriamientoPropulsorMax = CONFIG.HABILIDADES.PROPULSOR_COOLDOWN; // 15 segundos de cooldown
         
         // Vincular los eventos del teclado
         this._vincularEventos();

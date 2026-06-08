@@ -10,8 +10,14 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.7.x (ACTUAL) - HUD PixiJS
-> **Migración completa del HUD de HTML/CSS a PixiJS canvas**
+### v1.7.x (ACTUAL) - HUD PixiJS + Refactor config.js
+> **Migración completa del HUD de HTML/CSS a PixiJS canvas · Centralización de balance en config.js**
+
+| Commit | Descripción |
+|--------|-------------|
+| - | refactor: config.js — punto único para todos los valores de balance (16 secciones, 87 referencias en 14 archivos) |
+| - | fix: encoding de Game.js — 410 caracteres españoles corruptos restaurados (mojibake CP850) |
+| - | chore: package.json actualizado (nombre, versión 1.5.2, autor, repositorio) |
 
 | Commit | Descripción |
 |--------|-------------|
@@ -361,19 +367,19 @@
 
 ---
 
-## 📜 Registro de Commits por Versión
+## 📜 Versiones Anteriores
 
-### v1.3.8 (Actual)
-> **Sistema de habilidades, partículas Boid, SpecialEnemy perbaikan**
+### v1.3.8
+> **Sistema de habilidades, partículas Boid, SpecialEnemy corregido**
 
 | Commit | Descripción |
 |--------|-------------|
-| `0d97133` | v1.3.8: Sistema de habilidades (Q,E,R), partículas Boid con animaciones, SpecialEnemy perbaikan, UI actualizada |
+| `0d97133` | v1.3.8: Sistema de habilidades (Q,E,R), partículas Boid con animaciones, SpecialEnemy corregido, UI actualizada |
 
 ---
 
 ### v1.3.7
-> **Habilidades actives (Cohetes, Propulsor, Devorador), Tiempo Fuera pasivo**
+> **Habilidades activas (Cohetes, Propulsor, Devorador), Tiempo Fuera pasivo**
 
 | Commit | Descripción |
 |--------|-------------|
@@ -402,11 +408,11 @@
 
 | Versión | Commits | Características Principales |
 |---------|---------|----------------------------|
-| v1.7.x | ~40 | HUD PixiJS completo, iconos 70x70, UX 1000x160, animacion tiempo fuera |
-| v1.5.x | ~5 | Sobrecalentamiento W, IA enemiga, limpieza codigo |
+| v1.7.x | ~40 | HUD PixiJS completo, iconos 70x70, UX 1000x160, animacion tiempo fuera, config.js centralizado |
+| v1.5.x | ~5 | Sobrecalentamiento W, IA enemiga, limpieza codigo, refactor balance |
 | v1.3.8 | 1 | Sistema de habilidades, particulas Boid, SpecialEnemy |
 | v1.3.7 | ~10 | Habilidades Q, E, R, Tiempo Fuera pasivo, animacion reloj |
-| v1.3.6 | ~8 | Partículas Boies, Devorador, efectos visuales |
+| v1.3.6 | ~8 | Partículas Boid, Devorador, efectos visuales |
 | v1.3.5 | 6 | UI mejorada, iconos de habilidades, efectos de escudo |
 | v1.3.4 | ~18 | Top 5 con Firebase, pausa, botones con imágenes |
 | v1.3.3 | ~14 | Sistema Top 5 (localStorage + Firebase) |

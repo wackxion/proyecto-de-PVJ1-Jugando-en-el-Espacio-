@@ -12,6 +12,7 @@
  * - Si colisiona con un asteroide, ambos se destruyen
  */
 import { GameObject } from './GameObject.js';
+import { CONFIG } from '../../config.js';
 
 export class EnemyShip extends GameObject {
     /**
@@ -31,17 +32,17 @@ export class EnemyShip extends GameObject {
         this.active = true;
         
         // Salud
-        this.salud = 25;
-        this.saludMax = 25;
-        
+        this.salud = CONFIG.NAVE_ENEMIGA.SALUD;
+        this.saludMax = CONFIG.NAVE_ENEMIGA.SALUD;
+
         // Daño que hace al jugador
-        this.dano = 25;
-        
+        this.dano = CONFIG.NAVE_ENEMIGA.DANO;
+
         // Carga de ULTi que da al destroy (10)
-        this.cargaUlti = 10;
+        this.cargaUlti = CONFIG.NAVE_ENEMIGA.CARGA_ULTI;
         
         // Velocidad de movimiento
-        this.velocidad = 225;  // Aumentado de 150 a 225 (50% más rápido)
+        this.velocidad = CONFIG.NAVE_ENEMIGA.VELOCIDAD;  // Aumentado de 150 a 225 (50% más rápido)
         
         // Referencia al jugador
         this.jugador = jugador;
@@ -83,11 +84,11 @@ export class EnemyShip extends GameObject {
         // Sin tinte - mantener color original de la imagen
         
         // Radio de colisión (reducido para evitar colisiones falsas)
-        this.radio = 15;
+        this.radio = CONFIG.NAVE_ENEMIGA.RADIO_COLISION;
         
         // Temporizador de disparo (cada 3 segundos)
         this.tiempoDisparo = 2; // Empiezan con timer a 2s para que disparen pronto
-        this.intervaloDisparo = 3;
+        this.intervaloDisparo = CONFIG.NAVE_ENEMIGA.INTERVALO_DISPARO;
         this.tiempoInicio = 0; // Sin delay
         
         // Tiempo moviéndose alrededor del jugador

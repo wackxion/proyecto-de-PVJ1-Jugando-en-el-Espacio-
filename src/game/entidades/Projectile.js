@@ -11,6 +11,7 @@
  * - Se destruye cuando sale de la pantalla
  */
 import { GameObject } from './GameObject.js';
+import { CONFIG } from '../../config.js';
 
 export class Proyectil extends GameObject {
     /**
@@ -29,17 +30,17 @@ export class Proyectil extends GameObject {
         
         // Velocidad: Qué tan rápido se mueve el proyectil (píxeles por segundo)
         // Se aplica el multiplicador de las mejoras Proyectil2
-        this.velocidad = 600 * multiplicadorVelocidad;
+        this.velocidad = CONFIG.PROYECTIL.VELOCIDAD * multiplicadorVelocidad;
         
         // Direccion: Ángulo hacia donde se mueve el proyectil
         // Se mide en radianes (0 = derecha, π/2 = abajo, π = izquierda, etc.)
         this.direccion = direccion;
         
         // Dano: Cuánta salud le quitamos al asteroide
-        this.dano = 25;
+        this.dano = CONFIG.PROYECTIL.DANO;
         
         // Tiempo de vida: Cuánto dura el proyectil antes de destruirse solo
-        this.tiempoDeVida = 2; // 2 segundos
+        this.tiempoDeVida = CONFIG.PROYECTIL.TIEMPO_DE_VIDA; // 2 segundos
         
         // Radio: Para calcular colisiones (qué tan grande es el proyectil)
         this.radio = 12;  // Aumentado de 8 a 12 para mejor colisión

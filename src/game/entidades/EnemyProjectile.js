@@ -10,16 +10,17 @@
  * - Tiempo de vida: 3 segundos
  */
 import { GameObject } from './GameObject.js';
+import { CONFIG } from '../../config.js';
 
 export class EnemyProjectile extends GameObject {
     constructor(x, y, direccion, anchoJuego, altoJuego, textura, jugador, enemigos) {
         super(x, y);
         
-        this.velocidad = 400;
+        this.velocidad = CONFIG.PROYECTIL_ENEMIGO.VELOCIDAD;
         this.direccion = direccion;
         
-        this.dano = 25;
-        this.tiempoDeVida = 3;
+        this.dano = CONFIG.PROYECTIL_ENEMIGO.DANO;
+        this.tiempoDeVida = CONFIG.PROYECTIL_ENEMIGO.TIEMPO_DE_VIDA;
         
         this.radio = 12;  // Aumentado de 8 a 12 para mejor colisión
         this.anchoJuego = anchoJuego;
