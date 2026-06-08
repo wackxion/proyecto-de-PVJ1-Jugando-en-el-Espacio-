@@ -658,10 +658,10 @@ export class PixiHUD {
         // White panel: 100×26
         // x: (41.7/100)*1080 - 52 = 398
         // y: 720 - 84 - 26 = 610 (bottom: 11.6vmin ≈ 84px)
-        const scoreBgX = 398;
-        const scoreBgY = 610;
-        const textX = (41.7 / 100) * 1080 - 2;  // center of panel ≈ 448
-        const textY = 720 - 84;  // bottom: 11.6vmin ≈ 84px = 636
+        const scoreBgX = 393;  // -5px left
+        const scoreBgY = 606;  // -4px up
+        const textX = (41.7 / 100) * 1080 - 7;  // -5px left
+        const textY = 720 - 88;  // -4px up
 
         // Fondo blanco detrás del texto
         this.scoreBg = new PIXI.Graphics();
