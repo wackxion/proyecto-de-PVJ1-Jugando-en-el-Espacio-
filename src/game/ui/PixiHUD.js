@@ -649,7 +649,7 @@ export class PixiHUD {
     _crearPanelPuntuacion() {
         this.puntuacionText = new PIXI.Text('0', {
             fontFamily: 'Segoe Script, cursive',
-            fontSize: 18,
+            fontSize: 16,
             fill: 0x0044CC,
             fontWeight: 'bold'
         });
