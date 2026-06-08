@@ -614,8 +614,8 @@ export class PixiHUD {
         const alto = 18;  // ≈ 2.5vmin at 720
         // x: 540 - 60 - 10 = 470 (centered, offset -10px)
         const x = 470;
-        // y: 720 - 18 - 86 - 6 = 610 (-6px up)
-        const y = 610;
+        // y: 720 - 18 - 86 - 11 = 605 (-11px up total)
+        const y = 605;
 
         // Fondo (borde azul + relleno blanco) - detrás de la imagen UX
         this.barraAceleracionBg = new PIXI.Graphics();
