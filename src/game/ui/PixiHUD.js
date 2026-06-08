@@ -708,8 +708,8 @@ export class PixiHUD {
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const ancho = 85;  // Icon container width
-        const alto = 73;   // Icon container height
+        const ancho = 70;  // Icon container width
+        const alto = 70;   // Icon container height
 
         const grupos = [
             this.tiempo, this.cohetes, this.escudo,
@@ -895,7 +895,7 @@ export class PixiHUD {
         // Actualizar marco (fixed 85×73 for 1080×720 base)
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, 85, 73);
+        this.escudo.marco.drawRect(0, 0, 70, 70);
 
         this._escudosAnterior = porcentajeEscudos;
     }
@@ -930,7 +930,7 @@ export class PixiHUD {
         // Actualizar marco (fixed 85×73 for 1080×720 base)
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, 85, 73);
+        this.ulti.marco.drawRect(0, 0, 70, 70);
     }
 
     /**
@@ -1003,12 +1003,12 @@ export class PixiHUD {
             // Fixed marco size for 1080×720 base: 87×67
             this.tiempo.marco.clear();
             this.tiempo.marco.lineStyle(4, colorBorde, 1);
-            this.tiempo.marco.drawRect(0, 0, 85, 73);
+            this.tiempo.marco.drawRect(0, 0, 70, 70);
 
             this.tiempo.fondo.clear();
             this.tiempo.fondo.beginFill(0xFFFFFF);
             this.tiempo.fondo.lineStyle(5, colorBorde, 1);
-            this.tiempo.fondo.drawRect(0, 0, 77, 65);
+            this.tiempo.fondo.drawRect(0, 0, 62, 62);
             this.tiempo.fondo.endFill();
         } else {
             // Estado normal: marco azul, frame inicial
@@ -1022,12 +1022,12 @@ export class PixiHUD {
             // Restaurar marco azul normal
             this.tiempo.marco.clear();
             this.tiempo.marco.lineStyle(4, 0x0044CC, 1);
-            this.tiempo.marco.drawRect(0, 0, 85, 73);
+            this.tiempo.marco.drawRect(0, 0, 70, 70);
 
             this.tiempo.fondo.clear();
             this.tiempo.fondo.beginFill(0xFFFFFF);
             this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
-            this.tiempo.fondo.drawRect(0, 0, 77, 65);
+            this.tiempo.fondo.drawRect(0, 0, 62, 62);
             this.tiempo.fondo.endFill();
 
             // Textura estática
