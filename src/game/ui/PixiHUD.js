@@ -212,8 +212,8 @@ export class PixiHUD {
             const tex = await PIXI.Assets.load('assets/uxExperimental2.png');
             this.uxImage = new PIXI.Sprite(tex);
             // Fixed dimensions for 1080×720 base: width=864 (80% of 1080), height=144 (20% of 720)
-            this.uxImage.width = 1600;
-            this.uxImage.height = 200;
+            this.uxImage.width = 1800;
+            this.uxImage.height = 250;
             this.uxImage.anchor.set(0.5, 1); // Para usar bottom: 0 con translateX(-50%)
             this.uxImage.x = 540;  // center: 1080 / 2
             this.uxImage.y = 720;  // bottom: 0
@@ -700,10 +700,10 @@ export class PixiHUD {
         // =============================================
         // Fixed UX image: 1600×200 for 1080×720 base
         // =============================================
-        const uxAncho = 1600;  // Fixed width
-        const uxAlto = 200;    // Fixed height
-        const uxX = -260;      // (1080 - 1600) / 2
-        const uxY = 520;       // 720 - 200
+        const uxAncho = 1800;  // Fixed width
+        const uxAlto = 250;    // Fixed height
+        const uxX = -360;      // (1080 - 1800) / 2
+        const uxY = 470;       // 720 - 250
 
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
@@ -722,8 +722,8 @@ export class PixiHUD {
 
             // Centro del slot en píxeles de pantalla (1080×720 base)
             const cx = uxX + uxAncho * slotCentros[i];
-            // cy: 520 + 200*0.50 + 34 = 654
-            const cy = 654;
+            // cy: 470 + 250*0.50 + 34 = 629
+            const cy = 629;
 
             // Posición de la esquina superior-izquierda
             const x = cx - ancho / 2;
