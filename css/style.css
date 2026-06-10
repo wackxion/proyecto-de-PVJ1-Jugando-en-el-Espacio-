@@ -1,10 +1,10 @@
-/* 
+/*
  * =============================================================================
  * CSS - Hoja de Estilos del Juego "Jugando en el Espacio"
- * 
- * ESTE ARCHIVO YA NO CONTIENE LOS ESTILOS DEL HUD - están en UIManager.js
- * Solo mantiene estilos generales y de elementos que no se usan desde JS
- * 
+ *
+ * El HUD in-game se renderiza con PixiJS (PixiHUD.js). Los menús/pantallas
+ * (menú, tutorial, Top 5, créditos) se crean dinámicamente desde UIManager.js.
+ * Este archivo solo mantiene los estilos base de la página y del canvas.
  * =============================================================================
  */
 
@@ -48,8 +48,8 @@ body {
 /* -----------------------------------------------------------------------------
  * UI OVERLAY
  * -----------------------------------------------------------------------------
- * Capa transparente que contiene todos los elementos de UI (HUD)
- * pointer-events: none permite que los clicks pasen a través
+ * Capa transparente que contiene elementos de UI fuera del canvas.
+ * pointer-events: none permite que los clicks pasen a través.
  */
 
 #ui-overlay {
@@ -60,115 +60,4 @@ body {
     height: 100%;
     pointer-events: none;
     padding: 0px;
-}
-
-/* -----------------------------------------------------------------------------
- * IMAGENES DECORATIVAS (fondo del menú)
- * -----------------------------------------------------------------------------
- */
-
-#tutorial-icon {
-    position: absolute;
-    top: -70px;
-    left: -450px;
-    width: 900px;
-    height: 150px;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-}
-
-#tutorial-text {
-    position: absolute;
-    top: -20px;
-    left: -280px;
-    width: 600px;
-    color: #0044CC;
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 0 0 10px #0044CC;
-}
-
-#ship-icon {
-    position: absolute;
-    top: -90px;
-    left: -55px;
-    width: 600px;
-    height: 600px;
-    margin-top: 10px;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-}
-
-/* -----------------------------------------------------------------------------
- * CONTROLES (TEXTO INFERIOR)
- * -----------------------------------------------------------------------------
- */
-
-#controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* -----------------------------------------------------------------------------
- * NOTAS
- * -----------------------------------------------------------------------------
- * Los estilos del HUD (marcos de iconos, barras, score, wave) 
- * ahora están en UIManager.js en el bloque 'hud-styles'
- * 
- * Este archivo solo contiene estilos generales que no necesitan 
- * ser regenerados dinámicamente
- */
-
-/* -----------------------------------------------------------------------------
- * CLASES PARA HABILIDADES - DEVORADOR
- * -----------------------------------------------------------------------------
- */
-
-/* Marco del devorador - Listo para usar (azul) */
-#deborador-ux-frame.devorador-listo {
-    border: 4px solid #0044CC !important;
-    box-shadow: 0 0 10px #0044CC !important;
-}
-
-/* Marco del devorador - En cooldown (rojo oscuro) */
-#deborador-ux-frame.devorador-cooldown {
-    border: 4px solid #CC0000 !important;
-    box-shadow: 0 0 15px #CC0000 !important;
-}
-
-/* Marco del devorador - Activo (rojo brillante) */
-#deborador-ux-frame.devorador-activo {
-    border: 4px solid #FF0000 !important;
-    box-shadow: 0 0 20px #FF0000 !important;
-}
-
-/* -----------------------------------------------------------------------------
- * CLASES PARA HABILIDADES - TIEMPO FUERA
- * -----------------------------------------------------------------------------
- */
-
-/* Marco de Tiempo Fuera - Palpitando cuando activo */
-@keyframes palpitar-tiempo {
-    0%, 100% { border-color: #ffffff !important; box-shadow: 0 0 20px #ffffff !important; }
-    50% { border-color: #0044CC !important; box-shadow: 0 0 10px #0044CC !important; }
-}
-
-#tiempo-ux-frame.tiempo-activo {
-    animation: palpitar-tiempo 0.6s infinite;
-}
-
-/* Marco de Tiempo Fuera - Verde cuando ya regeneró */
-@keyframes palpitar-regenerado {
-    0%, 100% { border-color: #00FF00 !important; box-shadow: 0 0 25px #00FF00 !important; }
-    50% { border-color: #004400 !important; box-shadow: 0 0 15px #004400 !important; }
-}
-
-#tiempo-ux-frame.tiempo-regenerado {
-    animation: palpitar-regenerado 0.6s infinite;
 }

@@ -235,13 +235,8 @@ function _capturarParticulaBoid(game, indice) {
     particula.destroy();
     game.particulasBoid.splice(indice, 1);
     
-    // Incrementar contador de partículas capturadas
+    // Incrementar contador de partículas capturadas (PixiHUD lo muestra)
     game.particulasCapturadas++;
-    
-    // Actualizar UI del devorador
-    if (game.contadorDevoradorUX) {
-        if (game.contadorDevoradorUX) game.contadorDevoradorUX.textContent = String(game.particulasCapturadas || 0);
-    }
 }
 
 /**
@@ -252,9 +247,6 @@ function _capturarParticulaBoid(game, indice) {
  */
 export function resetearContadorCapturadas(game) {
     game.particulasCapturadas = 0;
-    if (game.contadorDevoradorUX) {
-        game.contadorDevoradorUX.textContent = '0';
-    }
 }
 
 /**

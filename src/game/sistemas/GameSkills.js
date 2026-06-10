@@ -5,13 +5,13 @@
  * - Cohetes (Q): Lanzar 2 cohetes hacia los enemigos más cercanos
  * - Devorador (E): Atrae partículas Boid hacia el jugador
  * - Propulsor (R): Dash hacia adelante
- * - Tiempo Fuera (Pasiva): Se activa con sobrecalentamiento
- * 
- * Funciones exportadas:
- * - actualizarHabilidades: Maneja todas las habilidades
+ *
+ * La pasiva Tiempo Fuera y el estado visual de los marcos del HUD los maneja
+ * PixiHUD.js (lee el estado del juego directamente cada frame).
+ *
+ * Funciones exportadas principales:
+ * - actualizarHabilidadCohetes / actualizarHabilidadDevorador / actualizarHabilidadPropulsor
  * - crearCohetes: Crea los cohetes hacia los enemigos cercanos
- * - activarDevorador: Activa el efecto de succión de partículas
- * - activarPropulsor: Activa el dash del jugador
  */
 
 import { Cohete } from '../mecanicas/Cohete.js';
@@ -68,10 +68,7 @@ export function actualizarHabilidadCohetes(game, delta) {
             crearCohetes(game);
         }
     }
-    
-    // Actualizar UI del marco
-    actualizarUIMarcoCohetes(game);
-    
+
     // Actualizar cohetes activos
     actualizarCohetes(game, delta);
 }
@@ -101,34 +98,6 @@ export function crearCohetes(game) {
             cohete.render(game.aplicacion.stage);
             game.cohetes.push(cohete);
         }
-    }
-}
-
-/**
- * Actualiza el estado visual del marco de cohetes según el cooldown
- * Función auxiliar para Game.js - líneas 2807-2824
- * 
- * @param {Game} game - Referencia al objeto Game principal
- */
-export function actualizarUIMarcoCohetes(game) {
-    if (!game.marcoCohetesUX || !game.fondoCohetesUX) {
-        return;
-    }
-    
-    const cooldownCohetes = game.gestorEntrada ? game.gestorEntrada.obtenerCooldownCohetes() : 0;
-    
-    if (cooldownCohetes > 0) {
-        // En cooldown - ROJO
-        game.marcoCohetesUX.style.borderColor = '#CC0000';
-        game.marcoCohetesUX.style.boxShadow = '0 0 15px #CC0000';
-        game.fondoCohetesUX.style.borderColor = '#CC0000';
-        game.fondoCohetesUX.style.boxShadow = '0 0 15px #CC0000';
-    } else {
-        // Listo - AZUL
-        game.marcoCohetesUX.style.borderColor = '#0044CC';
-        game.marcoCohetesUX.style.boxShadow = '0 0 10px #0044CC';
-        game.fondoCohetesUX.style.borderColor = '#0044CC';
-        game.fondoCohetesUX.style.boxShadow = '0 0 10px #0044CC';
     }
 }
 
@@ -309,7 +278,6 @@ export function actualizarHabilidadDevorador(game, delta) {
     }
     
     actualizarSuccion(game, delta);
-    actualizarUIMarcoDevorador(game, devoradorActivadoAhora);
     return devoradorActivadoAhora;
 }
 
@@ -325,47 +293,6 @@ export function actualizarHabilidadPropulsor(game, delta) {
     if (game.gestorEntrada && game.gestorEntrada.debeUsarPropulsor(delta)) {
         if (game.jugador && game.jugador.active) {
             game.jugador.activarPropulsor();
-        }
-    }
-    
-    // Actualizar UI del marco
-    actualizarUIMarcoPropulsor(game);
-}
-
-/**
- * Activa el devorador de partículas Boid
- * Función auxiliar para Game.js - líneas 2621-2655
- * 
- * @param {Game} game - Referencia al objeto Game principal
- */
-export function activarDevorador(game) {
-    if (!game.jugador || !game.jugador.active) {
-        return;
-    }
-    
-    // Crear efecto de succión (visual)
-    game.efectoSuccion = new SuccionEffect(
-        game.jugador.x,
-        game.jugador.y,
-        game.anchoJuego,
-        game.altoJuego
-    );
-    game.efectoSuccion.render(game.aplicacion.stage);
-    
-    // Atraer partículas dentro de 200px hacia la nave
-    const radioDevorar = 200;
-    for (const particula of game.particulasBoid) {
-        if (!particula.active) continue;
-        
-        const dx = game.jugador.x - particula.x;
-        const dy = game.jugador.y - particula.y;
-        const distancia = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distancia < radioDevorar && distancia > 0) {
-            // Forzar a la partícula a ir directamente a la nave
-            particula.velX = (dx / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
-            particula.velY = (dy / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
-            particula.siendoAtraida = true;
         }
     }
 }
@@ -392,206 +319,3 @@ export function actualizarSuccion(game, delta) {
     }
 }
 
-/**
- * Actualiza el marco visual del devorador según el cooldown
- * Función auxiliar para Game.js - líneas 2671-2694
- * 
- * @param {Game} game - Referencia al objeto Game principal
- * @param {boolean} devoradorActivadoAhora - Si el devorador se activó este frame
- */
-export function actualizarUIMarcoDevorador(game, devoradorActivadoAhora) {
-    if (!game.marcoDeboradorUX || !game.fondoDeboradorUX) {
-        return;
-    }
-    
-    const cooldownActual = game.gestorEntrada ? game.gestorEntrada.obtenerCooldownDevorar() : 0;
-    
-    if (devoradorActivadoAhora || cooldownActual > 4.5) {
-        // Activo o reciente - ROJO BRILLANTE
-        game.marcoDeboradorUX.style.borderColor = '#FF0000';
-        game.marcoDeboradorUX.style.boxShadow = '0 0 20px #FF0000';
-        game.fondoDeboradorUX.style.borderColor = '#FF0000';
-        game.fondoDeboradorUX.style.boxShadow = '0 0 20px #FF0000';
-    } else if (cooldownActual > 0) {
-        // En cooldown - ROJO OSCURO
-        game.marcoDeboradorUX.style.borderColor = '#CC0000';
-        game.marcoDeboradorUX.style.boxShadow = '0 0 15px #CC0000';
-        game.fondoDeboradorUX.style.borderColor = '#CC0000';
-        game.fondoDeboradorUX.style.boxShadow = '0 0 15px #CC0000';
-    } else {
-        // Listo - AZUL
-        game.marcoDeboradorUX.style.borderColor = '#0044CC';
-        game.marcoDeboradorUX.style.boxShadow = '0 0 10px #0044CC';
-        game.fondoDeboradorUX.style.borderColor = '#0044CC';
-        game.fondoDeboradorUX.style.boxShadow = '0 0 10px #0044CC';
-    }
-}
-
-/**
- * Activa el propulsor (dash)
- * Función auxiliar para Game.js - líneas 2826-2832
- * 
- * @param {Game} game - Referencia al objeto Game principal
- */
-export function activarPropulsor(game) {
-    if (!game.jugador || !game.jugador.active) {
-        return;
-    }
-    
-    game.jugador.activarPropulsor();
-}
-
-/**
- * Actualiza el marco visual del propulsor según el cooldown
- * Función auxiliar para Game.js - líneas 2834-2851
- * 
- * @param {Game} game - Referencia al objeto Game principal
- */
-export function actualizarUIMarcoPropulsor(game) {
-    if (!game.marcoPropulUX || !game.fondoPropulUX) {
-        return;
-    }
-    
-    const cooldownPropulsor = game.gestorEntrada ? game.gestorEntrada.obtenerCooldownPropulsor() : 0;
-    
-    if (cooldownPropulsor > 0) {
-        // En cooldown - ROJO
-        game.marcoPropulUX.style.borderColor = '#CC0000';
-        game.marcoPropulUX.style.boxShadow = '0 0 15px #CC0000';
-        game.fondoPropulUX.style.borderColor = '#CC0000';
-        game.fondoPropulUX.style.boxShadow = '0 0 15px #CC0000';
-    } else {
-        // Listo - AZUL
-        game.marcoPropulUX.style.borderColor = '#0044CC';
-        game.marcoPropulUX.style.boxShadow = '0 0 10px #0044CC';
-        game.fondoPropulUX.style.borderColor = '#0044CC';
-        game.fondoPropulUX.style.boxShadow = '0 0 10px #0044CC';
-    }
-}
-
-/**
- * Actualiza el habilidad pasiva Tiempo Fuera (sobrecalentamiento)
- * Función auxiliar para Game.js - líneas 2696-2784
- * 
- * @param {Game} game - Referencia al objeto Game principal
- * @param {number} delta - Tiempo transcurrido desde el último frame
- */
-export function actualizarTiempoFuera(game, delta) {
-    if (!game.marcoTiempoUX || !game.fondoTiempoUX) {
-        return;
-    }
-    
-    // Activar habilidad cuando entra en sobrecalentamiento (solo una vez)
-    if (game.jugador && game.jugador.sobrecalentado && !game.tiempoFueroActivo) {
-        game.tiempoFueroActivo = true;
-        game.timerTiempoFuera = 0;
-    }
-    
-    // Verificar si pasaron los 10 segundos de duración (aunque ya no esté sobrecalentado)
-    if (game.tiempoFueroActivo) {
-        game.timerTiempoFuera += delta;
-        
-        if (game.timerTiempoFuera >= game.duracionTiempoFuera) {
-            // Al terminar: regenerar 10 escudos + bonus de mejoras (indices 20-24)
-            const regeneracionBase = CONFIG.HABILIDADES.TIEMPO_FUERA_REGENERACION;
-            const regeneracionBonus = game.regeneracionTiempoFueraBonus || 0;
-            game.jugador.agregarEscudos(regeneracionBase + regeneracionBonus);
-            
-            // Desactivar habilidad
-            game.tiempoFueroActivo = false;
-            game.timerTiempoFuera = 0;
-            game.relojFrameActual = 1;
-            game.timerAnimacionReloj = 0;
-            return;
-        }
-    }
-    
-    // Si está sobrecalentado y la habilidad está activa, mostrar animación
-    if (game.jugador && game.jugador.sobrecalentado && game.tiempoFueroActivo) {
-        const tiempo = Date.now();
-        const palpito = Math.floor(tiempo / 300) % 2 === 0;
-        
-        // === ANIMACIÓN DEL RELOJ (siempre durante sobrecalentamiento) ===
-        if (game.iconoTiempoUX) {
-            game.timerAnimacionReloj += delta;
-            
-            if (game.timerAnimacionReloj >= game.intervaloAnimacionReloj) {
-                game.timerAnimacionReloj = 0;
-                
-                // Secuencia: 1,2,3,4,5,6,6(girado),1,2,3...
-                game.relojFrameActual++;
-                
-                // Si pasamos de 7, volver a 1
-                if (game.relojFrameActual > 7) {
-                    game.relojFrameActual = 1;
-                }
-                
-                // Actualizar textura del icono (usar URL string como el código original)
-                if (game.relojFrameActual === 7) {
-                    // Segundo 6 con giro 360°
-                    if (game.iconoTiempoUX) {
-                        game.iconoTiempoUX.src = 'assets/relog6.png';
-                        game.iconoTiempoUX.style.transform = 'rotate(360deg)';
-                    }
-                } else {
-                    // Frames 1-6 sin giro
-                    if (game.iconoTiempoUX) {
-                        game.iconoTiempoUX.src = `assets/relog${game.relojFrameActual}.png`;
-                        game.iconoTiempoUX.style.transform = 'rotate(0deg)';
-                    }
-                }
-            }
-        }
-        
-        // Animación de parpadeo del marco (blanco)
-        if (palpito) {
-            game.marcoTiempoUX.style.borderColor = '#FFFFFF';
-            game.marcoTiempoUX.style.boxShadow = '0 0 20px #FFFFFF';
-            game.fondoTiempoUX.style.borderColor = '#FFFFFF';
-            game.fondoTiempoUX.style.boxShadow = '0 0 20px #FFFFFF';
-        } else {
-            game.marcoTiempoUX.style.borderColor = '#AAAAAA';
-            game.marcoTiempoUX.style.boxShadow = '0 0 10px #AAAAAA';
-            game.fondoTiempoUX.style.borderColor = '#AAAAAA';
-            game.fondoTiempoUX.style.boxShadow = '0 0 10px #AAAAAA';
-        }
-    } else {
-        // Resetear cuando no está sobrecalentado o terminó la habilidad
-        if (game.tiempoFueroActivo) {
-            game.relojFrameActual = 1;
-            game.timerAnimacionReloj = 0;
-            game.timerTiempoFuera = 0;
-            game.tiempoFueroActivo = false;
-        }
-        
-        // Marco en estado normal
-        game.marcoTiempoUX.style.borderColor = '#0044CC';
-        game.marcoTiempoUX.style.boxShadow = '0 0 10px #0044CC';
-        game.fondoTiempoUX.style.borderColor = '#0044CC';
-        game.fondoTiempoUX.style.boxShadow = '0 0 10px #0044CC';
-    }
-}
-
-/**
- * Actualiza todas las habilidades del juego
- * Función auxiliar que orquesta todas las habilidades
- * 
- * @param {Game} game - Referencia al objeto Game principal
- * @param {number} delta - Tiempo transcurrido desde el último frame
- * @param {boolean} devoradorActivadoAhora - Si el devorador se activó este frame
- */
-export function actualizarHabilidades(game, delta, devoradorActivadoAhora) {
-    // Actualizar cohetes
-    actualizarUIMarcoCohetes(game);
-    actualizarCohetes(game, delta);
-    
-    // Actualizar propulsor
-    actualizarUIMarcoPropulsor(game);
-    
-    // Actualizar devorador
-    actualizarSuccion(game, delta);
-    actualizarUIMarcoDevorador(game, devoradorActivadoAhora);
-    
-    // Actualizar Tiempo Fuera (pasiva)
-    actualizarTiempoFuera(game, delta);
-}

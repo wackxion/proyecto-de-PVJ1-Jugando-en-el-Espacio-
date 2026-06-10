@@ -33,7 +33,7 @@ import { CONFIG } from '../../config.js';
 // === MÓDULOS REFACTORIZADOS ===
 import { crearProyectil, actualizarProyectiles, actualizarProyectilesJugador, actualizarProyectilesEnemigos, procesarColisionesProyectiles } from './GameProjectiles.js';
 import { generarEnemigo, actualizarEnemigos, generarNaveEnemiga, actualizarNavesEnemigas, actualizarNavesEnemigasCompleto, verificarPosicionLibre, actualizarGeneracion, procesarColisionesJugador, procesarColisionesEnemigos, limpiarEnemigosLejanos } from './GameEnemies.js';
-import { crearCohetes, actualizarCohetes, actualizarUIMarcoCohetes, actualizarHabilidadCohetes, actualizarHabilidadDevorador, actualizarHabilidadPropulsor, activarDevorador, actualizarSuccion, actualizarUIMarcoDevorador, activarPropulsor, actualizarUIMarcoPropulsor, actualizarTiempoFuera, encontrarEnemigosCercanos } from './GameSkills.js';
+import { actualizarHabilidadCohetes, actualizarHabilidadDevorador, actualizarHabilidadPropulsor } from './GameSkills.js';
 import { activarUlti, actualizarUlti, actualizarEfectosImpacto } from './GameEffects.js';
 import { crearParticulaFuera, actualizarParticulasBoid, resetearContadorCapturadas, actualizarSistemaBoid } from './GameBoids.js';
 import { inicializarMejoras, crearVentanaMejoras, comprarMejora, actualizarUIMejoras, limpiarVentanaMejoras } from './GameMejoras.js';
@@ -140,17 +140,7 @@ export class Game {
         this.texturaJugador = null;
         this.texturaAsteroide = null;
         this.texturaFondo = null;
-        
-        // Elementos UI
-        this.elementoPuntuacionAcumulada = null;
-        this.elementoOleada = null;
-        this.iconoUltiUX = null;
-        this.iconoEscudoUX = null;
-        this.marcoEscudoUX = null;
-        this.marcoUltiUX = null;
-        this.escudosAnterior = 100;
-        this.elementoBarraAceleracionUX = null;
-        
+
         // Elementos de fin de juego
         this.elementosFinJuego = [];
 
@@ -567,15 +557,8 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         particula.destroy(this.poolParticulasBoid);
         this.particulasBoid.splice(indice, 1);
         
-        // Incrementar contador de partículas capturadas
+        // Incrementar contador de partículas capturadas (PixiHUD lo muestra)
         this.particulasCapturadas++;
-        
-        // Actualizar contador visual
-        if (this.contadorDevoradorUX) {
-            this.contadorDevoradorUX.textContent = this.particulasCapturadas.toString();
-        }
-        
-        
     }
     
     /**
@@ -734,189 +717,31 @@ _crearParticulaBoidFuera() {
      * Crea los elementos HTML dinámicamente
      */
     _configurarUI() {
-        // Crear UIManager y HUD
+        // Crear UIManager (menús, tutorial, Top 5, créditos). El HUD in-game
+        // se renderiza con PixiHUD.js, que lee el estado del juego directamente.
         if (!this.uiManager && this.contenedorJuego) {
             this.uiManager = new UIManager(this.contenedorJuego, {});
         }
-        
+
         if (this.uiManager) {
-            // Crear HUD y obtener referencias
-            const hud = this.uiManager.crearHUD();
-            
-            // Asignar referencias de UI (solo las que mantienen)
-            this.elementoOleada = hud.elementoOleada;
-            this.elementoPuntuacionAcumulada = hud.elementoPuntuacionAcumulada;
-            
-            // Barra de aceleración (solo la de UX)
-            this.elementoBarraAceleracionUX = hud.elementoBarraAceleracionUX;
-            
-            // Iconos UX
-            this.iconoEscudoUX = hud.iconoEscudoUX;
-            this.marcoEscudoUX = hud.marcoEscudoUX;
-            this.fondoEscudoUX = hud.fondoEscudoUX;
-            this.iconoUltiUX = hud.iconoUltiUX;
-            this.marcoUltiUX = hud.marcoUltiUX;
-            
-            // Icono y marco del devorador
-            this.iconoDeboradorUX = hud.iconoDeboradorUX;
-            this.marcoDeboradorUX = hud.marcoDeboradorUX;
-            this.fondoDeboradorUX = hud.fondoDeboradorUX;
-            this.contadorDevoradorUX = hud.contadorDevorador;
+            // Estado real consumido por PixiHUD y las habilidades
             this.particulasCapturadas = 0;
-            
-            // Icono y marco de Tiempo Fuera
-            this.iconoTiempoUX = hud.iconoTiempoUX;
-            this.marcoTiempoUX = hud.marcoTiempoUX;
-            this.fondoTiempoUX = hud.fondoTiempoUX;
-            this.imagenOriginalTiempoUX = 'assets/tiempo fuera.png'; // Guardar imagen original
-            
-            // Icono y marco de Cohetes
-            this.iconoCohetesUX = hud.iconoCohetesUX;
-            this.marcoCohetesUX = hud.marcoCohetesUX;
-            this.fondoCohetesUX = hud.fondoCohetesUX;
-            
-            // Icono y marco de Propulsor
-            this.iconoPropulUX = hud.iconoPropulUX;
-            this.marcoPropulUX = hud.marcoPropulUX;
-            this.fondoPropulUX = hud.fondoPropulUX;
-            
-            // Habilidad Tiempo Fuera (pasiva)
+
+            // Habilidad Tiempo Fuera (pasiva) - la gestiona PixiHUD._actualizarIconoTiempo()
             this.tiempoFueroActivo = false;
             this.timerTiempoFuera = 0;
             this.duracionTiempoFuera = 25;
-            
-            // Animación del reloj (Tiempo Fuero activo)
+
+            // Animación del reloj de Tiempo Fuera
             this.relojFrameActual = 1;
             this.timerAnimacionReloj = 0;
-            this.intervaloAnimacionReloj = 0.3; // 0.3 segundos por frame (más lento)
-            this.relojGirado180 = false;
-            this.animacionRelojActiva = false;
-            
-            // Cohetes
-            this.cohetes = []; // Array de cohetes activos
-            
-            // Actualizar UI por primera vez
-            this._actualizarUI();
+            this.intervaloAnimacionReloj = 0.3; // 0.3 segundos por frame
+
+            // Cohetes activos (habilidad Q)
+            this.cohetes = [];
         }
     }
-    
-/**
-     
-    /**
-     * Actualiza la interfaz de usuario
-     * Muestra la puntuación actual, los escudos y si el ulti está listo
-     * Si está en sobrecalentamiento, muestra en rojo
-     * @param {number} delta - Tiempo transcurrido
-     */
-_actualizarUI(delta = 0) {
-        // Actualizar el panel de puntuación acumulada
-        if (this.elementoPuntuacionAcumulada) {
-            this.elementoPuntuacionAcumulada.textContent = this.puntuacion.toString();
-        }
-        
-        // Actualizar display de oleada
-        if (this.elementoOleada) {
-            const faltantes = this.objetivoOleada - this.asteroidesDestruidos;
-            const cantidadPBOids = this.particulasBoid ? this.particulasBoid.length : 0;
-            this.elementoOleada.textContent = `Oleada: ${this.contadorOleadas} | Faltan: ${faltantes} | Ast: ${this.intervaloSpawn.toFixed(1)}s | Naves: ${this.intervaloNaveEnemiga.toFixed(1)}s | PBOids: ${cantidadPBOids}`;
-        }
-        
-        // Actualizar icono de escudo y marco en UX según el estado
-        if (this.jugador && this.iconoEscudoUX && this.marcoEscudoUX) {
-            const porcentajeEscudos = this.jugador.escudos;
-            
-            // Detectar impacto (los escudos bajaron y no está sobrecalentado)
-            const huboImpacto = porcentajeEscudos < this.escudosAnterior && !this.jugador.sobrecalentado;
-            
-            // Si hubo impacto, agregar animación de brillo blanco (solo flash, no cambia color)
-            if (huboImpacto) {
-                this.marcoEscudoUX.classList.remove('impact');
-                void this.marcoEscudoUX.offsetWidth;
-                this.marcoEscudoUX.classList.add('impact');
-                // También al fondo
-                this.fondoEscudoUX.classList.remove('impact');
-                void this.fondoEscudoUX.offsetWidth;
-                this.fondoEscudoUX.classList.add('impact');
-            }
-            
-            // Si está sobrecalentado (escudo roto), animación entre escudo4 y escudo5 y marco rojo
-            if (this.jugador.sobrecalentado) {
-                const tiempo = Date.now();
-                const indiceAnimacion = Math.floor(tiempo / 200) % 2 + 4;
-                this.iconoEscudoUX.src = `assets/escudo${indiceAnimacion}.png`;
-                this.marcoEscudoUX.classList.add('overheated');
-                // Cambiar color del marco Y del fondo a ROJO
-                this.marcoEscudoUX.style.borderColor = '#CC0000';
-                this.marcoEscudoUX.style.boxShadow = '0 0 15px #CC0000';
-                this.fondoEscudoUX.style.borderColor = '#CC0000';
-                this.fondoEscudoUX.style.boxShadow = '0 0 15px #CC0000';
-            } else {
-                // Mostrar icono según el porcentaje de escudos (1, 2 o 3)
-                let indiceIcono;
-                if (porcentajeEscudos > 60) {
-                    indiceIcono = 1;
-                } else if (porcentajeEscudos > 30) {
-                    indiceIcono = 2;
-                } else {
-                    indiceIcono = 3;
-                }
-                this.iconoEscudoUX.src = `assets/escudo${indiceIcono}.png`;
-                this.marcoEscudoUX.classList.remove('overheated');
-                // Solo restaurar colores si NO hubo impacto reciente
-                // (el impacto tiene su propia animación de flash blanco)
-                if (!huboImpacto) {
-                    this.marcoEscudoUX.style.borderColor = '#0044CC';
-                    this.marcoEscudoUX.style.boxShadow = '0 0 10px #0044CC';
-                    this.fondoEscudoUX.style.borderColor = '#0044CC';
-                    this.fondoEscudoUX.style.boxShadow = '0 0 10px #0044CC';
-                    this.fondoEscudoUX.style.backgroundColor = 'white';
-                }
-            }
-            
-            // Guardar valor actual para próximos impactos
-            this.escudosAnterior = porcentajeEscudos;
-        }
-        
-        // Actualizar icono de ULTi en UX
-        if (this.jugador && this.iconoUltiUX && this.marcoUltiUX) {
-            const porcentajeCarga = Math.min(100, (this.jugador.cargaUlti / this.jugador.cargaMaxUlti) * 100);
-            
-            if (this.jugador.ultiListo) {
-                const tiempo = Date.now();
-                const indiceAnimacion = Math.floor(tiempo / 200) % 3 + 3;
-                this.iconoUltiUX.src = `assets/ultiicon${indiceAnimacion}.png`;
-                this.marcoUltiUX.classList.add('ready');
-            } else {
-                let indiceIcono = Math.floor(porcentajeCarga / 20) + 1;
-                if (indiceIcono < 1) indiceIcono = 1;
-                if (indiceIcono > 5) indiceIcono = 5;
-                this.iconoUltiUX.src = `assets/ultiicon${indiceIcono}.png`;
-                this.marcoUltiUX.classList.remove('ready');
-            }
-        }
-        
-        // Actualizar barra de aceleración (UX)
-        if (this.jugador && this.elementoBarraAceleracionUX) {
-            const porcentajeAcel = this.jugador.cargaAceleracion;
-            this.elementoBarraAceleracionUX.style.width = `${porcentajeAcel}%`;
-            
-            // Si está sobrecalentado, pintar la barra de rojo
-            if (this.jugador.sobrecalentadoAceleracion) {
-                this.elementoBarraAceleracionUX.style.background = '#CC0000';
-                const contenedorUX = document.getElementById('aceleracion-ux-container');
-                if (contenedorUX) {
-                    contenedorUX.classList.add('overheated');
-                }
-            } else {
-                this.elementoBarraAceleracionUX.style.background = '#0044CC';
-                const contenedorUX = document.getElementById('aceleracion-ux-container');
-                if (contenedorUX) {
-                    contenedorUX.classList.remove('overheated');
-                }
-            }
-        }
-    }
-    
+
     /**
      * Crea un nuevo proyectil
      * Se llama cuando el jugador presiona la tecla de disparar
@@ -1513,8 +1338,6 @@ _actualizarUI(delta = 0) {
                     projectile.destroy(this.poolProyectiles);
                     this.proyectiles.splice(i, 1);
                     
-                    // Actualizar la UI
-                    this._actualizarUI();
                     
                     // Salir del for de enemigos (el proyectil solo puede golpear uno)
                     break;
@@ -1591,7 +1414,6 @@ _actualizarUI(delta = 0) {
                         if (!seConvirtioEnMini) {
                             projectile.destroy(this.poolProyectiles);
                             this.proyectiles.splice(i, 1);
-                            this._actualizarUI();
                         }
                     }
                     break;
@@ -1656,8 +1478,6 @@ _actualizarUI(delta = 0) {
                     projectile.destroy(this.poolProyectiles);
                     this.proyectiles.splice(i, 1);
                     
-                    // Actualizar la UI
-                    this._actualizarUI();
                     
                     break;
                 }
@@ -1714,8 +1534,6 @@ _actualizarUI(delta = 0) {
                 enemy.destroy();
                 this.enemigos.splice(i, 1);
                 
-                // Actualizar la UI
-                this._actualizarUI();
             }
         }
         
@@ -1779,7 +1597,6 @@ _actualizarUI(delta = 0) {
                     }
                 }
                 
-                this._actualizarUI();
             }
         }
         
@@ -1871,7 +1688,6 @@ _actualizarUI(delta = 0) {
                     projEnemigo.destroy();
                     this.proyectilesEnemigos.splice(i, 1);
                     
-                    this._actualizarUI();
                     continue;
                 }
                 
@@ -1908,7 +1724,6 @@ _actualizarUI(delta = 0) {
                             this.enemigosSpeciales.splice(j, 1);
                         }
                         
-                        this._actualizarUI();
                         break; // Salir del loop de especiales
                     }
                 }
@@ -1941,7 +1756,6 @@ _actualizarUI(delta = 0) {
                 naveEnemiga.destroy();
                 this.enemigosNaves.splice(i, 1);
                 
-                this._actualizarUI();
             }
         }
         
@@ -2551,18 +2365,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Resetear habilidad Tiempo Fuera
         this.tiempoFueroActivo = false;
         this.timerTiempoFuera = 0;
-        
-        // Resetear contador visual
-        if (this.contadorDevoradorUX) {
-            this.contadorDevoradorUX.textContent = '0';
-        }
-        
-        // Restaurar colores del icono Tiempo Fuera
-        if (this.marcoTiempoUX && this.fondoTiempoUX) {
-            this.marcoTiempoUX.style.border = '5px solid #0044CC !important';
-            this.marcoTiempoUX.style.boxShadow = '0 0 10px #0044CC !important';
-        }
-        
+
         // Reiniciar flag de nombre
         this.nombreIngresado = false;
         this.esperandoNombreTop5 = false;
@@ -2584,8 +2387,6 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Recrear el jugador
         this._crearJugador();
         
-        // Actualizar la UI
-        this._actualizarUI(0);
         
         // Resetear estados de pausa y ventanas
         this.pausado = false;
@@ -2637,21 +2438,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
                 }
             }
 
-    // Si el juego está pausado, actualizar contador y salir del loop
+    // Si el juego está pausado, salir del loop (PixiHUD ya refleja el estado)
             if (this.pausado) {
-                // Actualizar contador de partículas aunque esté pausado
-                if (this.elementoOleada) {
-                    const cantidadPBOids = this.particulasBoid ? this.particulasBoid.length : 0;
-                    const faltantes = this.objetivoOleada - this.asteroidesDestruidos;
-                    this.elementoOleada.textContent = `Oleada: ${this.contadorOleadas} | Faltan: ${faltantes} | Ast: ${this.intervaloSpawn.toFixed(1)}s | Naves: ${this.intervaloNaveEnemiga.toFixed(1)}s | PBOids: ${cantidadPBOids}`;
-                }
                 // No mostrar Top 5 con T - solo funciona desde el menu de pausa
-                return;
-            }
-
-    // Si el juego está pausado, salir del loop
-            if (this.pausado) {
-                // No mostrar Top 5 con T - solo funciona desde el menu principal
                 return;
             }
 
@@ -2669,8 +2458,8 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // === HABILIDAD PROPULSOR (Tecla R) - usando módulo ===
             actualizarHabilidadPropulsor(this, delta);
 
-            // === HABILIDAD TIEMPO FUERA (Pasiva) - usando módulo ===
-            actualizarTiempoFuera(this, delta);
+            // NOTA: La pasiva Tiempo Fuera (incl. regeneración de escudos) la maneja
+            // PixiHUD._actualizarIconoTiempo(), invocado vía this.pixiHUD.actualizar().
 
     // === ACTUALIZAR PARTÍCULAS BOID - usando módulo ===
             actualizarSistemaBoid(this, delta);
@@ -2702,8 +2491,6 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // === GENERAR NUEVOS ENEMIGOS Y NAVES - usando módulo ===
             actualizarGeneracion(this, delta);
 
-            // === ACTUALIZAR UI ===
-            this._actualizarUI();
 
             // === ACTUALIZAR PIXI HUD (nuevo HUD en PixiJS) ===
             // Se actualiza cada frame para reflejar el estado del juego

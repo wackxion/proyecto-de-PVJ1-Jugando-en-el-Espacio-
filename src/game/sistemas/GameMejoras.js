@@ -375,12 +375,7 @@ export function comprarMejora(game, indice) {
         const cantidad = game.particulasCapturadas || 0;
         game.textoNumeroParticulas.text = `${cantidad}`;
     }
-    
-    // Actualizar contador del Devorador en la UI
-    if (game.contadorDevoradorUX) {
-        if (game.contadorDevoradorUX) game.contadorDevoradorUX.textContent = String(game.particulasCapturadas || 0);
-    }
-    
+
     // Actualizar UI con animación
     actualizarUIMejoras(game, indice);
     
