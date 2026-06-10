@@ -14,3 +14,6 @@ Thumbs.db
 
 # Obsidian (Notas de desarrollo - no versionar)
 obsidian-desarrollo/
+
+# Plan de negocio / publicación (privado, no versionar)
+documentacion/AppBusiness.md
