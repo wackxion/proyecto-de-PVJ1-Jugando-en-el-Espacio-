@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.7.31 (ACTUAL)  
+**Versión actual:** v1.7.32 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -15,6 +15,7 @@
 
 | Commit | Descripción |
 |--------|-------------|
+| `8440917` | refactor: eliminar código muerto del HUD DOM migrado a PixiHUD (~1238 líneas) (v1.7.32) |
 | - | refactor: config.js — punto único para todos los valores de balance (16 secciones, 87 referencias en 14 archivos) |
 | - | fix: encoding de Game.js — 410 caracteres españoles corruptos restaurados (mojibake CP850) |
 | - | chore: package.json actualizado (nombre, versión 1.7.31, autor, repositorio) |
@@ -427,6 +428,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.7.32:** ✅ Limpieza de código muerto del HUD DOM (~1238 líneas, HUD 100% PixiJS)
 **v1.7.31:** ✅ Refactor balance config.js, fix encoding Game.js
 **v1.7.30:** ✅ HUD PixiJS completo con animaciones
 **v1.5.2:** ✅ Sobrecalentamiento W, IA enemiga

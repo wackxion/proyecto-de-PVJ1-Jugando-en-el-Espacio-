@@ -1,7 +1,21 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/06/2026  
-**Versión:** v1.7.31 (ACTUAL)
+**Versión:** v1.7.32 (ACTUAL)
+
+---
+
+## ✅ Completado v1.7.32 - Limpieza de código muerto del HUD DOM
+
+Tras la migración a PixiJS, el HUD HTML quedó inalcanzable: `UIManager.crearHUD()` devuelve `{}`, así que todas las refs DOM (`marcoTiempoUX`, `iconoEscudoUX`, `contadorDevoradorUX`, etc.) eran `undefined` y el código que dependía de ellas nunca se ejecutaba. Eliminado (~1238 líneas):
+
+- **Game.js**: `_actualizarUI()` completo + sus 10 llamadas, campos UI muertos del constructor, asignaciones `hud.xxx` en `_configurarUI`, y bloques guardados por refs `undefined`.
+- **GameSkills.js**: `actualizarTiempoFuera`, `actualizarUIMarco{Cohetes,Devorador,Propulsor}`, `activarDevorador`, `activarPropulsor`, orquestador `actualizarHabilidades` + todos sus call sites (incl. la llamada del game loop).
+- **UIManager.js**: bloque comentado de ~558 líneas en `crearHUD()`, más `crearHUD()` y `destruirHUD()`.
+- **GameBoids.js / GameMejoras.js**: bloques `if (game.contadorDevoradorUX)` muertos.
+- **css/style.css**: reglas sin uso (`#tutorial-icon`, `#ship-icon`, `#controls`, `#*-ux-frame`, keyframes `palpitar-*`).
+
+La pasiva Tiempo Fuera (incl. regeneración de escudos) la maneja `PixiHUD._actualizarIconoTiempo()`. Verificado en navegador (serve + preview): sin errores de consola, HUD/habilidades/Tiempo Fuera/captura de partículas funcionando.
 
 ---
 
@@ -45,7 +59,7 @@ Migración completa del HUD de HTML/CSS a PixiJS canvas. Todos los elementos del
 - Guardar referencia `hudContainer` antes de `stage.removeChildren()` para reinicio
 - `requestAnimationFrame()` para diferir inicialización (asegurar canvas con dimensiones)
 - `sortableChildren = true` + `zIndex` para ordering de capas
-- Dead code comentado en 6 métodos `_crear*()` (pendiente eliminación)
+- Dead code comentado en 6 métodos `_crear*()` de **PixiHUD.js** (pendiente eliminación — distinto del HUD DOM ya limpiado en v1.7.32)
 
 ---
 
@@ -100,7 +114,7 @@ Migración completa del HUD de HTML/CSS a PixiJS canvas. Todos los elementos del
 
 | Tarea | Estado | Prioridad |
 |-------|--------|-----------|
-| Eliminar dead code comentado en `_crear*()` | ⏸️ Pendiente | Baja |
+| Eliminar dead code comentado en `_crear*()` de PixiHUD.js | ⏸️ Pendiente | Baja |
 | Análisis manual del flujo del código | ⏸️ Pendiente | Media |
 
 ---

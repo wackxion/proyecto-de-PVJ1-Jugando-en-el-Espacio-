@@ -3,7 +3,7 @@
 ## 1. Información del Proyecto
 
 - **Nombre del Juego:** Jugando en el Espacio
-- **Versión:** v1.7.31 (ACTUAL)
+- **Versión:** v1.7.32 (ACTUAL)
 - **Curso:** Programación de Videojuegos 1 - UNAHUR
 - **Profesor:** Facundo Saiegh
 - **Integrantes:** Braian Zapater
@@ -407,6 +407,7 @@ El HUD se renderiza completamente en el canvas de PixiJS mediante la clase `Pixi
 - Mini asteroides en órbita: colisionan con otros asteroides (reciben/dañan 20 HP)
 - Eliminado: `_generarEnemigo`, `_crearNaveEnemiga`, `_crearProyectilEnemigo` (no usados)
 - Eliminado: `_crearParticulasBoid`, `_crearParticulaBoidFuera`, `_capturarParticulaBoid` (wrappers sin uso)
+- Eliminado (v1.7.32): HUD DOM muerto — `_actualizarUI()`, `crearHUD()`/`destruirHUD()`, funciones `actualizarUIMarco*`/`actualizarTiempoFuera`/`activarDevorador`/`activarPropulsor` de GameSkills, y reglas CSS sin uso (~1238 líneas). El HUD in-game es 100% PixiHUD.js
 
 ### Técnológico
 - Funciones exportadas desde módulos para uso en game loop

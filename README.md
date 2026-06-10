@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.7.31-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.7.31)
+[![Versión](https://img.shields.io/badge/Versión-v1.7.32-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.7.32)
 
 ---
 
@@ -327,9 +327,11 @@ main.js
                │     └── _usarUlti() → Game.activarUlti() → new UltiEffect()
                │
                ├──► GameSkills.js
-               │     ├── crearCohetes() → new Cohete()
-               │     ├── activarDevorador() → new SuccionEffect()
-               │     └── actualizarTiempoFuera() → Jugador.agregarEscudos()
+               │     ├── actualizarHabilidadCohetes() → crearCohetes() → new Cohete()
+               │     ├── actualizarHabilidadDevorador() → new SuccionEffect()
+               │     └── actualizarHabilidadPropulsor() → Jugador.activarPropulsor()
+               │
+               ├──► PixiHUD._actualizarIconoTiempo() (pasiva Tiempo Fuera → Jugador.agregarEscudos())
                │
                ├──► GameBoids.js
                │     └── crearParticulasIniciales() → new BoidParticle()
@@ -356,7 +358,17 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.7.31 (Actual)
+### v1.7.32 (Actual)
+> **Limpieza de código muerto del HUD DOM**
+
+- Eliminado el HUD DOM obsoleto (~1238 líneas): el HUD in-game ya se renderiza 100% con PixiJS (`PixiHUD.js`)
+- `Game.js`: removidos `_actualizarUI()` y sus 10 llamadas, campos UI muertos y bloques guardados por refs DOM `undefined`
+- `GameSkills.js`: removidas `actualizarTiempoFuera`, `actualizarUIMarco*`, `activarDevorador/Propulsor` y el orquestador `actualizarHabilidades` (la pasiva Tiempo Fuera la maneja `PixiHUD._actualizarIconoTiempo()`)
+- `UIManager.js`: removido el bloque comentado de ~558 líneas de `crearHUD()` y el no-op `destruirHUD()`
+- `css/style.css`: removidas reglas sin uso (`#tutorial-icon`, `#ship-icon`, `#controls`, `#*-ux-frame`, keyframes)
+- Verificado en navegador: sin errores, HUD/habilidades/Tiempo Fuera/captura de partículas funcionando
+
+### v1.7.31
 > **Refactor de balance — config.js centralizado**
 
 - Nuevo `src/config.js`: punto único para ajustar balance (velocidades, daños, cooldowns, costos de mejoras)
