@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.7.30 (ACTUAL)  
+**Versión actual:** v1.7.31 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -17,10 +17,7 @@
 |--------|-------------|
 | - | refactor: config.js — punto único para todos los valores de balance (16 secciones, 87 referencias en 14 archivos) |
 | - | fix: encoding de Game.js — 410 caracteres españoles corruptos restaurados (mojibake CP850) |
-| - | chore: package.json actualizado (nombre, versión 1.5.2, autor, repositorio) |
-
-| Commit | Descripción |
-|--------|-------------|
+| - | chore: package.json actualizado (nombre, versión 1.7.31, autor, repositorio) |
 | `490cfef` | fix: puntuacion font 16px |
 | `d6a1c87` | fix: contador boids +30px right |
 | `4f501b7` | feat: iconos 70x70 |
@@ -76,7 +73,7 @@
 |--------|-------------|
 | `b1b4429` | v1.4.4: Fix naves enemigas, partículas Boid y Game Over con record |
 
-### v1.3.5 (Actual)
+### v1.3.5
 > **UI mejorada: iconos de habilidades, efectos de escudo**
 
 | Commit | Descripción |
@@ -399,7 +396,7 @@
 |--------|-------------|
 | - | Partículas Boid con comportamiento de enjambre |
 | - | Habilidad Devorador (E): Atrae partículas dentro de 200px |
-| - | Contador de partículas Boias capturadas |
+| - | Contador de partículas Boids capturadas |
 | - | Efecto visual de succión (SuccionEffect.js) |
 
 ---
@@ -430,10 +427,11 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.7.31:** ✅ Refactor balance config.js, fix encoding Game.js
 **v1.7.30:** ✅ HUD PixiJS completo con animaciones
 **v1.5.2:** ✅ Sobrecalentamiento W, IA enemiga
 **v1.5.0:** ✅ Sistema de mejoras expandido
 
 ---
 
-**Última actualización:** 07/06/2026
+**Última actualización:** 10/06/2026
