@@ -28,6 +28,7 @@ import { Cohete } from '../mecanicas/Cohete.js';
 import { ObjectPool } from './ObjectPool.js';
 import { UIManager } from '../../ui/UIManager.js';
 import { GestorEntrada } from '../../systems/InputManager.js';
+import { GestorSonido } from '../../systems/SoundManager.js';
 import { CONFIG } from '../../config.js';
 
 // === MÓDULOS REFACTORIZADOS ===
@@ -54,7 +55,10 @@ export class Game {
         
         // InputManager - maneja el teclado
         this.gestorEntrada = null;
-        
+
+        // GestorSonido - maneja los efectos de sonido y la música
+        this.gestorSonido = null;
+
         // Puntuación actual del jugador
         this.puntuacion = 0;
         
@@ -253,9 +257,13 @@ export class Game {
         
         // Crear el InputManager para manejar el teclado
         this.gestorEntrada = new GestorEntrada();
-        
+
         //('GestorEntrada creado');
-        
+
+        // Crear el GestorSonido y registrar los sonidos del juego
+        this.gestorSonido = new GestorSonido();
+        this._registrarSonidos();
+
         // Cargar los assets (imágenes) del juego
         await this._cargarRecursos();
         
@@ -743,14 +751,36 @@ _crearParticulaBoidFuera() {
     }
 
     /**
+     * Registra (precarga) todos los sonidos del juego en el GestorSonido.
+     * Único lugar donde se agregan sonidos nuevos a medida que se consiguen.
+     * Los archivos van en assets/audio/.
+     */
+    _registrarSonidos() {
+        if (!this.gestorSonido) return;
+
+        // --- Habilidades del jugador ---
+        // (cambiar la ruta/extensión según el archivo real que tengas)
+        this.gestorSonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.5);
+        // this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
+        // this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', 0.6);
+        // this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', 0.6);
+        // this.gestorSonido.cargar('devorador', 'assets/audio/devorador.mp3', 0.6);
+    }
+
+    /**
      * Crea un nuevo proyectil
      * Se llama cuando el jugador presiona la tecla de disparar
-     * 
+     *
      * @param {number} x - Posición X donde nace el proyectil
      * @param {number} y - Posición Y donde nace el proyectil
      * @param {number} direction - Dirección del proyectil en radianes (ángulo)
      */
     crearProyectil(x, y, direction) {
+        // Sonido de disparo
+        if (this.gestorSonido) {
+            this.gestorSonido.reproducir('disparo');
+        }
+
         // Crear proyectil SIN usar pool (forma original)
         const projectile = new Proyectil(x, y, direction, this.anchoJuego, this.altoJuego, this.texturaProyectil);
         
