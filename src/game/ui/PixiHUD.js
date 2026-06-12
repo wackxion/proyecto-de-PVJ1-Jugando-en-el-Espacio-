@@ -83,23 +83,64 @@ export class PixiHUD {
         // de crear el HUD (típico durante la inicialización), todos los
         // elementos quedarían con tamaño 0 y serían invisibles.
         requestAnimationFrame(() => {
+            this._prepararContenedores();
             this._calcularEscala();
             this._inicializar();
         });
     }
 
     /**
-     * Calcula la escala del contenedor HUD para la resolución base 1080×720.
-     * Escala uniforme (min) y centrado horizontal si el aspecto difiere.
+     * Crea (o recrea) los dos grupos del HUD que se anclan a los bordes
+     * reales de la pantalla, de forma independiente de la proporción:
+     *  - contenedorSuperior: panel de oleada → arriba-izquierda
+     *  - contenedorInferior: iconos, imagen UX, barra W, puntuación, contador → abajo-centro
+     * @private
+     */
+    _prepararContenedores() {
+        this.contenedorSuperior = new PIXI.Container();
+        this.contenedorSuperior.sortableChildren = true;
+
+        this.contenedorInferior = new PIXI.Container();
+        this.contenedorInferior.sortableChildren = true; // respeta zIndex (UX/barra detrás de iconos)
+
+        this.container.addChild(this.contenedorSuperior);
+        this.container.addChild(this.contenedorInferior);
+    }
+
+    /**
+     * Calcula la escala y ANCLA cada grupo del HUD a su borde real de pantalla.
+     *
+     * El layout interno sigue diseñado en la base fija 1080×720, pero ya no se
+     * trata como un bloque rígido: el grupo superior se pega arriba-izquierda y
+     * el inferior se pega abajo-centro, así el HUD se adapta a cualquier
+     * proporción (horizontal, vertical o cuadrada) igual que el campo de juego.
      * @private
      */
     _calcularEscala() {
         const w = this.app.screen.width || window.innerWidth || 1080;
         const h = this.app.screen.height || window.innerHeight || 720;
         this._escala = Math.min(w / 1080, h / 720);
-        this.container.scale.set(this._escala);
-        // Center horizontally if aspect ratio differs
-        this.container.x = (w - 1080 * this._escala) / 2;
+
+        // El contenedor raíz no se escala; cada grupo lleva su propia escala
+        // y posición ancladas al borde real.
+        this.container.scale.set(1);
+        this.container.position.set(0, 0);
+
+        if (!this.contenedorSuperior || !this.contenedorInferior) return;
+
+        const margen = 12;
+
+        // Grupo superior (panel de oleada) → arriba-izquierda
+        this.contenedorSuperior.scale.set(this._escala);
+        this.contenedorSuperior.position.set(margen, margen);
+
+        // Grupo inferior → abajo-centro. Se ancla el punto de diseño
+        // (540, 720) = centro-inferior del layout a la coordenada real (w/2, h).
+        this.contenedorInferior.scale.set(this._escala);
+        this.contenedorInferior.position.set(
+            Math.round(w / 2 - 540 * this._escala),
+            Math.round(h - 720 * this._escala)
+        );
     }
 
     /**
@@ -173,7 +214,9 @@ export class PixiHUD {
         this._escudosAnterior = 100;
         this.inicializado = false;
 
-        // Re-calcular escala y crear elementos
+        // Recrear los grupos anclados (removeChildren los eliminó), recalcular
+        // la escala y volver a crear los elementos
+        this._prepararContenedores();
         this._calcularEscala();
         this._inicializar();
     }
@@ -191,9 +234,9 @@ export class PixiHUD {
             fontSize: 12,  // CSS original: 12px
             fill: 0xFFFFFF
         });
-        this.oleadaText.x = 15;  // left: 15px
-        this.oleadaText.y = 10;  // top: 10px
-        this.container.addChild(this.oleadaText);
+        this.oleadaText.x = 0;  // anclado por el grupo superior (arriba-izquierda)
+        this.oleadaText.y = 0;
+        this.contenedorSuperior.addChild(this.oleadaText);
     }
 
     // ========================================================================
@@ -218,7 +261,7 @@ export class PixiHUD {
             this.uxImage.x = 540;  // center: 1080 / 2
             this.uxImage.y = 720;  // bottom: 0
             this.uxImage.zIndex = -1; // Detrás de todos los iconos del HUD
-            this.container.addChild(this.uxImage);
+            this.contenedorInferior.addChild(this.uxImage);
         } catch (e) {
             // Si falla, no hacer nada
         }
@@ -252,7 +295,7 @@ export class PixiHUD {
         this.cohetes.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
         // this.cohetes.marco.x = xIzquierda;
         // this.cohetes.marco.y = yBottom;
-        this.container.addChild(this.cohetes.marco);
+        this.contenedorInferior.addChild(this.cohetes.marco);
 
         // Fondo blanco con borde azul
         this.cohetes.fondo = new PIXI.Graphics();
@@ -262,7 +305,7 @@ export class PixiHUD {
         this.cohetes.fondo.endFill();
         // this.cohetes.fondo.x = xIzquierda + 4;
         // this.cohetes.fondo.y = yBottom + 4;
-        this.container.addChild(this.cohetes.fondo);
+        this.contenedorInferior.addChild(this.cohetes.fondo);
 
         // Icono
         this.cohetes.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -270,7 +313,7 @@ export class PixiHUD {
         // this.cohetes.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         // this.cohetes.icono.y = yBottom + (altoTotal) / 2;
         this.cohetes.icono.width = anchoIcono;
-        this.container.addChild(this.cohetes.icono);
+        this.contenedorInferior.addChild(this.cohetes.icono);
         this._cargarTexturaIcono('cohetes', 'assets/cohetes.png', this.cohetes.icono, anchoIcono, null);
     }
 
@@ -300,7 +343,7 @@ export class PixiHUD {
         this.tiempo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
         // this.tiempo.marco.x = xIzquierda;
         // this.tiempo.marco.y = yBottom;
-        this.container.addChild(this.tiempo.marco);
+        this.contenedorInferior.addChild(this.tiempo.marco);
 
         // Fondo blanco con borde azul
         this.tiempo.fondo = new PIXI.Graphics();
@@ -310,7 +353,7 @@ export class PixiHUD {
         this.tiempo.fondo.endFill();
         // this.tiempo.fondo.x = xIzquierda + 5;
         // this.tiempo.fondo.y = yBottom + 5;
-        this.container.addChild(this.tiempo.fondo);
+        this.contenedorInferior.addChild(this.tiempo.fondo);
 
         // Icono
         this.tiempo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -318,7 +361,7 @@ export class PixiHUD {
         // this.tiempo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
         // this.tiempo.icono.y = yBottom + altoTotal / 2;
         this.tiempo.icono.width = anchoIcono;
-        this.container.addChild(this.tiempo.icono);
+        this.contenedorInferior.addChild(this.tiempo.icono);
         // Cargar textura original y guardar referencia para restaurar cuando no esté activo
         this._cargarTexturaTiempoOriginal(anchoIcono);
 
@@ -384,7 +427,7 @@ export class PixiHUD {
         this.escudo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
         // this.escudo.marco.x = xIzquierda;
         // this.escudo.marco.y = yBottom;
-        this.container.addChild(this.escudo.marco);
+        this.contenedorInferior.addChild(this.escudo.marco);
 
         // Fondo blanco con borde azul
         this.escudo.fondo = new PIXI.Graphics();
@@ -394,7 +437,7 @@ export class PixiHUD {
         this.escudo.fondo.endFill();
         // this.escudo.fondo.x = xIzquierda + 5;
         // this.escudo.fondo.y = yBottom + 5;
-        this.container.addChild(this.escudo.fondo);
+        this.contenedorInferior.addChild(this.escudo.fondo);
 
         // Icono (sprite que cambiará de textura)
         this.escudo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -403,7 +446,7 @@ export class PixiHUD {
         // this.escudo.icono.y = yBottom + altoTotal / 2;
         this.escudo.icono.width = anchoIcono;
         this.escudo.icono.height = altoIcono;
-        this.container.addChild(this.escudo.icono);
+        this.contenedorInferior.addChild(this.escudo.icono);
 
         // Cargar 5 sprites del escudo
         this._cargarSpritesEscudo();
@@ -447,7 +490,7 @@ export class PixiHUD {
         this.ulti.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
         // this.ulti.marco.x = xIzquierda;
         // this.ulti.marco.y = yBottom;
-        this.container.addChild(this.ulti.marco);
+        this.contenedorInferior.addChild(this.ulti.marco);
 
         // Fondo blanco
         this.ulti.fondo = new PIXI.Graphics();
@@ -456,7 +499,7 @@ export class PixiHUD {
         this.ulti.fondo.endFill();
         // this.ulti.fondo.x = xIzquierda + 5; // 5 = borde del marco
         // this.ulti.fondo.y = yBottom + 5; // 5 = borde del marco
-        this.container.addChild(this.ulti.fondo);
+        this.contenedorInferior.addChild(this.ulti.fondo);
 
         // Icono
         this.ulti.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -465,7 +508,7 @@ export class PixiHUD {
         // this.ulti.icono.y = yBottom + altoTotal / 2;
         this.ulti.icono.width = anchoIcono;
         this.ulti.icono.height = altoIcono;
-        this.container.addChild(this.ulti.icono);
+        this.contenedorInferior.addChild(this.ulti.icono);
 
         // Cargar 5 sprites de ULTi
         this._cargarSpritesUlti();
@@ -508,7 +551,7 @@ export class PixiHUD {
         this.propul.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
         // this.propul.marco.x = xIzquierda;
         // this.propul.marco.y = yBottom;
-        this.container.addChild(this.propul.marco);
+        this.contenedorInferior.addChild(this.propul.marco);
 
         // Fondo blanco
         this.propul.fondo = new PIXI.Graphics();
@@ -518,7 +561,7 @@ export class PixiHUD {
         this.propul.fondo.endFill();
         // this.propul.fondo.x = xIzquierda + 4;
         // this.propul.fondo.y = yBottom + 4;
-        this.container.addChild(this.propul.fondo);
+        this.contenedorInferior.addChild(this.propul.fondo);
 
         // Icono
         this.propul.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -526,7 +569,7 @@ export class PixiHUD {
         // this.propul.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         // this.propul.icono.y = yBottom + altoTotal / 2;
         this.propul.icono.width = anchoIcono;
-        this.container.addChild(this.propul.icono);
+        this.contenedorInferior.addChild(this.propul.icono);
         this._cargarTexturaIcono('propul', 'assets/propulsor.png', this.propul.icono, anchoIcono, null);
     }
 
@@ -556,7 +599,7 @@ export class PixiHUD {
         this.deborador.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
         // this.deborador.marco.x = xIzquierda;
         // this.deborador.marco.y = yBottom;
-        this.container.addChild(this.deborador.marco);
+        this.contenedorInferior.addChild(this.deborador.marco);
 
         // Fondo blanco
         this.deborador.fondo = new PIXI.Graphics();
@@ -566,7 +609,7 @@ export class PixiHUD {
         this.deborador.fondo.endFill();
         // this.deborador.fondo.x = xIzquierda + 4;
         // this.deborador.fondo.y = yBottom + 4;
-        this.container.addChild(this.deborador.fondo);
+        this.contenedorInferior.addChild(this.deborador.fondo);
 
         // Icono
         this.deborador.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -574,7 +617,7 @@ export class PixiHUD {
         // this.deborador.icono.x = xIzquierda + (anchoFondo + 8) / 2;
         // this.deborador.icono.y = yBottom + altoTotal / 2;
         this.deborador.icono.width = anchoIcono;
-        this.container.addChild(this.deborador.icono);
+        this.contenedorInferior.addChild(this.deborador.icono);
         this._cargarTexturaIcono('deborador', 'assets/deborador.png', this.deborador.icono, anchoIcono, null);
     }
 
@@ -601,7 +644,7 @@ export class PixiHUD {
         this.contadorDevoradorText.x = 811;  // +30px right
         // y: 720 - 23 - textHeight (bottom: 3.2vmin ≈ 23px at 720)
         this.contadorDevoradorText.y = 720 - 23 - this.contadorDevoradorText.height;
-        this.container.addChild(this.contadorDevoradorText);
+        this.contenedorInferior.addChild(this.contadorDevoradorText);
     }
 
     // ========================================================================
@@ -626,7 +669,7 @@ export class PixiHUD {
         this.barraAceleracionBg.x = x;
         this.barraAceleracionBg.y = y;
         this.barraAceleracionBg.zIndex = -2;
-        this.container.addChild(this.barraAceleracionBg);
+        this.contenedorInferior.addChild(this.barraAceleracionBg);
 
         // Relleno (azul) - detrás de la imagen UX
         this.barraAceleracionFill = new PIXI.Graphics();
@@ -636,7 +679,7 @@ export class PixiHUD {
         this.barraAceleracionFill.x = x;
         this.barraAceleracionFill.y = y;
         this.barraAceleracionFill.zIndex = -2;
-        this.container.addChild(this.barraAceleracionFill);
+        this.contenedorInferior.addChild(this.barraAceleracionFill);
 
         this._anchoBarraAceleracion = ancho;
         this._altoBarraAceleracion = alto;
@@ -672,12 +715,12 @@ export class PixiHUD {
         this.scoreBg.x = scoreBgX;
         this.scoreBg.y = scoreBgY;
         this.scoreBg.zIndex = -2;
-        this.container.addChild(this.scoreBg);
+        this.contenedorInferior.addChild(this.scoreBg);
 
         this.puntuacionText.anchor.set(0.5, 1);
         this.puntuacionText.x = textX;
         this.puntuacionText.y = textY;
-        this.container.addChild(this.puntuacionText);
+        this.contenedorInferior.addChild(this.puntuacionText);
     }
 
     // ========================================================================
