@@ -357,7 +357,7 @@ export class UIManager {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: #0D0D1A;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -586,7 +586,7 @@ export class UIManager {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: #0D0D1A;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -779,7 +779,7 @@ export class UIManager {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: #0D0D1A;
             display: flex;
             justify-content: center;
             align-items: center;
