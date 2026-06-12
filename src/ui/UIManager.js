@@ -596,23 +596,22 @@ export class UIManager {
         const exterior = document.createElement('div');
         exterior.style.cssText = `
             background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: contain;
-            width: ${Math.min(750, this.width * 0.5)}px;
-            height: 900px;
+            background-size: 100% 100%;
+            width: ${Math.min(560, this.width * 0.9)}px;
             display: flex;
             justify-content: center;
             align-items: center;
         `;
-        
+
         const container = document.createElement('div');
         container.style.cssText = `
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            padding: 60px 40px;
+            padding: 70px 40px;
         `;
-        
+
         const titulo = document.createElement('div');
         titulo.textContent = 'TOP 5';
         titulo.style.cssText = `
@@ -789,22 +788,20 @@ export class UIManager {
         const exterior = document.createElement('div');
         exterior.style.cssText = `
             background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: contain;
-            width: ${Math.min(850, this.width * 0.95)}px;
-            height: 1100px;
+            background-size: 100% 100%;
+            width: ${Math.min(640, this.width * 0.9)}px;
             display: flex;
             justify-content: center;
             align-items: center;
         `;
-        
+
         const container = document.createElement('div');
         container.style.cssText = `
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            padding: 60px 40px;
-            margin-top: 10px;
+            padding: 70px 50px;
         `;
         
         const titulo = document.createElement('div');
