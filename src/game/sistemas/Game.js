@@ -1930,7 +1930,8 @@ _crearParticulaBoidFuera() {
         });
         titleText.anchor.set(0.5);
         titleText.x = this.anchoJuego / 2;
-        titleText.y = this.altoJuego / 2 - (gameOverSprite.height * scale) / 2 + 100;
+        // gameOverSprite.height ya está escalado: ubicar el título cerca del borde superior del papel
+        titleText.y = this.altoJuego / 2 - gameOverSprite.height / 2 + 70;
         this.aplicacion.stage.addChild(titleText);
         this.elementosFinJuego.push(titleText);
         
@@ -2155,7 +2156,8 @@ _crearParticulaBoidFuera() {
         // Crear botones HTML nativos para Game Over
         // (mas confiables que los botones de PixiJS)
         // =====================================================
-        this._crearBotonesGameOverHTML(gameOverSprite.x, gameOverSprite.y, gameOverSprite.width * scale);
+        // Pasar la ALTURA real del papel (ya escalada) para ubicar los botones debajo del texto
+        this._crearBotonesGameOverHTML(gameOverSprite.x, gameOverSprite.y, gameOverSprite.height);
         
         // === FIN GAME OVER ===
         
@@ -2270,8 +2272,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     const rect = canvas.getBoundingClientRect();
     const scaleY = rect.height / this.altoJuego;
     
-    // Posicion Y debajo de la imagen de Game Over (un poco mas arriba)
-    const btnY = yCentro + (ancho * 0.18);
+    // 'ancho' = altura real del papel (ya escalada). Ubicar los botones en la
+    // parte baja del papel, debajo del texto de puntuación/oleada.
+    const btnY = yCentro + (ancho * 0.42);
     
     // Botón Reiniciar - centrado debajo de la imagen
     const btnReiniciar = document.createElement('img');

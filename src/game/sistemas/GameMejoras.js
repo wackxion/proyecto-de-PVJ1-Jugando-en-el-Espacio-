@@ -52,8 +52,8 @@ export async function crearVentanaMejoras(game) {
     
     // Fondo
     const fondoSprite = new PIXI.Sprite(gameOverTexture);
-    const maxWidth = game.anchoJuego * 0.6;
-    const maxHeight = game.altoJuego * 0.6;
+    const maxWidth = game.anchoJuego * 0.9;
+    const maxHeight = game.altoJuego * 0.85;
     const scale = Math.min(maxWidth / fondoSprite.width, maxHeight / fondoSprite.height);
     fondoSprite.scale.set(scale);
     fondoSprite.anchor.set(0.5);
@@ -74,13 +74,16 @@ export async function crearVentanaMejoras(game) {
     });
     titleText.anchor.set(0.5);
     titleText.x = game.anchoJuego / 2;
-    titleText.y = 220; // Un poco más abajo
+    // Ubicar el título cerca del borde superior del papel (relativo, robusto a cualquier tamaño)
+    titleText.y = fondoSprite.y - fondoSprite.height / 2 + 60;
     game.aplicacion.stage.addChild(titleText);
     game.elementosFinJuego.push(titleText);
     
     // Contenedor principal
+    // Offset +50 en X: las etiquetas de sección se extienden hacia la izquierda,
+    // así el contenido (etiqueta + icono + grid) queda centrado bajo el papel.
     const container = new PIXI.Container();
-    container.x = game.anchoJuego / 2;
+    container.x = game.anchoJuego / 2 + 50;
     container.y = game.altoJuego / 2;
     container.eventMode = 'static';
     container.interactive = true;
@@ -275,7 +278,8 @@ export async function crearVentanaMejoras(game) {
     // Mostrar partículas actuales (imagen Pboids2 + número en azul)
     const particulasContainer = new PIXI.Container();
     particulasContainer.x = game.anchoJuego / 2;
-    particulasContainer.y = game.altoJuego / 2 + (fondoSprite.height * scale) / 2 - 90;
+    // fondoSprite.height ya está escalado: ubicar cerca del borde inferior del papel
+    particulasContainer.y = game.altoJuego / 2 + fondoSprite.height / 2 - 95;
     game.aplicacion.stage.addChild(particulasContainer);
     game.elementosFinJuego.push(particulasContainer);
     
@@ -310,7 +314,7 @@ export async function crearVentanaMejoras(game) {
     });
     continuarText.anchor.set(0.5);
     continuarText.x = game.anchoJuego / 2;
-    continuarText.y = game.altoJuego / 2 + (fondoSprite.height * scale) / 2 - 20;
+    continuarText.y = game.altoJuego / 2 + fondoSprite.height / 2 - 30;
     game.aplicacion.stage.addChild(continuarText);
     game.elementosFinJuego.push(continuarText);
 }
