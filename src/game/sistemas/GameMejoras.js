@@ -75,10 +75,50 @@ export async function crearVentanaMejoras(game) {
     titleText.anchor.set(0.5);
     titleText.x = game.anchoJuego / 2;
     // Ubicar el título cerca del borde superior del papel (relativo, robusto a cualquier tamaño)
-    titleText.y = fondoSprite.y - fondoSprite.height / 2 + 60;
+    titleText.y = fondoSprite.y - fondoSprite.height / 2 + 46;
     game.aplicacion.stage.addChild(titleText);
     game.elementosFinJuego.push(titleText);
-    
+
+    // === MINI-LEYENDA (debajo del título): qué significa cada color ===
+    const leyenda = new PIXI.Container();
+    leyenda.y = titleText.y + 38;
+    const estadosLeyenda = [
+        { fill: 0xDCE7F7, borde: 0x0044CC, alpha: 1,   check: true,  texto: 'Comprada' },
+        { fill: 0xFBFBF2, borde: 0x0044CC, alpha: 1,   check: false, texto: 'Disponible' },
+        { fill: 0xFBFBF2, borde: 0xB9C4DC, alpha: 0.6, check: false, texto: 'Sin partículas' },
+        { fill: 0xF7E0E0, borde: 0xCC0000, alpha: 1,   check: false, texto: 'Sin saldo' }
+    ];
+    const szChip = 15, gapChip = 16;
+    let lx = 0;
+    for (const e of estadosLeyenda) {
+        const chip = new PIXI.Container();
+        chip.x = lx;
+        chip.alpha = e.alpha;
+        const cuad = new PIXI.Graphics();
+        cuad.lineStyle(2, e.borde, 1);
+        cuad.beginFill(e.fill);
+        cuad.drawRect(0, 0, szChip, szChip);
+        cuad.endFill();
+        chip.addChild(cuad);
+        if (e.check) {
+            const ck = new PIXI.Text('✓', { fontFamily: 'Arial', fontSize: 11, fill: 0x0044CC, fontWeight: 'bold' });
+            ck.anchor.set(0.5);
+            ck.x = szChip / 2; ck.y = szChip / 2 + 1;
+            chip.addChild(ck);
+        }
+        const txt = new PIXI.Text(e.texto, { fontFamily: 'Arial', fontSize: 13, fill: 0x0C447C, fontWeight: 'bold' });
+        txt.anchor.set(0, 0.5);
+        txt.x = szChip + 5; txt.y = szChip / 2;
+        chip.addChild(txt);
+        leyenda.addChild(chip);
+        lx += szChip + 5 + txt.width + gapChip;
+    }
+    // Centrar la leyenda horizontalmente
+    const anchoLeyenda = lx - gapChip;
+    leyenda.x = game.anchoJuego / 2 - anchoLeyenda / 2;
+    game.aplicacion.stage.addChild(leyenda);
+    game.elementosFinJuego.push(leyenda);
+
     // Contenedor principal
     // Sin las etiquetas de texto, la fila es [icono + costo + grid].
     // Offset -35 en X para centrar ese contenido bajo el papel.
@@ -94,11 +134,11 @@ export async function crearVentanaMejoras(game) {
     // Configuración de las secciones: [nombre, indiceInicio, textura]
     // Los iconos deben estar alineados con sus barras
     const secciones = [
-        { nombre: 'proyectil', indice: 0, textura: game.texturaProyectil, escala: 0.45, yBase: -120 },
-        { nombre: 'proyectil2', indice: 15, textura: game.texturaProyectil, escala: 0.45, yBase: -60 },
+        { nombre: 'proyectil', indice: 0, textura: game.texturaProyectil, escala: 0.45, yBase: -100 },
+        { nombre: 'proyectil2', indice: 15, textura: game.texturaProyectil, escala: 0.45, yBase: -50 },
         { nombre: 'ulti', indice: 10, textura: await PIXI.Assets.load('assets/ultiicon1.png'), escala: 0.5, yBase: 0 },
-        { nombre: 'escudo', indice: 5, textura: await PIXI.Assets.load('assets/escudo1.png'), escala: 0.45, yBase: 60 },
-        { nombre: 'tiempofuera', indice: 20, textura: await PIXI.Assets.load('assets/tiempo fuera.png'), escala: 0.25, yBase: 120 }
+        { nombre: 'escudo', indice: 5, textura: await PIXI.Assets.load('assets/escudo1.png'), escala: 0.45, yBase: 50 },
+        { nombre: 'tiempofuera', indice: 20, textura: await PIXI.Assets.load('assets/tiempo fuera.png'), escala: 0.25, yBase: 100 }
     ];
     
     // Guardar referencias de costos para actualizar después
@@ -274,7 +314,7 @@ export async function crearVentanaMejoras(game) {
     const particulasContainer = new PIXI.Container();
     particulasContainer.x = game.anchoJuego / 2;
     // fondoSprite.height ya está escalado: ubicar cerca del borde inferior del papel
-    particulasContainer.y = game.altoJuego / 2 + fondoSprite.height / 2 - 95;
+    particulasContainer.y = game.altoJuego / 2 + fondoSprite.height / 2 - 75;
     game.aplicacion.stage.addChild(particulasContainer);
     game.elementosFinJuego.push(particulasContainer);
     
