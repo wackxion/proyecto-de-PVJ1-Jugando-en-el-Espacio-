@@ -1963,7 +1963,11 @@ _crearParticulaBoidFuera() {
         waveText.y = this.altoJuego / 2 + 60;
         this.aplicacion.stage.addChild(waveText);
         this.elementosFinJuego.push(waveText);
-        
+
+        // Referencias a los visuales del Game Over para poder ocultarlos mientras
+        // se ingresa el nombre del récord (sino se ven por detrás del formulario)
+        this._gameOverVisuales = [gameOverSprite, titleText, scoreText, waveText];
+
         // === VERIFICAR SI CALIFICA PARA TOP 5 ===
         // Si ya se usó el nombre o no califica, no pedir
         // Solo muestra el input si la puntuación está en el top 5
@@ -1983,7 +1987,11 @@ _crearParticulaBoidFuera() {
             // Deshabilitar el input del teclado
             // Esto evita que las teclas W/A/S/D afecten al juego mientras se escribe el nombre
             this.gestorEntrada.deshabilitar();
-            
+
+            // Ocultar la pantalla de Game Over de PixiJS mientras se ingresa el nombre
+            // (evita que "GAME OVER"/score se vean por detrás del formulario transparente)
+            if (this._gameOverVisuales) this._gameOverVisuales.forEach(el => { if (el) el.visible = false; });
+
             // === IMAGEN DE FONDO (GAME OVER) BAJO EL INPUT ===
             // Mostrar la imagen de fondo detrás del formulario de nombre
             const bgImage = document.createElement('img');
@@ -2085,7 +2093,10 @@ _crearParticulaBoidFuera() {
                         this.bgImageRecord = null;
                     }
                     this.gestorEntrada.habilitar();                // Reactivar teclado del juego
-                    
+
+                    // Volver a mostrar la pantalla de Game Over (estaba oculta durante el ingreso del nombre)
+                    if (this._gameOverVisuales) this._gameOverVisuales.forEach(el => { if (el) el.visible = true; });
+
                     // Crear botones de nuevo en la misma posición
                     if (this.posicionBotonesGameOver) {
                         this._crearBotonesGameOverHTML(
@@ -2115,7 +2126,10 @@ _crearParticulaBoidFuera() {
                             this.bgImageRecord = null;
                         }
                         this.gestorEntrada.habilitar();
-                        
+
+                        // Volver a mostrar la pantalla de Game Over
+                        if (this._gameOverVisuales) this._gameOverVisuales.forEach(el => { if (el) el.visible = true; });
+
                         // Crear botones de nuevo en la misma posición
                         if (this.posicionBotonesGameOver) {
                             this._crearBotonesGameOverHTML(
