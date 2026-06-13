@@ -80,10 +80,10 @@ export async function crearVentanaMejoras(game) {
     game.elementosFinJuego.push(titleText);
     
     // Contenedor principal
-    // Offset +50 en X: las etiquetas de sección se extienden hacia la izquierda,
-    // así el contenido (etiqueta + icono + grid) queda centrado bajo el papel.
+    // Sin las etiquetas de texto, la fila es [icono + costo + grid].
+    // Offset -35 en X para centrar ese contenido bajo el papel.
     const container = new PIXI.Container();
-    container.x = game.anchoJuego / 2 + 50;
+    container.x = game.anchoJuego / 2 - 35;
     container.y = game.altoJuego / 2;
     container.eventMode = 'static';
     container.interactive = true;
@@ -146,18 +146,8 @@ export async function crearVentanaMejoras(game) {
             labels = labelsBase;
         }
         
-        // Nombre de la sección (a la izquierda del icono)
-        const nombreSeccion = new PIXI.Text(nombresSecciones[seccion.nombre] || '', {
-            fontFamily: 'Arial',
-            fontSize: 12,
-            fill: 0x0044CC,
-            fontWeight: 'bold'
-        });
-        nombreSeccion.anchor.set(1, 0.5); // A la derecha del texto
-        nombreSeccion.x = -200; // Alineado con el borde izquierdo del fondo
-        nombreSeccion.y = seccion.yBase; // Alineado con las barras
-        container.addChild(nombreSeccion);
-        
+        // (Se reemplazaron los títulos de texto por el icono de cada categoría)
+
         // Icono
         const icono = new PIXI.Sprite(seccion.textura);
         icono.anchor.set(0.5);
@@ -222,28 +212,16 @@ export async function crearVentanaMejoras(game) {
             barraContainer.name = `mejora_${indice}`;
             container.addChild(barraContainer);
             
-            // Fondo cuadrado
+            // Fondo cuadrado (el color/estado lo pinta _estilarBarra)
             const barraBg = new PIXI.Graphics();
             barraBg.eventMode = 'none';
-            barraBg.lineStyle(2, 0x0044CC, 1);
-            barraBg.beginFill(0xFFFFFF);
-            barraBg.drawRect(0, 0, barraSize, barraSize);
-            barraBg.endFill();
             barraContainer.addChild(barraBg);
-            
-            // Barra llena
-            const nivel = game.mejoras[indice] || 0;
-            const porcentaje = nivel >= 1 ? 1 : 0;
+
+            // Capa de relleno (vestigial; el estado se pinta en barraBg)
             const barraLlena = new PIXI.Graphics();
             barraLlena.eventMode = 'none';
-            barraLlena.beginFill(0x0044CC);
-            barraLlena.drawRect(0, barraSize * (1 - porcentaje), barraSize, barraSize * porcentaje);
-            barraLlena.endFill();
             barraContainer.addChild(barraLlena);
-            
-            // Guardar referencia
-            game.barsMejoras[indice] = { barraLlena, barraSize, container: barraContainer };
-            
+
             // Texto de la mejora
             const labelText = new PIXI.Text(labels[j], {
                 fontFamily: 'Arial',
@@ -255,15 +233,32 @@ export async function crearVentanaMejoras(game) {
             labelText.x = barraSize / 2;
             labelText.y = barraSize / 2;
             barraContainer.addChild(labelText);
-            
+
+            // Tilde de "comprada" (oculto hasta comprar)
+            const check = new PIXI.Text('✓', {
+                fontFamily: 'Arial',
+                fontSize: 13,
+                fill: 0x0044CC,
+                fontWeight: 'bold'
+            });
+            check.anchor.set(1, 0);
+            check.x = barraSize - 3;
+            check.y = 1;
+            check.visible = false;
+            barraContainer.addChild(check);
+
+            // Guardar referencia y pintar estado inicial
+            game.barsMejoras[indice] = { barraBg, barraLlena, labelText, check, barraSize, container: barraContainer };
+            _estilarBarra(game, indice);
+
             // Click para comprar
             barraContainer.on('pointertap', () => {
                 comprarMejora(game, indice);
             });
             
-            // Hover
+            // Hover (tinte azul claro)
             barraContainer.on('pointerover', () => {
-                barraBg.tint = 0xCCCCCC;
+                barraBg.tint = 0xCFE0F7;
             });
             barraContainer.on('pointerout', () => {
                 barraBg.tint = 0xFFFFFF;
@@ -337,8 +332,9 @@ export function comprarMejora(game, indice) {
     
     // Verificar partículas: debe tener al menos el costo necesario
     if (particulasActuales < costo) {
-        // Mostrar mensaje de "No hay suficientes partículas"
+        // Mostrar mensaje de "No hay suficientes partículas" + flash rojo en la mejora
         _mostrarMensajeError(game, 'No hay suficientes partículas');
+        _flashRojoBarra(game, indice);
         return;
     }
     
@@ -394,63 +390,76 @@ export function comprarMejora(game, indice) {
  * @param {Game} game - Referencia al objeto Game principal
  * @param {number} indiceCompra - Índice de la barra que se compró (opcional)
  */
-export function actualizarUIMejoras(game, indiceCompra) {
+export function actualizarUIMejoras(game) {
     if (!game.barsMejoras) return;
-    
-    // Actualizar las 25 barras (5 secciones x 5 mejoras)
+    // Repintar el estado de las 25 barras (comprada / disponible / sin partículas).
+    // La disponibilidad cambia al gastar partículas, por eso se repinta todo.
     for (let i = 0; i < 25; i++) {
-        const barData = game.barsMejoras[i];
-        if (!barData) continue;
-        
-        const nivel = game.mejoras[i] || 0;
-        const nuevoPorcentaje = nivel >= 1 ? 1 : 0; // 100% si está comprada
-        
-        // Si es la barra que se acaba de comprar, animarla
-        if (i === indiceCompra && nivel > 0) {
-            // Animación de la barra
-            const barraSize = barData.barraSize;
-            const duration = 300; // ms
-            const startPorcentaje = 0;
-            const startTime = Date.now();
-            
-            // Función de animación
-            const animateBar = () => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Easing
-                const eased = 1 - Math.pow(1 - progress, 3);
-                const currentPorcentaje = startPorcentaje + (nuevoPorcentaje - startPorcentaje) * eased;
-                
-                // Redibujar barra
-                barData.barraLlena.clear();
-                barData.barraLlena.beginFill(0x00FF00); // Verde para mostrar progreso
-                barData.barraLlena.drawRect(0, barraSize * (1 - currentPorcentaje), barraSize, barraSize * currentPorcentaje);
-                barData.barraLlena.endFill();
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animateBar);
-                } else {
-                    // Volver al color normal después de la animación
-                    setTimeout(() => {
-                        barData.barraLlena.clear();
-                        barData.barraLlena.beginFill(0x0044CC);
-                        barData.barraLlena.drawRect(0, barraSize * (1 - nuevoPorcentaje), barraSize, barraSize * nuevoPorcentaje);
-                        barData.barraLlena.endFill();
-                    }, 200);
-                }
-            };
-            
-            animateBar();
-        } else {
-            // Solo actualizar sin animación - si está comprada (nivel >= 1) mostrar completa
-            barData.barraLlena.clear();
-            const porcentaje = nivel >= 1 ? 1 : 0; // 100% si está comprada, 0% si no
-            barData.barraLlena.beginFill(0x0044CC);
-            barData.barraLlena.drawRect(0, barData.barraSize * (1 - porcentaje), barData.barraSize, barData.barraSize * porcentaje);
-            barData.barraLlena.endFill();
-        }
+        if (game.barsMejoras[i]) _estilarBarra(game, i);
     }
+}
+
+/**
+ * Pinta una barra de mejora según su estado, en tinta:
+ *  - comprada      -> azul pastel suave + tilde
+ *  - disponible    -> contorno azul sobre papel
+ *  - sin partículas-> tinta tenue (borde pálido + atenuado)
+ * @param {Game} game
+ * @param {number} i - índice de la mejora (0-24)
+ */
+function _estilarBarra(game, i) {
+    const b = game.barsMejoras[i];
+    if (!b || !b.barraBg) return;
+    const sz = b.barraSize;
+    const comprada = (game.mejoras[i] || 0) >= 1;
+    const alcanza = (game.particulasCapturadas || 0) >= (game.costosMejoras[i] || 0);
+
+    b.container.alpha = 1;
+    if (b.barraLlena) b.barraLlena.clear();
+    b.barraBg.clear();
+
+    if (comprada) {
+        b.barraBg.lineStyle(2, 0x0044CC, 1);
+        b.barraBg.beginFill(0xDCE7F7); // azul pastel suave
+        b.barraBg.drawRect(0, 0, sz, sz);
+        b.barraBg.endFill();
+        if (b.labelText) b.labelText.style.fill = 0x0C447C;
+        if (b.check) b.check.visible = true;
+    } else if (alcanza) {
+        b.barraBg.lineStyle(2, 0x0044CC, 1);
+        b.barraBg.beginFill(0xFBFBF2); // papel
+        b.barraBg.drawRect(0, 0, sz, sz);
+        b.barraBg.endFill();
+        if (b.labelText) b.labelText.style.fill = 0x0044CC;
+        if (b.check) b.check.visible = false;
+    } else {
+        b.barraBg.lineStyle(2, 0xB9C4DC, 1); // borde tinta tenue
+        b.barraBg.beginFill(0xFBFBF2);
+        b.barraBg.drawRect(0, 0, sz, sz);
+        b.barraBg.endFill();
+        if (b.labelText) b.labelText.style.fill = 0xA4B0CD;
+        if (b.check) b.check.visible = false;
+        b.container.alpha = 0.5; // atenuado, como tinta gastada
+    }
+}
+
+/**
+ * Flash rojo breve en una mejora (al intentar comprar sin partículas)
+ * @param {Game} game
+ * @param {number} i
+ */
+function _flashRojoBarra(game, i) {
+    const b = game.barsMejoras[i];
+    if (!b || !b.barraBg) return;
+    const sz = b.barraSize;
+    b.container.alpha = 1;
+    b.barraBg.clear();
+    b.barraBg.lineStyle(2, 0xCC0000, 1);
+    b.barraBg.beginFill(0xF7E0E0);
+    b.barraBg.drawRect(0, 0, sz, sz);
+    b.barraBg.endFill();
+    if (b.labelText) b.labelText.style.fill = 0x7A1414;
+    setTimeout(() => _estilarBarra(game, i), 450);
 }
 
 /**
