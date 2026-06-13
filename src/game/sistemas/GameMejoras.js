@@ -119,6 +119,9 @@ export async function crearVentanaMejoras(game) {
     game.aplicacion.stage.addChild(leyenda);
     game.elementosFinJuego.push(leyenda);
 
+    // Posición Y para el mensaje de error: justo debajo de la mini-leyenda
+    game._mejorasErrorY = leyenda.y + 30;
+
     // Contenedor principal
     // Sin las etiquetas de texto, la fila es [icono + costo + grid].
     // Offset -35 en X para centrar ese contenido bajo el papel.
@@ -541,16 +544,16 @@ function _mostrarMensajeError(game, mensaje) {
     // Marcar que hay un mensaje mostrando
     game.mensajeErrorMostrando = true;
     
-    // Crear texto de error (misma fuente que el título "MEJORAS", debajo del título)
+    // Crear texto de error (misma fuente que el título), debajo de la mini-leyenda
     const textoError = new PIXI.Text(mensaje, {
         fontFamily: 'Segoe Script, Lucida Handwriting, Bradley Hand, cursive',
-        fontSize: 24,
-        fill: 0xFF0000,
+        fontSize: 19,
+        fill: 0xCC0000, // rojo tinta
         fontWeight: 'bold'
     });
     textoError.anchor.set(0.5);
     textoError.x = game.anchoJuego / 2;
-    textoError.y = 280; // Debajo del título "MEJORAS" que está en y=220
+    textoError.y = game._mejorasErrorY || 280; // justo debajo de la mini-leyenda
     game.aplicacion.stage.addChild(textoError);
     game.elementosFinJuego.push(textoError);
     
