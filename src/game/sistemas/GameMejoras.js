@@ -59,6 +59,7 @@ export async function crearVentanaMejoras(game) {
     fondoSprite.anchor.set(0.5);
     fondoSprite.x = game.anchoJuego / 2;
     fondoSprite.y = game.altoJuego / 2;
+    fondoSprite.zIndex = 2000; // por encima del HUD (zIndex 1000) para no quedar tapado
     game.aplicacion.stage.addChild(fondoSprite);
     game.elementosFinJuego.push(fondoSprite);
     
@@ -76,6 +77,7 @@ export async function crearVentanaMejoras(game) {
     titleText.x = game.anchoJuego / 2;
     // Ubicar el título cerca del borde superior del papel (relativo, robusto a cualquier tamaño)
     titleText.y = fondoSprite.y - fondoSprite.height / 2 + 46;
+    titleText.zIndex = 2000;
     game.aplicacion.stage.addChild(titleText);
     game.elementosFinJuego.push(titleText);
 
@@ -116,6 +118,7 @@ export async function crearVentanaMejoras(game) {
     // Centrar la leyenda horizontalmente
     const anchoLeyenda = lx - gapChip;
     leyenda.x = game.anchoJuego / 2 - anchoLeyenda / 2;
+    leyenda.zIndex = 2000;
     game.aplicacion.stage.addChild(leyenda);
     game.elementosFinJuego.push(leyenda);
 
@@ -130,6 +133,7 @@ export async function crearVentanaMejoras(game) {
     container.y = game.altoJuego / 2;
     container.eventMode = 'static';
     container.interactive = true;
+    container.zIndex = 2000;
     game.aplicacion.stage.addChild(container);
     game.elementosFinJuego.push(container);
     
@@ -318,6 +322,7 @@ export async function crearVentanaMejoras(game) {
     particulasContainer.x = game.anchoJuego / 2;
     // fondoSprite.height ya está escalado: ubicar cerca del borde inferior del papel
     particulasContainer.y = game.altoJuego / 2 + fondoSprite.height / 2 - 75;
+    particulasContainer.zIndex = 2000;
     game.aplicacion.stage.addChild(particulasContainer);
     game.elementosFinJuego.push(particulasContainer);
     
@@ -353,6 +358,7 @@ export async function crearVentanaMejoras(game) {
     continuarText.anchor.set(0.5);
     continuarText.x = game.anchoJuego / 2;
     continuarText.y = game.altoJuego / 2 + fondoSprite.height / 2 - 30;
+    continuarText.zIndex = 2000;
     game.aplicacion.stage.addChild(continuarText);
     game.elementosFinJuego.push(continuarText);
 }
@@ -554,6 +560,7 @@ function _mostrarMensajeError(game, mensaje) {
     textoError.anchor.set(0.5);
     textoError.x = game.anchoJuego / 2;
     textoError.y = game._mejorasErrorY || 280; // justo debajo de la mini-leyenda
+    textoError.zIndex = 2001; // por encima del panel de mejoras y del HUD
     game.aplicacion.stage.addChild(textoError);
     game.elementosFinJuego.push(textoError);
     
