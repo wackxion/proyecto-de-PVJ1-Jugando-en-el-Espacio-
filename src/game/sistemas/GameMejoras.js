@@ -154,7 +154,7 @@ export async function crearVentanaMejoras(game) {
     
     // Labels para las mejoras
     const labelsBase = ['+2', '+3', '+5', '+5', '+10'];
-    const labelsProyectil2 = ['+10%', '+10%', '+15%', '+15%', '+30%'];
+    const labelsProyectil2 = ['+5%', '+5%', '+10%', '+10%', '+20%']; // coincide con el efecto real (Game.js) y el tutorial
     const labelsEscudo = ['+50', '+50', '+50', '+50', '+50'];
     const labelsUlti = ['-50', '-50', '-50', '-50', '-50'];
     const labelsTiempoFuera = ['+5', '+10', '+15', '+20', '+30'];
@@ -303,12 +303,14 @@ export async function crearVentanaMejoras(game) {
                 comprarMejora(game, indice);
             });
             
-            // Hover (tinte azul claro)
+            // Hover (tinte azul claro + tooltip)
             barraContainer.on('pointerover', () => {
                 barraBg.tint = 0xCFE0F7;
+                _mostrarTooltipMejora(game, indice, container.x + x + barraSize / 2, container.y + y);
             });
             barraContainer.on('pointerout', () => {
                 barraBg.tint = 0xFFFFFF;
+                _ocultarTooltipMejora(game);
             });
         }
     }
@@ -361,6 +363,23 @@ export async function crearVentanaMejoras(game) {
     continuarText.zIndex = 2000;
     game.aplicacion.stage.addChild(continuarText);
     game.elementosFinJuego.push(continuarText);
+
+    // === TOOLTIP (cartelito de tinta al pasar el mouse por una mejora) ===
+    const ttContainer = new PIXI.Container();
+    ttContainer.zIndex = 2100; // por encima del panel y del HUD
+    ttContainer.visible = false;
+    ttContainer.eventMode = 'none';
+    const ttBg = new PIXI.Graphics();
+    ttContainer.addChild(ttBg);
+    const ttL1 = new PIXI.Text('', { fontFamily: 'Arial', fontSize: 13, fill: 0x0044CC, fontWeight: 'bold' });
+    ttL1.x = 9; ttL1.y = 6;
+    ttContainer.addChild(ttL1);
+    const ttL2 = new PIXI.Text('', { fontFamily: 'Arial', fontSize: 12, fill: 0x0C447C });
+    ttL2.x = 9; ttL2.y = 25;
+    ttContainer.addChild(ttL2);
+    game.aplicacion.stage.addChild(ttContainer);
+    game.elementosFinJuego.push(ttContainer);
+    game._tooltipMejoras = { c: ttContainer, bg: ttBg, l1: ttL1, l2: ttL2 };
 }
 
 /**
@@ -509,6 +528,64 @@ function _flashRojoBarra(game, i) {
     b.barraBg.endFill();
     if (b.labelText) b.labelText.style.fill = 0x7A1414;
     setTimeout(() => _estilarBarra(game, i), 450);
+}
+
+/**
+ * Arma el texto del tooltip de una mejora: línea 1 = qué hace, línea 2 = costo/estado.
+ * @param {Game} game
+ * @param {number} i - índice de la mejora (0-24)
+ */
+function _textoTooltipMejora(game, i) {
+    const bar = game.barsMejoras[i];
+    const val = (bar && bar.labelText) ? bar.labelText.text : '';
+    let l1;
+    if (i <= 4) l1 = `${val} de daño por disparo`;
+    else if (i >= 15 && i <= 19) l1 = `${val} velocidad del proyectil`;
+    else if (i >= 10 && i <= 14) l1 = `${val} al costo de carga del Ulti`;
+    else if (i >= 5 && i <= 9) l1 = `${val} de escudo máximo`;
+    else l1 = `${val} escudos al terminar Tiempo Fuera`;
+
+    const comprada = (game.mejoras[i] || 0) >= 1;
+    const costo = game.costosMejoras[i] || 0;
+    const part = game.particulasCapturadas || 0;
+    let l2, color;
+    if (comprada) { l2 = 'Ya comprada'; color = 0x0C447C; }
+    else if (part >= costo) { l2 = `Costo: ${costo} partículas`; color = 0x0C447C; }
+    else { l2 = `Te faltan ${costo - part} partículas`; color = 0xCC0000; }
+    return { l1, l2, color };
+}
+
+/**
+ * Muestra el tooltip sobre una mejora (centrado encima del cuadrito).
+ * @param {Game} game
+ * @param {number} i - índice de la mejora
+ * @param {number} centroX - X absoluto del centro del cuadrito
+ * @param {number} topY - Y absoluto del borde superior del cuadrito
+ */
+function _mostrarTooltipMejora(game, i, centroX, topY) {
+    const tt = game._tooltipMejoras;
+    if (!tt) return;
+    const { l1, l2, color } = _textoTooltipMejora(game, i);
+    tt.l1.text = l1;
+    tt.l2.text = l2;
+    tt.l2.style.fill = color;
+    const w = Math.max(tt.l1.width, tt.l2.width) + 18;
+    const h = 44;
+    tt.bg.clear();
+    tt.bg.lineStyle(2, 0x0044CC, 1);
+    tt.bg.beginFill(0xFBFBF2);
+    tt.bg.drawRect(0, 0, w, h);
+    tt.bg.endFill();
+    tt.c.x = Math.round(centroX - w / 2);
+    // Por defecto arriba del cuadrito; si pisaría el título/leyenda, mostrarlo debajo
+    let ty = topY - h - 8;
+    if (ty < (game._mejorasErrorY || 60) + 22) ty = topY + 53;
+    tt.c.y = Math.round(ty);
+    tt.c.visible = true;
+}
+
+function _ocultarTooltipMejora(game) {
+    if (game._tooltipMejoras) game._tooltipMejoras.c.visible = false;
 }
 
 /**
