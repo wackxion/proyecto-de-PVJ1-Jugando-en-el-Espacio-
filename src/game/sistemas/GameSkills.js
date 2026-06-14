@@ -293,6 +293,7 @@ export function actualizarHabilidadPropulsor(game, delta) {
     if (game.gestorEntrada && game.gestorEntrada.debeUsarPropulsor(delta)) {
         if (game.jugador && game.jugador.active) {
             game.jugador.activarPropulsor();
+            if (game.gestorSonido) game.gestorSonido.reproducir('propulsor');
         }
     }
 }

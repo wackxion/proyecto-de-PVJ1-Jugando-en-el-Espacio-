@@ -761,9 +761,9 @@ _crearParticulaBoidFuera() {
         // --- Habilidades del jugador ---
         // (cambiar la ruta/extensión según el archivo real que tengas)
         this.gestorSonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.5);
-        // this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
+        this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
+        this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', 0.6);
         // this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', 0.6);
-        // this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', 0.6);
         // this.gestorSonido.cargar('devorador', 'assets/audio/devorador.mp3', 0.6);
     }
 
@@ -818,6 +818,11 @@ _crearParticulaBoidFuera() {
      * Crea un aro expansivo que destruye todos los asteroides en pantalla
      */
     activarUlti() {
+        // Sonido del Ulti
+        if (this.gestorSonido) {
+            this.gestorSonido.reproducir('ulti');
+        }
+
         // Guardar referencia a "this" para usar dentro del callback
         const game = this;
         
