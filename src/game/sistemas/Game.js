@@ -1886,7 +1886,13 @@ _crearParticulaBoidFuera() {
         // Marcar el juego como no corriendo y en Game Over
         this.ejecutando = false;
         this.enGameOver = true;
-        
+
+        // Cortar el bucle de rotura de escudos si estaba sonando
+        if (this.jugador && this.gestorSonido) {
+            this.gestorSonido.detener(this.jugador._loopRotura);
+            this.jugador._loopRotura = null;
+        }
+
         // Array para guardar los elementos de UI para poder limpiarlos después
         this.elementosFinJuego = [];
         

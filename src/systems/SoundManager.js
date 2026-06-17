@@ -64,6 +64,45 @@ export class GestorSonido {
     }
 
     /**
+     * Reproduce un sonido en BUCLE y devuelve la instancia para poder detenerla.
+     * Útil para sonidos sostenidos (ej: alarma mientras dura un estado).
+     *
+     * @param {string} clave - Identificador del sonido
+     * @returns {HTMLAudioElement|null} la instancia en loop, o null si no se reprodujo
+     */
+    reproducirLoop(clave) {
+        if (this.silenciado) return null;
+
+        const entrada = this.plantillas.get(clave);
+        if (!entrada) return null;
+
+        const instancia = entrada.audio.cloneNode();
+        instancia.loop = true;
+        instancia.volume = this._clamp(entrada.volumen * this.volumenGlobal);
+
+        const promesa = instancia.play();
+        if (promesa && typeof promesa.catch === 'function') {
+            promesa.catch(() => {});
+        }
+        return instancia;
+    }
+
+    /**
+     * Detiene una instancia devuelta por reproducirLoop() (o cualquier Audio).
+     * @param {HTMLAudioElement} instancia
+     */
+    detener(instancia) {
+        if (!instancia) return;
+        try {
+            instancia.pause();
+            instancia.currentTime = 0;
+            instancia.loop = false;
+        } catch (e) {
+            // Ignorar
+        }
+    }
+
+    /**
      * Activa o desactiva el silencio global.
      * @param {boolean} estado - true para silenciar, false para reactivar
      */

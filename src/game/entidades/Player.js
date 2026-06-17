@@ -87,7 +87,10 @@ this.rotacion = 0;
         // Salís de este estado solo cuando recibís escudos (via Tiempo Fuera o mejoras)
         // sobrecalentado: Flag que indica si está en modo sobrecalentamiento (sin escudos)
         this.sobrecalentado = false;
-        
+
+        // Instancia del sonido de rotura de escudos en bucle (suena mientras sobrecalentado)
+        this._loopRotura = null;
+
         // temporizadorEnfriamiento: Temporizador de enfriamiento (cuenta regresiva)
         this.temporizadorEnfriamiento = 0;
         
@@ -482,6 +485,11 @@ this.rotacion = 0;
         if (this.sobrecalentado && this.escudos > 0) {
             this.sobrecalentado = false;
             this.temporizadorEnfriamiento = 0;
+            // Cortar el bucle de rotura de escudos
+            if (this.juego && this.juego.gestorSonido) {
+                this.juego.gestorSonido.detener(this._loopRotura);
+                this._loopRotura = null;
+            }
         }
     }
     
@@ -533,9 +541,10 @@ this.rotacion = 0;
                 this.escudosPreEnfriamiento = 0;
                 this.sobrecalentado = true;
                 this.temporizadorEnfriamiento = this.duracionEnfriamiento;
-                // Sonido de rotura de escudos
+                // Sonido de rotura de escudos EN BUCLE (hasta regenerar o game over)
                 if (this.juego && this.juego.gestorSonido) {
-                    this.juego.gestorSonido.reproducir('roturaEscudos');
+                    this.juego.gestorSonido.detener(this._loopRotura);
+                    this._loopRotura = this.juego.gestorSonido.reproducirLoop('roturaEscudos');
                 }
             }
         } else {
