@@ -270,6 +270,10 @@ this.rotacion = 0;
             this.velocidad = Math.min(this.velocidad + this.aceleracion * delta, this.velocidadMax);
             
             if (this.cargaAceleracion >= this.cargaMax) {
+                // Sonido solo en la transición (no cada frame mientras está lleno)
+                if (!this.sobrecalentadoAceleracion && this.juego && this.juego.gestorSonido) {
+                    this.juego.gestorSonido.reproducir('sobrecalentamientoW');
+                }
                 this.sobrecalentadoAceleracion = true;
                 this.temporizadorEnfriamientoAcel = this.duracionEnfriamientoAcel;
             }
@@ -529,6 +533,10 @@ this.rotacion = 0;
                 this.escudosPreEnfriamiento = 0;
                 this.sobrecalentado = true;
                 this.temporizadorEnfriamiento = this.duracionEnfriamiento;
+                // Sonido de rotura de escudos
+                if (this.juego && this.juego.gestorSonido) {
+                    this.juego.gestorSonido.reproducir('roturaEscudos');
+                }
             }
         } else {
             // Si está en sobrecalentamiento y recibe otro golpe, MUERE

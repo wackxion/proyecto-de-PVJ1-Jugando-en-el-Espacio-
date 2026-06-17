@@ -763,6 +763,8 @@ _crearParticulaBoidFuera() {
         this.gestorSonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.5);
         this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
         this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', 0.6);
+        this.gestorSonido.cargar('roturaEscudos', 'assets/audio/rotura de escudos.mp3', 0.7);
+        this.gestorSonido.cargar('sobrecalentamientoW', 'assets/audio/sobrecalentamiento(w).mp3', 0.5);
         // this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', 0.6);
         // this.gestorSonido.cargar('devorador', 'assets/audio/devorador.mp3', 0.6);
     }
