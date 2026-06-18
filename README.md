@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.7.32-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.7.32)
+[![Versión](https://img.shields.io/badge/Versión-v1.8.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.8.0)
 
 ---
 
@@ -358,7 +358,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.7.32 (Actual)
+### v1.8.0 (Actual)
+> **Sistema de audio + rediseño de la ventana de Mejoras**
+
+- 🔊 **Sistema de audio** (`GestorSonido`, HTML5 sin dependencias): SFX conectados de disparo, ulti, propulsor, sobrecalentamiento (W) y rotura de escudos (en bucle hasta regenerar o game over). Detalle en `documentacion/AUDIO.md`
+- 🎨 **Ventana de Mejoras rediseñada**: estados por color en tinta (comprada/disponible/sin partículas/error), iconos en vez de títulos, mini-leyenda, tooltips por mejora, y siempre por encima del HUD
+- 📐 **HUD adaptable**: anclado a los bordes reales, se adapta a cualquier proporción de pantalla
+- 🛠️ **Arreglos**: Game Over y Mejoras sin elementos superpuestos, papel de Top 5/Créditos que envuelve el contenido, modales opacos, ventana de récord prolija
+- ⚖️ **Balance**: más carga de ulti por enemigo; fix del label de velocidad (+10%→+5%)
+
+### v1.7.32
 > **Limpieza de código muerto del HUD DOM**
 
 - Eliminado el HUD DOM obsoleto (~1238 líneas): el HUD in-game ya se renderiza 100% con PixiJS (`PixiHUD.js`)

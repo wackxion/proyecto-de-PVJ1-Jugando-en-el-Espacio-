@@ -1,7 +1,17 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 10/06/2026  
-**Versión:** v1.7.32 (ACTUAL)
+**Última actualización:** 17/06/2026  
+**Versión:** v1.8.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.8.0 - Sistema de audio + rediseño de Mejoras
+
+- **Sistema de audio** (`src/systems/SoundManager.js`, clase `GestorSonido`): HTML5 Audio sin dependencias, registro en `Game._registrarSonidos()`, soporte de bucle (`reproducirLoop`/`detener`). Ver `documentacion/AUDIO.md`. SFX conectados: disparo, ulti, propulsor, sobrecalentamiento (W), rotura de escudos (en bucle hasta regenerar o game over).
+- **Rediseño de la ventana de Mejoras** (`GameMejoras.js`): estados por color en tinta (comprada azul pastel + ✓ / disponible / sin partículas tenue / error rojo), iconos de categoría en vez de títulos de texto, mini-leyenda explicativa, tooltips por mejora (qué hace + costo/estado), mensaje de error debajo de la leyenda, y la ventana siempre por encima del HUD (zIndex).
+- **HUD adaptable**: `PixiHUD` anclado a los bordes reales (se adapta a cualquier proporción de pantalla, no solo 3:2).
+- **Arreglos de overlays/pantallas**: Game Over y Mejoras sin elementos superpuestos (bugs de doble escala), papel de Top 5/Créditos envuelve el contenido, modales opacos (el menú ya no se ve por detrás), ventana de récord sin "GAME OVER" pisándose con el input.
+- **Balance**: más carga de ulti por enemigo (asteroides 5→15, nave 10→30). Fix del label de velocidad (+10%→+5%, acorde al efecto real).
 
 ---
 

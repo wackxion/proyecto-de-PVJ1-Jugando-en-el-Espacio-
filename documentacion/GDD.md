@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.7.32 (ACTUAL)  
+**Versión actual:** v1.8.0 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,21 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.7.x (ACTUAL) - HUD PixiJS + Refactor config.js
+### v1.8.0 (ACTUAL) - Sistema de audio + rediseño de Mejoras
+> **Sistema de sonido (GestorSonido) con los primeros SFX · Rediseño completo de la ventana de Mejoras · HUD adaptable y arreglos de overlays/pantallas**
+
+| Commit | Descripción |
+|--------|-------------|
+| `3ba7bcf` | feat: sistema de audio (GestorSonido, HTML5) + sonido de disparo |
+| `817c53d` / `6850aba` / `2ba5839` | feat(audio): ulti, propulsor, sobrecalentamiento (W) y rotura de escudos (en bucle) |
+| `7c356ab` / `9acdb81` / `5d582ca` / `4a801eb` | feat(mejoras): estados por color (tinta) + iconos + mini-leyenda + tooltips + mensaje de error |
+| `ee0920b` | fix(mejoras): la ventana queda siempre por encima del HUD (zIndex) |
+| `44d9355` | feat(hud): anclar el HUD a los bordes reales (adaptable a cualquier proporción) |
+| `167da08` / `20c5b34` / `b96b8c2` / `9d00eda` | fix(ui): overlays y pantallas (Game Over, Mejoras, Top 5, Créditos, ventana de récord) |
+| `8afdf9c` | balance(ulti): más carga de ulti por enemigo (5→15 / 10→30) |
+| `4a801eb` | fix: label de velocidad +10%→+5% acorde al efecto real |
+
+### v1.7.x - HUD PixiJS + Refactor config.js
 > **Migración completa del HUD de HTML/CSS a PixiJS canvas · Centralización de balance en config.js**
 
 | Commit | Descripción |
@@ -428,6 +442,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.8.0:** ✅ Sistema de audio (5 SFX) + rediseño de Mejoras + HUD adaptable + balance ulti
 **v1.7.32:** ✅ Limpieza de código muerto del HUD DOM (~1238 líneas, HUD 100% PixiJS)
 **v1.7.31:** ✅ Refactor balance config.js, fix encoding Game.js
 **v1.7.30:** ✅ HUD PixiJS completo con animaciones
@@ -436,4 +451,4 @@
 
 ---
 
-**Última actualización:** 10/06/2026
+**Última actualización:** 17/06/2026
