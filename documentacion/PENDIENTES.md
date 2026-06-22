@@ -69,7 +69,7 @@ Migración completa del HUD de HTML/CSS a PixiJS canvas. Todos los elementos del
 - Guardar referencia `hudContainer` antes de `stage.removeChildren()` para reinicio
 - `requestAnimationFrame()` para diferir inicialización (asegurar canvas con dimensiones)
 - `sortableChildren = true` + `zIndex` para ordering de capas
-- Dead code comentado en 6 métodos `_crear*()` de **PixiHUD.js** (pendiente eliminación — distinto del HUD DOM ya limpiado en v1.7.32)
+- Dead code comentado en 6 métodos `_crear*()` de **PixiHUD.js** (✅ eliminado: ahora cada función tiene JSDoc detallado y los comentarios obsoletos de la migración HTML→PixiJS fueron limpiados — distinto del HUD DOM ya limpiado en v1.7.32)
 
 ---
 
@@ -124,7 +124,7 @@ Migración completa del HUD de HTML/CSS a PixiJS canvas. Todos los elementos del
 
 | Tarea | Estado | Prioridad |
 |-------|--------|-----------|
-| Eliminar dead code comentado en `_crear*()` de PixiHUD.js | ⏸️ Pendiente | Baja |
+| Eliminar dead code comentado en `_crear*()` de PixiHUD.js | ✅ Hecho | Baja |
 | Análisis manual del flujo del código | ⏸️ Pendiente | Media |
 
 ---
