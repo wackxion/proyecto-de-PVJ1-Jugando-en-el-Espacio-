@@ -1,29 +1,34 @@
 /**
- * PixiHUD - Réplica exacta del HUD HTML en PixiJS
+ * PixiHUD - HUD del juego renderizado en el canvas de PixiJS.
  *
- * Esta clase reemplaza completamente el HUD HTML que está en UIManager.js.
- * Renderiza todos los elementos del HUD directamente en el canvas de PixiJS,
- * manteniendo la misma apariencia visual que la versión HTML.
+ * Es el ÚNICO HUD in-game: dibuja todos los elementos directamente sobre el
+ * canvas (UIManager.js solo maneja los menús/pantallas fuera del canvas).
+ * Lee el estado del juego (this.game) en cada frame vía actualizar() y refleja
+ * puntuación, oleada, escudos, Ulti, Tiempo Fuera y partículas capturadas.
  *
- * Migración completa desde HTML a PixiJS (v1.6.0).
- * Réplica 1:1 de los elementos definidos en UIManager.js (line 1049-1599).
+ * --- LAYOUT ---
+ * Los elementos se diseñan en una base FIJA de 1080×720 px y se escalan con
+ * `escala = Math.min(w/1080, h/720)`. No es un bloque rígido: se reparten en
+ * dos grupos anclados a los bordes REALES de la pantalla (ver _prepararContenedores
+ * y _calcularEscala), por lo que el HUD se adapta a cualquier proporción:
+ *   - contenedorSuperior → panel de oleada (arriba-izquierda)
+ *   - contenedorInferior → imagen UX, 6 iconos de habilidad, barra W,
+ *                          puntuación y contador de Boids (abajo-centro)
  *
- * Elementos del HUD (orden de creación según HTML):
- * 1. #left-panel        - Info de oleada (top-left)
- * 2. #cohetes-ux-frame  - Cohetes (Q)
- * 3. #tiempo-ux-frame   - Tiempo Fuera
- * 4. #escudo-ux-frame   - Escudo
- * 5. #ulti-ux-frame     - ULTi
- * 6. #propul-ux-frame   - Propulsor (R)
- * 7. #deborador-ux-frame - Devorador (E)
- * 8. #contador-devorador - Contador de partículas
- * 9. #ux-experimental   - Imagen de fondo del HUD
- * 10. #aceleracion-ux-container - Barra de aceleración (W)
- * 11. #score-panel      - Panel de puntuación
+ * --- ELEMENTOS ---
+ * 1. Panel de oleada        7. Devorador (E)
+ * 2. Cohetes (Q)            8. Contador de partículas (Boids)
+ * 3. Tiempo Fuera (pasiva)  9. Imagen UX (fondo de la barra inferior)
+ * 4. Escudo                 10. Barra de aceleración (W)
+ * 5. ULTi (S)               11. Panel de puntuación
+ * 6. Propulsor (R)
  *
- * FIXED PIXEL LAYOUT for 1080×720 base resolution.
- * The HUD container is scaled to fit the actual screen using:
- *   scale = Math.min(actualWidth / 1080, actualHeight / 720)
+ * --- NOTAS PixiJS v8 ---
+ * - `removeFromParent()` (no `removeFromStage()`, deprecado).
+ * - `sortableChildren = true` + `zIndex` para ordenar capas (la imagen UX y la
+ *   barra W van con zIndex negativo, detrás de los iconos).
+ * - La inicialización se difiere un frame (requestAnimationFrame) para que el
+ *   canvas ya tenga dimensiones válidas.
  */
 
 export class PixiHUD {
@@ -225,13 +230,16 @@ export class PixiHUD {
     // 1. PANEL DE OLEADA (top-left)
     // ========================================================================
 
+    /**
+     * Crea el texto del panel de oleada (esquina superior-izquierda).
+     * Se ancla en (0,0) dentro del contenedorSuperior, que lo pega al borde
+     * arriba-izquierda. El texto se actualiza cada frame en _actualizarPanelOleada().
+     * @private
+     */
     _crearPanelOleada() {
-        // HTML: position: absolute; top: 10px; left: 15px; padding: 5px;
-        // #wave: color: white; font-family: Arial; font-size: 12px;
-
         this.oleadaText = new PIXI.Text('Oleada: 1', {
             fontFamily: 'Arial, sans-serif',
-            fontSize: 12,  // CSS original: 12px
+            fontSize: 12,
             fill: 0xFFFFFF
         });
         this.oleadaText.x = 0;  // anclado por el grupo superior (arriba-izquierda)
@@ -243,27 +251,34 @@ export class PixiHUD {
     // 9. IMAGEN UX EXPERIMENTAL (bottom center background)
     // ========================================================================
 
+    /**
+     * Crea la imagen de fondo de la barra inferior del HUD (la "consola").
+     * Dispara la carga asíncrona de la textura. @private
+     */
     _crearImagenUX() {
-        // HTML: position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-        // width: min(2000, width * 0.8)px; height: height * 0.2px;
-
         this._cargarTexturaUX();
     }
 
+    /**
+     * Carga la textura de la imagen UX y la posiciona como fondo de la barra
+     * inferior: anclada abajo-centro (anchor 0.5,1) en el punto de diseño
+     * (540, 720), con zIndex -1 para quedar DETRÁS de los iconos de habilidad.
+     * @private
+     */
     async _cargarTexturaUX() {
         try {
             const tex = await PIXI.Assets.load('assets/uxExperimental2.png');
             this.uxImage = new PIXI.Sprite(tex);
-            // Fixed dimensions for 1080×720 base: width=864 (80% of 1080), height=144 (20% of 720)
+            // Dimensiones fijas en la base 1080×720
             this.uxImage.width = 1000;
             this.uxImage.height = 160;
-            this.uxImage.anchor.set(0.5, 1); // Para usar bottom: 0 con translateX(-50%)
-            this.uxImage.x = 540;  // center: 1080 / 2
-            this.uxImage.y = 720;  // bottom: 0
-            this.uxImage.zIndex = -1; // Detrás de todos los iconos del HUD
+            this.uxImage.anchor.set(0.5, 1); // centro-inferior
+            this.uxImage.x = 540;  // centro horizontal (1080 / 2)
+            this.uxImage.y = 720;  // borde inferior
+            this.uxImage.zIndex = -1; // detrás de los iconos
             this.contenedorInferior.addChild(this.uxImage);
         } catch (e) {
-            // Si falla, no hacer nada
+            // Si falla la carga, el HUD funciona igual sin la imagen de fondo
         }
     }
 
@@ -271,30 +286,21 @@ export class PixiHUD {
     // 2. ICONO DE COHETES (Q)
     // ========================================================================
 
+    /**
+     * Crea el icono de la habilidad Cohetes (Q): marco azul + recuadro blanco +
+     * sprite del icono. Se dibuja en (0,0); la posición final (en la fila inferior)
+     * la asigna _posicionarIconosEnFila(). Este icono es estático (no cambia con el estado).
+     * @private
+     */
     _crearCohetes() {
-        // HTML marco: position: absolute; bottom: 2.3vmin; left: 48.9%;
-        //           transform: translateX(-200%); border: 4px solid #0044CC;
-        // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
-        //           border: 5px solid #0044CC;
-        // HTML icono: width: 8vmin; height: auto;
+        const anchoFondo = 77;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 55;  // se reajusta luego en _posicionarIconosEnFila()
 
-        // const tamanoMarco = this._v(10);  // border -- NO USADO
-        const anchoFondo = 77;  // ≈ 9.9vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 55;  // ≈ 8vmin at 720
-        // const bottom = this._v(2.3);        // OVERRIDDEN por _posicionarIconosEnFila()
-        // const leftPorcentaje = 48.9;         // OVERRIDDEN
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
-        // const altoTotal = altoFondo + 8; // Alto del marco completo
-        // const yBottom = this.app.screen.height - bottom - altoTotal; // bottom del CSS = borde inferior del marco
-
-        // Marco exterior
+        // Marco exterior (borde azul)
         this.cohetes.marco = new PIXI.Graphics();
         this.cohetes.marco.lineStyle(4, 0x0044CC, 1);
         this.cohetes.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
-        // this.cohetes.marco.x = xIzquierda;
-        // this.cohetes.marco.y = yBottom;
         this.contenedorInferior.addChild(this.cohetes.marco);
 
         // Fondo blanco con borde azul
@@ -303,15 +309,11 @@ export class PixiHUD {
         this.cohetes.fondo.lineStyle(5, 0x0044CC, 1);
         this.cohetes.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.cohetes.fondo.endFill();
-        // this.cohetes.fondo.x = xIzquierda + 4;
-        // this.cohetes.fondo.y = yBottom + 4;
         this.contenedorInferior.addChild(this.cohetes.fondo);
 
-        // Icono
+        // Icono (placeholder blanco hasta que carga cohetes.png)
         this.cohetes.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.cohetes.icono.anchor.set(0.5);
-        // this.cohetes.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        // this.cohetes.icono.y = yBottom + (altoTotal) / 2;
         this.cohetes.icono.width = anchoIcono;
         this.contenedorInferior.addChild(this.cohetes.icono);
         this._cargarTexturaIcono('cohetes', 'assets/cohetes.png', this.cohetes.icono, anchoIcono, null);
@@ -321,28 +323,22 @@ export class PixiHUD {
     // 3. ICONO DE TIEMPO FUERA
     // ========================================================================
 
+    /**
+     * Crea el icono de la pasiva Tiempo Fuera: marco + recuadro + icono del reloj.
+     * Además precarga la textura original (`tiempo fuera.png`) y los 6 sprites del
+     * reloj (relog1-6) que usa la animación cuando el jugador está sobrecalentado
+     * (ver _actualizarIconoTiempo). Posición final: _posicionarIconosEnFila().
+     * @private
+     */
     _crearTiempoFuera() {
-        // HTML marco: position: absolute; bottom: 2.3vmin; left: 44%;
-        //           transform: translateX(-300%); border: 5px solid #0044CC;
-        // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
-        // HTML icono: width: 5vmin; height: auto;
+        const anchoFondo = 77;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 55;  // se reajusta luego en _posicionarIconosEnFila()
 
-        const anchoFondo = 77;  // ≈ 9.9vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 55;  // default (overridden by _posicionarIconosEnFila)
-        // const bottom = this._v(2.3);
-        // const leftPorcentaje = 44;
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro - this._v(30); // translateX(-300%) = 3 * 10vmin
-        // const altoTotal = altoFondo + 10;
-        // const yBottom = this.app.screen.height - bottom - altoTotal;
-
-        // Marco exterior
+        // Marco exterior (borde azul)
         this.tiempo.marco = new PIXI.Graphics();
         this.tiempo.marco.lineStyle(5, 0x0044CC, 1);
         this.tiempo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
-        // this.tiempo.marco.x = xIzquierda;
-        // this.tiempo.marco.y = yBottom;
         this.contenedorInferior.addChild(this.tiempo.marco);
 
         // Fondo blanco con borde azul
@@ -351,21 +347,17 @@ export class PixiHUD {
         this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
         this.tiempo.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.tiempo.fondo.endFill();
-        // this.tiempo.fondo.x = xIzquierda + 5;
-        // this.tiempo.fondo.y = yBottom + 5;
         this.contenedorInferior.addChild(this.tiempo.fondo);
 
-        // Icono
+        // Icono (placeholder hasta cargar la textura)
         this.tiempo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.tiempo.icono.anchor.set(0.5);
-        // this.tiempo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        // this.tiempo.icono.y = yBottom + altoTotal / 2;
         this.tiempo.icono.width = anchoIcono;
         this.contenedorInferior.addChild(this.tiempo.icono);
-        // Cargar textura original y guardar referencia para restaurar cuando no esté activo
-        this._cargarTexturaTiempoOriginal(anchoIcono);
 
-        // Cargar sprites del reloj para animación (relog1-6, frame 7 = relog6 rotado)
+        // Textura estática (reloj base) que se muestra cuando NO está sobrecalentado
+        this._cargarTexturaTiempoOriginal(anchoIcono);
+        // Sprites de la animación del reloj (relog1-6; el frame 7 = relog6 rotado π)
         this._cargarSpritesTiempo();
     }
 
@@ -404,29 +396,23 @@ export class PixiHUD {
     // 4. ICONO DE ESCUDO
     // ========================================================================
 
+    /**
+     * Crea el icono de Escudo: marco + recuadro + icono. Precarga los 5 sprites
+     * del escudo (escudo1-5) que _actualizarIconoEscudo() intercambia según el
+     * % de escudos del jugador (y la animación de sobrecalentamiento).
+     * Posición final: _posicionarIconosEnFila().
+     * @private
+     */
     _crearEscudo() {
-        // HTML marco: position: absolute; bottom: 5.1vmin; left: 49%;
-        //           transform: translateX(-200%); border: 5px solid #0044CC;
-        // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
-        // HTML icono: width: 8vmin; height: 6vmin;
+        const anchoFondo = 77;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 55;  // se reajusta luego en _posicionarIconosEnFila()
+        const altoIcono = 41;
 
-        const anchoFondo = 77;  // ≈ 9.9vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 55;  // ≈ 8vmin at 720
-        const altoIcono = 41;   // ≈ 6vmin at 720
-        // const bottom = this._v(5.1);
-        // const leftPorcentaje = 49;
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro - this._v(20); // translateX(-200%) = 2 * 10vmin
-        // const altoTotal = altoFondo + 10;
-        // const yBottom = this.app.screen.height - bottom - altoTotal;
-
-        // Marco exterior
+        // Marco exterior (borde azul)
         this.escudo.marco = new PIXI.Graphics();
         this.escudo.marco.lineStyle(5, 0x0044CC, 1);
         this.escudo.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
-        // this.escudo.marco.x = xIzquierda;
-        // this.escudo.marco.y = yBottom;
         this.contenedorInferior.addChild(this.escudo.marco);
 
         // Fondo blanco con borde azul
@@ -435,23 +421,22 @@ export class PixiHUD {
         this.escudo.fondo.lineStyle(5, 0x0044CC, 1);
         this.escudo.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.escudo.fondo.endFill();
-        // this.escudo.fondo.x = xIzquierda + 5;
-        // this.escudo.fondo.y = yBottom + 5;
         this.contenedorInferior.addChild(this.escudo.fondo);
 
-        // Icono (sprite que cambiará de textura)
+        // Icono (la textura cambia según el % de escudos)
         this.escudo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.escudo.icono.anchor.set(0.5);
-        // this.escudo.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        // this.escudo.icono.y = yBottom + altoTotal / 2;
         this.escudo.icono.width = anchoIcono;
         this.escudo.icono.height = altoIcono;
         this.contenedorInferior.addChild(this.escudo.icono);
 
-        // Cargar 5 sprites del escudo
         this._cargarSpritesEscudo();
     }
 
+    /**
+     * Precarga los 5 sprites del escudo (escudo1-5) en this.escudo.sprites.
+     * @private
+     */
     async _cargarSpritesEscudo() {
         for (let i = 1; i <= 5; i++) {
             try {
@@ -467,29 +452,22 @@ export class PixiHUD {
     // 5. ICONO DE ULTI
     // ========================================================================
 
+    /**
+     * Crea el icono de ULTi (S): marco + recuadro + icono. Precarga los 5 sprites
+     * (ultiicon1-5) que _actualizarIconoUlti() intercambia según la carga del Ulti
+     * (y la animación de "listo"). Posición final: _posicionarIconosEnFila().
+     * @private
+     */
     _crearUlti() {
-        // HTML marco: position: absolute; bottom: 1.7vmin; left: 46.8%;
-        //           transform: translateX(100%); width: 9.9vmin; height: 7.9vmin;
-        // HTML fondo: width: 9vmin; height: 7vmin; background: white; border: none;
-        // HTML icono: width: 6vmin; height: 7vmin;
+        const anchoFondo = 77;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 41;  // se reajusta luego en _posicionarIconosEnFila()
+        const altoIcono = 49;
 
-        const anchoFondo = 77;  // ≈ 9.9vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 41;  // ≈ 6vmin at 720
-        const altoIcono = 49;   // ≈ 7vmin at 720
-        // const bottom = this._v(1.7);
-        // const leftPorcentaje = 46.8;
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro + this._v(10); // translateX(100%) = 1 * 10vmin
-        // const altoTotal = altoFondo + 10; // Alto del marco completo
-        // const yBottom = this.app.screen.height - bottom - altoTotal;
-
-        // Marco exterior (con borde visible como los demás iconos)
+        // Marco exterior (borde azul, como los demás iconos)
         this.ulti.marco = new PIXI.Graphics();
         this.ulti.marco.lineStyle(5, 0x0044CC, 1);
         this.ulti.marco.drawRect(0, 0, anchoFondo + 10, altoFondo + 10);
-        // this.ulti.marco.x = xIzquierda;
-        // this.ulti.marco.y = yBottom;
         this.contenedorInferior.addChild(this.ulti.marco);
 
         // Fondo blanco
@@ -497,23 +475,22 @@ export class PixiHUD {
         this.ulti.fondo.beginFill(0xFFFFFF);
         this.ulti.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.ulti.fondo.endFill();
-        // this.ulti.fondo.x = xIzquierda + 5; // 5 = borde del marco
-        // this.ulti.fondo.y = yBottom + 5; // 5 = borde del marco
         this.contenedorInferior.addChild(this.ulti.fondo);
 
-        // Icono
+        // Icono (la textura cambia según la carga del Ulti)
         this.ulti.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.ulti.icono.anchor.set(0.5);
-        // this.ulti.icono.x = xIzquierda + (anchoFondo + 10) / 2;
-        // this.ulti.icono.y = yBottom + altoTotal / 2;
         this.ulti.icono.width = anchoIcono;
         this.ulti.icono.height = altoIcono;
         this.contenedorInferior.addChild(this.ulti.icono);
 
-        // Cargar 5 sprites de ULTi
         this._cargarSpritesUlti();
     }
 
+    /**
+     * Precarga los 5 sprites del Ulti (ultiicon1-5) en this.ulti.sprites.
+     * @private
+     */
     async _cargarSpritesUlti() {
         for (let i = 1; i <= 5; i++) {
             try {
@@ -529,28 +506,20 @@ export class PixiHUD {
     // 6. ICONO DE PROPULSOR (R)
     // ========================================================================
 
+    /**
+     * Crea el icono de la habilidad Propulsor (R): marco + recuadro + icono.
+     * Icono estático. Posición final: _posicionarIconosEnFila().
+     * @private
+     */
     _crearPropulsor() {
-        // HTML marco: position: absolute; bottom: 2vmin; left: 48.9%;
-        //           transform: translateX(200%); border: 4px solid #0044CC;
-        // HTML fondo: width: 9.7vmin; height: 7.9vmin; background: white;
-        // HTML icono: width: 8vmin; height: auto;
+        const anchoFondo = 75;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 55;  // se reajusta luego en _posicionarIconosEnFila()
 
-        const anchoFondo = 75;  // ≈ 9.7vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 55;  // ≈ 8vmin at 720
-        // const bottom = this._v(2);
-        // const leftPorcentaje = 48.9;
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro + this._v(20); // translateX(200%) = 2 * 10vmin
-        // const altoTotal = altoFondo + 8;
-        // const yBottom = this.app.screen.height - bottom - altoTotal;
-
-        // Marco exterior
+        // Marco exterior (borde azul)
         this.propul.marco = new PIXI.Graphics();
         this.propul.marco.lineStyle(4, 0x0044CC, 1);
         this.propul.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
-        // this.propul.marco.x = xIzquierda;
-        // this.propul.marco.y = yBottom;
         this.contenedorInferior.addChild(this.propul.marco);
 
         // Fondo blanco
@@ -559,15 +528,11 @@ export class PixiHUD {
         this.propul.fondo.lineStyle(5, 0x0044CC, 1);
         this.propul.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.propul.fondo.endFill();
-        // this.propul.fondo.x = xIzquierda + 4;
-        // this.propul.fondo.y = yBottom + 4;
         this.contenedorInferior.addChild(this.propul.fondo);
 
-        // Icono
+        // Icono (placeholder hasta que carga propulsor.png)
         this.propul.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.propul.icono.anchor.set(0.5);
-        // this.propul.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        // this.propul.icono.y = yBottom + altoTotal / 2;
         this.propul.icono.width = anchoIcono;
         this.contenedorInferior.addChild(this.propul.icono);
         this._cargarTexturaIcono('propul', 'assets/propulsor.png', this.propul.icono, anchoIcono, null);
@@ -577,28 +542,20 @@ export class PixiHUD {
     // 7. ICONO DE DEBORADOR (E)
     // ========================================================================
 
+    /**
+     * Crea el icono de la habilidad Devorador (E): marco + recuadro + icono.
+     * Icono estático. Posición final: _posicionarIconosEnFila().
+     * @private
+     */
     _crearDevorador() {
-        // HTML marco: position: absolute; bottom: 1.9vmin; left: 50%;
-        //           transform: translateX(300%); border: 4px solid #0044CC;
-        // HTML fondo: width: 9.9vmin; height: 7.9vmin; background: white;
-        // HTML icono: width: 8vmin; height: auto.
+        const anchoFondo = 77;  // recuadro blanco interno (base 1080×720)
+        const altoFondo = 57;
+        const anchoIcono = 55;  // se reajusta luego en _posicionarIconosEnFila()
 
-        const anchoFondo = 77;  // ≈ 9.9vmin at 720
-        const altoFondo = 57;   // ≈ 7.9vmin at 720
-        const anchoIcono = 55;  // ≈ 8vmin at 720
-        // const bottom = this._v(1.9);
-        // const leftPorcentaje = 50;
-        // const xCentro = (leftPorcentaje / 100) * this.app.screen.width;
-        // const xIzquierda = xCentro + this._v(30); // translateX(300%) = 3 * 10vmin
-        // const altoTotal = altoFondo + 8;
-        // const yBottom = this.app.screen.height - bottom - altoTotal;
-
-        // Marco exterior
+        // Marco exterior (borde azul)
         this.deborador.marco = new PIXI.Graphics();
         this.deborador.marco.lineStyle(4, 0x0044CC, 1);
         this.deborador.marco.drawRect(0, 0, anchoFondo + 8, altoFondo + 8);
-        // this.deborador.marco.x = xIzquierda;
-        // this.deborador.marco.y = yBottom;
         this.contenedorInferior.addChild(this.deborador.marco);
 
         // Fondo blanco
@@ -607,15 +564,11 @@ export class PixiHUD {
         this.deborador.fondo.lineStyle(5, 0x0044CC, 1);
         this.deborador.fondo.drawRect(0, 0, anchoFondo, altoFondo);
         this.deborador.fondo.endFill();
-        // this.deborador.fondo.x = xIzquierda + 4;
-        // this.deborador.fondo.y = yBottom + 4;
         this.contenedorInferior.addChild(this.deborador.fondo);
 
-        // Icono
+        // Icono (placeholder hasta que carga deborador.png)
         this.deborador.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
         this.deborador.icono.anchor.set(0.5);
-        // this.deborador.icono.x = xIzquierda + (anchoFondo + 8) / 2;
-        // this.deborador.icono.y = yBottom + altoTotal / 2;
         this.deborador.icono.width = anchoIcono;
         this.contenedorInferior.addChild(this.deborador.icono);
         this._cargarTexturaIcono('deborador', 'assets/deborador.png', this.deborador.icono, anchoIcono, null);
@@ -625,14 +578,15 @@ export class PixiHUD {
     // 8. CONTADOR DEL DEBORADOR
     // ========================================================================
 
+    /**
+     * Crea el contador de partículas Boid capturadas (a la derecha de la fila
+     * de iconos). El número se actualiza cada frame en _actualizarContadorDevorador().
+     * @private
+     */
     _crearContadorDevorador() {
-        // HTML: position: absolute; bottom: 3.2vmin; left: 70.5%;
-        //      color: white; font-size: 2.5vmin; font-weight: bold;
-        //      text-shadow: 2px 2px 4px #000000;
-
         this.contadorDevoradorText = new PIXI.Text('0', {
             fontFamily: 'Arial, sans-serif',
-            fontSize: 18,  // ≈ 2.5vmin at 720
+            fontSize: 18,
             fill: 0xFFFFFF,
             fontWeight: 'bold',
             dropShadow: true,
@@ -640,9 +594,8 @@ export class PixiHUD {
             dropShadowDistance: 2,
             dropShadowBlur: 4
         });
-        // x: (70.5/100)*1080 + 20 = 781
-        this.contadorDevoradorText.x = 811;  // +30px right
-        // y: 720 - 23 - textHeight (bottom: 3.2vmin ≈ 23px at 720)
+        // Posición fija en la base 1080×720 (a la derecha de la fila de iconos)
+        this.contadorDevoradorText.x = 811;
         this.contadorDevoradorText.y = 720 - 23 - this.contadorDevoradorText.height;
         this.contenedorInferior.addChild(this.contadorDevoradorText);
     }
@@ -651,13 +604,17 @@ export class PixiHUD {
     // 10. BARRA DE ACELERACIÓN (W)
     // ========================================================================
 
+    /**
+     * Crea la barra de aceleración (W): un fondo blanco/borde azul fijo y un
+     * relleno azul cuyo ancho se actualiza en _actualizarBarraAceleracion()
+     * según la carga (se pone rojo al sobrecalentar). Va con zIndex -2, detrás
+     * de la imagen UX. Posición fija en la base 1080×720.
+     * @private
+     */
     _crearBarraAceleracion() {
-        // Fixed for 1080×720 base
         const ancho = 120;
-        const alto = 18;  // ≈ 2.5vmin at 720
-        // x: 540 - 60 - 10 = 470 (centered, offset -10px)
-        const x = 470;
-        // y: 720 - 18 - 86 - 9 = 607 (-9px up total)
+        const alto = 18;
+        const x = 470;  // centrada bajo la imagen UX (1080/2 - ancho/2 - 10)
         const y = 607;
 
         // Fondo (borde azul + relleno blanco) - detrás de la imagen UX
@@ -689,6 +646,12 @@ export class PixiHUD {
     // 11. PANEL DE PUNTUACIÓN
     // ========================================================================
 
+    /**
+     * Crea el panel de puntuación: un recuadro blanco con borde azul y el número
+     * de puntos encima (fuente manuscrita). El valor se actualiza cada frame en
+     * _actualizarPuntuacion(). Posición fija en la base 1080×720.
+     * @private
+     */
     _crearPanelPuntuacion() {
         this.puntuacionText = new PIXI.Text('0', {
             fontFamily: 'Segoe Script, cursive',
@@ -697,13 +660,10 @@ export class PixiHUD {
             fontWeight: 'bold'
         });
 
-        // Fixed for 1080×720 base
-        // White panel: 100×26
-        // x: (41.7/100)*1080 - 52 = 398
-        // y: 720 - 84 - 26 = 610 (bottom: 11.6vmin ≈ 84px)
-        const scoreBgX = 383;  // -5px left
+        // Posición fija (base 1080×720): recuadro 90×26 sobre la imagen UX
+        const scoreBgX = 383;
         const scoreBgY = 603;
-        const textX = (41.7 / 100) * 1080 - 17;  // -5px left
+        const textX = (41.7 / 100) * 1080 - 17;
         const textY = 720 - 91;
 
         // Fondo blanco detrás del texto
@@ -736,13 +696,12 @@ export class PixiHUD {
      * La imagen UX queda detrás (zIndex -1) y la barra W + puntuación
      * quedan arriba de la fila.
      *
-     * FIXED layout for 1080×720 base resolution.
+     * Layout calculado sobre la resolución base fija de 1080×720; el escalado
+     * a la pantalla real lo aplica el contenedor padre (ver _calcularEscala).
      * @private
      */
     _posicionarIconosEnFila() {
-        // =============================================
-        // Fixed UX image: 1600×200 for 1080×720 base
-        // =============================================
+        // Dimensiones/posición de la imagen UX (base 1080×720) para alinear cada icono a su slot
         const uxAncho = 1000;
         const uxAlto = 160;
         const uxX = 40;       // (1080 - 1000) / 2
@@ -751,8 +710,8 @@ export class PixiHUD {
         // Centros de cada slot como % del ancho de la imagen UX
         const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
 
-        const ancho = 70;  // Icon container width
-        const alto = 70;   // Icon container height
+        const ancho = 70;  // ancho del contenedor de cada icono
+        const alto = 70;   // alto del contenedor de cada icono
 
         const grupos = [
             this.tiempo, this.cohetes, this.escudo,
@@ -820,6 +779,16 @@ export class PixiHUD {
         return this.app.renderer.generateTexture(g);
     }
 
+    /**
+     * Carga la textura de un icono y se la aplica al sprite. Si la carga falla,
+     * usa una textura placeholder visible (azul) para que el icono no quede invisible.
+     * @param {string} nombre - Nombre del icono (informativo)
+     * @param {string} path - Ruta del archivo de textura
+     * @param {PIXI.Sprite} sprite - Sprite destino
+     * @param {number} ancho - Ancho a aplicar
+     * @param {number|null} alto - Alto a aplicar (null = mantener proporción)
+     * @private
+     */
     async _cargarTexturaIcono(nombre, path, sprite, ancho, alto) {
         try {
             const tex = await PIXI.Assets.load(path);
@@ -840,6 +809,13 @@ export class PixiHUD {
     // ACTUALIZACIÓN (se llama cada frame desde el game loop)
     // ========================================================================
 
+    /**
+     * Actualiza el HUD; se llama UNA vez por frame desde el game loop.
+     * Refresca cada elemento leyendo el estado actual del juego (this.game).
+     * Cada actualizador va envuelto en try-catch para que un error individual
+     * no congele el game loop.
+     * @public
+     */
     actualizar() {
         if (!this.inicializado) return;
         // Si el contenedor no está en el stage, no hacer nada
@@ -866,6 +842,7 @@ export class PixiHUD {
         }
     }
 
+    /** Refresca el texto de oleada (nº de oleada, asteroides faltantes, intervalos de spawn y Boids en pantalla). @private */
     _actualizarPanelOleada() {
         if (this.oleadaText && this.game) {
             const faltantes = this.game.objetivoOleada - this.game.asteroidesDestruidos;
@@ -879,12 +856,18 @@ export class PixiHUD {
         }
     }
 
+    /** Refresca el número de puntuación con game.puntuacion. @private */
     _actualizarPuntuacion() {
         if (this.puntuacionText && this.game) {
             this.puntuacionText.text = this.game.puntuacion.toString();
         }
     }
 
+    /**
+     * Ajusta el ancho del relleno de la barra de aceleración (W) según
+     * jugador.cargaAceleracion (0-100%) y lo pinta rojo si está sobrecalentado,
+     * azul si no. @private
+     */
     _actualizarBarraAceleracion() {
         if (!this.barraAceleracionFill || !this.game || !this.game.jugador) return;
 
@@ -910,6 +893,14 @@ export class PixiHUD {
         this.barraAceleracionBg.endFill();
     }
 
+    /**
+     * Actualiza el icono de escudo según el estado del jugador:
+     * - Normal: elige sprite 1/2/3 según el % de escudos (>60 / >30 / resto),
+     *   y pone el marco blanco un frame si justo recibió impacto.
+     * - Sobrecalentado: anima entre escudo4 y escudo5 con marco rojo.
+     * Guarda el % en this._escudosAnterior para detectar el impacto del próximo frame.
+     * @private
+     */
     _actualizarIconoEscudo() {
         if (!this.escudo.icono || !this.game || !this.game.jugador) return;
         if (this.escudo.sprites.length < 5) return;
@@ -935,7 +926,7 @@ export class PixiHUD {
 
         this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
 
-        // Actualizar marco (fixed 85×73 for 1080×720 base)
+        // Redibujar el marco 70×70 (base 1080×720) con el color según estado
         this.escudo.marco.clear();
         this.escudo.marco.lineStyle(4, colorMarco, 1);
         this.escudo.marco.drawRect(0, 0, 70, 70);
@@ -943,6 +934,13 @@ export class PixiHUD {
         this._escudosAnterior = porcentajeEscudos;
     }
 
+    /**
+     * Actualiza el icono de la ULTi según su carga:
+     * - Cargando: elige sprite 1-5 proporcional al % de carga (cargaUlti/cargaMaxUlti).
+     * - Lista (ultiListo): anima entre los sprites 3-5, parpadea el alpha y
+     *   pinta el marco dorado pulsante para avisar que se puede usar.
+     * @private
+     */
     _actualizarIconoUlti() {
         if (!this.ulti.icono || !this.game || !this.game.jugador) return;
         if (this.ulti.sprites.length < 5) return;
@@ -970,7 +968,7 @@ export class PixiHUD {
         this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
         this.ulti.icono.alpha = alpha;
 
-        // Actualizar marco (fixed 85×73 for 1080×720 base)
+        // Redibujar el marco 70×70 (base 1080×720) con el color según estado
         this.ulti.marco.clear();
         this.ulti.marco.lineStyle(4, colorMarco, 1);
         this.ulti.marco.drawRect(0, 0, 70, 70);
@@ -1043,7 +1041,7 @@ export class PixiHUD {
             const palpito = Math.floor(Date.now() / 300) % 2 === 0;
             const colorBorde = palpito ? 0xFFFFFF : 0xAAAAAA;
 
-            // Fixed marco size for 1080×720 base: 87×67
+            // Marco 70×70 + fondo 62×62 (base 1080×720) parpadeando blanco/gris
             this.tiempo.marco.clear();
             this.tiempo.marco.lineStyle(4, colorBorde, 1);
             this.tiempo.marco.drawRect(0, 0, 70, 70);
@@ -1079,6 +1077,7 @@ export class PixiHUD {
         }
     }
 
+    /** Refresca el contador de partículas capturadas por el Devorador (game.particulasCapturadas). @private */
     _actualizarContadorDevorador() {
         if (!this.contadorDevoradorText || !this.game) return;
         const cantidad = this.game.particulasCapturadas || 0;
