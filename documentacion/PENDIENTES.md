@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 17/06/2026  
-**Versión:** v1.8.0 (ACTUAL)
+**Última actualización:** 21/06/2026  
+**Versión:** v1.9.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.9.0 - Menú de pausa con Escape + créditos + limpieza del HUD
+
+- **Menú de confirmación con Escape** (`main.js`, `UIManager.js`, `Game.js`): al presionar `ESC` durante la partida se pausa el juego y aparece un modal ("¿VOLVER AL MENÚ?") con el mismo estilo que las demás ventanas (caja `gameOver.jpg`, tinta azul, `Segoe Script`). Opciones: **SEGUIR JUGANDO** (reanuda) o **VOLVER AL MENÚ** (detiene la partida → menú principal). `ESC` de nuevo cierra. Solo se abre durante el juego activo (no en pausa de Mejoras ni en Game Over). JUGAR reinicia una partida limpia vía `Game.reiniciarDesdeMenu()`. Control agregado al tutorial in-game.
+- **Créditos actualizados** (`UIManager.js`): Claude (Anthropic) en Asistencia IA + nuevo apartado Beta tester (TPC).
+- **PixiHUD.js documentado**: JSDoc detallado en cada función y limpieza de los comentarios muertos de la migración HTML→PixiJS (sin cambios de comportamiento).
 
 ---
 

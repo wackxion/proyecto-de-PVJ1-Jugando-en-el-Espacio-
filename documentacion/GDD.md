@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.8.0 (ACTUAL)  
+**Versión actual:** v1.9.0 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,16 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.8.0 (ACTUAL) - Sistema de audio + rediseño de Mejoras
+### v1.9.0 (ACTUAL) - Menú de pausa con Escape + créditos + limpieza del HUD
+> **Tecla ESC durante el juego abre un menú de confirmación para volver al menú principal · Créditos actualizados · JSDoc y limpieza de PixiHUD.js**
+
+| Commit | Descripción |
+|--------|-------------|
+| `3e7cdfa` | feat(pausa): menú de confirmación al tocar Escape para volver al menú principal |
+| `0db1634` | feat(creditos): agregar Claude (Anthropic) en Asistencia IA y apartado Beta tester (TPC) |
+| `352a102` / `1525e2a` | docs(hud): JSDoc detallado y limpieza de comentarios muertos en PixiHUD |
+
+### v1.8.0 - Sistema de audio + rediseño de Mejoras
 > **Sistema de sonido (GestorSonido) con los primeros SFX · Rediseño completo de la ventana de Mejoras · HUD adaptable y arreglos de overlays/pantallas**
 
 | Commit | Descripción |
@@ -442,6 +451,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.9.0:** ✅ Menú de pausa con Escape (volver al menú principal) + créditos + JSDoc/limpieza de PixiHUD
 **v1.8.0:** ✅ Sistema de audio (5 SFX) + rediseño de Mejoras + HUD adaptable + balance ulti
 **v1.7.32:** ✅ Limpieza de código muerto del HUD DOM (~1238 líneas, HUD 100% PixiJS)
 **v1.7.31:** ✅ Refactor balance config.js, fix encoding Game.js

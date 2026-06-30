@@ -534,7 +534,8 @@ export class UIManager {
                         <strong>E</strong> - Devorador (atrae partículas)<br>
                         <strong>R</strong> - Propulsor (dash)<br>
                         <strong>P</strong> - Pausar / Abrir MEJORAS<br>
-                        <strong>T</strong> - Ver Top 5 (en pausa)
+                        <strong>T</strong> - Ver Top 5 (en pausa)<br>
+                        <strong>ESC</strong> - Volver al menú principal
                     </div>
                 `
             },

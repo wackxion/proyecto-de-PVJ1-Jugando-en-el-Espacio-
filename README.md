@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.8.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.8.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.9.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.0)
 
 ---
 
@@ -88,6 +88,7 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 | ENTER / Click | Reiniciar (en Game Over) |
 | P | Pausar/Abrir ventana de mejoras |
 | T | Ver Top 5 durante el juego |
+| ESC | Volver al menú principal (con confirmación) |
 
 ---
 
@@ -358,7 +359,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.8.0 (Actual)
+### v1.9.0 (Actual)
+> **Menú de pausa con Escape + créditos actualizados + limpieza del HUD**
+
+- ⏸️ **Menú de confirmación con Escape**: durante la partida, `ESC` pausa el juego y abre una ventana (mismo estilo que las demás) para **volver al menú principal** o seguir jugando. JUGAR reinicia una partida limpia
+- 🙌 **Créditos actualizados**: Claude (Anthropic) en Asistencia IA y nuevo apartado Beta tester (TPC)
+- 🧹 **PixiHUD.js documentado**: JSDoc detallado en cada función y limpieza de los comentarios muertos de la migración HTML→PixiJS (sin cambios de comportamiento)
+
+### v1.8.0
 > **Sistema de audio + rediseño de la ventana de Mejoras**
 
 - 🔊 **Sistema de audio** (`GestorSonido`, HTML5 sin dependencias): SFX conectados de disparo, ulti, propulsor, sobrecalentamiento (W) y rotura de escudos (en bucle hasta regenerar o game over). Detalle en `documentacion/AUDIO.md`
