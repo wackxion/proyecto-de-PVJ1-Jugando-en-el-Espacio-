@@ -2464,7 +2464,48 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Marcar el juego como corriendo
         this.ejecutando = true;
     }
-    
+
+    /**
+     * Reinicia una partida desde el menú principal.
+     *
+     * Se usa cuando el juego YA fue inicializado y el jugador volvió al menú con
+     * Escape (que dejó `ejecutando = false` y el canvas oculto). A diferencia de
+     * la primera partida, acá no se recargan assets ni se recrea la app PixiJS:
+     * solo se vuelve a mostrar el canvas, se rehabilita el teclado y se resetea
+     * todo el estado con `_reiniciarJuego()`.
+     */
+    reiniciarDesdeMenu() {
+        // Volver a mostrar el canvas (Escape→menú lo había ocultado)
+        if (this.aplicacion && this.aplicacion.canvas) {
+            this.aplicacion.canvas.style.display = 'block';
+        }
+        // Rehabilitar el teclado del juego
+        if (this.gestorEntrada) {
+            this.gestorEntrada.habilitar();
+        }
+        // Resetear todo el estado y volver a poner el juego en marcha
+        this._reiniciarJuego();
+    }
+
+    /**
+     * Detiene la partida en curso y oculta el canvas para volver al menú.
+     *
+     * Frena el game loop (`ejecutando = false`, su cuerpo hace `if (!ejecutando)
+     * return;`), saca la pausa, limpia teclas atascadas y oculta el canvas para
+     * no dejar un frame congelado detrás del menú. El menú principal lo muestra
+     * el orquestador (main.js), que es quien tiene el UIManager con callbacks.
+     */
+    detenerParaMenu() {
+        this.ejecutando = false;
+        this.pausado = false;
+        if (this.gestorEntrada) {
+            this.gestorEntrada.reiniciar();
+        }
+        if (this.aplicacion && this.aplicacion.canvas) {
+            this.aplicacion.canvas.style.display = 'none';
+        }
+    }
+
     /**
      * Bucle principal del juego (Game Loop)
      * Se ejecuta 60 veces por segundo

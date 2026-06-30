@@ -212,7 +212,148 @@ export class UIManager {
         boton.addEventListener('click', onClick);
         return boton;
     }
-    
+
+    /**
+     * Crea un botón para los modales de confirmación. Mismo estilo que los demás
+     * botones del juego, con color configurable para distinguir la acción
+     * (azul tinta = seguir, rojo tinta = acción destructiva).
+     * @param {string} texto - Texto del botón
+     * @param {Function} onClick - Acción al hacer click
+     * @param {string} colorBase - Color de fondo normal (default azul tinta)
+     * @param {string} colorHover - Color de fondo al pasar el mouse
+     * @returns {HTMLElement}
+     */
+    _crearBotonConfirm(texto, onClick, colorBase = '#0044CC', colorHover = '#0066FF') {
+        const boton = document.createElement('button');
+        boton.textContent = texto;
+        boton.style.cssText = `
+            padding: 12px 26px;
+            font-size: 18px;
+            font-family: 'Segoe Script', cursive;
+            font-weight: bold;
+            color: white;
+            background: ${colorBase};
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        `;
+        boton.addEventListener('mouseenter', () => {
+            boton.style.background = colorHover;
+            boton.style.transform = 'scale(1.05)';
+        });
+        boton.addEventListener('mouseleave', () => {
+            boton.style.background = colorBase;
+            boton.style.transform = 'scale(1)';
+        });
+        boton.addEventListener('click', onClick);
+        return boton;
+    }
+
+    /**
+     * Muestra un modal de confirmación para volver al menú principal.
+     * Se invoca al presionar Escape durante la partida. Usa el mismo estilo que
+     * las demás ventanas (Créditos / Top 5): caja con fondo gameOver.jpg, texto
+     * en tinta azul y tipografía Segoe Script.
+     *
+     * Se cuelga de `this.container` (NO de `this.mainMenu`, que es null mientras
+     * se está jugando). El llamador es responsable de remover el modal devuelto.
+     *
+     * @param {Function} onConfirmar - Se llama si el usuario elige volver al menú
+     * @param {Function} onCancelar - Se llama si el usuario elige seguir jugando
+     * @returns {HTMLElement} El nodo del modal (para poder cerrarlo desde afuera)
+     */
+    mostrarConfirmacionSalir(onConfirmar, onCancelar) {
+        // Evitar duplicados si quedó uno abierto
+        const previo = document.getElementById('confirmar-salir');
+        if (previo) previo.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'confirmar-salir';
+        modal.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 13, 26, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 700;
+        `;
+
+        const exterior = document.createElement('div');
+        exterior.style.cssText = `
+            background: url('assets/gameOver.jpg') no-repeat center center;
+            background-size: 100% 100%;
+            width: ${Math.min(560, this.width * 0.9)}px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 60px 50px;
+        `;
+
+        const titulo = document.createElement('div');
+        titulo.textContent = '¿VOLVER AL MENÚ?';
+        titulo.style.cssText = `
+            color: #0044CC;
+            font-family: 'Segoe Script', cursive;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 18px;
+            text-shadow: 0 0 10px #0044CC;
+            text-align: center;
+        `;
+
+        const texto = document.createElement('div');
+        texto.textContent = 'Vas a perder el progreso de esta partida.';
+        texto.style.cssText = `
+            color: #0044CC;
+            font-family: 'Segoe Script', cursive;
+            font-size: 17px;
+            text-align: center;
+            margin-bottom: 28px;
+        `;
+
+        const fila = document.createElement('div');
+        fila.style.cssText = `
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        `;
+
+        // Seguir jugando (cancelar) en azul tinta; volver al menú en rojo tinta
+        const btnSeguir = this._crearBotonConfirm('SEGUIR JUGANDO', () => {
+            if (onCancelar) onCancelar();
+        });
+        const btnVolver = this._crearBotonConfirm('VOLVER AL MENÚ', () => {
+            if (onConfirmar) onConfirmar();
+        }, '#CC0000', '#FF2A2A');
+
+        fila.appendChild(btnSeguir);
+        fila.appendChild(btnVolver);
+
+        container.appendChild(titulo);
+        container.appendChild(texto);
+        container.appendChild(fila);
+        exterior.appendChild(container);
+        modal.appendChild(exterior);
+        this.container.appendChild(modal);
+
+        return modal;
+    }
+
     /**
      * Muestra pantalla de carga
      * @param {Function} callback - Función a ejecutar después

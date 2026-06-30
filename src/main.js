@@ -65,11 +65,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     uiManager = new UIManager(container, {
         // Botón JUGAR
         onJugar: () => {
-            uiManager.mostrarPantallaCarga(async (updateProgress) => {
-                // Inicializar juego con callback de progreso
-                await inicializarJuego(updateProgress);
-                uiManager.ocultarMenuPrincipal();
-            });
+            if (juegoInicializado && game) {
+                // El juego ya existe (se volvió al menú con Escape): reiniciar
+                // partida sin recargar assets ni mostrar pantalla de carga.
+                uiManager.ocultarMenuPrincipal(() => {
+                    game.reiniciarDesdeMenu();
+                });
+            } else {
+                // Primera partida: mostrar carga e inicializar
+                uiManager.mostrarPantallaCarga(async (updateProgress) => {
+                    await inicializarJuego(updateProgress);
+                    uiManager.ocultarMenuPrincipal();
+                });
+            }
         },
         
         // Botón TUTORIAL
@@ -106,3 +114,61 @@ async function inicializarJuego(onProgress) {
     juegoInicializado = true;
     window.game = game;
 }
+
+// =============================================================================
+// TECLA ESCAPE: confirmar volver al menú principal
+// =============================================================================
+// Estado del modal de confirmación (evita abrir varios a la vez)
+let confirmSalirAbierto = false;
+let modalSalir = null;
+
+/**
+ * Cierra el modal de confirmación de salida.
+ * @param {boolean} volver - true = volver al menú principal; false = seguir jugando
+ */
+function cerrarConfirmSalir(volver) {
+    if (modalSalir) {
+        modalSalir.remove();
+        modalSalir = null;
+    }
+    confirmSalirAbierto = false;
+
+    if (volver) {
+        // Detener la partida y mostrar el menú principal (el de main.js, con
+        // botones funcionales). JUGAR reiniciará vía game.reiniciarDesdeMenu().
+        if (game) game.detenerParaMenu();
+        uiManager.mostrarMenuPrincipal();
+    } else {
+        // Seguir jugando: sacar la pausa y limpiar teclas atascadas
+        if (game) {
+            game.pausado = false;
+            if (game.gestorEntrada) game.gestorEntrada.reiniciar();
+        }
+    }
+}
+
+// Escuchar Escape a nivel ventana. Solo actúa si hay una partida activa.
+window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!game || !juegoInicializado) return;
+
+    // Si el modal ya está abierto, Escape = seguir jugando (cerrar)
+    if (confirmSalirAbierto) {
+        e.preventDefault();
+        cerrarConfirmSalir(false);
+        return;
+    }
+
+    // No abrir si no se está jugando, si terminó la partida, o si ya está en
+    // pausa (ventana de MEJORAS / Top 5 abiertas con P)
+    if (!game.ejecutando || game.enGameOver || game.pausado) return;
+
+    e.preventDefault();
+    confirmSalirAbierto = true;
+    game.pausado = true; // congelar el juego mientras el jugador decide
+
+    modalSalir = uiManager.mostrarConfirmacionSalir(
+        () => cerrarConfirmSalir(true),   // VOLVER AL MENÚ
+        () => cerrarConfirmSalir(false)   // SEGUIR JUGANDO
+    );
+});
