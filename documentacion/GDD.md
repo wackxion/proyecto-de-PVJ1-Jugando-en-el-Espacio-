@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.9.0 (ACTUAL)  
+**Versión actual:** v1.9.1 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,15 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.9.0 (ACTUAL) - Menú de pausa con Escape + créditos + limpieza del HUD
+### v1.9.1 (ACTUAL) - PixiJS local (sin CDN) + sprite del cohete
+> **PixiJS vendorizado para no depender del CDN de jsdelivr · El proyectil de Cohetes (Q) usa una imagen real en vez de un rectángulo**
+
+| Commit | Descripción |
+|--------|-------------|
+| `60a1dc6` | fix: vendorizar PixiJS local para no depender del CDN (arregla "PixiJS no está cargado") |
+| `1145996` | feat(cohetes): usar sprite real en el proyectil (cohetes -habilidad.png), dimensionado sin deformar |
+
+### v1.9.0 - Menú de pausa con Escape + créditos + limpieza del HUD
 > **Tecla ESC durante el juego abre un menú de confirmación para volver al menú principal · Créditos actualizados · JSDoc y limpieza de PixiHUD.js**
 
 | Commit | Descripción |
@@ -451,6 +459,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.9.1:** ✅ PixiJS vendorizado (sin CDN) + sprite real del proyectil de Cohetes (Q)
 **v1.9.0:** ✅ Menú de pausa con Escape (volver al menú principal) + créditos + JSDoc/limpieza de PixiHUD
 **v1.8.0:** ✅ Sistema de audio (5 SFX) + rediseño de Mejoras + HUD adaptable + balance ulti
 **v1.7.32:** ✅ Limpieza de código muerto del HUD DOM (~1238 líneas, HUD 100% PixiJS)

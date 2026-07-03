@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 21/06/2026  
-**Versión:** v1.9.0 (ACTUAL)
+**Última actualización:** 03/07/2026  
+**Versión:** v1.9.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.9.1 - PixiJS local (sin CDN) + sprite del cohete
+
+- **PixiJS vendorizado** (`libs/pixi.min.js`, `index.html`): el juego cargaba PixiJS desde el CDN de jsdelivr; si el CDN fallaba/estaba bloqueado, `main.js` mostraba "PixiJS no está cargado" y el juego (y el sitio en vivo) no arrancaba. Ahora PixiJS v8.19.0 vive en el proyecto y se carga local → sin dependencia del CDN, funciona offline.
+- **Sprite real del cohete** (`Game.js`, `Cohete.js`, `assets/cohetes -habilidad.png`): el proyectil de la habilidad Cohetes (Q) usaba un rectángulo rojo procedural; ahora usa la imagen. Fix de orden: la carga se hacía en `_cargarRecursos()` (antes de crear el fallback en `init()`), por lo que el fallback pisaba la imagen; se movió después del fallback. El sprite se dimensiona manteniendo la proporción real (30×10) en vez de forzar 16×8.
 
 ---
 

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.9.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.9.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.1)
 
 ---
 
@@ -95,7 +95,7 @@ Presiona **P** para acceder al menú de mejoras. Usa partículas recolectadas pa
 ## 🛠️ Tecnologías
 
 - **Lenguaje:** JavaScript (ES6+)
-- **Motor:** [PixiJS v8](https://pixijs.com/) para renderizado 2D
+- **Motor:** [PixiJS v8](https://pixijs.com/) para renderizado 2D — vendorizado en `libs/pixi.min.js` (no depende de CDN)
 - **Backend:** Firebase Firestore para Top 5 persistente
 - **Servidor:** Node.js con `serve`
 
@@ -170,6 +170,8 @@ serve .
 ```
 ├── index.html                   # Página principal
 ├── package.json                 # Configuración npm
+├── libs/
+│   └── pixi.min.js              # PixiJS v8 vendorizado (sin dependencia de CDN)
 ├── documentacion/
 │   ├── GDD.md                   # Historial de versiones y commits
 │   ├── SPEC.md                  # Especificaciones del juego
@@ -359,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.9.0 (Actual)
+### v1.9.1 (Actual)
+> **PixiJS local (sin CDN) + sprite real del cohete**
+
+- 🧩 **PixiJS vendorizado** (`libs/pixi.min.js`): el juego ya no depende del CDN de jsdelivr. Antes, si el CDN fallaba o estaba bloqueado, PixiJS quedaba sin cargar y el juego (y el sitio en vivo) mostraba "PixiJS no está cargado". Ahora carga desde el proyecto y funciona offline
+- 🚀 **Sprite real del cohete** (`assets/cohetes -habilidad.png`): el proyectil de la habilidad Cohetes (Q) usaba un rectángulo rojo; ahora usa una imagen, dimensionada manteniendo su proporción (sin deformarse)
+
+### v1.9.0
 > **Menú de pausa con Escape + créditos actualizados + limpieza del HUD**
 
 - ⏸️ **Menú de confirmación con Escape**: durante la partida, `ESC` pausa el juego y abre una ventana (mismo estilo que las demás) para **volver al menú principal** o seguir jugando. JUGAR reinicia una partida limpia
