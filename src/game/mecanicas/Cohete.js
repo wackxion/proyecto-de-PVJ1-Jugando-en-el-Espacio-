@@ -20,10 +20,15 @@ export class Cohete extends GameObject {
         this.active = true;
         this.dano = CONFIG.COHETE.DANO;
         
-        // Crear sprite
+        // Crear sprite. Se dimensiona a un "largo" fijo manteniendo la proporción
+        // real de la textura, para que el sprite del cohete no se deforme (antes
+        // era un rectángulo fijo de 16x8). El largo va sobre el eje X porque el
+        // cohete se rota hacia su objetivo (rotación 0 = apunta a la derecha).
         this.imagen = new PIXI.Sprite(textura);
-        this.imagen.width = 16;
-        this.imagen.height = 8;
+        const largoObjetivo = 30;
+        const proporcion = (textura && textura.width) ? (textura.height / textura.width) : 0.5;
+        this.imagen.width = largoObjetivo;
+        this.imagen.height = largoObjetivo * proporcion;
         this.imagen.anchor.set(0.5);
         this.imagen.x = x;
         this.imagen.y = y;

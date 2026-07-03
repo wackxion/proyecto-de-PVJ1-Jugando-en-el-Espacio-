@@ -290,12 +290,21 @@ export class Game {
         this.texturaParticulaBoid = texturasPboids[0] || PIXI.Texture.WHITE;
         this.texturasPboids = texturasPboids;
 
-        // Crear textura de cohete (rectángulo rojo)
+        // Textura del proyectil cohete. Primero se crea un rectángulo rojo de
+        // FALLBACK y luego se intenta cargar el sprite real; si el archivo carga
+        // bien, reemplaza al fallback. (Va acá, después de _cargarRecursos(), para
+        // que el fallback no pise al sprite ya cargado.)
         const graphicsCohete = new PIXI.Graphics();
         graphicsCohete.beginFill(0xFF4400); // Naranja/rojo
         graphicsCohete.drawRect(0, 0, 16, 8);
         graphicsCohete.endFill();
         this.texturaCohete = this.aplicacion.renderer.generateTexture(graphicsCohete);
+        try {
+            const coheteTex = await PIXI.Assets.load('assets/cohetes -habilidad.png');
+            if (coheteTex) this.texturaCohete = coheteTex;
+        } catch (e) {
+            console.error('No se pudo cargar cohetes -habilidad.png; el cohete usará la textura por defecto', e);
+        }
         
         //('Jugador creado y renderizado');
         
@@ -353,7 +362,7 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.texturaExplosion = [explocion1, explocion2, explocion3, explocion4, explocion5];
             this.texturaAsteroidExplosion = [astroExplosion1, astroExplosion2, astroExplosion3, astroExplosion4, astroExplosion5];
             this.texturaNaveEnemiga = enimigoTexture;
-            
+
             // Crear textura de partícula Boid (2x2px) programáticamente
             // Usar un Graphics directamente como fallback
             this.texturaParticulaBoid = PIXI.Texture.WHITE;
