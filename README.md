@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.9.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.9.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.2)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.9.1 (Actual)
+### v1.9.2 (Actual)
+> **Sistema de audio completo (SFX + música) con volúmenes centralizados**
+
+- 🔊 **SFX conectados**: devorador (E), cohetes (Q), destrucción de asteroide y de nave enemiga, recibir impacto, captura de partícula Boid (con throttle) y click de botones del menú
+- 🎵 **Música de fondo en bucle**: menú (arranca en el primer gesto, por la política de autoplay del navegador) y partida; coordinadas para no solaparse
+- 🎛️ **Volúmenes centralizados** en `src/config.js` → `CONFIG.AUDIO.VOLUMENES`: un solo lugar para ajustar cada pista (detalle en `documentacion/AUDIO.md`)
+
+### v1.9.1
 > **PixiJS local (sin CDN) + sprite real del cohete**
 
 - 🧩 **PixiJS vendorizado** (`libs/pixi.min.js`): el juego ya no depende del CDN de jsdelivr. Antes, si el CDN fallaba o estaba bloqueado, PixiJS quedaba sin cargar y el juego (y el sitio en vivo) mostraba "PixiJS no está cargado". Ahora carga desde el proyecto y funciona offline

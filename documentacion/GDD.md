@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.9.1 (ACTUAL)  
+**Versión actual:** v1.9.2 (ACTUAL)  
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,14 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.9.1 (ACTUAL) - PixiJS local (sin CDN) + sprite del cohete
+### v1.9.2 (ACTUAL) - Sistema de audio completo + volúmenes en config
+> **Todos los SFX y la música de fondo conectados a sus eventos · Volúmenes centralizados en config.js**
+
+| Commit | Descripción |
+|--------|-------------|
+| `0b6103e` | feat(audio): conectar SFX, música de fondo y click; volúmenes en config.js |
+
+### v1.9.1 - PixiJS local (sin CDN) + sprite del cohete
 > **PixiJS vendorizado para no depender del CDN de jsdelivr · El proyectil de Cohetes (Q) usa una imagen real en vez de un rectángulo**
 
 | Commit | Descripción |
@@ -459,6 +466,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.9.2:** ✅ Sistema de audio completo (SFX + música de fondo) + volúmenes centralizados en config.js
 **v1.9.1:** ✅ PixiJS vendorizado (sin CDN) + sprite real del proyectil de Cohetes (Q)
 **v1.9.0:** ✅ Menú de pausa con Escape (volver al menú principal) + créditos + JSDoc/limpieza de PixiHUD
 **v1.8.0:** ✅ Sistema de audio (5 SFX) + rediseño de Mejoras + HUD adaptable + balance ulti

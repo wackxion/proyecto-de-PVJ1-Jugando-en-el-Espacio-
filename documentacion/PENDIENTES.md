@@ -1,7 +1,16 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 03/07/2026  
-**Versión:** v1.9.1 (ACTUAL)
+**Última actualización:** 04/07/2026  
+**Versión:** v1.9.2 (ACTUAL)
+
+---
+
+## ✅ Completado v1.9.2 - Sistema de audio completo + volúmenes en config
+
+- **SFX conectados** (`Game.js`, `Player.js`, `Enemy.js`, `EnemyShip.js`, `GameSkills.js`, `GameBoids.js`, `UIManager.js`): devorador (E), cohetes (Q), destrucción de asteroide (`Enemy._romper`), destrucción de nave enemiga (`EnemyShip.recibirDano`), recibir impacto (`Player.recibirDano`), captura de partícula Boid (con throttle ~90ms), y click de botones del menú.
+- **Música de fondo (en bucle)**: partida (arranca al iniciar/reiniciar) y menú. La del **menú inicial** la maneja `UIManager` (que existe antes que el juego) y arranca en el **primer gesto** del usuario (autoplay del navegador); al volver al menú con Escape la maneja el propio juego. Coordinadas para no solaparse.
+- **Volúmenes centralizados** en `src/config.js` → `CONFIG.AUDIO.VOLUMENES`: único lugar para ajustar el volumen de cada pista (lo leen `Game._registrarSonidos()` y `UIManager`). Ver `documentacion/AUDIO.md`.
+- Falta solo el archivo de **game over**.
 
 ---
 
@@ -139,8 +148,10 @@ Migración completa del HUD de HTML/CSS a PixiJS canvas. Todos los elementos del
 
 | Tarea | Estado | Prioridad |
 |-------|--------|-----------|
-| Eliminar dead code comentado en `_crear*()` de PixiHUD.js | ✅ Hecho | Baja |
+| **Revisar / mejorar el HUD** (`PixiHUD.js`) — próximo paso, entre otras cosas | 🔜 Próximo | Alta |
+| Conseguir e integrar el sonido de **game over** | ⏸️ Pendiente | Baja |
 | Análisis manual del flujo del código | ⏸️ Pendiente | Media |
+| Eliminar dead code comentado en `_crear*()` de PixiHUD.js | ✅ Hecho | Baja |
 
 ---
 

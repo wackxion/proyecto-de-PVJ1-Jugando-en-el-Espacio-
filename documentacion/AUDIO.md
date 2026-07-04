@@ -2,43 +2,47 @@
 
 Estado y guía del sistema de sonido del juego.
 
-**Última actualización:** 17/06/2026
+**Última actualización:** 04/07/2026
 
 ---
 
 ## Sistema de audio
 
 - **`src/systems/SoundManager.js`** → clase `GestorSonido` (HTML5 Audio, sin dependencias).
-- Se instancia en `Game.init()` como `this.gestorSonido` y registra los sonidos en `Game._registrarSonidos()`.
+- Hay **dos** instancias de `GestorSonido`:
+  - **`Game.gestorSonido`** → todo el audio in-game (SFX + música de la partida). Se crea en `Game.init()` y registra los sonidos en `Game._registrarSonidos()`.
+  - **`UIManager.gestorSonido`** → click de los botones y **música del menú inicial**. El `UIManager` existe antes de que se cree el juego, por eso tiene el suyo (si no, el menú de arranque no podría tener música).
 - Los archivos de audio van en **`assets/audio/`**.
 - Para SFX que se superponen (ej: disparos rápidos) clona el nodo de audio en cada reproducción.
-- **Sonidos en bucle:** `reproducirLoop(clave)` devuelve la instancia y `detener(instancia)` la corta. Se usa para la rotura de escudos (suena mientras el jugador está sobrecalentado).
-- **Autoplay:** el navegador desbloquea el audio con la primera interacción del usuario (el click en **JUGAR**), antes de que arranque la partida.
+- **Sonidos en bucle:** `reproducirLoop(clave)` devuelve la instancia y `detener(instancia)` la corta. Se usa para la rotura de escudos y para la música de fondo.
+- **Autoplay:** el navegador desbloquea el audio con la **primera interacción** del usuario. Por eso la música del menú inicial arranca en el primer click/gesto (no apenas carga la página), y la de la partida arranca con el click en JUGAR.
 
-### Cómo agregar un sonido nuevo (2 pasos)
+### Volúmenes centralizados (config.js)
 
-1. Poné el archivo en `assets/audio/` (ej: `assets/audio/ulti.mp3`).
-2. En `Game._registrarSonidos()` agregá una línea para registrarlo:
+Todos los volúmenes están en **`src/config.js` → `CONFIG.AUDIO.VOLUMENES`** (0..1). Es el único lugar para ajustarlos: los leen `Game._registrarSonidos()` y `UIManager`. Para cambiar un volumen, editás el número, guardás y recargás (Ctrl+F5).
+
+### Cómo agregar un sonido nuevo (3 pasos)
+
+1. Poné el archivo en `assets/audio/` (ej: `assets/audio/gameover.mp3`).
+2. Agregá su volumen en `CONFIG.AUDIO.VOLUMENES` (`src/config.js`).
+3. En `Game._registrarSonidos()` registralo y en el evento correspondiente reproducilo:
    ```js
-   this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
-   ```
-   Y en el evento correspondiente, reproducilo:
-   ```js
-   if (this.gestorSonido) this.gestorSonido.reproducir('ulti');
+   this.gestorSonido.cargar('gameover', 'assets/audio/gameover.mp3', V.gameover);
+   // en el evento:
+   if (this.gestorSonido) this.gestorSonido.reproducir('gameover');
    ```
 
 ### Convención
-- **Formato:** preferentemente `.mp3` u `.ogg` (compatibles con navegador). `.wav` también sirve pero pesa más.
-- **Nombres:** descriptivos. Preferentemente minúscula sin espacios (`disparo.mp3`), aunque los espacios y paréntesis también funcionan (`rotura de escudos.mp3`, el navegador los codifica en la URL).
-- **Volumen:** cada sonido se registra con un volumen 0..1 (ajustable en la llamada a `cargar`).
+- **Formato:** preferentemente `.mp3` u `.ogg`. `.wav` también sirve pero pesa más.
+- **Nombres:** descriptivos, preferentemente minúscula sin espacios (`disparo.mp3`). Los espacios y paréntesis también funcionan (`recibir impacto.mp3`, `musica_juego(Cold_Horizon).mp3`): el navegador los codifica en la URL.
 
-> ⚠️ **Licencias:** como el plan es publicar con anuncios (uso comercial), usar solo audio **CC0** o libre para uso comercial. Anotá el origen de cada archivo en `assets/audio/` o un CREDITS.
+> ⚠️ **Licencias:** como el plan es publicar con anuncios (uso comercial), usar solo audio **CC0** o libre para uso comercial. Anotá el origen de cada archivo.
 
 ---
 
 ## Checklist de sonidos
 
-Leyenda: ✅ integrado · 🔵 archivo conseguido (falta integrar) · ⬜ falta conseguir
+Leyenda: ✅ integrado · ⬜ falta conseguir
 
 ### 🚀 Jugador
 - [x] ✅ **Disparo** (`Space`) — `disparo.mp3`
@@ -46,54 +50,49 @@ Leyenda: ✅ integrado · 🔵 archivo conseguido (falta integrar) · ⬜ falta 
 - [x] ✅ **Propulsor** (`R`) — `propulsor.mp3`
 - [x] ✅ **Sobrecalentar (`W`)** — `sobrecalentamiento(w).mp3`
 - [x] ✅ **Escudo roto** — `rotura de escudos.mp3` *(en bucle hasta regenerar o game over)*
-- [ ] ⬜ **Cohetes** (`Q`) — *placeholder listo en código, falta el archivo*
-- [ ] ⬜ **Devorador** (`E`) — *placeholder listo en código, falta el archivo*
-- [ ] ⬜ Acelerar / motor (`W`)
-- [ ] ⬜ Recibir daño
-- [ ] ⬜ Regenerar escudo (Tiempo Fuera)
-- [ ] ⬜ Muerte de la nave
+- [x] ✅ **Cohetes** (`Q`) — `cohetes.mp3`
+- [x] ✅ **Devorador** (`E`) — `deborador.mp3`
+- [x] ✅ **Recibir daño** — `recibir impacto.mp3`
+- [ ] ⬜ **Muerte de la nave / Game Over**
 
 ### ☄️ Enemigos / mundo
-- [ ] ⬜ Asteroide se rompe
-- [ ] ⬜ Disparo enemigo
-- [ ] ⬜ Nave enemiga destruida
-- [ ] ⬜ Impacto de cohete
-- [ ] ⬜ Aparece asteroide especial
-- [ ] ⬜ Mini asteroide destruido *(opcional)*
+- [x] ✅ **Asteroide se rompe** — `destruccion_meteorito.mp3`
+- [x] ✅ **Nave enemiga destruida** — `destruccion_nave.mp3`
+- [ ] ⬜ Disparo enemigo *(opcional)*
+- [ ] ⬜ Aparece asteroide especial *(opcional)*
 
 ### 🟦 Partículas
-- [ ] ⬜ Capturar partícula Boid
+- [x] ✅ **Capturar partícula Boid** — `particula_boid.mp3` *(con throttle ~90ms para que no se amontone)*
 
 ### 🖱️ UI / Menús
-- [ ] ⬜ Click en botón
-- [ ] ⬜ Comprar mejora (éxito)
-- [ ] ⬜ Error de compra
-- [ ] ⬜ Nueva oleada
-- [ ] ⬜ Nuevo récord
-- [ ] ⬜ Pausa abrir/cerrar
-- [ ] ⬜ Tecla al ingresar nombre *(opcional)*
+- [x] ✅ **Click en botón** — `click.mp3`
+- [ ] ⬜ Comprar mejora *(opcional)*
+- [ ] ⬜ Nueva oleada / nuevo récord *(opcional)*
 
 ### 🎵 Música
-- [ ] ⬜ Menú principal
-- [ ] ⬜ Partida (gameplay)
-- [ ] ⬜ Game Over
-- [ ] ⬜ Tensión / asteroide especial *(opcional)*
+- [x] ✅ **Menú principal** — `musica_menu.mp3` *(UIManager, arranca en el primer gesto)*
+- [x] ✅ **Partida (gameplay)** — `musica_juego(Cold_Horizon).mp3`
+- [ ] ⬜ **Game Over** *(opcional)*
 
 ---
 
 ## Mapa de eventos → dónde se dispara cada sonido
 
-| Sonido | Archivo / función | Estado |
-|--------|-------------------|--------|
+| Sonido | Función / lugar | Estado |
+|--------|-----------------|--------|
 | Disparo | `Game.crearProyectil()` | ✅ |
 | Ulti | `Game.activarUlti()` | ✅ |
 | Propulsor | `GameSkills.actualizarHabilidadPropulsor()` | ✅ |
-| Sobrecalentar (W) | `Player.update()` (transición `sobrecalentadoAceleracion`) | ✅ |
-| Escudo roto (bucle) | `Player.recibirDano()` (inicio) → corta en `Player.agregarEscudos()` y `Game.gameOver()` | ✅ |
-| Cohetes | `GameSkills.actualizarHabilidadCohetes()` / `crearCohetes()` | ⬜ |
-| Devorador | `GameSkills.actualizarHabilidadDevorador()` | ⬜ |
-| Asteroide roto | `Enemy._romper()` / explosión en `GameProjectiles` | ⬜ |
-| Disparo enemigo | `GameEnemies._crearProyectilEnemigo()` | ⬜ |
-| Capturar partícula | `GameBoids._capturarParticulaBoid()` | ⬜ |
-| Comprar mejora / error | `GameMejoras.comprarMejora()` | ⬜ |
-| Click botón / récord | `UIManager.js` / `Game.js` (Top 5) | ⬜ |
+| Cohetes | `GameSkills.crearCohetes()` | ✅ |
+| Devorador | `GameSkills.actualizarHabilidadDevorador()` | ✅ |
+| Sobrecalentar (W) | `Player.update()` (transición) | ✅ |
+| Escudo roto (bucle) | `Player.recibirDano()` → corta en regeneración / game over | ✅ |
+| Recibir daño | `Player.recibirDano()` | ✅ |
+| Asteroide roto | `Enemy._romper()` | ✅ |
+| Nave enemiga destruida | `EnemyShip.recibirDano()` (muerte) | ✅ |
+| Capturar partícula (throttle) | `Game._capturarParticulaBoid()` / `GameBoids` → `Game._sonidoCapturaBoid()` | ✅ |
+| Click botón | `UIManager` (botones de menú/modales) | ✅ |
+| Música partida | `Game._iniciarMusicaJuego()` (init / reinicio) | ✅ |
+| Música menú (inicial) | `UIManager.iniciarMusicaMenu()` (primer gesto, desde `main.js`) | ✅ |
+| Música menú (al volver con Escape) | `Game._iniciarMusicaMenu()` (`detenerParaMenu`) | ✅ |
+| Game Over | — | ⬜ falta archivo |
