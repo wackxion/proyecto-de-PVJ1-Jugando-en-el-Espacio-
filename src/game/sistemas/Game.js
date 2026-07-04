@@ -319,6 +319,9 @@ export class Game {
         // ticker.add() registra una función que se llama en cada frame (60 veces por segundo)
         this.aplicacion.ticker.add(this._gameLoop.bind(this));
         this.ejecutando = true;
+
+        // Arrancar la música de la partida (el clic en JUGAR desbloqueó el audio)
+        this._iniciarMusicaJuego();
     }
     
     /**
@@ -576,8 +579,24 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         
         // Incrementar contador de partículas capturadas (PixiHUD lo muestra)
         this.particulasCapturadas++;
+
+        // Sonido de captura (con throttle interno)
+        this._sonidoCapturaBoid();
     }
-    
+
+    /**
+     * Reproduce el sonido de captura de Boid con "throttle": como se pueden
+     * capturar muchas partículas por segundo, limita la frecuencia (mínimo
+     * ~90ms entre sonidos) para que no se amontonen en una cacofonía.
+     */
+    _sonidoCapturaBoid() {
+        if (!this.gestorSonido) return;
+        const ahora = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+        if (ahora - (this._ultimoSonidoBoid || 0) < 90) return;
+        this._ultimoSonidoBoid = ahora;
+        this.gestorSonido.reproducir('particulaBoid');
+    }
+
     /**
      * Crear partícula en posición aleatoria (FUERA de la pantalla)
      * @returns {BoidParticle} Nueva partícula
@@ -767,15 +786,73 @@ _crearParticulaBoidFuera() {
     _registrarSonidos() {
         if (!this.gestorSonido) return;
 
+        // Los volúmenes salen de config.js (CONFIG.AUDIO.VOLUMENES), así se
+        // ajustan todos en un solo lugar. Acá solo se mapea cada clave a su archivo.
+        const V = CONFIG.AUDIO.VOLUMENES;
+
         // --- Habilidades del jugador ---
-        // (cambiar la ruta/extensión según el archivo real que tengas)
-        this.gestorSonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.5);
-        this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', 0.7);
-        this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', 0.6);
-        this.gestorSonido.cargar('roturaEscudos', 'assets/audio/rotura de escudos.mp3', 0.7);
-        this.gestorSonido.cargar('sobrecalentamientoW', 'assets/audio/sobrecalentamiento(w).mp3', 0.5);
-        // this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', 0.6);
-        // this.gestorSonido.cargar('devorador', 'assets/audio/devorador.mp3', 0.6);
+        this.gestorSonido.cargar('disparo', 'assets/audio/disparo.mp3', V.disparo);
+        this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', V.ulti);
+        this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', V.propulsor);
+        this.gestorSonido.cargar('roturaEscudos', 'assets/audio/rotura de escudos.mp3', V.roturaEscudos);
+        this.gestorSonido.cargar('sobrecalentamientoW', 'assets/audio/sobrecalentamiento(w).mp3', V.sobrecalentamientoW);
+        this.gestorSonido.cargar('devorador', 'assets/audio/deborador.mp3', V.devorador);
+        this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', V.cohetes);
+
+        // --- Combate / impactos ---
+        this.gestorSonido.cargar('destruccionMeteorito', 'assets/audio/destruccion_meteorito.mp3', V.destruccionMeteorito);
+        this.gestorSonido.cargar('destruccionNave', 'assets/audio/destruccion_nave.mp3', V.destruccionNave);
+        this.gestorSonido.cargar('recibirImpacto', 'assets/audio/recibir impacto.mp3', V.recibirImpacto);
+        this.gestorSonido.cargar('particulaBoid', 'assets/audio/particula_boid.mp3', V.particulaBoid); // suena en cada captura (con throttle)
+
+        // --- Música de fondo (en bucle) ---
+        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', V.musicaMenu);
+        this.gestorSonido.cargar('musicaJuego', 'assets/audio/musica_juego(Cold_Horizon).mp3', V.musicaJuego);
+
+        // Pendiente (aún sin archivo): game over
+    }
+
+    /**
+     * Arranca la música de la partida (en bucle) y detiene la del menú.
+     * (El primer clic en JUGAR desbloquea el audio del navegador.)
+     */
+    _iniciarMusicaJuego() {
+        if (!this.gestorSonido) return;
+        if (this._musicaMenuLoop) {
+            this.gestorSonido.detener(this._musicaMenuLoop);
+            this._musicaMenuLoop = null;
+        }
+        if (this._musicaJuegoLoop) return; // ya está sonando
+        this._musicaJuegoLoop = this.gestorSonido.reproducirLoop('musicaJuego');
+    }
+
+    /**
+     * Arranca la música del menú (en bucle) y detiene la de la partida.
+     * Se usa al volver al menú principal (Escape).
+     */
+    _iniciarMusicaMenu() {
+        if (!this.gestorSonido) return;
+        if (this._musicaJuegoLoop) {
+            this.gestorSonido.detener(this._musicaJuegoLoop);
+            this._musicaJuegoLoop = null;
+        }
+        if (this._musicaMenuLoop) return;
+        this._musicaMenuLoop = this.gestorSonido.reproducirLoop('musicaMenu');
+    }
+
+    /**
+     * Detiene toda la música de fondo.
+     */
+    _detenerMusica() {
+        if (!this.gestorSonido) return;
+        if (this._musicaJuegoLoop) {
+            this.gestorSonido.detener(this._musicaJuegoLoop);
+            this._musicaJuegoLoop = null;
+        }
+        if (this._musicaMenuLoop) {
+            this.gestorSonido.detener(this._musicaMenuLoop);
+            this._musicaMenuLoop = null;
+        }
     }
 
     /**
@@ -2472,6 +2549,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         
         // Marcar el juego como corriendo
         this.ejecutando = true;
+
+        // Reanudar la música de la partida (cambia menú -> juego si venías del menú)
+        this._iniciarMusicaJuego();
     }
 
     /**
@@ -2513,6 +2593,8 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         if (this.aplicacion && this.aplicacion.canvas) {
             this.aplicacion.canvas.style.display = 'none';
         }
+        // Cambiar a la música del menú
+        this._iniciarMusicaMenu();
     }
 
     /**

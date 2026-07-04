@@ -237,6 +237,9 @@ function _capturarParticulaBoid(game, indice) {
     
     // Incrementar contador de partículas capturadas (PixiHUD lo muestra)
     game.particulasCapturadas++;
+
+    // Sonido de captura (con throttle interno)
+    if (game._sonidoCapturaBoid) game._sonidoCapturaBoid();
 }
 
 /**

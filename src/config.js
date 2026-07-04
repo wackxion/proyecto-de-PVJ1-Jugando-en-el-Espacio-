@@ -154,4 +154,36 @@ export const CONFIG = {
         COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
         ESCUDO_RESTAURACION: 50,                      // Escudos que restaura al comprar mejora de escudo
     },
+
+    // === AUDIO (volumen 0..1 de cada pista) ===
+    // Punto único para ajustar el volumen de cada sonido y música.
+    // Lo leen Game._registrarSonidos() (audio in-game) y UIManager (click + música del menú inicial).
+    // 0 = mudo · 1 = máximo.
+    AUDIO: {
+        VOLUMENES: {
+            // --- Habilidades del jugador ---
+            disparo: 0.5,               // disparar (barra espaciadora)
+            ulti: 0.7,                  // ataque especial (S)
+            propulsor: 0.6,             // dash (R)
+            cohetes: 0.6,               // lanzar cohetes (Q)
+            devorador: 0.6,             // atraer partículas (E)
+
+            // --- Estados del jugador ---
+            roturaEscudos: 0.7,         // en bucle mientras dura el sobrecalentamiento
+            sobrecalentamientoW: 0.5,   // barra W al tope
+            recibirImpacto: 0.5,        // te pegan
+
+            // --- Combate ---
+            destruccionMeteorito: 0.5,  // destruir asteroide
+            destruccionNave: 0.35,      // destruir nave enemiga
+
+            // --- Otros SFX ---
+            particulaBoid: 0.45,        // capturar partícula (suena en cada una, con throttle)
+            click: 0.5,                 // botones del menú
+
+            // --- Música de fondo (en bucle) ---
+            musicaMenu: 0.5,            // menú principal
+            musicaJuego: 0.12,          // durante la partida
+        },
+    },
 };

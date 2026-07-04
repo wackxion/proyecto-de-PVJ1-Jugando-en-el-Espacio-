@@ -8,6 +8,9 @@
  * 
  * v1.4.5
  */
+import { GestorSonido } from '../systems/SoundManager.js';
+import { CONFIG } from '../config.js';
+
 export class UIManager {
     /**
      * Constructor del UIManager
@@ -30,6 +33,16 @@ export class UIManager {
         // Elementos de UI
         this.mainMenu = null;
         this.uiOverlay = null;
+
+        // Gestor de sonido propio para el click de los botones y la música del
+        // MENÚ INICIAL. El menú existe antes de que se cree el juego (que tiene su
+        // propio GestorSonido para el audio in-game), por eso el UIManager tiene
+        // el suyo: así el menú de arranque puede tener música (el juego aún no
+        // existe en ese momento).
+        this.gestorSonido = new GestorSonido();
+        this.gestorSonido.cargar('click', 'assets/audio/click.mp3', CONFIG.AUDIO.VOLUMENES.click);
+        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', CONFIG.AUDIO.VOLUMENES.musicaMenu);
+        this._musicaMenuLoop = null;
         
         // Crear estructura base
         // NOTA: crearEstructuraBase() ya no se usa - el HUD ahora se renderiza con PixiJS (PixiHUD.js)
@@ -37,6 +50,33 @@ export class UIManager {
         
         // listener para cambio de tamano de pantalla
         window.addEventListener('resize', () => this.onResize());
+    }
+
+    /**
+     * Reproduce el sonido de click de los botones del menú.
+     * (El primer click del usuario desbloquea el audio del navegador.)
+     */
+    _click() {
+        if (this.gestorSonido) this.gestorSonido.reproducir('click');
+    }
+
+    /**
+     * Arranca la música del MENÚ INICIAL en bucle (si no está sonando ya).
+     * El navegador bloquea el audio hasta la primera interacción del usuario,
+     * por eso main.js la dispara en el primer click/gesto sobre la página.
+     * (Al volver al menú con Escape, la música la maneja el propio juego.)
+     */
+    iniciarMusicaMenu() {
+        if (!this.gestorSonido || this._musicaMenuLoop) return;
+        this._musicaMenuLoop = this.gestorSonido.reproducirLoop('musicaMenu');
+    }
+
+    /** Detiene la música del menú inicial (al entrar al juego). */
+    detenerMusicaMenu() {
+        if (this._musicaMenuLoop) {
+            this.gestorSonido.detener(this._musicaMenuLoop);
+            this._musicaMenuLoop = null;
+        }
     }
     
     /**
@@ -173,7 +213,7 @@ export class UIManager {
             boton.style.background = 'linear-gradient(180deg, #0066FF 0%, #0044CC 100%)';
         });
         
-        boton.addEventListener('click', accion);
+        boton.addEventListener('click', () => { this._click(); accion(); });
         return boton;
     }
     
@@ -209,7 +249,7 @@ export class UIManager {
             boton.style.transform = 'scale(1)';
         });
         
-        boton.addEventListener('click', onClick);
+        boton.addEventListener('click', () => { this._click(); onClick(); });
         return boton;
     }
 
@@ -247,7 +287,7 @@ export class UIManager {
             boton.style.background = colorBase;
             boton.style.transform = 'scale(1)';
         });
-        boton.addEventListener('click', onClick);
+        boton.addEventListener('click', () => { this._click(); onClick(); });
         return boton;
     }
 

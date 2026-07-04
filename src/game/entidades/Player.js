@@ -531,7 +531,12 @@ this.rotacion = 0;
         if (!this.sobrecalentado) {
             // Reducir escudos
             this.escudos = Math.max(0, this.escudos - dano);
-            
+
+            // Sonido de impacto recibido
+            if (this.juego && this.juego.gestorSonido) {
+                this.juego.gestorSonido.reproducir('recibirImpacto');
+            }
+
             // Crear efecto visual de daño
             this._crearEfectoDano();
             

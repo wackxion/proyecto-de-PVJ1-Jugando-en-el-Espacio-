@@ -251,10 +251,14 @@ export class EnemyShip extends GameObject {
         this.imagen.alpha = this.salud / this.saludMax;
         
         if (this.salud <= 0) {
+            // Sonido de destrucción de nave enemiga (jugador -> juego -> gestorSonido)
+            if (this.jugador && this.jugador.juego && this.jugador.juego.gestorSonido) {
+                this.jugador.juego.gestorSonido.reproducir('destruccionNave');
+            }
             this.destroy();
             return true;
         }
-        
+
         return false;
     }
     

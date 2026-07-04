@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     uiManager = new UIManager(container, {
         // Botón JUGAR
         onJugar: () => {
+            // Cortar la música del menú inicial; el juego arranca la suya
+            uiManager.detenerMusicaMenu();
             if (juegoInicializado && game) {
                 // El juego ya existe (se volvió al menú con Escape): reiniciar
                 // partida sin recargar assets ni mostrar pantalla de carga.
@@ -98,6 +100,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Mostrar menú principal
     uiManager.mostrarMenuPrincipal();
+
+    // Música del menú inicial: los navegadores bloquean el audio hasta la primera
+    // interacción del usuario, así que la arrancamos en el primer gesto sobre la
+    // página (una sola vez), y solo si seguimos en el menú.
+    const arrancarMusicaMenu = () => {
+        document.removeEventListener('pointerdown', arrancarMusicaMenu);
+        if (uiManager && document.getElementById('main-menu')) {
+            uiManager.iniciarMusicaMenu();
+        }
+    };
+    document.addEventListener('pointerdown', arrancarMusicaMenu);
 });
 
 // =============================================================================

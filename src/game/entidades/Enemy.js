@@ -236,9 +236,14 @@ export class Enemigo extends GameObject {
      * @returns {Array} - Array con los nuevos Enemy creados
      */
     _romper() {
+        // Sonido de destrucción de asteroide (objetivo = jugador -> juego -> gestorSonido)
+        if (this.objetivo && this.objetivo.juego && this.objetivo.juego.gestorSonido) {
+            this.objetivo.juego.gestorSonido.reproducir('destruccionMeteorito');
+        }
+
         // Destruir el asteroide actual
         this.destroy();
-        
+
         // Array para almacenar los nuevos fragmentos
         const newAsteroids = [];
         

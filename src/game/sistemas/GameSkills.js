@@ -87,6 +87,7 @@ export function crearCohetes(game) {
     // Encontrar los 2 enemigos más cercanos
     const enemigosCercanos = encontrarEnemigosCercanos(game, CONFIG.HABILIDADES.COHETES_CANTIDAD);
     
+    let algunoLanzado = false;
     for (const enemigo of enemigosCercanos) {
         if (enemigo && enemigo.active) {
             const cohete = new Cohete(
@@ -97,7 +98,13 @@ export function crearCohetes(game) {
             );
             cohete.render(game.aplicacion.stage);
             game.cohetes.push(cohete);
+            algunoLanzado = true;
         }
+    }
+
+    // Sonido de lanzamiento (una sola vez por activación, si se lanzó algún cohete)
+    if (algunoLanzado && game.gestorSonido) {
+        game.gestorSonido.reproducir('cohetes');
     }
 }
 
@@ -262,7 +269,10 @@ export function actualizarHabilidadDevorador(game, delta) {
     if (devoradorActivadoAhora && game.jugador && game.jugador.active) {
         game.efectoSuccion = new SuccionEffect(game.jugador.x, game.jugador.y, game.anchoJuego, game.altoJuego);
         game.efectoSuccion.render(game.aplicacion.stage);
-        
+
+        // Sonido del devorador al activarse
+        if (game.gestorSonido) game.gestorSonido.reproducir('devorador');
+
         const radioDevorar = CONFIG.HABILIDADES.DEVORADOR_RANGO;
         for (const particula of game.particulasBoid) {
             if (!particula.active) continue;
