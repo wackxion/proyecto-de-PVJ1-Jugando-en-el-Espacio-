@@ -5,22 +5,47 @@
  * superponerse (ej: disparos rápidos) clona el nodo de audio en cada
  * reproducción, así varios sonidos iguales pueden sonar a la vez.
  *
+ * Cada sonido tiene una CATEGORÍA ('sfx' o 'musica'). Hay dos multiplicadores
+ * de volumen COMPARTIDOS por todas las instancias (una vive en Game y otra en
+ * UIManager): uno para música y otro para efectos. Los controla el menú de
+ * Opciones y se guardan en localStorage.
+ *
+ * Volumen final de cada sonido = volumen_individual × multiplicador_de_su_categoría
+ *
  * Nota sobre autoplay: los navegadores bloquean el audio hasta que hay una
- * interacción del usuario. En este juego la primera interacción es el click
- * en "JUGAR", que desbloquea el audio antes de que empiece la partida.
+ * interacción del usuario (primer click).
  *
  * Uso:
  *   const sonido = new GestorSonido();
- *   sonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.6);
+ *   sonido.cargar('disparo', 'assets/audio/disparo.mp3', 0.6);            // sfx
+ *   sonido.cargar('musicaMenu', 'assets/audio/menu.mp3', 0.5, 'musica');  // música
  *   sonido.reproducir('disparo');
  */
-export class GestorSonido {
-    constructor() {
-        // clave -> { audio: HTMLAudioElement (plantilla precargada), volumen: number }
-        this.plantillas = new Map();
 
-        // Volumen global (0..1) que multiplica al volumen individual de cada sonido
-        this.volumenGlobal = 1.0;
+/** Limita un valor al rango 0..1. */
+function clamp01(v) {
+    if (v < 0) return 0;
+    if (v > 1) return 1;
+    return v;
+}
+
+export class GestorSonido {
+    // Multiplicadores de volumen por categoría (0..1), COMPARTIDOS por todas las
+    // instancias. Los ajusta el menú de Opciones vía los métodos estáticos.
+    static volumenMusica = 1.0;
+    static volumenSfx = 1.0;
+    // Instancias de música en bucle que están sonando ahora, para poder
+    // actualizar su volumen en vivo cuando se mueve el slider de música.
+    static _musicasActivas = new Set();
+    // Bandera para cargar los ajustes de localStorage una sola vez.
+    static _ajustesCargados = false;
+
+    constructor() {
+        // Cargar volúmenes guardados (la primera vez que se crea un gestor)
+        GestorSonido._cargarAjustes();
+
+        // clave -> { audio: HTMLAudioElement (plantilla precargada), volumen, categoria }
+        this.plantillas = new Map();
 
         // Si está silenciado, reproducir() no hace nada
         this.silenciado = false;
@@ -29,14 +54,23 @@ export class GestorSonido {
     /**
      * Registra y precarga un sonido bajo una clave.
      *
-     * @param {string} clave   - Identificador del sonido (ej: 'disparo')
-     * @param {string} ruta    - Ruta al archivo (ej: 'assets/audio/disparo.mp3')
-     * @param {number} volumen - Volumen individual del sonido (0..1). Default 1.0
+     * @param {string} clave     - Identificador del sonido (ej: 'disparo')
+     * @param {string} ruta      - Ruta al archivo (ej: 'assets/audio/disparo.mp3')
+     * @param {number} volumen   - Volumen individual base del sonido (0..1). Default 1.0
+     * @param {string} categoria - 'sfx' (default) o 'musica'
      */
-    cargar(clave, ruta, volumen = 1.0) {
+    cargar(clave, ruta, volumen = 1.0, categoria = 'sfx') {
         const audio = new Audio(ruta);
         audio.preload = 'auto';
-        this.plantillas.set(clave, { audio, volumen });
+        this.plantillas.set(clave, { audio, volumen, categoria });
+    }
+
+    /** Volumen final = volumen individual × multiplicador de su categoría. */
+    _volumenFinal(entrada) {
+        const mult = entrada.categoria === 'musica'
+            ? GestorSonido.volumenMusica
+            : GestorSonido.volumenSfx;
+        return clamp01(entrada.volumen * mult);
     }
 
     /**
@@ -53,7 +87,7 @@ export class GestorSonido {
 
         // Clonar para que varios disparos suenen sin cortarse entre sí
         const instancia = entrada.audio.cloneNode();
-        instancia.volume = this._clamp(entrada.volumen * this.volumenGlobal);
+        instancia.volume = this._volumenFinal(entrada);
 
         const promesa = instancia.play();
         // play() devuelve una promesa; si el navegador la rechaza
@@ -65,7 +99,7 @@ export class GestorSonido {
 
     /**
      * Reproduce un sonido en BUCLE y devuelve la instancia para poder detenerla.
-     * Útil para sonidos sostenidos (ej: alarma mientras dura un estado).
+     * Útil para música de fondo y sonidos sostenidos.
      *
      * @param {string} clave - Identificador del sonido
      * @returns {HTMLAudioElement|null} la instancia en loop, o null si no se reprodujo
@@ -78,7 +112,14 @@ export class GestorSonido {
 
         const instancia = entrada.audio.cloneNode();
         instancia.loop = true;
-        instancia.volume = this._clamp(entrada.volumen * this.volumenGlobal);
+        instancia.volume = this._volumenFinal(entrada);
+
+        // La música en bucle se registra para poder ajustar su volumen en vivo
+        // desde el menú de Opciones (guardamos su volumen base).
+        if (entrada.categoria === 'musica') {
+            instancia._volumenBase = entrada.volumen;
+            GestorSonido._musicasActivas.add(instancia);
+        }
 
         const promesa = instancia.play();
         if (promesa && typeof promesa.catch === 'function') {
@@ -100,10 +141,11 @@ export class GestorSonido {
         } catch (e) {
             // Ignorar
         }
+        GestorSonido._musicasActivas.delete(instancia);
     }
 
     /**
-     * Activa o desactiva el silencio global.
+     * Activa o desactiva el silencio global (de esta instancia).
      * @param {boolean} estado - true para silenciar, false para reactivar
      */
     silenciar(estado = true) {
@@ -119,22 +161,59 @@ export class GestorSonido {
         return this.silenciado;
     }
 
+    // ========================================================================
+    // Ajustes globales de volumen (menú de Opciones) — estáticos y compartidos
+    // ========================================================================
+
     /**
-     * Ajusta el volumen global (0..1).
-     * @param {number} volumen
+     * Ajusta el volumen de la MÚSICA (0..1). Afecta a todas las instancias y
+     * actualiza en vivo la música que esté sonando. Se guarda en localStorage.
+     * @param {number} v
      */
-    setVolumenGlobal(volumen) {
-        this.volumenGlobal = this._clamp(volumen);
+    static setVolumenMusica(v) {
+        GestorSonido.volumenMusica = clamp01(v);
+        for (const inst of GestorSonido._musicasActivas) {
+            const base = (typeof inst._volumenBase === 'number') ? inst._volumenBase : 1;
+            inst.volume = clamp01(base * GestorSonido.volumenMusica);
+        }
+        GestorSonido._guardarAjustes();
     }
 
     /**
-     * Limita un valor al rango 0..1.
+     * Ajusta el volumen de los EFECTOS (SFX) (0..1). Se aplica al próximo SFX.
+     * Se guarda en localStorage.
      * @param {number} v
-     * @returns {number}
      */
-    _clamp(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
+    static setVolumenSfx(v) {
+        GestorSonido.volumenSfx = clamp01(v);
+        GestorSonido._guardarAjustes();
+    }
+
+    static getVolumenMusica() { return GestorSonido.volumenMusica; }
+    static getVolumenSfx() { return GestorSonido.volumenSfx; }
+
+    /** Carga los volúmenes guardados (localStorage) una sola vez. */
+    static _cargarAjustes() {
+        if (GestorSonido._ajustesCargados) return;
+        GestorSonido._ajustesCargados = true;
+        try {
+            const a = JSON.parse(localStorage.getItem('ajustesAudio') || '{}');
+            if (typeof a.musica === 'number') GestorSonido.volumenMusica = clamp01(a.musica);
+            if (typeof a.sfx === 'number') GestorSonido.volumenSfx = clamp01(a.sfx);
+        } catch (e) {
+            // Si localStorage no está disponible, quedan los defaults (1.0)
+        }
+    }
+
+    /** Guarda los volúmenes actuales en localStorage. */
+    static _guardarAjustes() {
+        try {
+            localStorage.setItem('ajustesAudio', JSON.stringify({
+                musica: GestorSonido.volumenMusica,
+                sfx: GestorSonido.volumenSfx,
+            }));
+        } catch (e) {
+            // Ignorar si no se puede guardar
+        }
     }
 }

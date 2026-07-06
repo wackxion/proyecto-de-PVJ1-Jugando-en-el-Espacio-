@@ -806,8 +806,8 @@ _crearParticulaBoidFuera() {
         this.gestorSonido.cargar('particulaBoid', 'assets/audio/particula_boid.mp3', V.particulaBoid); // suena en cada captura (con throttle)
 
         // --- Música de fondo (en bucle) ---
-        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', V.musicaMenu);
-        this.gestorSonido.cargar('musicaJuego', 'assets/audio/musica_juego(Cold_Horizon).mp3', V.musicaJuego);
+        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', V.musicaMenu, 'musica');
+        this.gestorSonido.cargar('musicaJuego', 'assets/audio/musica_juego(Cold_Horizon).mp3', V.musicaJuego, 'musica');
 
         // Pendiente (aún sin archivo): game over
     }
@@ -2623,11 +2623,20 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
                 // Limpiar la tecla para que no se togglee constantemente
                 this.gestorEntrada.reiniciar();
 
-                if (this.pausado && !this.mostrandoVentanaMejoras) {
-                    crearVentanaMejoras(this);
-                } else if (!this.pausado && this.mostrandoVentanaMejoras) {
-                    limpiarVentanaMejoras(this);
-                }
+                // Ventana de mejoras vieja DESHABILITADA temporalmente: se está
+                // reemplazando por los paneles laterales (chips + pips). Por ahora
+                // solo alternamos el flag para desplegar/recoger esos paneles; no
+                // hay compra de mejoras hasta engancharla a los pips.
+                // Para reactivar la ventana vieja: volver a llamar
+                // crearVentanaMejoras(this) / limpiarVentanaMejoras(this) aquí.
+                this.mostrandoVentanaMejoras = this.pausado;
+            }
+
+            // Desplegar/recoger las columnas laterales del HUD según el menú de
+            // Mejoras. Va ANTES del corte por pausa para que la animación corra
+            // también con el juego pausado (que es cuando el menú está abierto).
+            if (this.pixiHUD) {
+                this.pixiHUD.actualizarDespliegue(!!this.mostrandoVentanaMejoras);
             }
 
     // Si el juego está pausado, salir del loop (PixiHUD ya refleja el estado)

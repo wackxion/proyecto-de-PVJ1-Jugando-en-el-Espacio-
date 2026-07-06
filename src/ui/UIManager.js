@@ -41,7 +41,7 @@ export class UIManager {
         // existe en ese momento).
         this.gestorSonido = new GestorSonido();
         this.gestorSonido.cargar('click', 'assets/audio/click.mp3', CONFIG.AUDIO.VOLUMENES.click);
-        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', CONFIG.AUDIO.VOLUMENES.musicaMenu);
+        this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', CONFIG.AUDIO.VOLUMENES.musicaMenu, 'musica');
         this._musicaMenuLoop = null;
         
         // Crear estructura base
@@ -77,6 +77,125 @@ export class UIManager {
             this.gestorSonido.detener(this._musicaMenuLoop);
             this._musicaMenuLoop = null;
         }
+    }
+
+    /**
+     * Muestra el modal de OPCIONES con dos controles de volumen (música y
+     * efectos). Los sliders ajustan los multiplicadores globales de
+     * GestorSonido (0..100%), que se aplican a ambos gestores (juego y menú) y
+     * se guardan en localStorage. Mismo estilo que las demás ventanas.
+     */
+    mostrarOpciones() {
+        const previo = document.getElementById('opciones-modal');
+        if (previo) previo.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'opciones-modal';
+        modal.style.cssText = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0D0D1A;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 620;
+        `;
+
+        const exterior = document.createElement('div');
+        exterior.style.cssText = `
+            background: url('assets/gameOver.jpg') no-repeat center center;
+            background-size: 100% 100%;
+            width: ${Math.min(560, this.width * 0.9)}px;
+            display: flex; justify-content: center; align-items: center;
+        `;
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; padding: 60px 50px;
+        `;
+
+        const titulo = document.createElement('div');
+        titulo.textContent = 'OPCIONES';
+        titulo.style.cssText = `
+            color: #0044CC; font-family: 'Segoe Script', cursive;
+            font-size: 28px; font-weight: bold; margin-bottom: 30px;
+            text-shadow: 0 0 10px #0044CC;
+        `;
+        container.appendChild(titulo);
+
+        // Sliders: Música y Efectos
+        container.appendChild(this._crearFilaVolumen(
+            'Música',
+            GestorSonido.getVolumenMusica(),
+            (v) => GestorSonido.setVolumenMusica(v)
+        ));
+        container.appendChild(this._crearFilaVolumen(
+            'Efectos',
+            GestorSonido.getVolumenSfx(),
+            (v) => GestorSonido.setVolumenSfx(v),
+            true // reproduce un click de prueba al soltar
+        ));
+
+        const nota = document.createElement('div');
+        nota.textContent = 'Los cambios se guardan automáticamente.';
+        nota.style.cssText = `
+            color: #0044CC; font-family: 'Segoe Script', cursive;
+            font-size: 14px; opacity: 0.75; margin: 4px 0 26px;
+        `;
+        container.appendChild(nota);
+
+        container.appendChild(this.crearBotonVolver(() => modal.remove()));
+
+        exterior.appendChild(container);
+        modal.appendChild(exterior);
+        this.container.appendChild(modal);
+    }
+
+    /**
+     * Crea una fila de control de volumen: etiqueta + porcentaje + slider.
+     * @param {string} etiqueta     - Nombre visible (ej: 'Música')
+     * @param {number} valorInicial - Valor actual 0..1
+     * @param {Function} onCambio   - Callback con el nuevo valor 0..1
+     * @param {boolean} feedbackSfx - Si true, reproduce un click al soltar (para oír el nivel)
+     * @returns {HTMLElement}
+     */
+    _crearFilaVolumen(etiqueta, valorInicial, onCambio, feedbackSfx = false) {
+        const fila = document.createElement('div');
+        fila.style.cssText = `display: flex; flex-direction: column; width: 100%; max-width: 360px; margin-bottom: 22px;`;
+
+        const cabecera = document.createElement('div');
+        cabecera.style.cssText = `
+            display: flex; justify-content: space-between; align-items: baseline;
+            color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold;
+            font-size: 20px; margin-bottom: 6px;
+        `;
+        const lbl = document.createElement('span');
+        lbl.textContent = etiqueta;
+        const val = document.createElement('span');
+        val.textContent = Math.round(valorInicial * 100) + '%';
+        val.style.cssText = `font-size: 18px;`;
+        cabecera.appendChild(lbl);
+        cabecera.appendChild(val);
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = '0';
+        slider.max = '100';
+        slider.step = '1';
+        slider.value = String(Math.round(valorInicial * 100));
+        slider.style.cssText = `width: 100%; cursor: pointer; accent-color: #0044CC;`;
+
+        slider.addEventListener('input', () => {
+            const pct = parseInt(slider.value, 10);
+            val.textContent = pct + '%';
+            onCambio(pct / 100);
+        });
+        if (feedbackSfx) {
+            // Al soltar, un click de prueba para escuchar el nivel de efectos
+            slider.addEventListener('change', () => this._click());
+        }
+
+        fila.appendChild(cabecera);
+        fila.appendChild(slider);
+        return fila;
     }
     
     /**
@@ -154,6 +273,7 @@ export class UIManager {
         this.mainMenu.appendChild(this.crearBotonMenu('JUGAR', () => this.onJugar()));
         this.mainMenu.appendChild(this.crearBotonMenu('TUTORIAL', () => this.onTutorial()));
         this.mainMenu.appendChild(this.crearBotonMenu('TOP 5', () => this.onTop5()));
+        this.mainMenu.appendChild(this.crearBotonMenu('OPCIONES', () => this.mostrarOpciones()));
         this.mainMenu.appendChild(this.crearBotonMenu('CRÉDITOS', () => this.onCreditos()));
         
         this.container.appendChild(this.mainMenu);

@@ -64,6 +64,41 @@ export class PixiHUD {
         this.ulti = { marco: null, fondo: null, icono: null, sprites: [] };
         this.propul = { marco: null, fondo: null, icono: null };
         this.deborador = { marco: null, fondo: null, icono: null };
+        // Placeholders (cuadrantes sin icono todavía; se dibujan vacíos)
+        this.proyectil = { marco: null, fondo: null, icono: null };
+        this.nuevo = { marco: null, fondo: null, icono: null };
+
+        // Contenedores laterales (rediseño del HUD): columnas de cuadrantes de
+        // habilidades ancladas a los bordes izquierdo y derecho.
+        this.contenedorIzq = null;
+        this.contenedorDer = null;
+        // Despliegue: 0 = recogido (solo el cuadrado en el borde), 1 = desplegado
+        // hacia el centro (se ve el rectángulo de mejoras). Se anima al abrir Mejoras.
+        this._despliegueProgreso = 0;
+        // Contenedor arriba-centro: marcador (imagen puntacion-recursos.png) con
+        // los números de PUNTOS y RECURSOS (en blanco) y la imagen de upgrade.
+        this.contenedorTop = null;
+        this._marcadorSprite = null;
+        this._upgradeSprite = null;
+        this._marcadorEscala = 80 / 431;                    // alto ~80
+        this._marcadorW = Math.round(2172 * (80 / 431));    // ancho (~403)
+
+        // Marco de cada cuadrante: imagen marcos1mejora.png (2307×688), un
+        // rectángulo con un CUADRADO en la punta izquierda donde va el icono.
+        // Se escala para que el cuadrado mida ~70px; el resto es para la mejora.
+        this._texturaMarco = null;
+        this._marcoQ = 70;                                 // lado del cuadrado del icono
+        this._marcoEscala = 70 / 688;                      // escala (cuadrado ~70)
+        this._marcoAncho = Math.round(2307 * (70 / 688));  // ancho del marco (~235)
+
+        // Panel de mejoras dentro del rectángulo del marco: imagen chips de
+        // mejora2.png (754×198, placa con 5 chips HUECOS en fila + extras a la
+        // derecha). Detrás de cada chip va un pip (cuadrado negro que se pone
+        // blanco al clickear): la placa se dibuja ENCIMA y el pip se ve por el
+        // hueco del chip, así "prende" el chip.
+        this._texturaChip = null;
+        this._chipFracs = [0.0696, 0.2089, 0.3529, 0.4957, 0.6427]; // centros X de los 5 chips huecos
+        this._chipHuecoY = 0.3687;                                  // centro Y del hueco (frac de alto)
 
         // 8. Contador del devorador
         this.contadorDevoradorText = null;
@@ -78,6 +113,24 @@ export class PixiHUD {
         // 11. Puntuación
         this.puntuacionText = null;
         this.scorePanel = null;
+
+        // 12. Barra de aceleración CURVA, pegada al borde del escudo de la nave.
+        //     Sigue la posición de la nave (no rota con ella). Sin contorno circular.
+        //     Elemento nuevo, en pruebas; convive con el HUD viejo por ahora.
+        this.contenedorEscudo = null;
+        this.escudoCurvo = { barras: [] };
+        // Geometría común: cada arco se centra en (0,0); el contenedor se pega a la nave.
+        this._escRBar = 36;   // radio de las barras: DENTRO de la circunferencia del escudo (aura ≈ radio+10 = 42)
+        this._escGrosor = 5;  // grosor de los arcos
+        // Las 3 barras curvas del escudo (ángulos en radianes). Aceleración va en
+        // la inferior-derecha (135°). Escudos y Tiempo Fuera van en el lado opuesto
+        // (arriba-izquierda), cada una la mitad (67.5°), con un huequito en el medio.
+        const rad = (d) => (d * Math.PI) / 180;
+        this._barrasDef = [
+            { id: 'aceleracion', angIni: rad(-22.5), angSpan: rad(135),  reverso: true  },
+            { id: 'escudos',     angIni: rad(153),   angSpan: rad(67.5), reverso: false },
+            { id: 'tiempoFuera', angIni: rad(229.5), angSpan: rad(67.5), reverso: true  },
+        ];
 
         // Estado
         this._escudosAnterior = 100;
@@ -108,8 +161,25 @@ export class PixiHUD {
         this.contenedorInferior = new PIXI.Container();
         this.contenedorInferior.sortableChildren = true; // respeta zIndex (UX/barra detrás de iconos)
 
+        // Grupo del escudo curvo → arriba-derecha (caja local 200×200)
+        this.contenedorEscudo = new PIXI.Container();
+        this.contenedorEscudo.sortableChildren = true;
+
+        // Columnas laterales de habilidades (rediseño del HUD)
+        this.contenedorIzq = new PIXI.Container();
+        this.contenedorIzq.sortableChildren = true;
+        this.contenedorDer = new PIXI.Container();
+        this.contenedorDer.sortableChildren = true;
+        // Marco arriba-centro (puntaje + partículas)
+        this.contenedorTop = new PIXI.Container();
+        this.contenedorTop.sortableChildren = true;
+
         this.container.addChild(this.contenedorSuperior);
         this.container.addChild(this.contenedorInferior);
+        this.container.addChild(this.contenedorIzq);
+        this.container.addChild(this.contenedorDer);
+        this.container.addChild(this.contenedorTop);
+        this.container.addChild(this.contenedorEscudo);
     }
 
     /**
@@ -146,6 +216,83 @@ export class PixiHUD {
             Math.round(w / 2 - 540 * this._escala),
             Math.round(h - 720 * this._escala)
         );
+
+        // Columnas laterales de habilidades → ancladas a los bordes izq/der y
+        // centradas verticalmente. El layout local mide ~430px de alto.
+        const margenLat = 2;    // los cuadrados quedan casi pegados al borde
+        const altoColumna = 430;
+        const yColumna = Math.round(h / 2 - (altoColumna / 2) * this._escala);
+        // Posición "recogida" (solo el cuadrado en el borde) + offset para
+        // desplegar hacia el centro (revela el rectángulo, ancho = marco - cuadrado).
+        this._izqXBase = margenLat;
+        this._derXBase = Math.round(w - margenLat - this._marcoQ * this._escala);
+        this._despliegueOffset = (this._marcoAncho - this._marcoQ) * this._escala;
+        this._yColumnas = yColumna;
+        this._aplicarDespliegue();
+
+        // Marcador arriba-centro (imagen puntacion-recursos). Se centra por su ancho.
+        if (this.contenedorTop) {
+            this.contenedorTop.scale.set(this._escala);
+            this.contenedorTop.position.set(
+                Math.round(w / 2 - (this._marcadorW / 2) * this._escala),
+                2
+            );
+        }
+
+        // El contenedor del escudo curvo NO se ancla a un borde: sigue a la nave
+        // (escala 1 = mundo/pantalla), su posición se fija cada frame en
+        // _actualizarEscudoCurvo. Solo aseguramos que no herede escala del HUD.
+        if (this.contenedorEscudo) {
+            this.contenedorEscudo.scale.set(1);
+        }
+    }
+
+    /**
+     * Coloca las columnas laterales según el progreso de despliegue actual
+     * (this._despliegueProgreso): 0 = recogidas al borde (solo el cuadrado),
+     * 1 = desplegadas hacia el centro (se ve el rectángulo de mejoras).
+     * @private
+     */
+    _aplicarDespliegue() {
+        const p = this._despliegueProgreso || 0;
+        const off = this._despliegueOffset || 0;
+        if (this.contenedorIzq) {
+            this.contenedorIzq.scale.set(this._escala);
+            this.contenedorIzq.position.set(Math.round(this._izqXBase + off * p), this._yColumnas);
+        }
+        if (this.contenedorDer) {
+            this.contenedorDer.scale.set(this._escala);
+            this.contenedorDer.position.set(Math.round(this._derXBase - off * p), this._yColumnas);
+        }
+    }
+
+    /**
+     * Anima el despliegue de las columnas laterales. Se llama cada frame ANTES
+     * del corte por pausa (así corre también con el juego pausado): cuando el
+     * menú de Mejoras está abierto las columnas se deslizan hacia el centro
+     * revelando el rectángulo del marco (donde irán las mejoras), y al cerrarse
+     * se recogen al borde.
+     * @param {boolean} desplegado - true si el menú de Mejoras está abierto
+     */
+    actualizarDespliegue(desplegado) {
+        const objetivo = desplegado ? 1 : 0;
+        const p = this._despliegueProgreso || 0;
+        if (Math.abs(objetivo - p) >= 0.002) {
+            this._despliegueProgreso = p + (objetivo - p) * 0.2; // lerp suave
+            this._aplicarDespliegue();
+        } else if (this._despliegueProgreso !== objetivo) {
+            this._despliegueProgreso = objetivo;
+            this._aplicarDespliegue();
+        }
+
+        // Mientras las columnas están (aunque sea un poco) desplegadas, elevar el
+        // HUD por encima de la ventana de mejoras (fondo en zIndex 2000) para que
+        // los paneles laterales queden visibles y clickeables. En reposo, vuelve
+        // a su capa normal (1000).
+        if (this.container) {
+            const zDeseado = this._despliegueProgreso > 0.001 ? 2500 : 1000;
+            if (this.container.zIndex !== zDeseado) this.container.zIndex = zDeseado;
+        }
     }
 
     /**
@@ -157,16 +304,16 @@ export class PixiHUD {
     _inicializar() {
         const creadores = [
             ['_crearPanelOleada', () => this._crearPanelOleada()],
-            ['_crearImagenUX', () => this._crearImagenUX()],
             ['_crearCohetes', () => this._crearCohetes()],
             ['_crearTiempoFuera', () => this._crearTiempoFuera()],
             ['_crearEscudo', () => this._crearEscudo()],
             ['_crearUlti', () => this._crearUlti()],
             ['_crearPropulsor', () => this._crearPropulsor()],
             ['_crearDevorador', () => this._crearDevorador()],
+            ['_crearPlaceholders', () => this._crearPlaceholders()],
             ['_crearContadorDevorador', () => this._crearContadorDevorador()],
-            ['_crearBarraAceleracion', () => this._crearBarraAceleracion()],
             ['_crearPanelPuntuacion', () => this._crearPanelPuntuacion()],
+            ['_crearEscudoCurvo', () => this._crearEscudoCurvo()],
         ];
 
         for (const [nombre, fn] of creadores) {
@@ -177,12 +324,17 @@ export class PixiHUD {
             }
         }
 
-        // Re-posicionar los 6 iconos en una fila horizontal centrada
+        // Re-posicionar los cuadrantes de habilidades en las columnas laterales
         try {
-            this._posicionarIconosEnFila();
+            this._posicionarIconosLaterales();
         } catch (e) {
-            console.error('[PixiHUD] Error posicionando iconos en fila:', e);
+            console.error('[PixiHUD] Error posicionando iconos en laterales:', e);
         }
+
+        // Cargar la imagen de marco (marcos1mejora) y redibujar los cuadrantes con ella
+        this._cargarTexturaMarco();
+        // Cargar la placa de chips de mejora y dibujar los paneles en los rectángulos
+        this._cargarTexturaChip();
 
         this.inicializado = true;
     }
@@ -585,19 +737,13 @@ export class PixiHUD {
      */
     _crearContadorDevorador() {
         this.contadorDevoradorText = new PIXI.Text('0', {
-            fontFamily: 'Arial, sans-serif',
-            fontSize: 18,
+            fontFamily: 'Segoe Script, cursive',
+            fontSize: 16,
             fill: 0xFFFFFF,
-            fontWeight: 'bold',
-            dropShadow: true,
-            dropShadowColor: '#000000',
-            dropShadowDistance: 2,
-            dropShadowBlur: 4
+            fontWeight: 'bold'
         });
-        // Posición fija en la base 1080×720 (a la derecha de la fila de iconos)
-        this.contadorDevoradorText.x = 811;
-        this.contadorDevoradorText.y = 720 - 23 - this.contadorDevoradorText.height;
-        this.contenedorInferior.addChild(this.contadorDevoradorText);
+        this.contadorDevoradorText.anchor.set(0.5);
+        // La posición la fija _posicionarMarcador (casilla RECURSOS del marcador).
     }
 
     // ========================================================================
@@ -647,116 +793,336 @@ export class PixiHUD {
     // ========================================================================
 
     /**
-     * Crea el panel de puntuación: un recuadro blanco con borde azul y el número
-     * de puntos encima (fuente manuscrita). El valor se actualiza cada frame en
-     * _actualizarPuntuacion(). Posición fija en la base 1080×720.
+     * Crea el marcador arriba-centro (imagen puntacion-recursos.png): los números
+     * de PUNTOS y RECURSOS en blanco sobre sus casillas, más la imagen de upgrade
+     * en el cuadro de la izquierda. Va en contenedorTop.
      * @private
      */
     _crearPanelPuntuacion() {
+        if (!this.contenedorTop) return;
+
+        // Número de puntos (blanco)
         this.puntuacionText = new PIXI.Text('0', {
-            fontFamily: 'Segoe Script, cursive',
-            fontSize: 16,
-            fill: 0x0044CC,
-            fontWeight: 'bold'
+            fontFamily: 'Segoe Script, cursive', fontSize: 16, fill: 0xFFFFFF, fontWeight: 'bold'
         });
+        this.puntuacionText.anchor.set(0.5);
+        this.puntuacionText.zIndex = 2;
+        this.contenedorTop.addChild(this.puntuacionText);
 
-        // Posición fija (base 1080×720): recuadro 90×26 sobre la imagen UX
-        const scoreBgX = 383;
-        const scoreBgY = 603;
-        const textX = (41.7 / 100) * 1080 - 17;
-        const textY = 720 - 91;
+        // Número de recursos (creado en _crearContadorDevorador, ya en blanco)
+        if (this.contadorDevoradorText) {
+            this.contadorDevoradorText.zIndex = 2;
+            this.contenedorTop.addChild(this.contadorDevoradorText);
+        }
 
-        // Fondo blanco detrás del texto
-        this.scoreBg = new PIXI.Graphics();
-        this.scoreBg.beginFill(0xFFFFFF);
-        this.scoreBg.lineStyle(3, 0x0044CC, 1);
-        this.scoreBg.drawRect(0, 0, 90, 26);
-        this.scoreBg.endFill();
-        this.scoreBg.x = scoreBgX;
-        this.scoreBg.y = scoreBgY;
-        this.scoreBg.zIndex = -2;
-        this.contenedorInferior.addChild(this.scoreBg);
+        // Cargar las imágenes (marcador + upgrade) y ubicar todo
+        this._cargarMarcadorImagenes();
+    }
 
-        this.puntuacionText.anchor.set(0.5, 1);
-        this.puntuacionText.x = textX;
-        this.puntuacionText.y = textY;
-        this.contenedorInferior.addChild(this.puntuacionText);
+    /**
+     * Carga las imágenes del marcador (puntacion-recursos) y del upgrade y, al
+     * tenerlas, ubica el fondo, la imagen de upgrade y los números. @private
+     */
+    async _cargarMarcadorImagenes() {
+        try {
+            const [texMarcador, texUpgrade] = await Promise.all([
+                PIXI.Assets.load('assets/puntacion-recursos.png'),
+                PIXI.Assets.load('assets/upgreate.png'),
+            ]);
+            this._posicionarMarcador(texMarcador, texUpgrade);
+        } catch (e) {
+            console.error('[PixiHUD] No se pudo cargar el marcador:', e);
+        }
+    }
+
+    /**
+     * Ubica el fondo del marcador, la imagen de upgrade (cuadro izquierdo) y los
+     * números de PUNTOS/RECURSOS en sus casillas. Coordenadas sobre la imagen
+     * nativa (2172×431) escaladas por this._marcadorEscala. @private
+     */
+    _posicionarMarcador(texMarcador, texUpgrade) {
+        const s = this._marcadorEscala;
+
+        // Fondo del marcador
+        if (!this._marcadorSprite) {
+            this._marcadorSprite = new PIXI.Sprite(texMarcador);
+            this._marcadorSprite.anchor.set(0, 0);
+            this._marcadorSprite.zIndex = 0;
+            this.contenedorTop.addChild(this._marcadorSprite);
+        }
+        this._marcadorSprite.texture = texMarcador;
+        this._marcadorSprite.scale.set(s);
+        this._marcadorSprite.position.set(0, 0);
+
+        // Imagen de upgrade en el cuadro de la izquierda
+        if (texUpgrade) {
+            if (!this._upgradeSprite) {
+                this._upgradeSprite = new PIXI.Sprite(texUpgrade);
+                this._upgradeSprite.anchor.set(0.5);
+                this._upgradeSprite.zIndex = 1;
+                this.contenedorTop.addChild(this._upgradeSprite);
+            }
+            this._upgradeSprite.texture = texUpgrade;
+            const upAlto = 48;
+            this._upgradeSprite.height = upAlto;
+            this._upgradeSprite.width = upAlto * (255 / 274);
+            this._upgradeSprite.position.set(210 * s, 215 * s);
+        }
+
+        // Números en sus casillas (coordenadas sobre la imagen nativa)
+        if (this.puntuacionText) this.puntuacionText.position.set(975 * s, 245 * s);
+        if (this.contadorDevoradorText) this.contadorDevoradorText.position.set(1785 * s, 245 * s);
     }
 
     // ========================================================================
-    // RE-POSICIONAMIENTO: FILA HORIZONTAL DE ICONOS
+    // RE-POSICIONAMIENTO: CUADRANTES EN COLUMNAS LATERALES
     // ========================================================================
 
     /**
-     * Re-posiciona los 6 iconos del HUD en una fila horizontal centrada
-     * en la parte inferior de la pantalla, uno al lado del otro con
-     * separación pequeña.
-     *
-     * Cada "grupo" (marco, fondo, icono) se reposiciona independientemente.
-     * La imagen UX queda detrás (zIndex -1) y la barra W + puntuación
-     * quedan arriba de la fila.
-     *
-     * Layout calculado sobre la resolución base fija de 1080×720; el escalado
-     * a la pantalla real lo aplica el contenedor padre (ver _calcularEscala).
+     * Crea los cuadrantes placeholder (Proyectil y Nuevo), que todavía no tienen
+     * icono: solo marco + fondo blanco. Reciben sprite más adelante.
      * @private
      */
-    _posicionarIconosEnFila() {
-        // Dimensiones/posición de la imagen UX (base 1080×720) para alinear cada icono a su slot
-        const uxAncho = 1000;
-        const uxAlto = 160;
-        const uxX = 40;       // (1080 - 1000) / 2
-        const uxY = 560;      // 720 - 160
+    _crearPlaceholders() {
+        // proyectil (abajo-izq) y nuevo (arriba-der) sólo tenían marco/fondo.
+        for (const ph of [this.proyectil, this.nuevo]) {
+            ph.marco = new PIXI.Graphics();
+            ph.fondo = new PIXI.Graphics();
+        }
+        // Iconos temporales para los dos placeholders:
+        //  - "nuevo" (arriba-derecha) = aceleración
+        //  - "proyectil" (abajo-izquierda) = proyectil básico (temporal)
+        this.nuevo.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
+        this.nuevo.icono.anchor.set(0.5);
+        this._cargarIconoLateral('assets/aceleracion.png', this.nuevo.icono);
 
-        // Centros de cada slot como % del ancho de la imagen UX
-        const slotCentros = [0.320, 0.399, 0.477, 0.555, 0.629, 0.704];
+        this.proyectil.icono = new PIXI.Sprite(PIXI.Texture.WHITE);
+        this.proyectil.icono.anchor.set(0.5);
+        this._cargarIconoLateral('assets/proyectil1.png', this.proyectil.icono);
+    }
 
-        const ancho = 70;  // ancho del contenedor de cada icono
-        const alto = 70;   // alto del contenedor de cada icono
-
-        const grupos = [
-            this.tiempo, this.cohetes, this.escudo,
-            this.ulti, this.propul, this.deborador,
-        ];
-
-        for (let i = 0; i < grupos.length; i++) {
-            const g = grupos[i];
-            if (!g || !g.marco) continue;
-
-            // Centro del slot en píxeles de pantalla (1080×720 base)
-            const cx = uxX + uxAncho * slotCentros[i];
-            // cy: 560 + 160*0.50 + 34 = 674
-            const cy = 674;
-
-            // Posición de la esquina superior-izquierda
-            const x = cx - ancho / 2;
-            const y = cy - alto / 2;
-
-            // Marco exterior (borde azul)
-            g.marco.clear();
-            g.marco.lineStyle(4, 0x0044CC, 1);
-            g.marco.drawRect(0, 0, ancho, alto);
-            g.marco.x = x;
-            g.marco.y = y;
-            g.marco.zIndex = 0;
-
-            // Fondo blanco
-            g.fondo.clear();
-            g.fondo.beginFill(0xFFFFFF);
-            g.fondo.lineStyle(5, 0x0044CC, 1);
-            g.fondo.drawRect(0, 0, ancho - 8, alto - 8);
-            g.fondo.endFill();
-            g.fondo.x = x + 4;
-            g.fondo.y = y + 4;
-            g.fondo.zIndex = 1;
-
-            // Icono centrado
-            if (g.icono) {
-                g.icono.width = ancho * 0.65;
-                g.icono.height = alto * 0.65;
-                g.icono.x = cx;
-                g.icono.y = cy;
-                g.icono.zIndex = 2;
+    /**
+     * Carga la textura de un icono lateral y, al tenerla, re-posiciona los
+     * cuadrantes para que el icono tome su tamaño real con la proporción correcta.
+     * @param {string} path - Ruta de la textura
+     * @param {PIXI.Sprite} sprite - Sprite destino del icono
+     * @private
+     */
+    async _cargarIconoLateral(path, sprite) {
+        try {
+            const tex = await PIXI.Assets.load(path);
+            if (tex && sprite) {
+                sprite.texture = tex;
+                this._posicionarIconosLaterales();
             }
+        } catch (e) {
+            console.error('[PixiHUD] No se pudo cargar icono lateral:', path, e);
+        }
+    }
+
+    /**
+     * Ubica los 8 cuadrantes de habilidades en dos columnas laterales:
+     *  - Izquierda: Tiempo Fuera, Escudo, Proyectil (trío).
+     *  - Derecha: Nuevo + Propulsor (par) arriba, y Cohetes, Devorador, Ulti (trío).
+     * Re-parenta cada grupo (marco/fondo/icono) a su contenedor lateral y lo dibuja.
+     * El escalado/anclado a los bordes lo aplica _calcularEscala.
+     * @private
+     */
+    _posicionarIconosLaterales() {
+        // y = esquina superior de cada marco en el sistema local de su columna.
+        const izquierda = [
+            { g: this.tiempo,    y: 196 },
+            { g: this.escudo,    y: 278 },
+            { g: this.proyectil, y: 360 },
+        ];
+        const derecha = [
+            { g: this.nuevo,     y: 0 },
+            { g: this.propul,    y: 82 },
+            { g: this.cohetes,   y: 196 },
+            { g: this.deborador, y: 278 },
+            { g: this.ulti,      y: 360 },
+        ];
+        // Izquierda: marco espejado (rectángulo se va fuera de pantalla por la izq).
+        // Derecha: marco normal (rectángulo se va fuera de pantalla por la der).
+        // En ambas, el cuadrado del icono queda pegado al borde.
+        for (const { g, y } of izquierda) this._dibujarCuadrante(g, this.contenedorIzq, y, true);
+        for (const { g, y } of derecha)   this._dibujarCuadrante(g, this.contenedorDer, y, false);
+    }
+
+    /**
+     * Dibuja un cuadrante usando la imagen de marco (marcos1mejora) y centra su
+     * icono en el cuadrado de la punta. En la columna derecha el marco se espeja
+     * (cuadrado del lado del borde derecho). Si el marco aún no cargó, solo ubica
+     * el icono.
+     * @param {boolean} espejo - true = columna derecha (marco espejado)
+     * @private
+     */
+    _dibujarCuadrante(g, contenedor, y, espejo) {
+        if (!g || !contenedor) return;
+
+        // Ocultar el marco/fondo viejos (los _crear* los dibujaron en el HUD viejo);
+        // ahora el marco es la imagen marcos1mejora.
+        if (g.marco && g.marco.parent) g.marco.removeFromParent();
+        if (g.fondo && g.fondo.parent) g.fondo.removeFromParent();
+
+        const Q = this._marcoQ;      // lado del cuadrado del icono
+        const W = this._marcoAncho;  // ancho total del marco
+        const s = this._marcoEscala;
+
+        // El CUADRADO del icono queda siempre en local [0, Q] (en el borde de
+        // pantalla). El RECTÁNGULO del marco se va FUERA de pantalla, para que
+        // más adelante entren ahí las mejoras.
+        if (this._texturaMarco) {
+            if (!g.frameSprite) {
+                g.frameSprite = new PIXI.Sprite(this._texturaMarco);
+                g.frameSprite.anchor.set(0, 0);
+                g.frameSprite.zIndex = 0;
+            }
+            g.frameSprite.texture = this._texturaMarco;
+            if (espejo) {
+                // Columna izquierda: marco espejado; el rectángulo se va por la izquierda.
+                g.frameSprite.scale.set(-s, s);
+                g.frameSprite.position.set(Q, y);
+            } else {
+                // Columna derecha: marco normal; el rectángulo se va por la derecha.
+                g.frameSprite.scale.set(s, s);
+                g.frameSprite.position.set(0, y);
+            }
+            contenedor.addChild(g.frameSprite);
+        }
+
+        // Icono centrado en el cuadrado (local [0, Q]), encajado en una caja
+        // tam×tam preservando su proporción (no lo deforma si no es cuadrado).
+        if (g.icono) {
+            const tam = Q * 0.58;
+            const tex = g.icono.texture;
+            const tw = (tex && tex.width) ? tex.width : 1;
+            const th = (tex && tex.height) ? tex.height : 1;
+            g.icono.scale.set(tam / Math.max(tw, th));
+            g.icono.position.set(Q / 2, y + Q / 2);
+            g.icono.zIndex = 2;
+            contenedor.addChild(g.icono);
+        }
+
+        // Panel de mejoras (chip + pips) dentro del rectángulo del marco.
+        this._dibujarChipMejoras(g, contenedor, y, espejo);
+    }
+
+    /**
+     * Dibuja el panel de mejoras dentro del RECTÁNGULO del marco (la parte que
+     * queda fuera de pantalla y se revela al desplegar): la imagen de la placa
+     * con 5 chips y, debajo de cada chip, un pip (cuadrado negro que se pone
+     * blanco al clickear). Si la textura del chip aún no cargó, no hace nada
+     * (se redibuja cuando carga).
+     * @param {boolean} espejo - true = columna izquierda (rectángulo hacia la izq)
+     * @private
+     */
+    _dibujarChipMejoras(g, contenedor, y, espejo) {
+        if (!g || !contenedor || !this._texturaChip) return;
+
+        const Q = this._marcoQ;            // lado del cuadrado (70)
+        const rectW = this._marcoAncho - Q; // ancho del rectángulo (~165)
+        // Origen X del rectángulo (el lado SIN cuadrado):
+        //  - derecha (no espejo): rectángulo de Q a marcoAncho  → empieza en Q
+        //  - izquierda (espejo):  rectángulo de -rectW a 0       → empieza en -rectW
+        const rectX = espejo ? -rectW : Q;
+
+        const margenX = 8;
+        const imgW = rectW - margenX * 2;                 // ancho de la placa (local)
+        const escChip = imgW / this._texturaChip.width;
+        const imgH = this._texturaChip.height * escChip;  // alto de la placa (local)
+        const chipX = rectX + margenX;                    // esquina sup-izq de la placa
+        const chipY = y + Math.max(2, (this._marcoQ - imgH) / 2); // centrada vertical en el rectángulo
+
+        // PIPS: van DETRÁS de la placa (zIndex menor). Cada uno se dibuja
+        // centrado en el hueco de su chip; la placa opaca los tapa salvo por el
+        // hueco, así al ponerse blanco "prende" el chip. El área de click es más
+        // grande que el hueco para que sea cómodo de clickear.
+        const pipVisual = imgW * 0.052;   // ~tamaño del hueco del chip
+        const pipHit = imgW * 0.11;       // área de click (mayor que el hueco)
+        if (!g.pips) g.pips = [];
+        if (!g.pipsEstado) g.pipsEstado = [false, false, false, false, false];
+        for (let i = 0; i < 5; i++) {
+            const cx = chipX + imgW * this._chipFracs[i];   // centro X del chip i
+            const cy = chipY + imgH * this._chipHuecoY;     // centro Y del hueco
+            let pip = g.pips[i];
+            if (!pip) {
+                pip = new PIXI.Graphics();
+                pip.zIndex = 1;                 // detrás de la placa (zIndex 3)
+                pip.eventMode = 'static';
+                pip.cursor = 'pointer';
+                const idx = i;
+                pip.on('pointertap', () => {
+                    g.pipsEstado[idx] = !g.pipsEstado[idx];
+                    this._pintarPip(pip, g.pipsEstado[idx]);
+                });
+                g.pips[i] = pip;
+            }
+            pip._visual = pipVisual;
+            pip.position.set(cx, cy);   // posición = CENTRO del pip
+            pip.hitArea = new PIXI.Rectangle(-pipHit / 2, -pipHit / 2, pipHit, pipHit);
+            this._pintarPip(pip, g.pipsEstado[i]);
+            contenedor.addChild(pip);
+        }
+
+        // Imagen de la placa POR ENCIMA de los pips. eventMode 'none' para que
+        // los clicks la atraviesen y lleguen a los pips de atrás.
+        if (!g.chipSprite) {
+            g.chipSprite = new PIXI.Sprite(this._texturaChip);
+            g.chipSprite.anchor.set(0, 0);
+            g.chipSprite.zIndex = 3;
+            g.chipSprite.eventMode = 'none';
+        }
+        g.chipSprite.texture = this._texturaChip;
+        g.chipSprite.scale.set(escChip);
+        g.chipSprite.position.set(chipX, chipY);
+        contenedor.addChild(g.chipSprite);
+    }
+
+    /**
+     * Pinta un pip de mejora: negro cuando está apagado, blanco cuando está
+     * encendido; borde de tinta azul en ambos casos.
+     * @param {PIXI.Graphics} pip
+     * @param {boolean} encendido
+     * @private
+     */
+    _pintarPip(pip, encendido) {
+        const s = pip._visual || 8;
+        pip.clear();
+        // Cuadrado centrado en el origen del pip (que está en el hueco del chip).
+        pip.rect(-s / 2, -s / 2, s, s).fill(encendido ? 0xFFFFFF : 0x000000);
+    }
+
+    /**
+     * Carga la imagen de marco (marcos1mejora) y, al tenerla, redibuja los
+     * cuadrantes para que la usen. @private
+     */
+    async _cargarTexturaMarco() {
+        try {
+            const tex = await PIXI.Assets.load('assets/marcos1mejora.png');
+            if (tex) {
+                this._texturaMarco = tex;
+                this._posicionarIconosLaterales();
+            }
+        } catch (e) {
+            console.error('[PixiHUD] No se pudo cargar marcos1mejora.png:', e);
+        }
+    }
+
+    /**
+     * Carga la placa de chips de mejora (chips de mejora2.png) y, al tenerla,
+     * redibuja los cuadrantes para que se dibujen los paneles de mejora en los
+     * rectángulos. @private
+     */
+    async _cargarTexturaChip() {
+        try {
+            const tex = await PIXI.Assets.load('assets/chips de mejora2.png');
+            if (tex) {
+                this._texturaChip = tex;
+                this._posicionarIconosLaterales();
+            }
+        } catch (e) {
+            console.error('[PixiHUD] No se pudo cargar chips de mejora2.png:', e);
         }
     }
 
@@ -831,6 +1197,7 @@ export class PixiHUD {
             () => this._actualizarIconoUlti(),
             () => this._actualizarIconoTiempo(),
             () => this._actualizarContadorDevorador(),
+            () => this._actualizarEscudoCurvo(),
         ];
 
         for (const fn of actualizadores) {
@@ -901,178 +1268,56 @@ export class PixiHUD {
      * Guarda el % en this._escudosAnterior para detectar el impacto del próximo frame.
      * @private
      */
+    /** Muestra un icono estático de escudo (sin animación). @private */
     _actualizarIconoEscudo() {
-        if (!this.escudo.icono || !this.game || !this.game.jugador) return;
-        if (this.escudo.sprites.length < 5) return;
-
-        const jugador = this.game.jugador;
-        const porcentajeEscudos = jugador.escudos;
-        const huboImpacto = porcentajeEscudos < this._escudosAnterior && !jugador.sobrecalentado;
-
-        let indiceIcono;
-        let colorMarco = 0x0044CC;
-
-        if (jugador.sobrecalentado) {
-            // Animación entre escudo4 y escudo5
-            const tiempo = Date.now();
-            indiceIcono = Math.floor(tiempo / 200) % 2 + 4;
-            colorMarco = 0xCC0000;
-        } else {
-            if (porcentajeEscudos > 60) indiceIcono = 1;
-            else if (porcentajeEscudos > 30) indiceIcono = 2;
-            else indiceIcono = 3;
-            if (huboImpacto) colorMarco = 0xFFFFFF;
+        if (this.escudo.icono && this.escudo.sprites.length >= 1) {
+            this.escudo.icono.texture = this.escudo.sprites[0];
         }
+    }
 
-        this.escudo.icono.texture = this.escudo.sprites[indiceIcono - 1];
-
-        // Redibujar el marco 70×70 (base 1080×720) con el color según estado
-        this.escudo.marco.clear();
-        this.escudo.marco.lineStyle(4, colorMarco, 1);
-        this.escudo.marco.drawRect(0, 0, 70, 70);
-
-        this._escudosAnterior = porcentajeEscudos;
+    /** Muestra un icono estático de Ulti (sin animación). @private */
+    _actualizarIconoUlti() {
+        if (this.ulti.icono && this.ulti.sprites.length >= 1) {
+            this.ulti.icono.texture = this.ulti.sprites[0];
+            this.ulti.icono.alpha = 1;
+        }
     }
 
     /**
-     * Actualiza el icono de la ULTi según su carga:
-     * - Cargando: elige sprite 1-5 proporcional al % de carga (cargaUlti/cargaMaxUlti).
-     * - Lista (ultiListo): anima entre los sprites 3-5, parpadea el alpha y
-     *   pinta el marco dorado pulsante para avisar que se puede usar.
+     * Corre la PASIVA de Tiempo Fuera (activar al sobrecalentarse, contar el
+     * tiempo y regenerar escudos al terminar) y muestra un icono ESTÁTICO (sin
+     * la animación del reloj ni del marco). El conteo lo muestra la barra curva.
      * @private
      */
-    _actualizarIconoUlti() {
-        if (!this.ulti.icono || !this.game || !this.game.jugador) return;
-        if (this.ulti.sprites.length < 5) return;
-
-        const jugador = this.game.jugador;
-        const porcentajeCarga = Math.min(100, (jugador.cargaUlti / jugador.cargaMaxUlti) * 100);
-
-        let indiceIcono;
-        let alpha = 1.0;
-        let colorMarco = 0x0044CC;
-
-        if (jugador.ultiListo) {
-            const tiempo = Date.now();
-            indiceIcono = Math.floor(tiempo / 200) % 3 + 3;
-            // Efecto de parpadeo cuando está listo
-            alpha = 0.7 + Math.sin(tiempo / 200) * 0.3;
-            // Marco dorado pulsante cuando listo
-            colorMarco = 0xFFD700;
-        } else {
-            indiceIcono = Math.floor(porcentajeCarga / 20) + 1;
-            if (indiceIcono < 1) indiceIcono = 1;
-            if (indiceIcono > 5) indiceIcono = 5;
-        }
-
-        this.ulti.icono.texture = this.ulti.sprites[indiceIcono - 1];
-        this.ulti.icono.alpha = alpha;
-
-        // Redibujar el marco 70×70 (base 1080×720) con el color según estado
-        this.ulti.marco.clear();
-        this.ulti.marco.lineStyle(4, colorMarco, 1);
-        this.ulti.marco.drawRect(0, 0, 70, 70);
-    }
-
-    /**
-     * Actualiza el icono de Tiempo Fuera (reloj animado durante sobrecalentamiento).
-     * Cuando el jugador está sobrecalentado, se activa la pasiva:
-     * - Anima frames del reloj (relog1-6, frame 7 = relog6 rotado π)
-     * - Parpadea el marco entre blanco y gris
-     * Al terminar: regenera escudos y resetea.
-     *
-     * Referencia: GameSkills.js actualizarTiempoFuera()
-     */
     _actualizarIconoTiempo() {
-        if (!this.tiempo.icono || !this.game || !this.game.jugador) return;
-
+        if (!this.game || !this.game.jugador) return;
         const jugador = this.game.jugador;
 
-        // Activar cuando entra en sobrecalentamiento (solo una vez)
+        // Activar al entrar en sobrecalentamiento
         if (jugador.sobrecalentado && !this.game.tiempoFueroActivo) {
             this.game.tiempoFueroActivo = true;
             this.game.timerTiempoFuera = 0;
         }
 
-        // Verificar duración de la habilidad
+        // Correr el conteo; al terminar, regenerar escudos y resetear
         if (this.game.tiempoFueroActivo) {
-            this.game.timerTiempoFuera += 1 / 60; // delta ~1 frame a 60fps
-
+            this.game.timerTiempoFuera += 1 / 60; // ~1 frame a 60fps
             if (this.game.timerTiempoFuera >= this.game.duracionTiempoFuera) {
-                // Terminó: regenerar escudos
                 const regeneracionBase = 10;
                 const regeneracionBonus = this.game.regeneracionTiempoFueraBonus || 0;
                 jugador.agregarEscudos(regeneracionBase + regeneracionBonus);
-
-                // Resetear
                 this.game.tiempoFueroActivo = false;
                 this.game.timerTiempoFuera = 0;
-                this.game.relojFrameActual = 1;
-                this.game.timerAnimacionReloj = 0;
-                return;
+            } else if (!jugador.sobrecalentado) {
+                // Salió del sobrecalentamiento antes de tiempo: cancelar
+                this.game.tiempoFueroActivo = false;
+                this.game.timerTiempoFuera = 0;
             }
         }
 
-        // Si está activo y sobrecalentado: animar
-        if (jugador.sobrecalentado && this.game.tiempoFueroActivo && this.tiempo.sprites.length >= 6) {
-            // Avanzar frame del reloj
-            this.game.timerAnimacionReloj += 1 / 60;
-
-            if (this.game.timerAnimacionReloj >= this.game.intervaloAnimacionReloj) {
-                this.game.timerAnimacionReloj = 0;
-                this.game.relojFrameActual++;
-
-                if (this.game.relojFrameActual > 7) {
-                    this.game.relojFrameActual = 1;
-                }
-            }
-
-            // Aplicar textura y rotación
-            if (this.game.relojFrameActual === 7) {
-                // Frame 7: relog6 rotado 360° (π radianes en PixiJS)
-                this.tiempo.icono.texture = this.tiempo.sprites[5]; // relog6
-                this.tiempo.icono.rotation = Math.PI;
-            } else {
-                this.tiempo.icono.texture = this.tiempo.sprites[this.game.relojFrameActual - 1];
-                this.tiempo.icono.rotation = 0;
-            }
-
-            // Parpadeo del marco: blanco / gris
-            const palpito = Math.floor(Date.now() / 300) % 2 === 0;
-            const colorBorde = palpito ? 0xFFFFFF : 0xAAAAAA;
-
-            // Marco 70×70 + fondo 62×62 (base 1080×720) parpadeando blanco/gris
-            this.tiempo.marco.clear();
-            this.tiempo.marco.lineStyle(4, colorBorde, 1);
-            this.tiempo.marco.drawRect(0, 0, 70, 70);
-
-            this.tiempo.fondo.clear();
-            this.tiempo.fondo.beginFill(0xFFFFFF);
-            this.tiempo.fondo.lineStyle(5, colorBorde, 1);
-            this.tiempo.fondo.drawRect(0, 0, 62, 62);
-            this.tiempo.fondo.endFill();
-        } else {
-            // Estado normal: marco azul, frame inicial
-            if (this.game.tiempoFueroActivo) {
-                this.game.relojFrameActual = 1;
-                this.game.timerAnimacionReloj = 0;
-                this.game.timerTiempoFuera = 0;
-                this.game.tiempoFueroActivo = false;
-            }
-
-            // Restaurar marco azul normal
-            this.tiempo.marco.clear();
-            this.tiempo.marco.lineStyle(4, 0x0044CC, 1);
-            this.tiempo.marco.drawRect(0, 0, 70, 70);
-
-            this.tiempo.fondo.clear();
-            this.tiempo.fondo.beginFill(0xFFFFFF);
-            this.tiempo.fondo.lineStyle(5, 0x0044CC, 1);
-            this.tiempo.fondo.drawRect(0, 0, 62, 62);
-            this.tiempo.fondo.endFill();
-
-            // Textura estática
-            this.tiempo.icono.texture = this._texturaIconoTiempo || PIXI.Texture.WHITE;
+        // Icono estático (sin animación)
+        if (this.tiempo.icono) {
+            this.tiempo.icono.texture = this._texturaIconoTiempo || this.tiempo.sprites[0] || PIXI.Texture.WHITE;
             this.tiempo.icono.rotation = 0;
         }
     }
@@ -1082,6 +1327,137 @@ export class PixiHUD {
         if (!this.contadorDevoradorText || !this.game) return;
         const cantidad = this.game.particulasCapturadas || 0;
         this.contadorDevoradorText.text = cantidad.toString();
+    }
+
+    /**
+     * Crea el escudo curvo (rediseño del HUD, en pruebas): un círculo (el escudo)
+     * con una barra de aceleración CURVA en su parte inferior derecha, que sigue
+     * la curvatura del círculo. Consta de: contorno del círculo, riel tenue de la
+     * barra y el relleno (que se redibuja cada frame). Vive en contenedorEscudo
+     * (anclado arriba-derecha).
+     * @private
+     */
+    _crearEscudoCurvo() {
+        if (!this.contenedorEscudo) return;
+
+        this.escudoCurvo = { barras: [] };
+        for (const def of this._barrasDef) {
+            // Riel: arco tenue de fondo (recorrido completo de la barra). Centrado
+            // en (0,0); el contenedor se posiciona sobre la nave cada frame.
+            const track = new PIXI.Graphics();
+            track.arc(0, 0, this._escRBar, def.angIni, def.angIni + def.angSpan)
+                 .stroke({ width: this._escGrosor, color: 0xCFD9F0, cap: 'butt' });
+            this.contenedorEscudo.addChild(track);
+
+            // Relleno (se redibuja en _actualizarEscudoCurvo según su valor)
+            const fill = new PIXI.Graphics();
+            this.contenedorEscudo.addChild(fill);
+
+            this.escudoCurvo.barras.push({ def, track, fill });
+        }
+    }
+
+    /**
+     * Pega la barra al borde del escudo de la nave (sigue su posición cada frame,
+     * sin rotar con ella) y redibuja el arco según jugador.cargaAceleracion
+     * (0-100%): crece por la curva y el azul se intensifica (tinta clara → tinta
+     * oscura) al cargarse. Al sobrecalentarse queda llena en el azul más oscuro y
+     * parpadea, para avisar el recalentamiento. Se oculta si la nave no está activa.
+     * @private
+     */
+    _actualizarEscudoCurvo() {
+        const cont = this.contenedorEscudo;
+        if (!cont || !this.escudoCurvo || !this.game || !this.game.jugador) return;
+
+        const jugador = this.game.jugador;
+
+        // Seguir a la nave (posición del mundo = pantalla, 1:1). No rota con ella.
+        if (!jugador.active) {
+            cont.visible = false;
+            return;
+        }
+        cont.visible = true;
+        cont.position.set(jugador.x, jugador.y);
+
+        for (const barra of this.escudoCurvo.barras) {
+            this._dibujarBarraEscudo(barra, jugador);
+        }
+    }
+
+    /**
+     * Calcula el valor (0..1) de una barra del escudo según su id y redibuja su
+     * relleno curvo (color SÓLIDO azul tinta, sin degradado). La barra está al 50%
+     * de opacidad en reposo y al 100% cuando está EN USO / activa:
+     *  - aceleracion: en uso al acelerar (carga > 0); parpadea al sobrecalentarse.
+     *  - escudos: escudos/escudosMax; en uso cuando recibió daño (< máximo).
+     *  - tiempoFuera: llena por defecto; en uso mientras corre el conteo (se descarga).
+     * @private
+     */
+    _dibujarBarraEscudo(barra, jugador) {
+        const def = barra.def;
+        const fill = barra.fill;
+        const track = barra.track;
+        if (!fill) return;
+
+        let fraccion = 0;
+        let sobre = false;
+        let activa = false;   // en uso / activa -> opacidad plena
+
+        if (def.id === 'aceleracion') {
+            sobre = !!jugador.sobrecalentadoAceleracion;
+            fraccion = sobre ? 1 : this._clamp01((jugador.cargaAceleracion || 0) / 100);
+            activa = sobre || (jugador.cargaAceleracion || 0) > 0;
+        } else if (def.id === 'escudos') {
+            const max = jugador.escudosMax || 100;
+            fraccion = this._clamp01((jugador.escudos || 0) / max);
+            activa = (jugador.escudos || 0) < max; // recibió daño
+        } else if (def.id === 'tiempoFuera') {
+            const g = this.game;
+            activa = !!g.tiempoFueroActivo;
+            fraccion = (activa && g.duracionTiempoFuera)
+                ? this._clamp01(1 - (g.timerTiempoFuera || 0) / g.duracionTiempoFuera)
+                : 1;
+        }
+
+        fill.clear();
+        if (fraccion > 0) {
+            const color = sobre ? 0x002766 : 0x173B75; // color sólido (sin degradado)
+            let desde, hasta;
+            if (def.reverso) {
+                desde = def.angIni + (1 - fraccion) * def.angSpan;
+                hasta = def.angIni + def.angSpan;
+            } else {
+                desde = def.angIni;
+                hasta = def.angIni + fraccion * def.angSpan;
+            }
+            fill.arc(0, 0, this._escRBar, desde, hasta)
+                .stroke({ width: this._escGrosor, color, cap: 'butt' });
+        }
+
+        // Opacidad: 50% en reposo, 100% en uso/activa. La de aceleración parpadea
+        // al sobrecalentarse.
+        let op = activa ? 1 : 0.5;
+        if (sobre) op = 0.55 + 0.45 * Math.abs(Math.sin(Date.now() / 200));
+        fill.alpha = op;
+        if (track) track.alpha = op;
+    }
+
+    /** Limita un valor al rango 0..1. @private */
+    _clamp01(v) {
+        if (v < 0) return 0;
+        if (v > 1) return 1;
+        return v;
+    }
+
+    /**
+     * Interpola entre azul tinta claro (#AFC6EC) y oscuro (#002766) según t (0..1).
+     * Devuelve el color como número 0xRRGGBB. @private
+     */
+    _lerpColorTinta(t) {
+        const r = Math.round(0xAF + (0x00 - 0xAF) * t);
+        const g = Math.round(0xC6 + (0x27 - 0xC6) * t);
+        const b = Math.round(0xEC + (0x66 - 0xEC) * t);
+        return (r << 16) | (g << 8) | b;
     }
 
     // ========================================================================

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.9.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.9.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.10.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.10.0)
 
 ---
 
@@ -361,7 +361,18 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.9.2 (Actual)
+### v1.10.0 (Actual)
+> **Rediseño del HUD: habilidades en paneles laterales + escudo curvo + panel de mejoras (chips)**
+
+- 🧭 **Habilidades a los laterales**: los cuadrantes se movieron a dos columnas en los bordes (izquierda: Tiempo Fuera, Escudo, Proyectil; derecha: Aceleración, Propulsor, Cohetes, Devorador, Ulti), con el marco `marcos1mejora.png` (cuadrado del icono pegado al borde y el rectángulo fuera de pantalla)
+- 🛡️ **Escudo curvo**: 3 barras curvas que siguen a la nave dentro del escudo (aceleración, escudos y Tiempo Fuera), color sólido `#173B75`, 50% de opacidad en reposo y 100% en uso
+- 🎛️ **Marcador superior** (`puntacion-recursos.png`): puntos y recursos en blanco + icono de mejora
+- 🔩 **Panel de mejoras (chips)**: al pausar con `P` las columnas se despliegan hacia el centro y aparece la placa `chips de mejora2.png`; detrás de cada chip hay un pip que se prende (negro→blanco) al clickear. La compra real se engancha más adelante
+- 🖼️ **Iconos nuevos**: aceleración (arriba-derecha) y proyectil (abajo-izquierda, temporal); los iconos ahora encajan preservando su proporción (no se deforman)
+- ⚠️ **Ventana de Mejoras vieja deshabilitada temporalmente**: sin acceso a compra hasta enganchar los pips
+- 🚀 Nave 10% más chica
+
+### v1.9.2
 > **Sistema de audio completo (SFX + música) con volúmenes centralizados**
 
 - 🔊 **SFX conectados**: devorador (E), cohetes (Q), destrucción de asteroide y de nave enemiga, recibir impacto, captura de partícula Boid (con throttle) y click de botones del menú

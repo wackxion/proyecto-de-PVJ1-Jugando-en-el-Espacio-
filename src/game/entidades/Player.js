@@ -120,8 +120,8 @@ this.rotacion = 0;
         this.imagen.anchor.set(0.5);
         
         // Escalar la nave para que tenga el tamaño correcto
-        // Imagen de 322x322px, reducir a ~80px = escala 0.25
-        this.imagen.scale.set(0.25);
+        // Imagen de 322x322px, reducida ~10% (0.25 → 0.225 = ~72px)
+        this.imagen.scale.set(0.225);
         
         // Establecer posición inicial
         this.imagen.x = x;

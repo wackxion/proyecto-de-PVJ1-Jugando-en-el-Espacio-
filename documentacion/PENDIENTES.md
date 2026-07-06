@@ -1,7 +1,21 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 04/07/2026  
-**Versión:** v1.9.2 (ACTUAL)
+**Última actualización:** 06/07/2026  
+**Versión:** v1.10.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.10.0 - Rediseño del HUD (paneles laterales + escudo curvo + panel de mejoras)
+
+Rediseño en curso del HUD in-game (todo en `PixiHUD.js`, salvo lo indicado). Se sube como checkpoint; la **compra de mejoras queda deshabilitada temporalmente**.
+
+- **Habilidades a columnas laterales** (`_posicionarIconosLaterales`, `_dibujarCuadrante`): los 8 cuadrantes se anclan a los bordes izquierdo/derecho usando el marco `marcos1mejora.png` (el cuadrado del icono queda pegado al borde y el rectángulo del marco sale de pantalla). Izquierda: Tiempo Fuera, Escudo, Proyectil. Derecha: Aceleración (nuevo), Propulsor, Cohetes, Devorador, Ulti.
+- **Escudo curvo** (`_crearEscudoCurvo`, `_dibujarBarraEscudo`): 3 barras curvas dibujadas con `.arc().stroke()` (API nativa v8) que siguen a la nave dentro del escudo: aceleración, escudos y el temporizador de Tiempo Fuera. Color sólido `#173B75` (rojo `#002766` al sobrecalentar), 50% de opacidad en reposo y 100% en uso/activa.
+- **Marcador superior** (`_crearPanelPuntuacion`, `puntacion-recursos.png` + `upgreate.png`): puntos y recursos en blanco, centrado arriba.
+- **Panel de mejoras — chips** (`_dibujarChipMejoras`, `chips de mejora2.png`): al pausar con `P`, las columnas se **despliegan** hacia el centro (`actualizarDespliegue`, con lerp) revelando el rectángulo del marco con la placa de chips. Detrás de cada chip hueco hay un **pip** (cuadrado) que se prende **negro→blanco** al clickear (`eventMode='none'` en la placa para que el click la atraviese). Verificado por lectura de píxeles: prendido `(255,255,255)`, apagado `(0,0,0)`. **Falta** enganchar el pip a la compra real (`comprarMejora`).
+- **Iconos nuevos** (`_crearPlaceholders`, `_cargarIconoLateral`): aceleración (`aceleracion.png`, cuadrante arriba-derecha) y proyectil (`proyectil1.png`, abajo-izquierda, temporal). Los iconos ahora **encajan preservando su proporción** (antes se forzaban a cuadrado y se deformaban).
+- **Ventana de Mejoras vieja DESHABILITADA** (`Game.js`, handler de `P`): ya no se llama `crearVentanaMejoras`/`limpiarVentanaMejoras`; solo se alterna `mostrandoVentanaMejoras` para desplegar/recoger los paneles. Sin acceso a compra hasta enganchar los pips. Para reactivarla: volver a llamar esas funciones en el handler.
+- **Nave 10% más chica** (`Player.js`).
 
 ---
 
