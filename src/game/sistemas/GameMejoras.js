@@ -266,7 +266,7 @@ export async function crearVentanaMejoras(game) {
             // Texto de la mejora
             const labelText = new PIXI.Text(labels[j], {
                 fontFamily: 'Arial',
-                fontSize: 16,
+            fontSize: 14,
                 fill: 0x0044CC,
                 fontWeight: 'bold'
             });
