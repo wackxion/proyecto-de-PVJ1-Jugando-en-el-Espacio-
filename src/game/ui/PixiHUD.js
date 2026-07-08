@@ -1145,7 +1145,7 @@ export class PixiHUD {
         if (g.mejoraSeccion !== undefined) {
             if (!g.precioText) {
                 g.precioText = new PIXI.Text('', {
-                    fontFamily: 'Segoe Script, cursive', fontSize: 20, fill: 0xFFFFFF, fontWeight: 'bold'
+                    fontFamily: 'Segoe Script, cursive', fontSize: 18, fill: 0xFFFFFF, fontWeight: 'bold'
                 });
                 g.precioText.anchor.set(0.5);
                 g.precioText.zIndex = 4;         // encima de la placa (zIndex 3)
