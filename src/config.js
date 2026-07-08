@@ -144,13 +144,12 @@ export const CONFIG = {
         RANGO_FUGA: 200,                // px para detectar la nave y huir
     },
 
-    // === MEJORAS (tienda - se abre con P) ===
-    // 5 categorías × 5 niveles = 25 mejoras. Costo en partículas Boid capturadas.
+    // === MEJORAS (tienda) ===
+    // 4 categorías × 5 niveles = 20 mejoras. Costo en partículas Boid capturadas.
     MEJORAS: {
         COSTOS_PROYECTIL:    [5, 15, 25, 25, 50],   // Daño de proyectil
         COSTOS_ESCUDO:       [50, 50, 50, 50, 50],   // Más escudos
         COSTOS_ULTI:         [50, 50, 50, 50, 50],   // Reducción de carga de ulti
-        COSTOS_PROYECTIL2:   [10, 15, 25, 30, 60],   // Velocidad de disparo
         COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
         ESCUDO_RESTAURACION: 50,                      // Escudos que restaura al comprar mejora de escudo
     },

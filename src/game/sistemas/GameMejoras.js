@@ -24,15 +24,14 @@ import { CONFIG } from '../../config.js';
 export function inicializarMejoras(game) {
     game.mostrandoVentanaMejoras = false;
     game.mensajeErrorMostrando = false;
-    // 5 secciones con 5 mejoras cada una = 25 mejoras totales
-    // 0-4: Proyectil, 5-9: Escudo, 10-14: ULTi, 15-19: Proyectil2, 20-24: Tiempo fuera
-    game.mejoras = Array(25).fill(0);
+    // 4 secciones × 5 = 20 mejoras. 0-4: Proyectil (daño), 5-9: Escudo,
+    // 10-14: Ulti, 15-19: Tiempo Fuera.
+    game.mejoras = Array(20).fill(0);
     const costosProyectil    = CONFIG.MEJORAS.COSTOS_PROYECTIL;
     const costosEscudo       = CONFIG.MEJORAS.COSTOS_ESCUDO;
     const costosUlti         = CONFIG.MEJORAS.COSTOS_ULTI;
-    const costosProyectil2   = CONFIG.MEJORAS.COSTOS_PROYECTIL2;
     const costosTiempoFuera  = CONFIG.MEJORAS.COSTOS_TIEMPO_FUERA;
-    game.costosMejoras = [...costosProyectil, ...costosEscudo, ...costosUlti, ...costosProyectil2, ...costosTiempoFuera];
+    game.costosMejoras = [...costosProyectil, ...costosEscudo, ...costosUlti, ...costosTiempoFuera];
 }
 
 /**
@@ -141,11 +140,10 @@ export async function crearVentanaMejoras(game) {
     // Configuración de las secciones: [nombre, indiceInicio, textura]
     // Los iconos deben estar alineados con sus barras
     const secciones = [
-        { nombre: 'proyectil', indice: 0, textura: game.texturaProyectil, escala: 0.45, yBase: -100 },
-        { nombre: 'proyectil2', indice: 15, textura: game.texturaProyectil, escala: 0.45, yBase: -50 },
-        { nombre: 'ulti', indice: 10, textura: await PIXI.Assets.load('assets/ultiicon1.png'), escala: 0.5, yBase: 0 },
-        { nombre: 'escudo', indice: 5, textura: await PIXI.Assets.load('assets/escudo1.png'), escala: 0.45, yBase: 50 },
-        { nombre: 'tiempofuera', indice: 20, textura: await PIXI.Assets.load('assets/tiempo fuera.png'), escala: 0.25, yBase: 100 }
+        { nombre: 'proyectil', indice: 0, textura: game.texturaProyectil, escala: 0.45, yBase: -75 },
+        { nombre: 'ulti', indice: 10, textura: await PIXI.Assets.load('assets/ultiicon1.png'), escala: 0.5, yBase: -25 },
+        { nombre: 'escudo', indice: 5, textura: await PIXI.Assets.load('assets/escudo1.png'), escala: 0.45, yBase: 25 },
+        { nombre: 'tiempofuera', indice: 15, textura: await PIXI.Assets.load('assets/tiempo fuera.png'), escala: 0.25, yBase: 75 }
     ];
     
     // Guardar referencias de costos para actualizar después
@@ -154,7 +152,6 @@ export async function crearVentanaMejoras(game) {
     
     // Labels para las mejoras
     const labelsBase = ['+2', '+3', '+5', '+5', '+10'];
-    const labelsProyectil2 = ['+5%', '+5%', '+10%', '+10%', '+20%']; // coincide con el efecto real (Game.js) y el tutorial
     const labelsEscudo = ['+50', '+50', '+50', '+50', '+50'];
     const labelsUlti = ['-50', '-50', '-50', '-50', '-50'];
     const labelsTiempoFuera = ['+5', '+10', '+15', '+20', '+30'];
@@ -162,7 +159,6 @@ export async function crearVentanaMejoras(game) {
     // Nombres de las secciones (a la izquierda del icono)
     const nombresSecciones = {
         proyectil: 'AUMENTO DE DAÑO',
-        proyectil2: 'AUMENTO DE VELOCIDAD',
         ulti: 'COSTE DE OBTENCIÓN DE ULTI',
         escudo: 'AUMENTO DE ESCUDO',
         tiempofuera: 'AUMENTO DE REGENERACIÓN'
@@ -181,9 +177,7 @@ export async function crearVentanaMejoras(game) {
         
         // Determinar labels según el tipo
         let labels;
-        if (seccion.nombre === 'proyectil2') {
-            labels = labelsProyectil2;
-        } else if (seccion.nombre === 'escudo') {
+        if (seccion.nombre === 'escudo') {
             labels = labelsEscudo;
         } else if (seccion.nombre === 'ulti') {
             labels = labelsUlti;
@@ -540,7 +534,6 @@ function _textoTooltipMejora(game, i) {
     const val = (bar && bar.labelText) ? bar.labelText.text : '';
     let l1;
     if (i <= 4) l1 = `${val} de daño por disparo`;
-    else if (i >= 15 && i <= 19) l1 = `${val} velocidad del proyectil`;
     else if (i >= 10 && i <= 14) l1 = `${val} al costo de carga del Ulti`;
     else if (i >= 5 && i <= 9) l1 = `${val} de escudo máximo`;
     else l1 = `${val} escudos al terminar Tiempo Fuera`;
@@ -665,8 +658,7 @@ function _getSeccionNombre(indice) {
     if (indice >= 0 && indice <= 4) return 'proyectil';
     if (indice >= 5 && indice <= 9) return 'escudo';
     if (indice >= 10 && indice <= 14) return 'ulti';
-    if (indice >= 15 && indice <= 19) return 'proyectil2';
-    if (indice >= 20 && indice <= 24) return 'tiempofuera';
+    if (indice >= 15 && indice <= 19) return 'tiempofuera';
     return '';
 }
 
@@ -680,8 +672,7 @@ function _getInicioSeccion(nombre) {
         case 'proyectil': return 0;
         case 'escudo': return 5;
         case 'ulti': return 10;
-        case 'proyectil2': return 15;
-        case 'tiempofuera': return 20;
+        case 'tiempofuera': return 15;
         default: return 0;
     }
 }
