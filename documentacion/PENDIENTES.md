@@ -1,13 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 06/07/2026  
-**Versión:** v1.10.0 (ACTUAL)
+**Última actualización:** 07/06/2026  
+**Versión:** v1.11.0 (ACTUAL)
 
 ---
 
-## ✅ Completado v1.10.0 - Rediseño del HUD (paneles laterales + escudo curvo + panel de mejoras)
+## ✅ Completado v1.11.0 - Compra de mejoras desde HUD + iluminación de iconos
 
-Rediseño en curso del HUD in-game (todo en `PixiHUD.js`, salvo lo indicado). Se sube como checkpoint; la **compra de mejoras queda deshabilitada temporalmente**.
+- **Compra de mejoras desde los paneles laterales**: clic en el icono de mejora (upgreate) de una habilidad compra el próximo nivel con partículas Boid y **prende el chip** correspondiente. Chips = niveles comprados.
+- **Iconos que se iluminan**: las habilidades encienden su icono cuando están disponibles (cohetes/propulsor/devorador sin cooldown, ulti cargada, aceleración no sobrecalentada); los iconos de mejora se iluminan cuando tenés partículas suficientes para comprar.
+- **Nueva placa de chips** (`chipDeMejora.png`) encajada al interior del marco; marcos 10% más grandes (70→85px).
+- **Quitada la mejora "velocidad de proyectil"** (ahora 4 líneas de mejora: daño, escudo, ulti, tiempo fuera; 20 mejoras en vez de 25).
+- **Fixes al reiniciar**: los cooldowns de habilidades se resetean y el stage vuelve a ser interactivo (antes, tras un game over, no se podían comprar mejoras ni quedaban iconos atenuados).
+- **Ventana de Mejoras vieja deshabilitada**; el sistema vive en los paneles laterales.
 
 - **Habilidades a columnas laterales** (`_posicionarIconosLaterales`, `_dibujarCuadrante`): los 8 cuadrantes se anclan a los bordes izquierdo/derecho usando el marco `marcos1mejora.png` (el cuadrado del icono queda pegado al borde y el rectángulo del marco sale de pantalla). Izquierda: Tiempo Fuera, Escudo, Proyectil. Derecha: Aceleración (nuevo), Propulsor, Cohetes, Devorador, Ulti.
 - **Escudo curvo** (`_crearEscudoCurvo`, `_dibujarBarraEscudo`): 3 barras curvas dibujadas con `.arc().stroke()` (API nativa v8) que siguen a la nave dentro del escudo: aceleración, escudos y el temporizador de Tiempo Fuera. Color sólido `#173B75` (rojo `#002766` al sobrecalentar), 50% de opacidad en reposo y 100% en uso/activa.

@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.9.2 (ACTUAL)  
+**Versión actual:** v1.11.0 (ACTUAL)
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,18 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.9.2 (ACTUAL) - Sistema de audio completo + volúmenes en config
+### v1.11.0 (ACTUAL) - Compra de mejoras desde HUD + iluminación de iconos
+> **Sistema de mejoras funcional desde paneles laterales + iconos que se iluminan según disponibilidad**
+
+| Commit | Descripción |
+|--------|-------------|
+| `304273d` | refactor: quitar mejora velocidad de proyectil (4 categorias, 20 mejoras) |
+| `93611c9` | feat: compra de mejoras desde HUD + fix reinicio (cooldowns + stage interactivo) |
+| `841d78b` | feat: sistema de compra desde iconos HUD + iluminacion de iconos |
+| `94a3809` | chore: eliminar chips de mejora2.png (reemplazado por chipDeMejora.png) |
+| `bab4db4` | chore: bump version v1.11.0 |
+
+### v1.9.2 - Sistema de audio completo + volúmenes en config
 > **Todos los SFX y la música de fondo conectados a sus eventos · Volúmenes centralizados en config.js**
 
 | Commit | Descripción |
@@ -466,6 +477,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.11.0:** ✅ Compra de mejoras desde HUD + iluminación de iconos + fix reinicio
 **v1.9.2:** ✅ Sistema de audio completo (SFX + música de fondo) + volúmenes centralizados en config.js
 **v1.9.1:** ✅ PixiJS vendorizado (sin CDN) + sprite real del proyectil de Cohetes (Q)
 **v1.9.0:** ✅ Menú de pausa con Escape (volver al menú principal) + créditos + JSDoc/limpieza de PixiHUD
