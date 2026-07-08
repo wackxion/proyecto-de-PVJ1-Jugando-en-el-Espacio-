@@ -543,13 +543,13 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.jugador.cargaMaxUlti = Math.max(250, this.jugador.cargaMaxUltiBase - reduccionUlti);
         }
         
-        // Guardar bonificación de regeneración para tiempo fuera (indices 20-24)
+        // Guardar bonificación de regeneración para tiempo fuera (indices 15-19)
         // +5, +10, +15, +20, +30 = máximo +80
         if (this.mejoras) {
             let regeneracionBonus = 0;
-            for (let i = 20; i <= 24; i++) {
+            for (let i = 15; i <= 19; i++) {
                 if (this.mejoras[i] >= 1) {
-                    regeneracionBonus += [5, 10, 15, 20, 30][i - 20];
+                    regeneracionBonus += [5, 10, 15, 20, 30][i - 15];
                 }
             }
             this.regeneracionTiempoFueraBonus = regeneracionBonus;
@@ -566,7 +566,30 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.jugador.escudos = this.jugador.escudosMax;
         }
     }
-    
+
+    /**
+     * Compra el PRÓXIMO nivel de una sección de mejora (0,5,10,15). Es lo que
+     * dispara el clic en el icono de mejora de un cuadrante del HUD nuevo:
+     * descuenta partículas capturadas, marca el nivel y aplica el efecto.
+     * @param {number} seccion - índice de inicio de la sección (0,5,10,15)
+     * @returns {'ok'|'sinSaldo'|'maxeada'}
+     */
+    comprarMejoraSeccion(seccion) {
+        if (!this.mejoras || !this.costosMejoras) return 'maxeada';
+        // Próximo nivel sin comprar dentro de la sección
+        let idx = -1;
+        for (let i = seccion; i < seccion + 5; i++) {
+            if ((this.mejoras[i] || 0) === 0) { idx = i; break; }
+        }
+        if (idx < 0) return 'maxeada';
+        const costo = this.costosMejoras[idx] || 0;
+        if ((this.particulasCapturadas || 0) < costo) return 'sinSaldo';
+        this.particulasCapturadas -= costo;
+        this.mejoras[idx] = 1;
+        this.aplicarMejoras();
+        return 'ok';
+    }
+
 /**
      * Capturar partícula Boid cuando la nave se acerca
      * @param {BoidParticle} particula - Partícula a capturar
@@ -882,18 +905,7 @@ _crearParticulaBoidFuera() {
         if (this.mejoras && this.mejoras[4] >= 1) bonusDano += 10; // +10 si compraste la quinta
         
         projectile.dano += bonusDano;
-        
-        // Calcular bonus de velocidad basado en mejoras de proyectil2 (indices 15-19)
-        // +5%, +5%, +10%, +10%, +20% = total máximo 50%
-        let multiplicadorVelocidad = 1.0;
-        if (this.mejoras && this.mejoras[15] >= 1) multiplicadorVelocidad += 0.05;
-        if (this.mejoras && this.mejoras[16] >= 1) multiplicadorVelocidad += 0.05;
-        if (this.mejoras && this.mejoras[17] >= 1) multiplicadorVelocidad += 0.10;
-        if (this.mejoras && this.mejoras[18] >= 1) multiplicadorVelocidad += 0.10;
-        if (this.mejoras && this.mejoras[19] >= 1) multiplicadorVelocidad += 0.20;
-        
-        projectile.velocidad *= multiplicadorVelocidad;
-        
+
         // Renderizar
         projectile.render(this.aplicacion.stage);
         
@@ -2512,6 +2524,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this.tiempoFueroActivo = false;
         this.timerTiempoFuera = 0;
 
+        // Resetear cooldowns de habilidades (cohetes/propulsor/devorador). Sin
+        // esto, si moriste con una habilidad en cooldown, la nueva partida
+        // arrancaba con ese icono atenuado y la habilidad bloqueada hasta que
+        // expiraba el cooldown viejo.
+        if (this.gestorEntrada) this.gestorEntrada.reiniciar();
+
         // Reiniciar flag de nombre
         this.nombreIngresado = false;
         this.esperandoNombreTop5 = false;
@@ -2545,6 +2563,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Es necesario porque stage.removeChildren() lo eliminó arriba.
         if (hudContainer && this.aplicacion && this.aplicacion.stage) {
             this.aplicacion.stage.addChild(hudContainer);
+        }
+
+        // Restaurar la interactividad del stage: el game over (_limpiarFinJuego)
+        // la había puesto en 'none'. Sin esto, los clicks no llegan a los iconos
+        // de mejora del HUD y no se pueden comprar mejoras tras reiniciar.
+        if (this.aplicacion && this.aplicacion.stage) {
+            this.aplicacion.stage.eventMode = 'static';
         }
         
         // Marcar el juego como corriendo
