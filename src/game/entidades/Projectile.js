@@ -43,14 +43,14 @@ export class Proyectil extends GameObject {
         this.tiempoDeVida = CONFIG.PROYECTIL.TIEMPO_DE_VIDA; // 2 segundos
         
         // Radio: Para calcular colisiones (qué tan grande es el proyectil)
-        this.radio = 12;  // Aumentado de 8 a 12 para mejor colisión
+        this.radio = 6;  // Reducido 50% (12 → 6)
         
         // Ancho/Alto Juego: Dimensiones del área de juego
         this.anchoJuego = anchoJuego;
         this.altoJuego = altoJuego;
         
         // Escala del proyectil (se ajustará según el tamaño de la textura)
-        this.escala = 0.35;
+        this.escala = 0.175;  // Reducido 50% (0.35 → 0.175)
         
         // Crear el sprite del proyectil usando textura
         if (textura) {
