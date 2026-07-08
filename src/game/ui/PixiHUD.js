@@ -49,6 +49,10 @@ export class PixiHUD {
 
         // Habilitar sorting por zIndex en el stage también
         this.app.stage.sortableChildren = true;
+        // El stage debe ser interactivo para que los clics lleguen a los iconos
+        // de mejora del HUD (botones de compra). Antes lo activaba la ventana de
+        // mejoras vieja (ya deshabilitada), así que lo aseguramos acá.
+        this.app.stage.eventMode = 'static';
 
         // =========================================
         // REFERENCIAS A ELEMENTOS DEL HUD
@@ -87,18 +91,31 @@ export class PixiHUD {
         // rectángulo con un CUADRADO en la punta izquierda donde va el icono.
         // Se escala para que el cuadrado mida ~70px; el resto es para la mejora.
         this._texturaMarco = null;
-        this._marcoQ = 70;                                 // lado del cuadrado del icono
-        this._marcoEscala = 70 / 688;                      // escala (cuadrado ~70)
-        this._marcoAncho = Math.round(2307 * (70 / 688));  // ancho del marco (~235)
+        this._marcoQ = 85;                                 // lado del cuadrado del icono (+10%)
+        this._marcoEscala = 85 / 688;                      // escala (cuadrado ~85)
+        this._marcoAncho = Math.round(2307 * (85 / 688));  // ancho del marco (~285)
 
-        // Panel de mejoras dentro del rectángulo del marco: imagen chips de
-        // mejora2.png (754×198, placa con 5 chips HUECOS en fila + extras a la
-        // derecha). Detrás de cada chip va un pip (cuadrado negro que se pone
-        // blanco al clickear): la placa se dibuja ENCIMA y el pip se ve por el
-        // hueco del chip, así "prende" el chip.
+        // Panel de mejoras dentro del rectángulo del marco: imagen chipDeMejora.png
+        // (1536×463, placa con 5 chips OPACOS en fila + un chip grande a la derecha
+        // + un rectángulo para el precio abajo). Como los chips son opacos, el pip
+        // va ENCIMA (overlay blanco = prendido / negro = apagado) para "prender" el
+        // chip. En el chip grande va el icono de mejora (upgreate).
         this._texturaChip = null;
-        this._chipFracs = [0.0696, 0.2089, 0.3529, 0.4957, 0.6427]; // centros X de los 5 chips huecos
-        this._chipHuecoY = 0.3687;                                  // centro Y del hueco (frac de alto)
+        this._texturaUpgrade = null;                                // icono upgreate
+        this._chipFracs = [0.1003, 0.2337, 0.3685, 0.4961, 0.6260]; // centros X de los 5 chips
+        this._chipHuecoY = 0.36;                                    // centro Y del chip (frac de alto)
+        this._chipUpgradeFrac = { x: 0.874, y: 0.324, w: 0.216, h: 0.592 }; // chip grande del upgrade
+        this._chipPrecioFrac = { x: 0.423, y: 0.810 };              // centro del rectángulo del precio
+        this._chipPrecioBox = { w: 0.467, h: 0.363 };               // tamaño del rectángulo del precio (frac)
+        this._chipShiftDer = 10;                                    // la placa de la columna DER se corre a la izq (local)
+        this._chipShiftIzq = 10;                                    // la placa de la columna IZQ se corre a la der (local)
+
+        // Área INTERIOR del rectángulo del marco (fracción del marco), medida del
+        // PNG marcos1mejora.png. La placa de chips encaja acá (llena el ancho).
+        this._marcoInnerLfrac = 0.317;   // borde interior izquierdo del rectángulo
+        this._marcoInnerRfrac = 0.985;   // borde interior derecho
+        this._marcoInnerTfrac = 0.0785;  // borde interior superior
+        this._marcoInnerBfrac = 0.942;   // borde interior inferior
 
         // 8. Contador del devorador
         this.contadorDevoradorText = null;
@@ -218,9 +235,10 @@ export class PixiHUD {
         );
 
         // Columnas laterales de habilidades → ancladas a los bordes izq/der y
-        // centradas verticalmente. El layout local mide ~430px de alto.
+        // centradas verticalmente. El layout local mide ~482px de alto (5 marcos
+        // de 85 con la última fila en y=397).
         const margenLat = 2;    // los cuadrados quedan casi pegados al borde
-        const altoColumna = 430;
+        const altoColumna = 482;
         const yColumna = Math.round(h / 2 - (altoColumna / 2) * this._escala);
         // Posición "recogida" (solo el cuadrado en el borde) + offset para
         // desplegar hacia el centro (revela el rectángulo, ancho = marco - cuadrado).
@@ -929,18 +947,26 @@ export class PixiHUD {
      * @private
      */
     _posicionarIconosLaterales() {
+        // Mapeo cuadrante → sección de mejora (índice de inicio en game.mejoras).
+        // Sólo estas 4 tienen mejora en el sistema actual; el resto (aceleración,
+        // propulsor, cohetes, devorador) no tiene mejora todavía.
+        this.proyectil.mejoraSeccion = 0;   // daño de proyectil (0-4)
+        this.escudo.mejoraSeccion = 5;       // escudo (5-9)
+        this.ulti.mejoraSeccion = 10;        // ulti (10-14)
+        this.tiempo.mejoraSeccion = 15;      // tiempo fuera (15-19)
+
         // y = esquina superior de cada marco en el sistema local de su columna.
         const izquierda = [
-            { g: this.tiempo,    y: 196 },
-            { g: this.escudo,    y: 278 },
-            { g: this.proyectil, y: 360 },
+            { g: this.tiempo,    y: 216 },
+            { g: this.escudo,    y: 307 },
+            { g: this.proyectil, y: 397 },
         ];
         const derecha = [
             { g: this.nuevo,     y: 0 },
-            { g: this.propul,    y: 82 },
-            { g: this.cohetes,   y: 196 },
-            { g: this.deborador, y: 278 },
-            { g: this.ulti,      y: 360 },
+            { g: this.propul,    y: 90 },
+            { g: this.cohetes,   y: 216 },
+            { g: this.deborador, y: 307 },
+            { g: this.ulti,      y: 397 },
         ];
         // Izquierda: marco espejado (rectángulo se va fuera de pantalla por la izq).
         // Derecha: marco normal (rectángulo se va fuera de pantalla por la der).
@@ -1020,47 +1046,53 @@ export class PixiHUD {
     _dibujarChipMejoras(g, contenedor, y, espejo) {
         if (!g || !contenedor || !this._texturaChip) return;
 
-        const Q = this._marcoQ;            // lado del cuadrado (70)
-        const rectW = this._marcoAncho - Q; // ancho del rectángulo (~165)
-        // Origen X del rectángulo (el lado SIN cuadrado):
-        //  - derecha (no espejo): rectángulo de Q a marcoAncho  → empieza en Q
-        //  - izquierda (espejo):  rectángulo de -rectW a 0       → empieza en -rectW
-        const rectX = espejo ? -rectW : Q;
+        const Q = this._marcoQ;
+        const mAncho = this._marcoAncho;
+        // Área INTERIOR del rectángulo del marco (donde encaja la placa). En la
+        // columna izquierda el marco está espejado, así que el interior se refleja
+        // respecto del borde del cuadrado (en Q).
+        const inW = (this._marcoInnerRfrac - this._marcoInnerLfrac) * mAncho; // ancho interior
+        const inX0 = espejo
+            ? (Q - this._marcoInnerRfrac * mAncho)   // izquierda (espejo)
+            : (this._marcoInnerLfrac * mAncho);      // derecha
+        const inY0 = this._marcoInnerTfrac * Q;
+        const inH = (this._marcoInnerBfrac - this._marcoInnerTfrac) * Q;
 
-        const margenX = 8;
-        const imgW = rectW - margenX * 2;                 // ancho de la placa (local)
+        // La placa llena el ANCHO interior; su alto sale de la proporción y se
+        // centra verticalmente dentro del interior del rectángulo.
+        const imgW = inW;
         const escChip = imgW / this._texturaChip.width;
-        const imgH = this._texturaChip.height * escChip;  // alto de la placa (local)
-        const chipX = rectX + margenX;                    // esquina sup-izq de la placa
-        const chipY = y + Math.max(2, (this._marcoQ - imgH) / 2); // centrada vertical en el rectángulo
+        const imgH = this._texturaChip.height * escChip;
+        // Corrimiento fino de la placa dentro del marco (el marco y el icono
+        // quedan igual; solo se mueve el contenido del chip y sus pips):
+        //  - columna DERECHA: se corre a la izquierda.
+        //  - columna IZQUIERDA (espejo): se corre a la derecha.
+        const chipX = inX0 + (espejo ? this._chipShiftIzq : -this._chipShiftDer); // esquina sup-izq
+        const chipY = y + inY0 + Math.max(0, (inH - imgH) / 2);   // centrada vertical en el interior
 
-        // PIPS: van DETRÁS de la placa (zIndex menor). Cada uno se dibuja
-        // centrado en el hueco de su chip; la placa opaca los tapa salvo por el
-        // hueco, así al ponerse blanco "prende" el chip. El área de click es más
-        // grande que el hueco para que sea cómodo de clickear.
-        const pipVisual = imgW * 0.052;   // ~tamaño del hueco del chip
-        const pipHit = imgW * 0.11;       // área de click (mayor que el hueco)
+        // PIPS: van DETRÁS de la placa (zIndex menor), centrados en el hueco de
+        // cada chip; la placa opaca los tapa salvo por el hueco, así al ponerse
+        // blanco "prende" el chip. Ya NO se clickean: reflejan el nivel comprado
+        // de la mejora (game.mejoras). La compra se hace clickeando el icono de
+        // mejora (upgradeSprite), que prende el siguiente chip.
+        const pipVisual = imgW * 0.058;   // ~tamaño del centro del chip
         if (!g.pips) g.pips = [];
         if (!g.pipsEstado) g.pipsEstado = [false, false, false, false, false];
         for (let i = 0; i < 5; i++) {
             const cx = chipX + imgW * this._chipFracs[i];   // centro X del chip i
-            const cy = chipY + imgH * this._chipHuecoY;     // centro Y del hueco
+            const cy = chipY + imgH * this._chipHuecoY;     // centro Y del chip
             let pip = g.pips[i];
             if (!pip) {
                 pip = new PIXI.Graphics();
-                pip.zIndex = 1;                 // detrás de la placa (zIndex 3)
-                pip.eventMode = 'static';
-                pip.cursor = 'pointer';
-                const idx = i;
-                pip.on('pointertap', () => {
-                    g.pipsEstado[idx] = !g.pipsEstado[idx];
-                    this._pintarPip(pip, g.pipsEstado[idx]);
-                });
+                pip.zIndex = 4;                 // ENCIMA de la placa (zIndex 3): overlay
+                pip.eventMode = 'none';         // los pips no se clickean
                 g.pips[i] = pip;
             }
             pip._visual = pipVisual;
             pip.position.set(cx, cy);   // posición = CENTRO del pip
-            pip.hitArea = new PIXI.Rectangle(-pipHit / 2, -pipHit / 2, pipHit, pipHit);
+            // Estado = nivel comprado de la mejora (si el cuadrante tiene sección)
+            g.pipsEstado[i] = (g.mejoraSeccion !== undefined) &&
+                !!(this.game && this.game.mejoras && this.game.mejoras[g.mejoraSeccion + i] >= 1);
             this._pintarPip(pip, g.pipsEstado[i]);
             contenedor.addChild(pip);
         }
@@ -1077,6 +1109,165 @@ export class PixiHUD {
         g.chipSprite.scale.set(escChip);
         g.chipSprite.position.set(chipX, chipY);
         contenedor.addChild(g.chipSprite);
+
+        // Icono de mejora (upgreate) dentro del cuadrado gris del chip grande,
+        // POR ENCIMA de la placa. Encaja en el cuadrado preservando su proporción.
+        if (this._texturaUpgrade) {
+            if (!g.upgradeSprite) {
+                g.upgradeSprite = new PIXI.Sprite(this._texturaUpgrade);
+                g.upgradeSprite.anchor.set(0.5);
+                g.upgradeSprite.zIndex = 4;      // encima de la placa (zIndex 3)
+                if (g.mejoraSeccion !== undefined) {
+                    // El icono de mejora es el BOTÓN DE COMPRA: cada clic compra el
+                    // próximo nivel de la sección y prende el siguiente chip.
+                    g.upgradeSprite.eventMode = 'static';
+                    g.upgradeSprite.cursor = 'pointer';
+                    g.upgradeSprite.on('pointertap', () => this._comprarMejoraCuadrante(g));
+                } else {
+                    g.upgradeSprite.eventMode = 'none'; // cuadrante sin mejora
+                }
+            }
+            g.upgradeSprite.texture = this._texturaUpgrade;
+            const uf = this._chipUpgradeFrac;
+            const boxW = imgW * uf.w, boxH = imgH * uf.h;
+            const escU = Math.min(boxW / this._texturaUpgrade.width, boxH / this._texturaUpgrade.height) * 0.99; // +10% sobre 0.9
+            g.upgradeSprite.scale.set(escU);
+            g.upgradeSprite.position.set(chipX + imgW * uf.x, chipY + imgH * uf.y);
+            // Cuadrantes SIN mejora: icono siempre atenuado (no hay nada que
+            // comprar). Los que tienen mejora los ilumina _actualizarPreciosMejora.
+            if (g.mejoraSeccion === undefined) g.upgradeSprite.alpha = 0.4;
+            contenedor.addChild(g.upgradeSprite);
+        }
+
+        // Precio de la próxima mejora en el rectángulo azul de la placa. Sólo en
+        // los cuadrantes con mejora asociada (mejoraSeccion). El valor lo refresca
+        // _actualizarPreciosMejora() cada frame; acá se crea y se ubica/encaja.
+        if (g.mejoraSeccion !== undefined) {
+            if (!g.precioText) {
+                g.precioText = new PIXI.Text('', {
+                    fontFamily: 'Segoe Script, cursive', fontSize: 20, fill: 0xFFFFFF, fontWeight: 'bold'
+                });
+                g.precioText.anchor.set(0.5);
+                g.precioText.zIndex = 4;         // encima de la placa (zIndex 3)
+                g.precioText.eventMode = 'none';
+            }
+            g.precioText.position.set(chipX + imgW * this._chipPrecioFrac.x, chipY + imgH * this._chipPrecioFrac.y);
+            g._precioBoxLocal = { w: imgW * this._chipPrecioBox.w, h: imgH * this._chipPrecioBox.h };
+            contenedor.addChild(g.precioText);
+            this._refrescarPrecio(g);
+        }
+    }
+
+    /**
+     * Costo de la PRÓXIMA mejora disponible de una sección (índice de inicio),
+     * o null si ya están todas compradas o aún no hay datos de mejoras.
+     * @param {number} seccion - índice de inicio de la sección (0,5,10,15,20)
+     * @returns {number|null}
+     * @private
+     */
+    _precioMejora(seccion) {
+        const game = this.game;
+        if (!game || !game.mejoras || !game.costosMejoras) return null;
+        for (let i = seccion; i < seccion + 5; i++) {
+            if ((game.mejoras[i] || 0) === 0) return game.costosMejoras[i];
+        }
+        return null; // todas compradas
+    }
+
+    /**
+     * Refresca el texto de precio de un cuadrante y lo encaja en el rectángulo
+     * azul. Sólo re-mide cuando cambia el texto o la caja (evita medir cada frame).
+     * @private
+     */
+    _refrescarPrecio(g) {
+        if (!g.precioText || g.mejoraSeccion === undefined) return;
+        const precio = this._precioMejora(g.mejoraSeccion);
+        const txt = (precio === null) ? '' : `${precio}`;
+        const box = g._precioBoxLocal;
+        if (g.precioText.text === txt && g._precioBoxFit === box) return;
+        g.precioText.text = txt;
+        g.precioText.visible = !!txt;
+        if (box && txt) {
+            // Tamaño fijo (fontSize 20); sólo achicar si el número no entra a lo
+            // ancho del rectángulo azul (números de 3 cifras).
+            g.precioText.scale.set(1);
+            const tw = g.precioText.width || 1;
+            if (tw > box.w * 0.9) g.precioText.scale.set((box.w * 0.9) / tw);
+        }
+        g._precioBoxFit = box;
+    }
+
+    /**
+     * Refresca los pips de un cuadrante según los niveles comprados (game.mejoras):
+     * pip encendido (blanco) = nivel comprado. @private
+     */
+    _refrescarPips(g) {
+        if (!g.pips || g.mejoraSeccion === undefined) return;
+        const game = this.game;
+        for (let i = 0; i < 5; i++) {
+            const on = !!(game && game.mejoras && game.mejoras[g.mejoraSeccion + i] >= 1);
+            if (g.pipsEstado[i] !== on && g.pips[i]) {
+                g.pipsEstado[i] = on;
+                this._pintarPip(g.pips[i], on);
+            }
+        }
+    }
+
+    /**
+     * Compra el próximo nivel de la mejora de un cuadrante (clic en su icono de
+     * mejora): pide la compra al juego y refresca pips + precio. Si no alcanza,
+     * parpadea el precio en rojo. @private
+     */
+    _comprarMejoraCuadrante(g) {
+        if (!this.game || g.mejoraSeccion === undefined) return;
+        const res = this.game.comprarMejoraSeccion(g.mejoraSeccion);
+        if (res === 'ok') {
+            // Refresca pips/precios y la iluminación de TODOS los iconos de mejora
+            // (el saldo bajó, otra sección puede haber dejado de ser comprable).
+            this._actualizarPreciosMejora();
+        } else if (res === 'sinSaldo') {
+            this._flashPrecioSinSaldo(g);
+        }
+        // 'maxeada' → no hay más niveles: no se hace nada
+    }
+
+    /** Parpadeo rojo del precio cuando no alcanzan las partículas. @private */
+    _flashPrecioSinSaldo(g) {
+        if (!g.precioText) return;
+        g.precioText.style.fill = 0xCC0000; // rojo tinta
+        clearTimeout(g._precioFlashTimer);
+        g._precioFlashTimer = setTimeout(() => {
+            if (g.precioText) g.precioText.style.fill = 0xFFFFFF;
+        }, 400);
+    }
+
+    /**
+     * Actualiza precio, pips e ILUMINACIÓN de los iconos de mejora de cada
+     * cuadrante: el icono upgreate se ilumina cuando el próximo nivel se puede
+     * pagar con las partículas Boid actuales (atenuado si no alcanza o si la
+     * sección está maxeada). El upgreate del marcador superior se ilumina si
+     * hay AL MENOS una mejora comprable. Se llama cada frame desde actualizar().
+     * @private
+     */
+    _actualizarPreciosMejora() {
+        const juego = this.game;
+        const particulas = juego ? (juego.particulasCapturadas || 0) : 0;
+        let algunaComprable = false;
+        for (const g of [this.proyectil, this.escudo, this.ulti, this.tiempo]) {
+            if (!g) continue;
+            if (g.precioText) this._refrescarPrecio(g);
+            if (g.pips) this._refrescarPips(g);
+            if (g.upgradeSprite && g.mejoraSeccion !== undefined) {
+                const precio = this._precioMejora(g.mejoraSeccion);
+                const comprable = (precio !== null) && particulas >= precio;
+                g.upgradeSprite.alpha = comprable ? 1 : 0.4;
+                if (comprable) algunaComprable = true;
+            }
+        }
+        // Icono upgreate del marcador superior (panel de puntos/recursos)
+        if (this._upgradeSprite) {
+            this._upgradeSprite.alpha = algunaComprable ? 1 : 0.4;
+        }
     }
 
     /**
@@ -1089,8 +1280,10 @@ export class PixiHUD {
     _pintarPip(pip, encendido) {
         const s = pip._visual || 8;
         pip.clear();
-        // Cuadrado centrado en el origen del pip (que está en el hueco del chip).
+        // Overlay ENCIMA del chip: blanco (prendido) lo ilumina, negro (apagado)
+        // lo oscurece. Semi-transparente para dejar ver la textura del chip.
         pip.rect(-s / 2, -s / 2, s, s).fill(encendido ? 0xFFFFFF : 0x000000);
+        pip.alpha = encendido ? 0.6 : 0.45;
     }
 
     /**
@@ -1110,19 +1303,21 @@ export class PixiHUD {
     }
 
     /**
-     * Carga la placa de chips de mejora (chips de mejora2.png) y, al tenerla,
-     * redibuja los cuadrantes para que se dibujen los paneles de mejora en los
-     * rectángulos. @private
+     * Carga la placa de chips de mejora (chipDeMejora.png) y el icono upgreate y,
+     * al tenerlos, redibuja los cuadrantes para que se dibujen los paneles de
+     * mejora en los rectángulos. @private
      */
     async _cargarTexturaChip() {
         try {
-            const tex = await PIXI.Assets.load('assets/chips de mejora2.png');
-            if (tex) {
-                this._texturaChip = tex;
-                this._posicionarIconosLaterales();
-            }
+            const [chip, upg] = await Promise.all([
+                PIXI.Assets.load('assets/chipDeMejora.png'),
+                PIXI.Assets.load('assets/upgreate.png'),
+            ]);
+            if (chip) this._texturaChip = chip;
+            if (upg) this._texturaUpgrade = upg;
+            this._posicionarIconosLaterales();
         } catch (e) {
-            console.error('[PixiHUD] No se pudo cargar chips de mejora2.png:', e);
+            console.error('[PixiHUD] No se pudo cargar la placa de chips/upgreate:', e);
         }
     }
 
@@ -1198,6 +1393,8 @@ export class PixiHUD {
             () => this._actualizarIconoTiempo(),
             () => this._actualizarContadorDevorador(),
             () => this._actualizarEscudoCurvo(),
+            () => this._actualizarPreciosMejora(),
+            () => this._actualizarIluminacionIconos(),
         ];
 
         for (const fn of actualizadores) {
@@ -1206,6 +1403,35 @@ export class PixiHUD {
             } catch (e) {
                 // Silenciar errores individuales para no detener el game loop
             }
+        }
+    }
+
+    /**
+     * Ilumina el icono de cada habilidad cuando está DISPONIBLE para usar y lo
+     * atenúa cuando no (en cooldown / sin carga / sobrecalentado). Habilidades:
+     *  - Cohetes (Q), Propulsor (R), Devorador (E): disponibles con cooldown en 0.
+     *  - Ulti (S): disponible cuando está cargado (jugador.ultiListo).
+     *  - Aceleración (W): disponible mientras NO esté sobrecalentada.
+     * Las pasivas (Escudo, Tiempo Fuera, Proyectil) quedan siempre encendidas.
+     * @private
+     */
+    _actualizarIluminacionIconos() {
+        const g = this.game;
+        if (!g) return;
+        const ATENUADO = 0.4, ENCENDIDO = 1;
+        const luz = (grupo, disponible) => {
+            if (grupo && grupo.icono) grupo.icono.alpha = disponible ? ENCENDIDO : ATENUADO;
+        };
+        const ge = g.gestorEntrada;
+        if (ge) {
+            luz(this.cohetes,   (ge.enfriamientoCohetes   || 0) <= 0);
+            luz(this.propul,    (ge.enfriamientoPropulsor  || 0) <= 0);
+            luz(this.deborador, (ge.enfriamientoDevorar    || 0) <= 0);
+        }
+        const j = g.jugador;
+        if (j) {
+            luz(this.ulti,  !!j.ultiListo);              // cargado
+            luz(this.nuevo, !j.sobrecalentadoAceleracion); // aceleración no sobrecalentada
         }
     }
 
