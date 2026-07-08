@@ -2403,7 +2403,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     
     // Botón Reiniciar - centrado debajo de la imagen
     const btnReiniciar = document.createElement('img');
-    btnReiniciar.src = 'assets/reiniciar.png';
+    btnReiniciar.src = 'assets/botonReiniciar.png';
     btnReiniciar.id = 'btn-reiniciar';
     btnReiniciar.style.cssText = `
         position: absolute;
@@ -2441,7 +2441,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     // Botón Top 5 - a la derecha, debajo de la imagen
     const btnTop5 = document.createElement('img');
     btnTop5.id = 'btn-top5';
-    btnTop5.src = 'assets/top5Boton.png';
+    btnTop5.src = 'assets/botonTOP5.png';
     btnTop5.style.cssText = `
         position: absolute;
         left: ${this.anchoJuego * 0.58}px;
@@ -3000,7 +3000,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         const bordeInf = (this.altoJuego / 2) + (puntuacionSprite.height / 2) - margenSeparacion;
         
         const btnVolver = document.createElement('img');
-        btnVolver.src = 'assets/volver.png';
+        btnVolver.src = 'assets/botonVolver.png';
         btnVolver.id = 'btn-volver';
         btnVolver.style.position = 'absolute';
         btnVolver.style.left = (bordeIzq + 80) + 'px';
