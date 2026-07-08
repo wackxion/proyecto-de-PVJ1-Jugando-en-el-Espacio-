@@ -2447,7 +2447,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         left: ${this.anchoJuego * 0.58}px;
         top: ${btnY * scaleY}px;
         transform: translate(-50%, -50%);
-        width: 120px;
+        width: 175px;
         height: auto;
         cursor: pointer;
         z-index: 1000;
@@ -3006,7 +3006,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         btnVolver.style.left = (bordeIzq + 80) + 'px';
         btnVolver.style.top = (bordeInf - 40) + 'px';
         btnVolver.style.transform = 'translateY(-50%)';
-        btnVolver.style.width = '156px';
+        btnVolver.style.width = '175px';
         btnVolver.style.height = 'auto';
         btnVolver.style.cursor = 'pointer';
         btnVolver.style.zIndex = '1000';
