@@ -232,7 +232,7 @@ export class UIManager {
         // Versión (esquina inferior derecha)
         const versionDisplay = document.createElement('div');
         versionDisplay.id = 'version-display';
-        versionDisplay.textContent = 'v1.4.5';
+        versionDisplay.textContent = 'v1.12.0';
         versionDisplay.style.cssText = `
             position: absolute;
             bottom: 10px;

@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.11.0 (ACTUAL)
+**Versión actual:** v1.12.0 (ACTUAL)
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,17 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.11.0 (ACTUAL) - Compra de mejoras desde HUD + iluminación de iconos
+### v1.12.0 (ACTUAL) - Botones con imágenes PNG
+> **Todos los botones migrados de CSS a imágenes PNG · 11 assets nuevos · proporción unificada**
+
+| Commit | Descripción |
+|--------|-------------|
+| `1547360` | feat: agregar assets de botones PNG para menus y ventanas |
+| `9fb379b` | fix: unificar proporcion de botones Game Over y Top 5 a 175px |
+| `2320bb9` | feat: usar assets nuevos en Game Over y Top 5 (botonReiniciar, botonTOP5, botonVolver) |
+| `52e759f` | feat: botones del menu y tutorial con imagenes (botonJuegar, botonTutorial, etc) |
+
+### v1.11.0 - Compra de mejoras desde HUD + iluminación de iconos
 > **Sistema de mejoras funcional desde paneles laterales + iconos que se iluminan según disponibilidad**
 
 | Commit | Descripción |
@@ -477,6 +487,7 @@
 
 ## 🎯 Versiones Completadas
 
+**v1.12.0:** ✅ Botones con imágenes PNG (11 assets, migración completa de CSS a img)
 **v1.11.0:** ✅ Compra de mejoras desde HUD + iluminación de iconos + fix reinicio
 **v1.9.2:** ✅ Sistema de audio completo (SFX + música de fondo) + volúmenes centralizados en config.js
 **v1.9.1:** ✅ PixiJS vendorizado (sin CDN) + sprite real del proyectil de Cohetes (Q)

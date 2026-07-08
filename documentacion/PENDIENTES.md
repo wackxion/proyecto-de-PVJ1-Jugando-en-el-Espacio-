@@ -1,7 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 07/06/2026  
-**Versión:** v1.11.0 (ACTUAL)
+**Última actualización:** 08/07/2026  
+**Versión:** v1.12.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.12.0 - Botones con imágenes PNG
+
+- **Todos los botones del juego migrados de CSS a imágenes PNG**: eliminados `<button>` con gradientes CSS; ahora cada botón usa un `<img>` con su asset correspondiente. Fallback a CSS si la imagen no carga.
+- **11 assets nuevos** en `assets/`: `botonJuegar.png`, `botonTutorial.png`, `botonTOP5.png`, `botonOpciones.png`, `botonCreditos.png`, `botonVolver.png`, `botonAnterior.png`, `botonSiguiente.png`, `botonSeguirJugando.png`, `botonVolverAlMenu.png`, `botonReiniciar.png`.
+- **UIManager.js**: `crearBotonMenu()` acepta 3er parámetro `imagenSrc`; `crearBotonVolver()` usa `botonVolver.png`; `_crearBotonConfirm()` acepta `imagenSrc` para botones de pausa.
+- **Game.js**: Game Over usa `botonReiniciar.png` y `botonTOP5.png`; Top 5 usa `botonVolver.png`. Proporción unificada a 175px de ancho para todos los botones.
+- **Tutorial**: botones ANTERIOR/SIGUIENTE migrados a `botonAnterior.png`/`botonSiguiente.png`.
+- **Hover consistente**: todos los botones usan `scale(1.1)` + `brightness(1.3)` + `drop-shadow` en hover.
 
 ---
 
