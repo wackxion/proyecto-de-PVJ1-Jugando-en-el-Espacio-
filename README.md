@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.10.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.10.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.11.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.11.0)
 
 ---
 
@@ -361,7 +361,17 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.10.0 (Actual)
+### v1.11.0 (Actual)
+> **Sistema de mejoras funcional (compra desde el HUD) + iluminación de iconos**
+
+- 🛒 **Compra de mejoras desde los paneles laterales**: clic en el icono de mejora (upgreate) de una habilidad compra el próximo nivel con partículas Boid y **prende el chip** correspondiente. Chips = niveles comprados
+- 💡 **Iconos que se iluminan**: las habilidades encienden su icono cuando están disponibles (cohetes/propulsor/devorador sin cooldown, ulti cargada, aceleración no sobrecalentada); los iconos de mejora se iluminan cuando tenés partículas suficientes para comprar (y el del marcador superior avisa si hay algo comprable)
+- 🖼️ **Nueva placa de chips** (`chipDeMejora.png`) encajada al interior del marco; marcos 10% más grandes
+- 🗑️ **Quitada la mejora "velocidad de proyectil"** (ahora 4 líneas de mejora: daño, escudo, ulti, tiempo fuera)
+- 🐛 **Fixes al reiniciar**: los cooldowns de habilidades se resetean y el stage vuelve a ser interactivo (antes, tras un game over, no se podían comprar mejoras ni quedaban iconos atenuados)
+- 🚫 Ventana de Mejoras vieja (centrada) deshabilitada; el sistema vive en los paneles laterales
+
+### v1.10.0
 > **Rediseño del HUD: habilidades en paneles laterales + escudo curvo + panel de mejoras (chips)**
 
 - 🧭 **Habilidades a los laterales**: los cuadrantes se movieron a dos columnas en los bordes (izquierda: Tiempo Fuera, Escudo, Proyectil; derecha: Aceleración, Propulsor, Cohetes, Devorador, Ulti), con el marco `marcos1mejora.png` (cuadrado del icono pegado al borde y el rectángulo fuera de pantalla)
