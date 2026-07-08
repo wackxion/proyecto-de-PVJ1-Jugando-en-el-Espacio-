@@ -269,12 +269,12 @@ export class UIManager {
             z-index: 500;
         `;
         
-        // Agregar botones
-        this.mainMenu.appendChild(this.crearBotonMenu('JUGAR', () => this.onJugar()));
-        this.mainMenu.appendChild(this.crearBotonMenu('TUTORIAL', () => this.onTutorial()));
-        this.mainMenu.appendChild(this.crearBotonMenu('TOP 5', () => this.onTop5()));
-        this.mainMenu.appendChild(this.crearBotonMenu('OPCIONES', () => this.mostrarOpciones()));
-        this.mainMenu.appendChild(this.crearBotonMenu('CRÉDITOS', () => this.onCreditos()));
+        // Agregar botones con imágenes
+        this.mainMenu.appendChild(this.crearBotonMenu('JUGAR', () => this.onJugar(), 'assets/botonJuegar.png'));
+        this.mainMenu.appendChild(this.crearBotonMenu('TUTORIAL', () => this.onTutorial(), 'assets/botonTutorial.png'));
+        this.mainMenu.appendChild(this.crearBotonMenu('TOP 5', () => this.onTop5(), 'assets/botonTOP5.png'));
+        this.mainMenu.appendChild(this.crearBotonMenu('OPCIONES', () => this.mostrarOpciones(), 'assets/botonOpciones.png'));
+        this.mainMenu.appendChild(this.crearBotonMenu('CRÉDITOS', () => this.onCreditos(), 'assets/botonCreditos.png'));
         
         this.container.appendChild(this.mainMenu);
     }
@@ -297,40 +297,51 @@ export class UIManager {
     }
     
     /**
-     * Crea un botón del menú con estilos
-     * @param {string} texto - Texto del botón
+     * Crea un botón del menú con imagen
+     * @param {string} texto - Texto del botón (fallback si no hay imagen)
      * @param {Function} accion - Función al hacer click
+     * @param {string} [imagenSrc] - Ruta de la imagen del botón
      * @returns {HTMLElement}
      */
-    crearBotonMenu(texto, accion) {
-        const boton = document.createElement('button');
-        boton.textContent = texto;
-        boton.style.cssText = `
-            width: 200px;
-            padding: 15px 30px;
-            font-size: 22px;
-            font-family: 'Segoe Script', cursive;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(180deg, #0066FF 0%, #0044CC 100%);
-            border: 3px solid white;
-            border-radius: 15px;
-            cursor: pointer;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            box-shadow: 0 4px 15px rgba(0, 68, 204, 0.5);
-            transition: all 0.3s ease;
-        `;
+    crearBotonMenu(texto, accion, imagenSrc) {
+        let boton;
+        if (imagenSrc) {
+            boton = document.createElement('img');
+            boton.src = imagenSrc;
+            boton.alt = texto;
+            boton.style.cssText = `
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: block;
+            `;
+        } else {
+            boton = document.createElement('button');
+            boton.textContent = texto;
+            boton.style.cssText = `
+                width: 200px;
+                padding: 15px 30px;
+                font-size: 22px;
+                font-family: 'Segoe Script', cursive;
+                font-weight: bold;
+                color: white;
+                background: linear-gradient(180deg, #0066FF 0%, #0044CC 100%);
+                border: 3px solid white;
+                border-radius: 15px;
+                cursor: pointer;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 4px 15px rgba(0, 68, 204, 0.5);
+                transition: all 0.3s ease;
+            `;
+        }
         
         boton.addEventListener('mouseenter', () => {
             boton.style.transform = 'scale(1.1)';
-            boton.style.boxShadow = '0 6px 25px rgba(0, 68, 204, 0.8)';
-            boton.style.background = 'linear-gradient(180deg, #0088FF 0%, #0066FF 100%)';
+            boton.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
         });
         
         boton.addEventListener('mouseleave', () => {
             boton.style.transform = 'scale(1)';
-            boton.style.boxShadow = '0 4px 15px rgba(0, 68, 204, 0.5)';
-            boton.style.background = 'linear-gradient(180deg, #0066FF 0%, #0044CC 100%)';
+            boton.style.filter = 'none';
         });
         
         boton.addEventListener('click', () => { this._click(); accion(); });
@@ -338,35 +349,28 @@ export class UIManager {
     }
     
     /**
-     * Crea botón VOLVER reutilizable
+     * Crea botón VOLVER reutilizable con imagen
      * @param {Function} onClick - Función al hacer click
      * @returns {HTMLElement}
      */
     crearBotonVolver(onClick) {
-        const boton = document.createElement('button');
-        boton.textContent = 'VOLVER';
+        const boton = document.createElement('img');
+        boton.src = 'assets/botonVolver.png';
+        boton.alt = 'VOLVER';
         boton.style.cssText = `
-            padding: 10px 30px;
-            font-size: 18px;
-            font-family: 'Segoe Script', cursive;
-            font-weight: bold;
-            color: white;
-            background: #0044CC;
-            border: 2px solid white;
-            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 68, 204, 0.5);
             transition: all 0.3s ease;
+            display: block;
         `;
         
         boton.addEventListener('mouseenter', () => {
-            boton.style.background = '#0066FF';
-            boton.style.transform = 'scale(1.05)';
+            boton.style.transform = 'scale(1.1)';
+            boton.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
         });
         
         boton.addEventListener('mouseleave', () => {
-            boton.style.background = '#0044CC';
             boton.style.transform = 'scale(1)';
+            boton.style.filter = 'none';
         });
         
         boton.addEventListener('click', () => { this._click(); onClick(); });
@@ -374,38 +378,47 @@ export class UIManager {
     }
 
     /**
-     * Crea un botón para los modales de confirmación. Mismo estilo que los demás
-     * botones del juego, con color configurable para distinguir la acción
-     * (azul tinta = seguir, rojo tinta = acción destructiva).
-     * @param {string} texto - Texto del botón
+     * Crea un botón para los modales de confirmación con imagen.
+     * @param {string} texto - Texto del botón (fallback)
      * @param {Function} onClick - Acción al hacer click
-     * @param {string} colorBase - Color de fondo normal (default azul tinta)
-     * @param {string} colorHover - Color de fondo al pasar el mouse
+     * @param {string} [imagenSrc] - Ruta de la imagen del botón
      * @returns {HTMLElement}
      */
-    _crearBotonConfirm(texto, onClick, colorBase = '#0044CC', colorHover = '#0066FF') {
-        const boton = document.createElement('button');
-        boton.textContent = texto;
-        boton.style.cssText = `
-            padding: 12px 26px;
-            font-size: 18px;
-            font-family: 'Segoe Script', cursive;
-            font-weight: bold;
-            color: white;
-            background: ${colorBase};
-            border: 2px solid white;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            transition: all 0.3s ease;
-        `;
+    _crearBotonConfirm(texto, onClick, imagenSrc) {
+        let boton;
+        if (imagenSrc) {
+            boton = document.createElement('img');
+            boton.src = imagenSrc;
+            boton.alt = texto;
+            boton.style.cssText = `
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: block;
+            `;
+        } else {
+            boton = document.createElement('button');
+            boton.textContent = texto;
+            boton.style.cssText = `
+                padding: 12px 26px;
+                font-size: 18px;
+                font-family: 'Segoe Script', cursive;
+                font-weight: bold;
+                color: white;
+                background: #0044CC;
+                border: 2px solid white;
+                border-radius: 10px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+                transition: all 0.3s ease;
+            `;
+        }
         boton.addEventListener('mouseenter', () => {
-            boton.style.background = colorHover;
-            boton.style.transform = 'scale(1.05)';
+            boton.style.transform = 'scale(1.1)';
+            boton.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
         });
         boton.addEventListener('mouseleave', () => {
-            boton.style.background = colorBase;
             boton.style.transform = 'scale(1)';
+            boton.style.filter = 'none';
         });
         boton.addEventListener('click', () => { this._click(); onClick(); });
         return boton;
@@ -493,13 +506,13 @@ export class UIManager {
             justify-content: center;
         `;
 
-        // Seguir jugando (cancelar) en azul tinta; volver al menú en rojo tinta
+        // Seguir jugando (cancelar) y volver al menú con imágenes
         const btnSeguir = this._crearBotonConfirm('SEGUIR JUGANDO', () => {
             if (onCancelar) onCancelar();
-        });
+        }, 'assets/botonSeguirJugando.png');
         const btnVolver = this._crearBotonConfirm('VOLVER AL MENÚ', () => {
             if (onConfirmar) onConfirmar();
-        }, '#CC0000', '#FF2A2A');
+        }, 'assets/botonVolverAlMenu.png');
 
         fila.appendChild(btnSeguir);
         fila.appendChild(btnVolver);
@@ -803,44 +816,46 @@ export class UIManager {
                 width: 100%;
             `;
             
-            // Botón Anterior (siempre presente pero invisible si es el primer paso)
-            const btnAnterior = document.createElement('button');
-            btnAnterior.textContent = 'ANTERIOR';
+            // Botón Anterior con imagen (invisible si es el primer paso)
+            const btnAnterior = document.createElement('img');
+            btnAnterior.src = 'assets/botonAnterior.png';
+            btnAnterior.alt = 'ANTERIOR';
             btnAnterior.style.cssText = `
-                padding: 15px 30px;
-                font-size: 18px;
-                font-family: 'Segoe Script', cursive;
-                font-weight: bold;
-                color: white;
-                background: #0044CC;
-                border: 2px solid white;
-                border-radius: 10px;
                 cursor: pointer;
+                transition: all 0.3s ease;
+                display: block;
                 visibility: ${indice > 0 ? 'visible' : 'hidden'};
             `;
+            btnAnterior.addEventListener('mouseenter', () => {
+                btnAnterior.style.transform = 'scale(1.1)';
+                btnAnterior.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
+            });
+            btnAnterior.addEventListener('mouseleave', () => {
+                btnAnterior.style.transform = 'scale(1)';
+                btnAnterior.style.filter = 'none';
+            });
             if (indice > 0) {
                 btnAnterior.addEventListener('click', () => mostrarPaso(indice - 1));
             }
             botones.appendChild(btnAnterior);
             
-            // Botón Siguiente / Finalizar
-            const btnSiguiente = document.createElement('button');
-            if (indice < pasos.length - 1) {
-                btnSiguiente.textContent = 'SIGUIENTE';
-            } else {
-                btnSiguiente.textContent = 'FINALIZAR';
-            }
+            // Botón Siguiente / Finalizar con imagen
+            const btnSiguiente = document.createElement('img');
+            btnSiguiente.src = 'assets/botonSiguiente.png';
+            btnSiguiente.alt = indice < pasos.length - 1 ? 'SIGUIENTE' : 'FINALIZAR';
             btnSiguiente.style.cssText = `
-                padding: 15px 30px;
-                font-size: 18px;
-                font-family: 'Segoe Script', cursive;
-                font-weight: bold;
-                color: white;
-                background: #003366;
-                border: 2px solid white;
-                border-radius: 10px;
                 cursor: pointer;
+                transition: all 0.3s ease;
+                display: block;
             `;
+            btnSiguiente.addEventListener('mouseenter', () => {
+                btnSiguiente.style.transform = 'scale(1.1)';
+                btnSiguiente.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
+            });
+            btnSiguiente.addEventListener('mouseleave', () => {
+                btnSiguiente.style.transform = 'scale(1)';
+                btnSiguiente.style.filter = 'none';
+            });
             btnSiguiente.addEventListener('click', () => {
                 if (indice < pasos.length - 1) {
                     mostrarPaso(indice + 1);
