@@ -22,7 +22,7 @@ export class EnemyProjectile extends GameObject {
         this.dano = CONFIG.PROYECTIL_ENEMIGO.DANO;
         this.tiempoDeVida = CONFIG.PROYECTIL_ENEMIGO.TIEMPO_DE_VIDA;
         
-        this.radio = 12;  // Aumentado de 8 a 12 para mejor colisión
+        this.radio = 6;  // Reducido 50% (12 → 6)
         this.anchoJuego = anchoJuego;
         this.altoJuego = altoJuego;
         
@@ -31,7 +31,7 @@ export class EnemyProjectile extends GameObject {
         
         this.active = true;
         
-        this.escala = 0.35;
+        this.escala = 0.175;  // Reducido 50% (0.35 → 0.175)
         
         if (textura) {
             this.imagen = new PIXI.Sprite(textura);
