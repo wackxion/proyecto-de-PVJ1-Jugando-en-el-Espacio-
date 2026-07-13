@@ -261,23 +261,54 @@ export class UIManager {
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('assets/fondoEspacio2.png') no-repeat center center;
+            background: url('assets/jugando en el espacio.png') no-repeat center center;
             background-size: cover;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
             z-index: 500;
         `;
-        
-        // Agregar botones con imágenes
-        this.mainMenu.appendChild(this.crearBotonMenu('JUGAR', () => this.onJugar(), 'assets/botonJuegar.png'));
-        this.mainMenu.appendChild(this.crearBotonMenu('TUTORIAL', () => this.onTutorial(), 'assets/botonTutorial.png'));
-        this.mainMenu.appendChild(this.crearBotonMenu('TOP 5', () => this.onTop5(), 'assets/botonTOP5.png'));
-        this.mainMenu.appendChild(this.crearBotonMenu('OPCIONES', () => this.mostrarOpciones(), 'assets/botonOpciones.png'));
-        this.mainMenu.appendChild(this.crearBotonMenu('CRÉDITOS', () => this.onCreditos(), 'assets/botonCreditos.png'));
-        
+
+        // Botones 20% más chicos que su tamaño natural (320px -> 256px)
+        const anchoBoton = 256;
+
+        // --- Botón JUGAR: debajo de la nave (centrado horizontalmente) ---
+        // Se envuelve en un div posicionado para que el efecto hover (scale)
+        // no pise el centrado del botón.
+        const jugar = this.crearBotonMenu('JUGAR', () => this.onJugar(), 'assets/botonJuegar.png');
+        jugar.style.width = anchoBoton + 'px';
+        const jugarWrap = document.createElement('div');
+        jugarWrap.style.cssText = `
+            position: absolute;
+            left: 50%;
+            top: 73%;
+            transform: translateX(-50%);
+        `;
+        jugarWrap.appendChild(jugar);
+        this.mainMenu.appendChild(jugarWrap);
+
+        // --- Resto de botones: columna a la derecha, más juntos ---
+        const colDerecha = document.createElement('div');
+        colDerecha.style.cssText = `
+            position: absolute;
+            right: 4%;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        `;
+        const items = [
+            ['TUTORIAL', () => this.onTutorial(), 'assets/botonTutorial.png'],
+            ['TOP 5', () => this.onTop5(), 'assets/botonTOP5.png'],
+            ['OPCIONES', () => this.mostrarOpciones(), 'assets/botonOpciones.png'],
+            ['CRÉDITOS', () => this.onCreditos(), 'assets/botonCreditos.png'],
+        ];
+        for (const [txt, acc, img] of items) {
+            const b = this.crearBotonMenu(txt, acc, img);
+            b.style.width = anchoBoton + 'px';
+            colDerecha.appendChild(b);
+        }
+        this.mainMenu.appendChild(colDerecha);
+
         this.container.appendChild(this.mainMenu);
     }
     
@@ -936,7 +967,7 @@ export class UIManager {
             flex-direction: column;
             align-items: center;
             width: 100%;
-            padding: 70px 40px;
+            padding: 100px 40px 60px 40px;
         `;
 
         const titulo = document.createElement('div');
@@ -946,7 +977,7 @@ export class UIManager {
             font-family: 'Segoe Script', cursive;
             font-size: 28px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             text-shadow: 0 0 10px #0044CC;
         `;
         container.appendChild(titulo);

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.16.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.16.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.17.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.17.0)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.16.0 (Actual)
+### v1.17.0 (Actual)
+> **Nuevo fondo de menú + layout de botones + Top 5 reajustado**
+
+- 🖼️ Fondo del menú principal = ilustración `jugando en el espacio.png`
+- 🎮 Botón **JUGAR** debajo de la nave; el resto (Tutorial / Top 5 / Opciones / Créditos) en columna a la derecha, más juntos
+- 📏 Botones del menú 20% más chicos (320 → 256px)
+- 📋 Ventana **Top 5**: el título ya no queda tan pegado arriba (más espacio superior)
+
+### v1.16.0
 > **Ventana de "¡NUEVO RÉCORD!" con el marco de las demás ventanas**
 
 - 🖼️ La ventana para ingresar el nombre al hacer un récord ahora usa el marco `gameOver.png` (border-image) y el fondo oscuro, igual que Opciones / Top 5 / Créditos

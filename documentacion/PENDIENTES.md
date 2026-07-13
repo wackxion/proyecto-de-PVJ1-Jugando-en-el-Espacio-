@@ -1,7 +1,17 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.16.0 (ACTUAL)
+**Versión:** v1.17.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.17.0 - Nuevo fondo de menú, layout de botones y Top 5 reajustado
+
+- **Fondo del menú principal** (`UIManager.mostrarMenuPrincipal`): pasa de `fondoEspacio2.png` a la ilustración `assets/jugando en el espacio.png` (nave + título + asteroides).
+- **Layout de botones del menú**: el menú deja de ser una columna centrada. Ahora el botón **JUGAR** va debajo de la nave (centrado horizontal, `top: 73%`, envuelto en un div para que el hover no pise el centrado) y los otros cuatro (Tutorial, Top 5, Opciones, Créditos) van en una columna a la derecha (`right: 4%`, centrada vertical) con menos separación (`gap: 10px`, antes 20px).
+- **Botones 20% más chicos**: ancho fijo de 256px (natural 320px).
+- **Ventana Top 5** (`UIManager.mostrarTop5`): el título quedaba muy pegado arriba; se subió el `padding-top` del contenido de 70px a 100px (y se bajó el inferior a 60px) para darle más aire arriba.
+- Verificado en runtime (el menú y el Top 5 se ven correctos; sin errores de consola).
 
 ---
 
