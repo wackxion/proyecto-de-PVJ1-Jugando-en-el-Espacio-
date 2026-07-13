@@ -2128,38 +2128,69 @@ _crearParticulaBoidFuera() {
             // (evita que "GAME OVER"/score se vean por detrás del formulario transparente)
             if (this._gameOverVisuales) this._gameOverVisuales.forEach(el => { if (el) el.visible = false; });
 
-            // === IMAGEN DE FONDO (GAME OVER) BAJO EL INPUT ===
-            // Mostrar la imagen de fondo detrás del formulario de nombre
-            const bgImage = document.createElement('img');
-            bgImage.src = 'assets/guardarPuuntos.png';  // Imagen de fondo
-            bgImage.style.position = 'absolute';
-            bgImage.style.top = '28%';                  // Posición vertical (28% desde arriba)
-            bgImage.style.left = '50%';                 // Centrar horizontalmente
-            bgImage.style.transform = 'translate(-50%, -50%) translateY(200px)';
-            bgImage.style.maxWidth = '900px';           // Ancho máximo
-            bgImage.style.opacity = '1';                // Opacidad completa
-            bgImage.style.pointerEvents = 'none';       // Permitir clicks a través de la imagen
-            document.body.appendChild(bgImage);
-            
-            // === CREAR EL FORMULARIO PARA INGRESAR EL NOMBRE ===
-            // Contenedor principal del formulario (div)
+            // === VENTANA DE NUEVO RÉCORD ===
+            // Usa el mismo marco (gameOver.png con border-image) y fondo oscuro
+            // que las demás ventanas del juego (Opciones / Top 5 / Créditos).
             const inputContainer = document.createElement('div');
-            inputContainer.style.position = 'absolute';
-            inputContainer.style.top = '50%';                                      // 50% desde arriba
-            inputContainer.style.left = '50%';                                     // 50% desde izquierda
-            inputContainer.style.transform = 'translate(-50%, -50%)';             // Centrar exactamente
-            inputContainer.style.display = 'flex';                                // Usar flexbox
-            inputContainer.style.flexDirection = 'column';                        // Elementos en columna
-            inputContainer.style.alignItems = 'center';                           // Centrar horizontalmente
-            inputContainer.style.gap = '10px';                                    // Espacio entre elementos
+            inputContainer.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(13, 13, 26, 0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            // Marco decorativo (border-image de gameOver.png), igual que las demás ventanas
+            const exterior = document.createElement('div');
+            exterior.style.cssText = `
+                border-style: solid;
+                border-width: 36px;
+                border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+                box-sizing: border-box;
+                width: ${Math.min(520, this.anchoJuego * 0.9)}px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            `;
+
+            // Contenido interno (columna centrada)
+            const contenido = document.createElement('div');
+            contenido.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                padding: 55px 50px;
+                gap: 16px;
+            `;
             
-            // Etiqueta (texto) que aparece arriba del campo de texto
+            // Título de la ventana (mismo estilo que las demás ventanas)
+            const titulo = document.createElement('div');
+            titulo.textContent = '¡NUEVO RÉCORD!';
+            titulo.style.cssText = `
+                color: #0044CC;
+                font-family: 'Segoe Script', cursive;
+                font-size: 26px;
+                font-weight: bold;
+                text-shadow: 0 0 10px #0044CC;
+                text-align: center;
+            `;
+
+            // Subtítulo (arriba del campo de texto)
             const label = document.createElement('div');
-            label.textContent = '¡NUEVO RECORD! Ingresa tu nombre:';              // Texto a mostrar
-            label.style.color = '#0044CC';                                        // Color azul
-            label.style.fontSize = '18px';                                        // Tamaño de letra
-            label.style.fontFamily = 'Segoe Script, cursive';                     // Tipo de letra manuscrita
-            label.style.textShadow = '0 0 10px #0044CC';                         // Efecto brillo azul
+            label.textContent = 'Ingresa tu nombre:';
+            label.style.cssText = `
+                color: #0044CC;
+                font-family: 'Segoe Script', cursive;
+                font-size: 18px;
+                text-shadow: 0 0 10px #0044CC;
+                text-align: center;
+            `;
             
             // Campo de texto (input) donde el usuario escribe su nombre
             const input = document.createElement('input');
@@ -2169,7 +2200,9 @@ _crearParticulaBoidFuera() {
             input.style.fontSize = '20px';                                        // Tamaño de letra
             input.style.textAlign = 'center';                                     // Centrar texto
             input.style.border = '3px solid #0044CC';                            // Borde azul
-            input.style.background = '#0d0d1a00';                                // Fondo transparente
+            input.style.outline = 'none';                                        // Sin anillo de foco naranja del navegador
+            input.style.borderRadius = '6px';                                    // Esquinas suaves
+            input.style.background = 'rgba(255, 255, 255, 0.6)';                 // Fondo blanco tenue (legible sobre el marco)
             input.style.color = '#0044CC';                                        // Texto azul
             input.style.fontFamily = 'Segoe Script, cursive';                     // Tipo de letra
             
@@ -2194,14 +2227,18 @@ _crearParticulaBoidFuera() {
                 button.style.filter = 'brightness(1)';
             });
             
-            // Agregar los elementos al contenedor y al documento
-            inputContainer.appendChild(label);       // Agregar etiqueta
-            inputContainer.appendChild(input);       // Agregar campo de texto
-            inputContainer.appendChild(button);      // Agregar botón
+            // Ensamblar: contenido dentro del marco, marco dentro del overlay
+            contenido.appendChild(titulo);           // Título
+            contenido.appendChild(label);            // Subtítulo
+            contenido.appendChild(input);            // Campo de texto
+            contenido.appendChild(button);           // Botón guardar
+            exterior.appendChild(contenido);
+            inputContainer.appendChild(exterior);
             document.body.appendChild(inputContainer); // Agregar todo al body
-            
+
             // Guardar referencia para limpiar después (cuando se cierre el input)
-            this.bgImageRecord = bgImage;
+            // Ya no hay imagen de fondo separada; el marco es parte del inputContainer
+            this.bgImageRecord = null;
             this.inputContainerRecord = inputContainer;
             
             // === IMPORTANTE: Desactivar click del stage ===

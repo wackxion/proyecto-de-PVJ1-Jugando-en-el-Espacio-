@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.15.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.15.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.16.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.16.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.15.0 (Actual)
+### v1.16.0 (Actual)
+> **Ventana de "¡NUEVO RÉCORD!" con el marco de las demás ventanas**
+
+- 🖼️ La ventana para ingresar el nombre al hacer un récord ahora usa el marco `gameOver.png` (border-image) y el fondo oscuro, igual que Opciones / Top 5 / Créditos
+- ✏️ Título + subtítulo en tinta azul, campo de texto con borde azul (sin el anillo naranja de foco) y botón de guardar dentro del marco
+
+### v1.15.0
 > **Explosiones dedicadas: asteroides (rojo) y naves enemigas (verde)**
 
 - 💥 **Explosión roja** de 4 frames (`esplocionRojo1-4.png`) para la destrucción de asteroides

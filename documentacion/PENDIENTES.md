@@ -1,7 +1,16 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.15.0 (ACTUAL)
+**Versión:** v1.16.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.16.0 - Ventana de nuevo récord con el marco de las demás ventanas
+
+- **Ventana de ingreso de nombre (nuevo récord) rehecha** (`Game.js`, en `gameOver()`): antes flotaba una imagen `guardarPuuntos.png` con el formulario encima. Ahora el formulario vive dentro del mismo marco `gameOver.png` (border-image 9-slice) y fondo oscuro `rgba(13,13,26,0.9)` que usan Opciones / Top 5 / Créditos / "¿Volver al menú?".
+- **Estructura**: overlay a pantalla completa → marco (`border-image`) → contenido en columna con título `¡NUEVO RÉCORD!`, subtítulo `Ingresa tu nombre:`, input y botón de guardar.
+- **Input**: borde azul `#0044CC`, `outline:none` (se quitó el anillo de foco naranja del navegador que rompía la paleta), esquinas suaves y fondo blanco tenue para legibilidad.
+- Se eliminó la imagen `guardarPuuntos.png` como fondo; `this.bgImageRecord` queda en `null` (la limpieza existente lo tolera). Verificado en runtime: la ventana aparece con el marco correcto y el guardado cierra el formulario y restaura los botones de Game Over.
 
 ---
 
