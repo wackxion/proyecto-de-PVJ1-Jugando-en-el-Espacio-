@@ -179,6 +179,8 @@ export const CONFIG = {
             // --- Otros SFX ---
             particulaBoid: 0.45,        // capturar partícula (suena en cada una, con throttle)
             click: 0.5,                 // botones del menú
+            mejora: 0.6,                // comprar una mejora (clic en el icono de mejora)
+            particulasInsuficientes: 0.5, // intentar comprar sin partículas suficientes
 
             // --- Música de fondo (en bucle) ---
             musicaMenu: 0.5,            // menú principal

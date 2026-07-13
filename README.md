@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.11.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.11.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.13.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.13.0)
 
 ---
 
@@ -361,7 +361,19 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.11.0 (Actual)
+### v1.13.0 (Actual)
+> **Marcos por nivel de mejora + sonidos de compra**
+
+- 🖼️ **Marco que sube de tier**: el marco de cada habilidad cambia según cuántas mejoras compraste (5 marcos). La 1ª mejora no cambia el marco, recién la 2ª (`marco = max(1, nivel)`)
+- 🔊 **Sonidos de mejora**: al comprar suena `mejora.mp3`; al intentar sin partículas suficientes suena `particulasInsuficientes.mp3`
+
+### v1.12.0
+> **Botones del menú y ventanas con imágenes PNG (estilo tinta)**
+
+- 🎨 Menú, tutorial, Game Over y Top 5 usan botones-imagen (JUGAR, TUTORIAL, VOLVER, etc.)
+- ⚖️ Ajustes de tamaño de proyectiles y de la fuente de precios en los marcos
+
+### v1.11.0
 > **Sistema de mejoras funcional (compra desde el HUD) + iluminación de iconos**
 
 - 🛒 **Compra de mejoras desde los paneles laterales**: clic en el icono de mejora (upgreate) de una habilidad compra el próximo nivel con partículas Boid y **prende el chip** correspondiente. Chips = niveles comprados

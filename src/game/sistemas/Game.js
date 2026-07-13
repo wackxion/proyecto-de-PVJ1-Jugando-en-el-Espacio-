@@ -583,10 +583,14 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         }
         if (idx < 0) return 'maxeada';
         const costo = this.costosMejoras[idx] || 0;
-        if ((this.particulasCapturadas || 0) < costo) return 'sinSaldo';
+        if ((this.particulasCapturadas || 0) < costo) {
+            if (this.gestorSonido) this.gestorSonido.reproducir('particulasInsuficientes');
+            return 'sinSaldo';
+        }
         this.particulasCapturadas -= costo;
         this.mejoras[idx] = 1;
         this.aplicarMejoras();
+        if (this.gestorSonido) this.gestorSonido.reproducir('mejora');
         return 'ok';
     }
 
@@ -827,6 +831,8 @@ _crearParticulaBoidFuera() {
         this.gestorSonido.cargar('destruccionNave', 'assets/audio/destruccion_nave.mp3', V.destruccionNave);
         this.gestorSonido.cargar('recibirImpacto', 'assets/audio/recibir impacto.mp3', V.recibirImpacto);
         this.gestorSonido.cargar('particulaBoid', 'assets/audio/particula_boid.mp3', V.particulaBoid); // suena en cada captura (con throttle)
+        this.gestorSonido.cargar('mejora', 'assets/audio/mejora.mp3', V.mejora); // comprar una mejora
+        this.gestorSonido.cargar('particulasInsuficientes', 'assets/audio/particulasInsuficientes.mp3', V.particulasInsuficientes); // sin saldo
 
         // --- Música de fondo (en bucle) ---
         this.gestorSonido.cargar('musicaMenu', 'assets/audio/musica_menu.mp3', V.musicaMenu, 'musica');

@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 08/07/2026  
-**Versión:** v1.12.0 (ACTUAL)
+**Versión:** v1.13.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.13.0 - Marcos por nivel de mejora + sonidos de compra
+
+- **Marco por tier de mejora** (`PixiHUD._marcoTexturaTier`, `_actualizarMarco`; assets `marcos1..5mejora.png`): el marco de cada habilidad cambia según cuántas mejoras compraste. `marco = max(1, nivel)`, o sea 0-1 mejoras → marco 1, 2 → marco 2, ..., 5 → marco 5 (la 1ª mejora NO cambia el marco, recién la 2ª). Cada marco tiene dims algo distintas, así que se escala (no uniforme) para renderizar siempre al mismo tamaño y quedar alineado con el panel de chips. Las habilidades sin mejora usan siempre el marco 1.
+- **Sonidos de compra** (`config.js` → `AUDIO.VOLUMENES.mejora`/`particulasInsuficientes`; `Game._registrarSonidos`, `Game.comprarMejoraSeccion`): al comprar una mejora suena `mejora.mp3`; al intentar comprar sin partículas suficientes suena `particulasInsuficientes.mp3`.
 
 ---
 

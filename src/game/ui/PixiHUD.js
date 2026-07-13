@@ -91,6 +91,7 @@ export class PixiHUD {
         // rectángulo con un CUADRADO en la punta izquierda donde va el icono.
         // Se escala para que el cuadrado mida ~70px; el resto es para la mejora.
         this._texturaMarco = null;
+        this._texturasMarcos = null;                       // 5 marcos por tier de mejora (max(1,nivel))
         this._marcoQ = 85;                                 // lado del cuadrado del icono (+10%)
         this._marcoEscala = 85 / 688;                      // escala (cuadrado ~85)
         this._marcoAncho = Math.round(2307 * (85 / 688));  // ancho del marco (~285)
@@ -976,6 +977,40 @@ export class PixiHUD {
     }
 
     /**
+     * Devuelve la textura de marco según el NIVEL de mejora de la habilidad:
+     * marco = max(1, nivel), o sea 0-1 mejoras → marco 1, 2 → marco 2, ...,
+     * 5 → marco 5 (la 1ª mejora no cambia el marco, recién la 2ª). Los cuadrantes
+     * sin mejora usan siempre el marco 1.
+     * @private
+     */
+    _marcoTexturaTier(g) {
+        const marcos = this._texturasMarcos;
+        if (!marcos || !marcos.length) return this._texturaMarco || null;
+        let nivel = 0;
+        if (g && g.mejoraSeccion !== undefined && this.game && this.game.mejoras) {
+            for (let i = 0; i < 5; i++) {
+                if ((this.game.mejoras[g.mejoraSeccion + i] || 0) >= 1) nivel++;
+            }
+        }
+        const tier = Math.max(1, nivel);
+        return marcos[Math.min(tier, marcos.length) - 1] || marcos[0];
+    }
+
+    /**
+     * Actualiza el marco de un cuadrante si cambió su tier (se compró una mejora).
+     * Recalcula la escala porque cada marco tiene dimensiones algo distintas.
+     * @private
+     */
+    _actualizarMarco(g) {
+        if (!g || !g.frameSprite || g.mejoraSeccion === undefined) return;
+        const tex = this._marcoTexturaTier(g);
+        if (!tex || g.frameSprite.texture === tex) return;
+        g.frameSprite.texture = tex;
+        const sx = this._marcoAncho / tex.width, sy = this._marcoQ / tex.height;
+        g.frameSprite.scale.set(g._espejo ? -sx : sx, sy);
+    }
+
+    /**
      * Dibuja un cuadrante usando la imagen de marco (marcos1mejora) y centra su
      * icono en el cuadrado de la punta. En la columna derecha el marco se espeja
      * (cuadrado del lado del borde derecho). Si el marco aún no cargó, solo ubica
@@ -993,25 +1028,29 @@ export class PixiHUD {
 
         const Q = this._marcoQ;      // lado del cuadrado del icono
         const W = this._marcoAncho;  // ancho total del marco
-        const s = this._marcoEscala;
+        g._espejo = espejo;          // se usa al cambiar el marco de tier
 
-        // El CUADRADO del icono queda siempre en local [0, Q] (en el borde de
-        // pantalla). El RECTÁNGULO del marco se va FUERA de pantalla, para que
-        // más adelante entren ahí las mejoras.
-        if (this._texturaMarco) {
+        // El CUADRADO del icono queda en local [0, Q] (en el borde de pantalla).
+        // El RECTÁNGULO del marco se va hacia el centro (ahí van las mejoras).
+        // La textura del marco depende del NIVEL de mejora de la habilidad (tier).
+        // Cada marco tiene dims algo distintas, así que se escala para renderizar
+        // siempre W×Q (escala no uniforme; deja todo alineado).
+        const marcoTex = this._marcoTexturaTier(g);
+        if (marcoTex) {
             if (!g.frameSprite) {
-                g.frameSprite = new PIXI.Sprite(this._texturaMarco);
+                g.frameSprite = new PIXI.Sprite(marcoTex);
                 g.frameSprite.anchor.set(0, 0);
                 g.frameSprite.zIndex = 0;
             }
-            g.frameSprite.texture = this._texturaMarco;
+            g.frameSprite.texture = marcoTex;
+            const sx = W / marcoTex.width, sy = Q / marcoTex.height;
             if (espejo) {
                 // Columna izquierda: marco espejado; el rectángulo se va por la izquierda.
-                g.frameSprite.scale.set(-s, s);
+                g.frameSprite.scale.set(-sx, sy);
                 g.frameSprite.position.set(Q, y);
             } else {
                 // Columna derecha: marco normal; el rectángulo se va por la derecha.
-                g.frameSprite.scale.set(s, s);
+                g.frameSprite.scale.set(sx, sy);
                 g.frameSprite.position.set(0, y);
             }
             contenedor.addChild(g.frameSprite);
@@ -1257,6 +1296,7 @@ export class PixiHUD {
             if (!g) continue;
             if (g.precioText) this._refrescarPrecio(g);
             if (g.pips) this._refrescarPips(g);
+            this._actualizarMarco(g);   // cambia el marco según el nivel comprado
             if (g.upgradeSprite && g.mejoraSeccion !== undefined) {
                 const precio = this._precioMejora(g.mejoraSeccion);
                 const comprable = (precio !== null) && particulas >= precio;
@@ -1292,13 +1332,14 @@ export class PixiHUD {
      */
     async _cargarTexturaMarco() {
         try {
-            const tex = await PIXI.Assets.load('assets/marcos1mejora.png');
-            if (tex) {
-                this._texturaMarco = tex;
-                this._posicionarIconosLaterales();
-            }
+            // 5 marcos por tier de mejora (marcos1..5mejora.png).
+            const rutas = [1, 2, 3, 4, 5].map(n => `assets/marcos${n}mejora.png`);
+            const texs = await Promise.all(rutas.map(r => PIXI.Assets.load(r)));
+            this._texturasMarcos = texs;
+            this._texturaMarco = texs[0];   // marco base (tier 1)
+            this._posicionarIconosLaterales();
         } catch (e) {
-            console.error('[PixiHUD] No se pudo cargar marcos1mejora.png:', e);
+            console.error('[PixiHUD] No se pudieron cargar los marcos de mejora:', e);
         }
     }
 
