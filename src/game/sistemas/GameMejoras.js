@@ -47,7 +47,7 @@ export async function crearVentanaMejoras(game) {
     game.aplicacion.stage.interactive = true;
     
     // Cargar textura de game over para el fondo
-    const gameOverTexture = await PIXI.Assets.load('assets/gameOver.jpg');
+    const gameOverTexture = await PIXI.Assets.load('assets/gameOver.png');
     
     // Fondo
     const fondoSprite = new PIXI.Sprite(gameOverTexture);

@@ -17,6 +17,7 @@
 import { Cohete } from '../mecanicas/Cohete.js';
 import { SuccionEffect } from '../efectosVisuales/SuccionEffect.js';
 import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
+import { SpecialEnemy } from '../entidades/SpecialEnemy.js';
 import { CONFIG } from '../../config.js';
 
 /**
@@ -225,6 +226,21 @@ export function actualizarCohetes(game, delta) {
                 }
             }
 
+            // Si el objetivo es un asteroide ESPECIAL, hacer su EFECTO: generar 1
+            // mini especial que orbita al jugador (igual que al destruirlo con un
+            // proyectil). Antes el cohete solo lo destruía, sin este efecto.
+            const esEspecial = game.enemigosSpeciales.includes(objetivo) && !objetivo.enOrbita;
+            if (esEspecial) {
+                const angulo = Math.random() * Math.PI * 2;
+                const xMini = game.jugador.x + Math.cos(angulo) * 130;
+                const yMini = game.jugador.y + Math.sin(angulo) * 130;
+                const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.anchoJuego, game.altoJuego, true);
+                mini.enOrbita = true;
+                mini.indiceOrbita = 0;
+                mini.render(game.aplicacion.stage);
+                game.enemigosSpeciales.push(mini);
+            }
+
             // Destruir objetivo
             if (objetivo.destroy) {
                 objetivo.destroy();
@@ -235,7 +251,11 @@ export function actualizarCohetes(game, delta) {
                     objetivo.imagen.parent?.removeChild(objetivo.imagen);
                 }
             }
-            
+            if (esEspecial) {
+                const idx = game.enemigosSpeciales.indexOf(objetivo);
+                if (idx >= 0) game.enemigosSpeciales.splice(idx, 1);
+            }
+
             // Destruir cohete
             cohete.destroy();
             game.cohetes.splice(i, 1);

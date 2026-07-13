@@ -100,8 +100,10 @@ export class UIManager {
 
         const exterior = document.createElement('div');
         exterior.style.cssText = `
-            background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: 100% 100%;
+            border-style: solid;
+            border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
             width: ${Math.min(560, this.width * 0.9)}px;
             display: flex; justify-content: center; align-items: center;
         `;
@@ -459,8 +461,10 @@ export class UIManager {
 
         const exterior = document.createElement('div');
         exterior.style.cssText = `
-            background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: 100% 100%;
+            border-style: solid;
+            border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
             width: ${Math.min(560, this.width * 0.9)}px;
             display: flex;
             justify-content: center;
@@ -513,6 +517,10 @@ export class UIManager {
         const btnVolver = this._crearBotonConfirm('VOLVER AL MENÚ', () => {
             if (onConfirmar) onConfirmar();
         }, 'assets/botonVolverAlMenu.png');
+
+        // Los PNG de estos botones son grandes (490×120 / 450×120) y se salían del
+        // marco. Los achicamos por alto (width auto) para que entren dentro.
+        for (const b of [btnSeguir, btnVolver]) { b.style.height = '44px'; b.style.width = 'auto'; }
 
         fila.appendChild(btnSeguir);
         fila.appendChild(btnVolver);
@@ -875,13 +883,13 @@ export class UIManager {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: cover;
+            border-style: solid;
+            border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
             width: ${Math.min(750, this.width * 0.9)}px;
             height: ${Math.min(700, this.height * 0.9)}px;
-            padding: 30px;
-            border-radius: 20px;
-            border: 4px solid #0044CC;
+            padding: 60px 55px;
         `;
         
         // Mostrar primer paso
@@ -912,8 +920,10 @@ export class UIManager {
         
         const exterior = document.createElement('div');
         exterior.style.cssText = `
-            background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: 100% 100%;
+            border-style: solid;
+            border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
             width: ${Math.min(560, this.width * 0.9)}px;
             display: flex;
             justify-content: center;
@@ -1104,8 +1114,10 @@ export class UIManager {
         
         const exterior = document.createElement('div');
         exterior.style.cssText = `
-            background: url('assets/gameOver.jpg') no-repeat center center;
-            background-size: 100% 100%;
+            border-style: solid;
+            border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
             width: ${Math.min(640, this.width * 0.9)}px;
             display: flex;
             justify-content: center;

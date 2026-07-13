@@ -1991,6 +1991,13 @@ _crearParticulaBoidFuera() {
         this.ejecutando = false;
         this.enGameOver = true;
 
+        // Ocultar el HUD (escudo curvo, paneles, marcador): está en zIndex 1000,
+        // por encima de la ventana de Game Over, y no tiene sentido durante el
+        // fin de partida. Se restaura al reiniciar.
+        if (this.pixiHUD && this.pixiHUD.container) {
+            this.pixiHUD.container.visible = false;
+        }
+
         // Cortar el bucle de rotura de escudos si estaba sonando
         if (this.jugador && this.gestorSonido) {
             this.gestorSonido.detener(this.jugador._loopRotura);
@@ -2008,7 +2015,7 @@ _crearParticulaBoidFuera() {
         this.elementosFinJuego.push(bg);
         
         // Cargar imagen de Game Over
-        const gameOverTexture = await PIXI.Assets.load('assets/gameOver.jpg');
+        const gameOverTexture = await PIXI.Assets.load('assets/gameOver.png');
         
         // Crear sprite con la imagen
         const gameOverSprite = new PIXI.Sprite(gameOverTexture);
@@ -2404,8 +2411,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     const scaleY = rect.height / this.altoJuego;
     
     // 'ancho' = altura real del papel (ya escalada). Ubicar los botones en la
-    // parte baja del papel, debajo del texto de puntuación/oleada.
-    const btnY = yCentro + (ancho * 0.42);
+    // parte baja del papel PERO dentro del blanco (0.32, no 0.42, para que no
+    // queden sobre el borde inferior del marco).
+    const btnY = yCentro + (ancho * 0.32);
     
     // Botón Reiniciar - centrado debajo de la imagen
     const btnReiniciar = document.createElement('img');
@@ -2413,10 +2421,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     btnReiniciar.id = 'btn-reiniciar';
     btnReiniciar.style.cssText = `
         position: absolute;
-        left: ${this.anchoJuego * 0.42}px;
+        left: ${this.anchoJuego / 2 - 90}px;
         top: ${btnY * scaleY}px;
         transform: translate(-50%, -50%);
-        width: 175px;
+        width: 145px;
         height: auto;
         cursor: pointer;
         z-index: 1000;
@@ -2450,10 +2458,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     btnTop5.src = 'assets/botonTOP5.png';
     btnTop5.style.cssText = `
         position: absolute;
-        left: ${this.anchoJuego * 0.58}px;
+        left: ${this.anchoJuego / 2 + 90}px;
         top: ${btnY * scaleY}px;
         transform: translate(-50%, -50%);
-        width: 175px;
+        width: 145px;
         height: auto;
         cursor: pointer;
         z-index: 1000;
@@ -2565,10 +2573,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this.clickHandlerActivo = true;
         this.botonClicked = false;
         
-        // Re-agregar el contenedor del HUD (PixiHUD) al stage.
-        // Es necesario porque stage.removeChildren() lo eliminó arriba.
+        // Re-agregar el contenedor del HUD (PixiHUD) al stage y volver a mostrarlo
+        // (se ocultó en gameOver). Es necesario porque stage.removeChildren() lo
+        // eliminó arriba.
         if (hudContainer && this.aplicacion && this.aplicacion.stage) {
             this.aplicacion.stage.addChild(hudContainer);
+            hudContainer.visible = true;
         }
 
         // Restaurar la interactividad del stage: el game over (_limpiarFinJuego)
@@ -2910,7 +2920,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         }
         
         // Cargar imagen de puntuación (usando gameOver.jpg como fondo)
-        const puntuacionTexture = await PIXI.Assets.load('assets/gameOver.jpg');
+        const puntuacionTexture = await PIXI.Assets.load('assets/gameOver.png');
         
         // Crear sprite con la imagen
         const puntuacionSprite = new PIXI.Sprite(puntuacionTexture);

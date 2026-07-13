@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.13.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.13.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.14.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.14.0)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.13.0 (Actual)
+### v1.14.0 (Actual)
+> **Ventanas con marco `gameOver.png` + fixes de botones y cohete**
+
+- 🖼️ **Nuevo marco de ventanas**: Game Over, Opciones, Top 5, Créditos y "¿Volver al menú?" usan `gameOver.png` como marco decorativo (vía `border-image`, sin deformar)
+- 🎯 **Botones acomodados dentro del marco**: Game Over y la ventana de salir dejaron de superponerse/salirse del borde
+- 🛡️ **HUD circular oculto en Game Over**: el escudo curvo ya no aparece por encima de la ventana
+- 💥 **Fix cohete vs asteroide especial**: al destruirlo con el cohete ahora sí dispara su efecto (mini-asteroide en órbita)
+
+### v1.13.0
 > **Marcos por nivel de mejora + sonidos de compra**
 
 - 🖼️ **Marco que sube de tier**: el marco de cada habilidad cambia según cuántas mejoras compraste (5 marcos). La 1ª mejora no cambia el marco, recién la 2ª (`marco = max(1, nivel)`)

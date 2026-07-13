@@ -1,7 +1,16 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 08/07/2026  
-**Versión:** v1.13.0 (ACTUAL)
+**Última actualización:** 13/07/2026  
+**Versión:** v1.14.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.14.0 - Ventanas con marco gameOver.png + fixes de botones y cohete
+
+- **Nuevo marco decorativo en las ventanas** (`UIManager.js`, `Game.js`, `assets/gameOver.png`): Game Over (PixiJS), Opciones, Top 5, Créditos y "¿Volver al menú?" usan `gameOver.png` como marco. Las ventanas DOM usan `border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch` (9-slice: esquinas fijas, bordes estirados) en vez de `background-size:100% 100%`, que deformaba el marco (el aspecto del modal ≠ aspecto de la imagen). El Game Over de PixiJS usa un Sprite con escala uniforme (mantiene proporción).
+- **Botones acomodados dentro del marco**: en Game Over los botones (Reiniciar / Top 5) se achicaron a 145px y se centraron en `±90px`, y se subieron a `btnY = yCentro + ancho*0.32` para quedar dentro del interior blanco (antes se superponían y pisaban el borde). En "¿Volver al menú?" (`mostrarConfirmacionSalir`) los botones-imagen (490×120 / 450×120) se achicaron a `height:44px; width:auto` para entrar en el interior (~388px) lado a lado.
+- **HUD circular oculto en Game Over** (`Game.gameOver`, `_reiniciarJuego`): el escudo curvo (zIndex del HUD > sprite de Game Over) aparecía por encima de la ventana. Se oculta todo el `pixiHUD.container` durante el Game Over y se restaura al reiniciar.
+- **Fix cohete vs asteroide especial** (`GameSkills.js`): al destruir un asteroide especial con el cohete solo se destruía, sin disparar su efecto. Ahora, si el objetivo del cohete es un especial (no en órbita), se genera el mini-asteroide especial en órbita (130px del jugador) igual que con la colisión normal.
 
 ---
 
