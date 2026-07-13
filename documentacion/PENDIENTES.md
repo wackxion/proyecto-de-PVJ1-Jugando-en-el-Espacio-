@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.18.0 (ACTUAL)
+**Versión:** v1.19.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.19.0 - JUGAR arriba de la columna de botones
+
+- **Botón JUGAR** (`UIManager.mostrarMenuPrincipal`): se quita el bloque flotante separado y JUGAR pasa a ser el primer botón de la columna derecha (arriba de Tutorial), como estaba originalmente pero dentro de la columna lateral. Los 5 botones quedan apilados: Jugar, Tutorial, Top 5, Opciones, Créditos.
 
 ---
 

@@ -269,22 +269,7 @@ export class UIManager {
         // Botones 20% más chicos que su tamaño natural (320px -> 256px)
         const anchoBoton = 256;
 
-        // --- Botón JUGAR: debajo de la nave (centrado horizontalmente) ---
-        // Se envuelve en un div posicionado para que el efecto hover (scale)
-        // no pise el centrado del botón.
-        const jugar = this.crearBotonMenu('JUGAR', () => this.onJugar(), 'assets/botonJuegar.png');
-        jugar.style.width = anchoBoton + 'px';
-        const jugarWrap = document.createElement('div');
-        jugarWrap.style.cssText = `
-            position: absolute;
-            left: 50%;
-            top: 25%;
-            transform: translateX(-50%);
-        `;
-        jugarWrap.appendChild(jugar);
-        this.mainMenu.appendChild(jugarWrap);
-
-        // --- Resto de botones: columna a la derecha, más juntos ---
+        // --- Botones en columna a la derecha, JUGAR arriba de todos, más juntos ---
         const colDerecha = document.createElement('div');
         colDerecha.style.cssText = `
             position: absolute;
@@ -297,6 +282,7 @@ export class UIManager {
             gap: 10px;
         `;
         const items = [
+            ['JUGAR', () => this.onJugar(), 'assets/botonJuegar.png'],
             ['TUTORIAL', () => this.onTutorial(), 'assets/botonTutorial.png'],
             ['TOP 5', () => this.onTop5(), 'assets/botonTOP5.png'],
             ['OPCIONES', () => this.mostrarOpciones(), 'assets/botonOpciones.png'],

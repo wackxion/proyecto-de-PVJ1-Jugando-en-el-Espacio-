@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.18.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.18.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.19.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.19.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.18.0 (Actual)
+### v1.19.0 (Actual)
+> **JUGAR arriba de la columna de botones**
+
+- 🎮 El botón **JUGAR** vuelve a estar arriba de todos, como primer botón de la columna (Jugar, Tutorial, Top 5, Opciones, Créditos)
+
+### v1.18.0
 > **Ajuste fino del menú**
 
 - 🎮 Botón **JUGAR** movido debajo del título "Jugando en el Espacio" (parte superior)
