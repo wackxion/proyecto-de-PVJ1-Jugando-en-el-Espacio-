@@ -134,11 +134,11 @@ export function actualizarProyectilesEnemigos(game, delta) {
             if (game._verificarColision(proj, ast)) {
                 proj.active = false;
 
-                // Destruir asteroide (SIN puntos para el jugador)
+                // Destruir asteroide (SIN puntos para el jugador) — explosión roja
                 const escala = ast.radio / 64;
                 const explosion = new AsteroidExplosion(
                     ast.x, ast.y,
-                    game.texturaAsteroidExplosion,
+                    game.texturaExplosionAsteroide,
                     escala * 0.35
                 );
                 explosion.render(game.aplicacion.stage);
@@ -293,7 +293,7 @@ export function procesarColisionesProyectiles(game) {
                         else if (enemy.tamanio === 'rezagado2') escalaAnim = 0.42;
                         else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
 
-                        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaAsteroidExplosion, escalaAnim);
+                        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
                         astroExplosion.render(game.aplicacion.stage);
                         game.efectosExplosion.push(astroExplosion);
                     }
@@ -362,12 +362,11 @@ export function procesarColisionesProyectiles(game) {
 
                     // Si la nave fue destruida
                     if (destruida) {
-                        // Animación de destrucción (color verde para naves)
+                        // Animación de destrucción (verde para naves)
                         const naveExplosion = new AsteroidExplosion(
                             naveEnemiga.x, naveEnemiga.y,
-                            game.texturaAsteroidExplosion,
-                            0.5,
-                            0x00FF00
+                            game.texturaExplosionNave,
+                            0.5
                         );
                         naveExplosion.render(game.aplicacion.stage);
                         game.efectosImpacto.push(naveExplosion);

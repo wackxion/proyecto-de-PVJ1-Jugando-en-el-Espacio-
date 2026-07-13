@@ -104,37 +104,37 @@ export class UltiEffect extends GameObject {
             explosion.render(game.aplicacion.stage);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'large' || enemy.tamanio === 'large_rezagado') {
-            // Asteroides grandes: animación de asteroide
+            // Asteroides grandes: animación de asteroide (rojo)
             const explosion = new AsteroidExplosion(
                 x, y,
-                game.texturaAsteroidExplosion,
+                game.texturaExplosionAsteroide,
                 0.84
             );
             explosion.render(game.aplicacion.stage);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'medium' || enemy.tamanio === 'medium_rezagado') {
-            // Asteroides medianos
+            // Asteroides medianos (rojo)
             const explosion = new AsteroidExplosion(
                 x, y,
-                game.texturaAsteroidExplosion,
+                game.texturaExplosionAsteroide,
                 0.42
             );
             explosion.render(game.aplicacion.stage);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'small' || enemy.tamanio === 'small_rezagado') {
-            // Asteroides pequeños
+            // Asteroides pequeños (rojo)
             const explosion = new AsteroidExplosion(
                 x, y,
-                game.texturaAsteroidExplosion,
+                game.texturaExplosionAsteroide,
                 0.24
             );
             explosion.render(game.aplicacion.stage);
             game.efectosImpacto.push(explosion);
         } else {
-            // Por defecto (cualquier tipo no reconocido), usar animación mediana
+            // Por defecto (cualquier tipo no reconocido), usar animación mediana (rojo)
             const explosion = new AsteroidExplosion(
                 x, y,
-                game.texturaAsteroidExplosion,
+                game.texturaExplosionAsteroide,
                 0.42
             );
             explosion.render(game.aplicacion.stage);
@@ -150,12 +150,11 @@ export class UltiEffect extends GameObject {
         
         const game = this.gameRef;
         
-        // Naves enemigas: animación de asteroide VERDE
+        // Naves enemigas: animación de explosión VERDE
         const explosion = new AsteroidExplosion(
             ship.x, ship.y,
-            game.texturaAsteroidExplosion,
-            0.5,
-            0x00FF00
+            game.texturaExplosionNave,
+            0.5
         );
         explosion.render(game.aplicacion.stage);
         game.efectosImpacto.push(explosion);

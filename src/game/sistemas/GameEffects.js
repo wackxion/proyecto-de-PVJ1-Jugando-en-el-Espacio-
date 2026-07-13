@@ -178,7 +178,7 @@ export function crearExplosionAsteroide(game, enemy) {
         
         const astroExplosion = new AsteroidExplosion(
             enemy.x, enemy.y,
-            game.texturaAsteroidExplosion,
+            game.texturaExplosionAsteroide,
             escalaAnim
         );
         astroExplosion.render(game.aplicacion.stage);

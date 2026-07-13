@@ -355,6 +355,18 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
                 PIXI.Assets.load('assets/enimigo1.png'),
                 PIXI.Assets.load('assets/asteroideESP.png')
             ]);
+
+            // Explosiones dedicadas: asteroides (rojo) y naves enemigas (verde), 4 frames c/u
+            const [expRojo1, expRojo2, expRojo3, expRojo4, expVerde1, expVerde2, expVerde3, expVerde4] = await Promise.all([
+                PIXI.Assets.load('assets/esplocionRojo1.png'),
+                PIXI.Assets.load('assets/esplocionRojo2.png'),
+                PIXI.Assets.load('assets/esplocionRojo3.png'),
+                PIXI.Assets.load('assets/esplocionRojo4.png'),
+                PIXI.Assets.load('assets/esplocionVerde1.png'),
+                PIXI.Assets.load('assets/esplocionVerde2.png'),
+                PIXI.Assets.load('assets/esplocionVerde3.png'),
+                PIXI.Assets.load('assets/esplocionVerde4.png')
+            ]);
             
             // Asignar las texturas cargadas
             this.texturaJugador = naveTexture;
@@ -364,6 +376,9 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.texturaProyectil = proyectilTexture;
             this.texturaExplosion = [explocion1, explocion2, explocion3, explocion4, explocion5];
             this.texturaAsteroidExplosion = [astroExplosion1, astroExplosion2, astroExplosion3, astroExplosion4, astroExplosion5];
+            // Explosión roja para asteroides, verde para naves enemigas (el especial sigue usando texturaAsteroidExplosion con tinte azul)
+            this.texturaExplosionAsteroide = [expRojo1, expRojo2, expRojo3, expRojo4];
+            this.texturaExplosionNave = [expVerde1, expVerde2, expVerde3, expVerde4];
             this.texturaNaveEnemiga = enimigoTexture;
 
             // Crear textura de partícula Boid (2x2px) programáticamente
@@ -1430,10 +1445,10 @@ _crearParticulaBoidFuera() {
                                 escalaAnim = 0.24; // SMALL +20%
                             }
                             
-                            // Usar animación de ASTEROIDE
+                            // Usar animación de ASTEROIDE (rojo)
                             const astroExplosion = new AsteroidExplosion(
-                                enemy.x, enemy.y, 
-                                this.texturaAsteroidExplosion,
+                                enemy.x, enemy.y,
+                                this.texturaExplosionAsteroide,
                                 escalaAnim
                             );
                             astroExplosion.render(this.aplicacion.stage);
@@ -1578,12 +1593,11 @@ _crearParticulaBoidFuera() {
                     
                     // Si la nave enemiga fue destruida
                     if (destruida) {
-                        // Crear animación de destrucción de la nave enemiga (color verde)
+                        // Crear animación de destrucción de la nave enemiga (verde)
                         const naveExplosion = new AsteroidExplosion(
                             naveEnemiga.x, naveEnemiga.y,
-                            this.texturaAsteroidExplosion,
-                            0.5, // Escala para nave enemiga
-                            0x00FF00 // Color verde
+                            this.texturaExplosionNave,
+                            0.5 // Escala para nave enemiga
                         );
                         naveExplosion.render(this.aplicacion.stage);
                         this.efectosImpacto.push(naveExplosion);
@@ -1665,12 +1679,12 @@ _crearParticulaBoidFuera() {
                 
                 const astroExplosion = new AsteroidExplosion(
                     enemy.x, enemy.y,
-                    this.texturaAsteroidExplosion,
+                    this.texturaExplosionAsteroide,
                     escalaAnim
                 );
                 astroExplosion.render(this.aplicacion.stage);
                 this.efectosImpacto.push(astroExplosion);
-                
+
                 // Destruir el enemigo (siempre se destruye al chocar)
                 enemy.destroy();
                 this.enemigos.splice(i, 1);
@@ -1778,12 +1792,12 @@ _crearParticulaBoidFuera() {
                     
                     const astroExplosion = new AsteroidExplosion(
                         enemy.x, enemy.y,
-                        this.texturaAsteroidExplosion,
+                        this.texturaExplosionAsteroide,
                         escalaAnim
                     );
                     astroExplosion.render(this.aplicacion.stage);
                     this.efectosImpacto.push(astroExplosion);
-                    
+
                     // Dar puntos al jugador por destruir el asteroide
                     const puntosAsteroide = enemy.puntos || 10;
                     this.puntuacion += puntosAsteroide;
@@ -1877,12 +1891,11 @@ _crearParticulaBoidFuera() {
             if (!naveEnemiga || !naveEnemiga.active) continue;
             
             if (this._verificarColision(this.jugador, naveEnemiga)) {
-                // Crear animación de explosión (color verde)
+                // Crear animación de explosión (verde)
                 const explosion = new AsteroidExplosion(
                     naveEnemiga.x, naveEnemiga.y,
-                    this.texturaAsteroidExplosion,
-                    0.5,
-                    0x00FF00 // Color verde
+                    this.texturaExplosionNave,
+                    0.5
                 );
                 explosion.render(this.aplicacion.stage);
                 this.efectosImpacto.push(explosion);
@@ -1923,9 +1936,8 @@ _crearParticulaBoidFuera() {
                         // Animación de destrucción (verde)
                         const explosion = new AsteroidExplosion(
                             naveEnemiga.x, naveEnemiga.y,
-                            this.texturaAsteroidExplosion,
-                            0.5,
-                            0x00FF00
+                            this.texturaExplosionNave,
+                            0.5
                         );
                         explosion.render(this.aplicacion.stage);
                         this.efectosImpacto.push(explosion);
@@ -2843,8 +2855,8 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             this.enemigos.push(frag);
         }
         
-        // Efecto de explosión (usar las texturas de animación de asteroides)
-        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, this.texturaAsteroidExplosion, 0.5);
+        // Efecto de explosión (asteroide rojo)
+        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, this.texturaExplosionAsteroide, 0.5);
         astroExplosion.render(this.aplicacion.stage);
         this.efectosExplosion.push(astroExplosion);
 }

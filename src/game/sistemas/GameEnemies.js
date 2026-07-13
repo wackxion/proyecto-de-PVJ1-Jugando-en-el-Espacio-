@@ -514,11 +514,11 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                 asteroid.active = false;
                 asteroid.destroy();
                 
-                // Crear efecto de explosión del asteroide
+                // Crear efecto de explosión del asteroide (rojo)
                 const escala = asteroid.radio / 64;
                 const astroExplosion = new AsteroidExplosion(
                     asteroid.x, asteroid.y,
-                    game.texturaAsteroidExplosion,
+                    game.texturaExplosionAsteroide,
                     escala * 0.35
                 );
                 astroExplosion.render(game.aplicacion.stage);
@@ -755,7 +755,7 @@ export function limpiarEnemigosLejanos(game) {
 
 function _destruirYFragmentar(game, enemy, indice) {
     const escala = (enemy.radio || 32) / 64;
-    const explosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaAsteroidExplosion, escala * 0.5);
+    const explosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escala * 0.5);
     explosion.render(game.aplicacion.stage);
     game.efectosExplosion.push(explosion);
     
@@ -796,7 +796,7 @@ export function procesarColisionesJugador(game) {
             else if (enemy.tamanio === 'rezagado2') escalaAnim = 0.42;
             else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
             
-            const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaAsteroidExplosion, escalaAnim);
+            const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
             astroExplosion.render(game.aplicacion.stage);
             game.efectosExplosion.push(astroExplosion);
             
@@ -817,8 +817,8 @@ export function procesarColisionesJugador(game) {
         
         if (game._verificarColision(game.jugador, nave)) {
             game.jugador.recibirDano(nave.dano || 20);
-            
-            const explosion = new AsteroidExplosion(nave.x, nave.y, game.texturaAsteroidExplosion, 0.5);
+
+            const explosion = new AsteroidExplosion(nave.x, nave.y, game.texturaExplosionNave, 0.5);
             explosion.render(game.aplicacion.stage);
             game.efectosExplosion.push(explosion);
             
@@ -890,9 +890,8 @@ export function procesarColisionesJugador(game) {
                         // Animación de destrucción (verde)
                         const explosion = new AsteroidExplosion(
                             naveEnemiga.x, naveEnemiga.y,
-                            game.texturaAsteroidExplosion,
-                            0.5,
-                            0x00FF00
+                            game.texturaExplosionNave,
+                            0.5
                         );
                         explosion.render(game.aplicacion.stage);
                         game.efectosExplosion.push(explosion);

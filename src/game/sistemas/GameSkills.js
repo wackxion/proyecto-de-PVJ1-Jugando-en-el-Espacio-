@@ -201,12 +201,14 @@ export function actualizarCohetes(game, delta) {
         if (impacto && cohete.objetivo && cohete.objetivo.active) {
             const objetivo = cohete.objetivo;
             
-            // Crear explosión
+            // Crear explosión: especial usa el asset azul; asteroide usa el rojo
             const escala = (objetivo.radio || 32) / 64;
+            const esObjetivoEspecial = game.enemigosSpeciales.includes(objetivo);
             const explosion = new AsteroidExplosion(
                 objetivo.x, objetivo.y,
-                game.texturaAsteroidExplosion,
-                escala * 0.5
+                esObjetivoEspecial ? game.texturaAsteroidExplosion : game.texturaExplosionAsteroide,
+                escala * 0.5,
+                esObjetivoEspecial ? 0x0000FF : null
             );
             explosion.render(game.aplicacion.stage);
             game.efectosImpacto.push(explosion);

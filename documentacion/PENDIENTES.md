@@ -1,7 +1,16 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.14.0 (ACTUAL)
+**Versión:** v1.15.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.15.0 - Explosiones dedicadas por entidad (asteroide rojo / nave verde)
+
+- **Explosión de asteroide (roja)** y **explosión de nave enemiga (verde)** con arte propio de 4 frames (`assets/esplocionRojo1-4.png`, `assets/esplocionVerde1-4.png`), cargadas en `Game._cargarRecursos` como `texturaExplosionAsteroide` y `texturaExplosionNave`. Antes TODAS las destrucciones usaban `texturaAsteroidExplosion` (`explocionAsteroides1-5.png`) tintada por entidad (azul=especial, verde=nave, sin tinte=asteroide).
+- **Reemplazo en todos los sitios de destrucción**: se cambió la textura (y se quitó el tinte verde `0x00FF00`, ya innecesario porque el arte ya es verde) en `Game.js`, `GameEnemies.js`, `GameEffects.js`, `GameProjectiles.js`, `GameSkills.js` (cohete: rojo salvo si el objetivo es especial) y `UltiEffect.js`.
+- **El asteroide especial conserva su explosión azul** (`texturaAsteroidExplosion` + tinte `0x0000FF`), ya que no se creó arte dedicado para él.
+- Verificado en runtime: al destruir un asteroide sale la explosión roja (frame 299px) y al destruir una nave la verde (frame 285px, sin tinte), ambas por las rutas reales de colisión.
 
 ---
 

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.14.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.14.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.15.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.15.0)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.14.0 (Actual)
+### v1.15.0 (Actual)
+> **Explosiones dedicadas: asteroides (rojo) y naves enemigas (verde)**
+
+- 💥 **Explosión roja** de 4 frames (`esplocionRojo1-4.png`) para la destrucción de asteroides
+- 🟢 **Explosión verde** de 4 frames (`esplocionVerde1-4.png`) para la destrucción de naves enemigas (antes era la de asteroide tintada de verde)
+- 🎨 Cada explosión usa su propio arte de tinta según el color de la entidad; el asteroide especial conserva su explosión azul
+
+### v1.14.0
 > **Ventanas con marco `gameOver.png` + fixes de botones y cohete**
 
 - 🖼️ **Nuevo marco de ventanas**: Game Over, Opciones, Top 5, Créditos y "¿Volver al menú?" usan `gameOver.png` como marco decorativo (vía `border-image`, sin deformar)
