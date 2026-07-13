@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.17.0 (ACTUAL)
+**Versión:** v1.18.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.18.0 - Ajuste fino del layout del menú
+
+- **Botón JUGAR** (`UIManager.mostrarMenuPrincipal`): movido de debajo de la nave (`top: 73%`) a debajo del título "Jugando en el Espacio" de la imagen (`top: 25%`).
+- **Columna derecha de botones**: más pegada al borde derecho (`right: 4%` → `right: 1.5%`).
 
 ---
 

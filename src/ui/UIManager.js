@@ -278,7 +278,7 @@ export class UIManager {
         jugarWrap.style.cssText = `
             position: absolute;
             left: 50%;
-            top: 73%;
+            top: 25%;
             transform: translateX(-50%);
         `;
         jugarWrap.appendChild(jugar);
@@ -288,7 +288,7 @@ export class UIManager {
         const colDerecha = document.createElement('div');
         colDerecha.style.cssText = `
             position: absolute;
-            right: 4%;
+            right: 1.5%;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
