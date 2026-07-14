@@ -176,6 +176,10 @@ export class PixiHUD {
         this.contenedorSuperior = new PIXI.Container();
         this.contenedorSuperior.sortableChildren = true;
 
+        // Grupo superior derecho → panel de FPS (info adicional), anclado arriba-derecha
+        this.contenedorSuperiorDer = new PIXI.Container();
+        this.contenedorSuperiorDer.sortableChildren = true;
+
         this.contenedorInferior = new PIXI.Container();
         this.contenedorInferior.sortableChildren = true; // respeta zIndex (UX/barra detrás de iconos)
 
@@ -193,6 +197,7 @@ export class PixiHUD {
         this.contenedorTop.sortableChildren = true;
 
         this.container.addChild(this.contenedorSuperior);
+        this.container.addChild(this.contenedorSuperiorDer);
         this.container.addChild(this.contenedorInferior);
         this.container.addChild(this.contenedorIzq);
         this.container.addChild(this.contenedorDer);
@@ -226,6 +231,12 @@ export class PixiHUD {
         // Grupo superior (panel de oleada) → arriba-izquierda
         this.contenedorSuperior.scale.set(this._escala);
         this.contenedorSuperior.position.set(margen, margen);
+
+        // Grupo superior derecho (panel de FPS) → arriba-derecha
+        if (this.contenedorSuperiorDer) {
+            this.contenedorSuperiorDer.scale.set(this._escala);
+            this.contenedorSuperiorDer.position.set(w - margen, margen);
+        }
 
         // Grupo inferior → abajo-centro. Se ancla el punto de diseño
         // (540, 720) = centro-inferior del layout a la coordenada real (w/2, h).
@@ -323,6 +334,7 @@ export class PixiHUD {
     _inicializar() {
         const creadores = [
             ['_crearPanelOleada', () => this._crearPanelOleada()],
+            ['_crearPanelFPS', () => this._crearPanelFPS()],
             ['_crearCohetes', () => this._crearCohetes()],
             ['_crearTiempoFuera', () => this._crearTiempoFuera()],
             ['_crearEscudo', () => this._crearEscudo()],
@@ -416,6 +428,26 @@ export class PixiHUD {
         this.oleadaText.x = 0;  // anclado por el grupo superior (arriba-izquierda)
         this.oleadaText.y = 0;
         this.contenedorSuperior.addChild(this.oleadaText);
+    }
+
+    /**
+     * Crea el texto del panel de FPS (esquina superior-derecha). Misma fuente y
+     * color que el panel de oleada. Se ancla a la derecha (anchor.x = 1) dentro
+     * del contenedorSuperiorDer, que lo pega al borde arriba-derecha. Su
+     * visibilidad (junto con el panel de oleada) la controla la opción
+     * "Mostrar información adicional" (ver _actualizarInfoAdicional).
+     * @private
+     */
+    _crearPanelFPS() {
+        this.fpsText = new PIXI.Text('FPS: 60', {
+            fontFamily: 'Arial, sans-serif',
+            fontSize: 12,
+            fill: 0xFFFFFF
+        });
+        this.fpsText.anchor.set(1, 0); // pegado a la derecha
+        this.fpsText.x = 0;
+        this.fpsText.y = 0;
+        this.contenedorSuperiorDer.addChild(this.fpsText);
     }
 
     // ========================================================================
@@ -1427,6 +1459,8 @@ export class PixiHUD {
         // individual no detenga el game loop (congelaría el juego)
         const actualizadores = [
             () => this._actualizarPanelOleada(),
+            () => this._actualizarPanelFPS(),
+            () => this._actualizarInfoAdicional(),
             () => this._actualizarPuntuacion(),
             () => this._actualizarBarraAceleracion(),
             () => this._actualizarIconoEscudo(),
@@ -1488,6 +1522,28 @@ export class PixiHUD {
                 `Naves: ${this.game.intervaloNaveEnemiga.toFixed(1)}s | ` +
                 `PBOids: ${cantidadPBOids}`;
         }
+    }
+
+    /** Refresca el contador de FPS (usa el ticker de PixiJS). @private */
+    _actualizarPanelFPS() {
+        if (this.fpsText && this.app && this.app.ticker) {
+            this.fpsText.text = `FPS: ${Math.round(this.app.ticker.FPS)}`;
+        }
+    }
+
+    /**
+     * Muestra u oculta el conjunto de "información adicional" (panel de oleada
+     * arriba-izquierda + FPS arriba-derecha) según la opción guardada en
+     * localStorage ('infoAdicional'). Por defecto está oculto (opt-in desde
+     * Opciones). @private
+     */
+    _actualizarInfoAdicional() {
+        let mostrar = false;
+        try {
+            mostrar = (typeof localStorage !== 'undefined') && localStorage.getItem('infoAdicional') === '1';
+        } catch (e) { /* localStorage no disponible */ }
+        if (this.oleadaText) this.oleadaText.visible = mostrar;
+        if (this.fpsText) this.fpsText.visible = mostrar;
     }
 
     /** Refresca el número de puntuación con game.puntuacion. @private */

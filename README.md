@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.21.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.21.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.22.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.22.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.21.0 (Actual)
+### v1.22.0 (Actual)
+> **Contador de FPS + opción "Mostrar información adicional"**
+
+- 🖥️ Nuevo contador de **FPS** arriba-derecha (misma fuente y color blanco que el panel de datos de arriba-izquierda)
+- ⚙️ En **Opciones**, casilla "Mostrar información adicional" que muestra/oculta ese conjunto (panel de oleada + FPS). Se guarda en `localStorage`; por defecto **oculto** (opt-in)
+
+### v1.21.0
 > **Top 5 de Game Over: marco más grande, el botón Volver ya no tapa nombres**
 
 - 📋 Se agrandó el marco del Top 5 (al perder) y se subieron las filas, así el botón **Volver** queda debajo de las 5 filas sin tapar ningún nombre

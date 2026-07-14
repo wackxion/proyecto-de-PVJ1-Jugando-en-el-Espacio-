@@ -136,6 +136,15 @@ export class UIManager {
             true // reproduce un click de prueba al soltar
         ));
 
+        // Checkbox: mostrar información adicional (panel de oleada + FPS en el HUD)
+        let infoAdicionalInicial = false;
+        try { infoAdicionalInicial = localStorage.getItem('infoAdicional') === '1'; } catch (e) {}
+        container.appendChild(this._crearFilaCheck(
+            'Mostrar información adicional',
+            infoAdicionalInicial,
+            (activo) => { try { localStorage.setItem('infoAdicional', activo ? '1' : '0'); } catch (e) {} }
+        ));
+
         const nota = document.createElement('div');
         nota.textContent = 'Los cambios se guardan automáticamente.';
         nota.style.cssText = `
@@ -199,7 +208,46 @@ export class UIManager {
         fila.appendChild(slider);
         return fila;
     }
-    
+
+    /**
+     * Crea una fila con un checkbox: etiqueta + casilla. Mismo estilo tinta azul
+     * que los controles de volumen. Al hacer click en toda la fila alterna.
+     * @param {string} etiqueta     - Texto visible
+     * @param {boolean} valorInicial - Estado inicial del checkbox
+     * @param {Function} onCambio    - Callback con el nuevo estado (boolean)
+     * @returns {HTMLElement}
+     */
+    _crearFilaCheck(etiqueta, valorInicial, onCambio) {
+        const fila = document.createElement('div');
+        fila.style.cssText = `
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; max-width: 360px; margin-bottom: 22px; cursor: pointer;
+            color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold;
+            font-size: 20px;
+        `;
+
+        const lbl = document.createElement('span');
+        lbl.textContent = etiqueta;
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = !!valorInicial;
+        check.style.cssText = `width: 22px; height: 22px; cursor: pointer; accent-color: #0044CC; flex: 0 0 auto;`;
+
+        check.addEventListener('change', () => { this._click(); onCambio(check.checked); });
+        // Click en cualquier parte de la fila alterna la casilla
+        fila.addEventListener('click', (e) => {
+            if (e.target !== check) {
+                check.checked = !check.checked;
+                check.dispatchEvent(new Event('change'));
+            }
+        });
+
+        fila.appendChild(lbl);
+        fila.appendChild(check);
+        return fila;
+    }
+
     /**
      * Actualiza las dimensiones de la pantalla
      * Se llama en constructor y en evento resize

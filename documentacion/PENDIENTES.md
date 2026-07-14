@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.21.0 (ACTUAL)
+**Versión:** v1.22.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.22.0 - Contador de FPS + opción "Mostrar información adicional"
+
+- **Contador de FPS** (`PixiHUD._crearPanelFPS`, `_actualizarPanelFPS`): nuevo texto arriba-derecha con la misma fuente (Arial 12, blanco) que el panel de oleada de arriba-izquierda. Se ancla al borde derecho (`anchor.x = 1`) dentro de un nuevo `contenedorSuperiorDer` posicionado en `_calcularEscala`. Usa `app.ticker.FPS`.
+- **Opción "Mostrar información adicional"** (`UIManager.mostrarOpciones` + nuevo `_crearFilaCheck`): casilla en el menú de Opciones que muestra/oculta el conjunto de info (panel de oleada arriba-izquierda + FPS arriba-derecha). El estado se guarda en `localStorage` (clave `infoAdicional`) y el HUD lo lee cada frame en `_actualizarInfoAdicional`. **Por defecto está oculto** (opt-in): antes el panel de oleada se veía siempre; ahora hay que activarlo desde Opciones.
+- Verificado en runtime: con la casilla activa se ven "Oleada: … | Faltan: …" (izq) y "FPS: 60" (der); al desactivar se ocultan ambos.
 
 ---
 
