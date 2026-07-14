@@ -151,10 +151,10 @@ export const CONFIG = {
         COSTOS_ESCUDO:       [50, 50, 50, 50, 50],   // Más escudos
         COSTOS_ULTI:         [50, 50, 50, 50, 50],   // Reducción de carga de ulti
         COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
-        COSTOS_ACELERACION:  [30, 40, 50, 60, 80],   // +tiempo de aceleración (W)
-        COSTOS_PROPULSOR:    [40, 50, 60, 70, 90],   // -cooldown del propulsor (R)
-        COSTOS_DEVORADOR:    [40, 50, 60, 70, 90],   // +rango/velocidad de atracción (E)
-        COSTOS_COHETES:      [50, 60, 70, 80, 100],  // +1 cohete por mejora (Q)
+        COSTOS_ACELERACION:  [10, 20, 30, 40, 50],   // +tiempo de aceleración (W)
+        COSTOS_PROPULSOR:    [10, 20, 30, 40, 50],   // -cooldown del propulsor (R)
+        COSTOS_DEVORADOR:    [30, 35, 40, 45, 50],   // +rango/velocidad de atracción (E)
+        COSTOS_COHETES:      [20, 25, 30, 35, 40],   // +1 cohete por mejora (Q)
         ESCUDO_RESTAURACION: 50,                      // Escudos que restaura al comprar mejora de escudo
     },
 

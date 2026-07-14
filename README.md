@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.26.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.26.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.27.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.27.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.26.0 (Actual)
+### v1.27.0 (Actual)
+> **Ajuste de precios de mejoras + fix: comprar ya no resetea la vida**
+
+- 💲 Precios: Aceleración y Propulsor [10,20,30,40,50]; Cohetes [20,25,30,35,40]; Devorador [30,35,40,45,50]
+- 🐛 Comprar una mejora ya no restaura la vida al máximo (solo la mejora de Escudo cura, +50)
+
+### v1.26.0
 > **Mejoras para las 4 habilidades restantes (Aceleración, Propulsor, Devorador, Cohetes)**
 
 - 🚀 **Aceleración**: 5 mejoras, cada una +tiempo de aceleración (más capacidad de la barra de sobrecalentamiento)

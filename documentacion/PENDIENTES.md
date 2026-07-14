@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.26.0 (ACTUAL)
+**Versión:** v1.27.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.27.0 - Precios de mejoras nuevos + fix vida no se resetea
+
+- **Precios** (`config.js`): Aceleración `[10,20,30,40,50]`, Propulsor `[10,20,30,40,50]`, Cohetes `[20,25,30,35,40]`, Devorador `[30,35,40,45,50]`.
+- **Bug: comprar cualquier mejora reseteaba la vida al máximo.** `Game.aplicarMejoras` (que corre en cada compra) hacía `jugador.escudos = escudosMax`, curando al full con cualquier mejora. Ahora solo actualiza el máximo y clampea (`escudos = min(escudos, escudosMax)`). La cura al comprar la **mejora de escudo** se movió a `comprarMejoraSeccion` (solo sección 5, +`ESCUDO_RESTAURACION` = 50).
+- Verificado en runtime: con vida en 40, comprar Aceleración/Cohetes deja la vida en 40; comprar Escudo la sube a 90 (+50) y el máximo a 150.
 
 ---
 

@@ -588,7 +588,10 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         }
         if (this.jugador) {
             this.jugador.escudosMax = 100 + escudosBonus;
-            this.jugador.escudos = this.jugador.escudosMax;
+            // NO resetear la vida al aplicar mejoras (esto corre en cada compra):
+            // solo asegurar que no supere el nuevo máximo. La cura al comprar la
+            // mejora de escudo se hace aparte, en comprarMejoraSeccion.
+            this.jugador.escudos = Math.min(this.jugador.escudos, this.jugador.escudosMax);
         }
 
         // Helper: cuántos niveles comprados en una sección (índice de inicio)
@@ -644,6 +647,10 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         this.particulasCapturadas -= costo;
         this.mejoras[idx] = 1;
         this.aplicarMejoras();
+        // Solo la mejora de ESCUDO (sección 5) restaura vida al comprarse.
+        if (seccion === 5 && this.jugador) {
+            this.jugador.escudos = Math.min(this.jugador.escudosMax, this.jugador.escudos + CONFIG.MEJORAS.ESCUDO_RESTAURACION);
+        }
         if (this.gestorSonido) this.gestorSonido.reproducir('mejora');
         return 'ok';
     }
