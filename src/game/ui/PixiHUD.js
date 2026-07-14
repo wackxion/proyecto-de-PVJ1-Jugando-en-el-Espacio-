@@ -981,12 +981,15 @@ export class PixiHUD {
      */
     _posicionarIconosLaterales() {
         // Mapeo cuadrante → sección de mejora (índice de inicio en game.mejoras).
-        // Sólo estas 4 tienen mejora en el sistema actual; el resto (aceleración,
-        // propulsor, cohetes, devorador) no tiene mejora todavía.
-        this.proyectil.mejoraSeccion = 0;   // daño de proyectil (0-4)
+        // Las 8 habilidades tienen su sección de 5 mejoras.
+        this.proyectil.mejoraSeccion = 0;    // daño de proyectil (0-4)
         this.escudo.mejoraSeccion = 5;       // escudo (5-9)
         this.ulti.mejoraSeccion = 10;        // ulti (10-14)
         this.tiempo.mejoraSeccion = 15;      // tiempo fuera (15-19)
+        this.nuevo.mejoraSeccion = 20;       // aceleración (20-24)
+        this.propul.mejoraSeccion = 25;      // propulsor (25-29)
+        this.deborador.mejoraSeccion = 30;   // devorador (30-34)
+        this.cohetes.mejoraSeccion = 35;     // cohetes (35-39)
 
         // y = esquina superior de cada marco en el sistema local de su columna.
         const izquierda = [
@@ -1328,7 +1331,7 @@ export class PixiHUD {
         const juego = this.game;
         const particulas = juego ? (juego.particulasCapturadas || 0) : 0;
         let algunaComprable = false;
-        for (const g of [this.proyectil, this.escudo, this.ulti, this.tiempo]) {
+        for (const g of [this.proyectil, this.escudo, this.ulti, this.tiempo, this.nuevo, this.propul, this.deborador, this.cohetes]) {
             if (!g) continue;
             if (g.precioText) this._refrescarPrecio(g);
             if (g.pips) this._refrescarPips(g);

@@ -590,6 +590,35 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.jugador.escudosMax = 100 + escudosBonus;
             this.jugador.escudos = this.jugador.escudosMax;
         }
+
+        // Helper: cuántos niveles comprados en una sección (índice de inicio)
+        const nivelSeccion = (inicio) => {
+            let n = 0;
+            for (let i = inicio; i < inicio + 5; i++) if ((this.mejoras[i] || 0) >= 1) n++;
+            return n;
+        };
+
+        // Aceleración (20-24): +tiempo de aceleración. Se aumenta la capacidad de
+        // la barra de sobrecalentamiento (+40 por mejora → base 100, hasta 300 =
+        // 3× el tiempo antes de sobrecalentar). La barra sigue siendo 0-100%.
+        if (this.jugador) {
+            const nAcel = nivelSeccion(20);
+            this.jugador.cargaMax = CONFIG.ACELERACION.CARGA_MAXIMA + nAcel * 40;
+        }
+
+        // Propulsor (25-29): -2 s de cooldown por mejora (base 15 s, mínimo 3 s).
+        if (this.gestorEntrada) {
+            const nProp = nivelSeccion(25);
+            this.gestorEntrada.enfriamientoPropulsorMax = Math.max(3, CONFIG.HABILIDADES.PROPULSOR_COOLDOWN - 2 * nProp);
+        }
+
+        // Devorador (30-34): +40% de rango y velocidad de atracción por mejora,
+        // hasta un máximo de +200% (×3) con las 5 mejoras. Lo leen GameSkills
+        // (atracción) y GameBoids (rango de reseteo).
+        this.mejoraDevoradorMult = 1 + 0.4 * nivelSeccion(30);
+
+        // Cohetes (35-39): +1 cohete por mejora (base 2, hasta 7). Lo lee GameSkills.
+        this.mejoraCohetesExtra = nivelSeccion(35);
     }
 
     /**

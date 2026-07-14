@@ -145,12 +145,16 @@ export const CONFIG = {
     },
 
     // === MEJORAS (tienda) ===
-    // 4 categorías × 5 niveles = 20 mejoras. Costo en partículas Boid capturadas.
+    // 8 categorías × 5 niveles = 40 mejoras. Costo en partículas Boid capturadas.
     MEJORAS: {
-        COSTOS_PROYECTIL:    [5, 15, 25, 25, 50],   // Daño de proyectil
+        COSTOS_PROYECTIL:    [5, 15, 25, 25, 50],    // Daño de proyectil
         COSTOS_ESCUDO:       [50, 50, 50, 50, 50],   // Más escudos
         COSTOS_ULTI:         [50, 50, 50, 50, 50],   // Reducción de carga de ulti
         COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
+        COSTOS_ACELERACION:  [30, 40, 50, 60, 80],   // +tiempo de aceleración (W)
+        COSTOS_PROPULSOR:    [40, 50, 60, 70, 90],   // -cooldown del propulsor (R)
+        COSTOS_DEVORADOR:    [40, 50, 60, 70, 90],   // +rango/velocidad de atracción (E)
+        COSTOS_COHETES:      [50, 60, 70, 80, 100],  // +1 cohete por mejora (Q)
         ESCUDO_RESTAURACION: 50,                      // Escudos que restaura al comprar mejora de escudo
     },
 

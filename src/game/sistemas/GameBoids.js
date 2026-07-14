@@ -137,7 +137,7 @@ export function actualizarParticulasBoid(game, delta) {
             const dx = game.jugador.x - particula.x;
             const dy = game.jugador.y - particula.y;
             const distancia = Math.sqrt(dx * dx + dy * dy);
-            if (distancia > CONFIG.BOIDS.RANGO_RESET_ATRACCION) {
+            if (distancia > CONFIG.BOIDS.RANGO_RESET_ATRACCION * (game.mejoraDevoradorMult || 1)) {
                 particula.siendoAtraida = false;
             }
             

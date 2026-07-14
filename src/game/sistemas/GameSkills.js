@@ -86,7 +86,7 @@ export function crearCohetes(game) {
     }
     
     // Encontrar los 2 enemigos más cercanos
-    const enemigosCercanos = encontrarEnemigosCercanos(game, CONFIG.HABILIDADES.COHETES_CANTIDAD);
+    const enemigosCercanos = encontrarEnemigosCercanos(game, CONFIG.HABILIDADES.COHETES_CANTIDAD + (game.mejoraCohetesExtra || 0));
     
     let algunoLanzado = false;
     for (const enemigo of enemigosCercanos) {
@@ -295,15 +295,17 @@ export function actualizarHabilidadDevorador(game, delta) {
         // Sonido del devorador al activarse
         if (game.gestorSonido) game.gestorSonido.reproducir('devorador');
 
-        const radioDevorar = CONFIG.HABILIDADES.DEVORADOR_RANGO;
+        const multDevorador = game.mejoraDevoradorMult || 1;
+        const radioDevorar = CONFIG.HABILIDADES.DEVORADOR_RANGO * multDevorador;
+        const velDevorar = CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD * multDevorador;
         for (const particula of game.particulasBoid) {
             if (!particula.active) continue;
             const dx = game.jugador.x - particula.x;
             const dy = game.jugador.y - particula.y;
             const distancia = Math.sqrt(dx * dx + dy * dy);
             if (distancia < radioDevorar && distancia > 0) {
-                particula.velX = (dx / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
-                particula.velY = (dy / distancia) * CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD;
+                particula.velX = (dx / distancia) * velDevorar;
+                particula.velY = (dy / distancia) * velDevorar;
                 particula.siendoAtraida = true;
             }
         }

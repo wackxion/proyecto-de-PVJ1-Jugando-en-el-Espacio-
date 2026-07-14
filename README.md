@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.25.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.25.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.26.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.26.0)
 
 ---
 
@@ -361,7 +361,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.25.0 (Actual)
+### v1.26.0 (Actual)
+> **Mejoras para las 4 habilidades restantes (Aceleración, Propulsor, Devorador, Cohetes)**
+
+- 🚀 **Aceleración**: 5 mejoras, cada una +tiempo de aceleración (más capacidad de la barra de sobrecalentamiento)
+- 💨 **Propulsor**: 5 mejoras, cada una −2 s de cooldown (15 s → 5 s)
+- 🌀 **Devorador**: 5 mejoras, +40% de rango y velocidad de atracción cada una (hasta +200%)
+- 🔥 **Cohetes**: 5 mejoras, +1 cohete por mejora (2 → 7)
+- Ahora las 8 habilidades tienen su panel de chips/compra en el HUD (40 mejoras en total)
+
+### v1.25.0
 > **Fix: el contador de partículas se actualiza al comprar una mejora**
 
 - 🐛 Antes el contador de partículas solo se refrescaba al salir de la compra (el panel pausa el juego y el HUD no corría); ahora baja al instante al comprar

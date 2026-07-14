@@ -1,7 +1,23 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.25.0 (ACTUAL)
+**Versión:** v1.26.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.26.0 - Mejoras para Aceleración, Propulsor, Devorador y Cohetes
+
+Se agregaron las 4 secciones de mejora que faltaban (el sistema pasa de 4 a **8 secciones × 5 = 40 mejoras**). La UI del HUD ya era genérica: alcanzó con asignar `mejoraSeccion` a los cuadrantes y sumarlos al loop de refresco.
+
+- **Índices**: 20-24 Aceleración, 25-29 Propulsor, 30-34 Devorador, 35-39 Cohetes (`GameMejoras.inicializarMejoras` → `Array(40)`; costos en `CONFIG.MEJORAS.COSTOS_*`).
+- **Efectos** (`Game.aplicarMejoras`, leídos por las habilidades):
+  - **Aceleración**: `jugador.cargaMax = 100 + 40·nivel` (más tiempo antes de sobrecalentar; hasta 300 = 3×). Lee `Player`.
+  - **Propulsor**: `gestorEntrada.enfriamientoPropulsorMax = max(3, 15 − 2·nivel)` (−2 s por mejora).
+  - **Devorador**: `game.mejoraDevoradorMult = 1 + 0.4·nivel` (hasta ×3 = +200%). Escala `DEVORADOR_RANGO` y `DEVORADOR_VELOCIDAD` en `GameSkills` y `RANGO_RESET_ATRACCION` en `GameBoids` (sino el reseteo cancelaba la atracción de largo alcance).
+  - **Cohetes**: `game.mejoraCohetesExtra = nivel` (+1 objetivo/cohete por mejora). Lo suma `GameSkills` a `COHETES_CANTIDAD`.
+- **HUD** (`PixiHUD._posicionarIconosLaterales` + `_actualizarPreciosMejora`): `this.nuevo`=20, `this.propul`=25, `this.deborador`=30, `this.cohetes`=35, y los 4 sumados al loop de precios/pips/iluminación.
+- **Costos elegidos** (no venían en la consigna): Aceleración [30,40,50,60,80], Propulsor [40,50,60,70,90], Devorador [40,50,60,70,90], Cohetes [50,60,70,80,100].
+- Verificado en runtime: `mejoras.length=40`; comprar las 5 de cada sección da los efectos (cargaMax 100→300, propulsor 15→5, devMult 1→3, cohetesExtra 0→5); el panel muestra chips/precio/upgrade en los 8 cuadrantes y la compra prende pips + descuenta partículas.
 
 ---
 
