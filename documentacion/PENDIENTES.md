@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.30.0 (ACTUAL)
+**Versión:** v1.31.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.31.0 - Asteroides sueltan partículas + botones del tutorial
+
+- **Asteroides sueltan partículas al destruirse** (nuevo `GameBoids.soltarParticulasEn(game, x, y, cantidad)`; llamado desde `GameProjectiles.procesarColisionesProyectiles`): al destruir un asteroide normal con un proyectil, salen partículas Boid **en su posición** con velocidad al azar (large/rezagado1 → 3, medium/rezagado2 → 2, resto → 1). Respeta `BOIDS.MAX_PARTICULAS`. Antes el texto del tutorial decía que los asteroides soltaban partículas pero no lo hacían; ahora sí. Verificado: destruir un medium spawnea 2 partículas en (x,y) del asteroide.
+- **Botones del tutorial** (`UIManager.mostrarTutorial`): Anterior/Siguiente no reproducían sonido → se les agregó `this._click()` (igual que los demás botones). Además se achicaron a `width:150px` (antes ~330px) para entrar mejor en el marco. Verificado: click → 1 reproducción de audio; ancho 150px.
 
 ---
 

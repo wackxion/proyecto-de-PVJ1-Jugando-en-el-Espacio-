@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.30.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.30.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.31.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.31.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.30.0 (Actual)
+### v1.31.0 (Actual)
+> **Asteroides sueltan partículas al destruirse + botones del tutorial**
+
+- ✨ Al destruir un asteroide ahora **salen partículas BOIDS** en su posición (1/2/3 según tamaño), listas para recolectar con el Devorador
+- 🔊 Los botones del tutorial (Anterior/Siguiente) ahora suenan al clickear y se achicaron para entrar mejor en el marco
+
+### v1.30.0
 > **Tutorial actualizado con íconos + contenido corregido**
 
 - 🎮 Controles con badges de teclas + íconos reales de cada habilidad (fix: "Q → Cohetes", antes decía "aceleración")

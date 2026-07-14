@@ -900,6 +900,8 @@ export class UIManager {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: block;
+                width: 150px;
+                height: auto;
                 visibility: ${indice > 0 ? 'visible' : 'hidden'};
             `;
             btnAnterior.addEventListener('mouseenter', () => {
@@ -911,7 +913,7 @@ export class UIManager {
                 btnAnterior.style.filter = 'none';
             });
             if (indice > 0) {
-                btnAnterior.addEventListener('click', () => mostrarPaso(indice - 1));
+                btnAnterior.addEventListener('click', () => { this._click(); mostrarPaso(indice - 1); });
             }
             botones.appendChild(btnAnterior);
             
@@ -923,6 +925,8 @@ export class UIManager {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: block;
+                width: 150px;
+                height: auto;
             `;
             btnSiguiente.addEventListener('mouseenter', () => {
                 btnSiguiente.style.transform = 'scale(1.1)';
@@ -933,6 +937,7 @@ export class UIManager {
                 btnSiguiente.style.filter = 'none';
             });
             btnSiguiente.addEventListener('click', () => {
+                this._click();
                 if (indice < pasos.length - 1) {
                     mostrarPaso(indice + 1);
                 } else {

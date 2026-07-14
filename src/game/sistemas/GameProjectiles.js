@@ -16,6 +16,7 @@ import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
 import { ProyectilExplosion } from '../efectosVisuales/ProyectilExplosion.js';
 import { HitEffect } from '../efectosVisuales/HitEffect.js';
 import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
+import { soltarParticulasEn } from './GameBoids.js';
 
 /**
  * Crea un nuevo proyectil desde la posición del jugador
@@ -296,6 +297,12 @@ export function procesarColisionesProyectiles(game) {
                         const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
                         astroExplosion.render(game.aplicacion.stage);
                         game.efectosExplosion.push(astroExplosion);
+
+                        // Soltar partículas Boid donde se destruyó el asteroide
+                        // (más cuanto más grande). El jugador las recolecta con el Devorador (E).
+                        const cantParticulas = (enemy.tamanio === 'large' || enemy.tamanio === 'rezagado1') ? 3
+                            : (enemy.tamanio === 'medium' || enemy.tamanio === 'rezagado2') ? 2 : 1;
+                        soltarParticulasEn(game, enemy.x, enemy.y, cantParticulas);
                     }
 
                     // Manejar SpecialEnemy

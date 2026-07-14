@@ -110,8 +110,40 @@ switch (borde) {
         particula.imagen.y = y;
         particula.imagen.visible = true;
     }
-    
+
     return particula;
+}
+
+/**
+ * Suelta partículas Boid EN una posición (p. ej. donde se destruyó un asteroide).
+ * Salen disparadas en direcciones al azar. Respeta el máximo de partículas.
+ *
+ * @param {Game} game - Referencia al objeto Game principal
+ * @param {number} x - Posición X donde soltarlas
+ * @param {number} y - Posición Y donde soltarlas
+ * @param {number} cantidad - Cuántas partículas soltar
+ */
+export function soltarParticulasEn(game, x, y, cantidad = 1) {
+    if (!game.particulasBoid) return;
+    const max = CONFIG.BOIDS.MAX_PARTICULAS;
+    for (let i = 0; i < cantidad; i++) {
+        if (game.particulasBoid.length >= max) break;
+        const particula = new BoidParticle(x, y, game.texturaParticulaBoid, game.texturasPboids);
+        const ang = Math.random() * Math.PI * 2;
+        const vel = 60 + Math.random() * 80;
+        particula.x = x;
+        particula.y = y;
+        particula.velX = Math.cos(ang) * vel;
+        particula.velY = Math.sin(ang) * vel;
+        particula.active = true;
+        if (particula.imagen) {
+            particula.imagen.x = x;
+            particula.imagen.y = y;
+            particula.imagen.visible = true;
+        }
+        game.particulasBoid.push(particula);
+        particula.render(game.aplicacion.stage);
+    }
 }
 
 /**
