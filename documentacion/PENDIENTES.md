@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.20.0 (ACTUAL)
+**Versión:** v1.21.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.21.0 - Top 5 de Game Over: marco más grande, Volver no tapa nombres
+
+- **Ventana de Top 5 al perder** (`Game._mostrarTop5`): el botón Volver tapaba las últimas filas/nombres. Se agrandó el marco (`maxWidth` 0.5→0.6, `maxHeight` 0.5→0.62 del canvas) y se redujo un poco el espaciado de filas (`imagenAlto * 0.10` → `0.085`), de modo que las 5 filas terminan más arriba y el botón Volver queda debajo con separación.
+- Verificado en 1280×720 con 5 nombres reales: la fila 5 termina en ~y447 y el botón arranca en ~y470 (23px de aire); ningún nombre queda tapado.
 
 ---
 

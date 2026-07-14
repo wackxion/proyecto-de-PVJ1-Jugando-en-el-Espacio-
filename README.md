@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.20.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.20.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.21.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.21.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.20.0 (Actual)
+### v1.21.0 (Actual)
+> **Top 5 de Game Over: marco más grande, el botón Volver ya no tapa nombres**
+
+- 📋 Se agrandó el marco del Top 5 (al perder) y se subieron las filas, así el botón **Volver** queda debajo de las 5 filas sin tapar ningún nombre
+
+### v1.20.0
 > **Top 5 de Game Over: título/tabla ya no queda pegado arriba al maximizar**
 
 - 📋 En la ventana de Top 5 que aparece al perder (PixiJS), el encabezado y las filas ahora se posicionan **proporcional al tamaño del marco** en vez de en píxeles fijos, así al maximizar la ventana el título no queda pegado al borde superior

@@ -2975,9 +2975,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         const puntuacionSprite = new PIXI.Sprite(puntuacionTexture);
         
         // === IMAGEN MÁS GRANDE, FIJA Y CENTRADA ===
-        // Usar ~65% del ancho y ~75% del alto (más grande que antes)
-        const maxWidth = this.anchoJuego * 0.5;
-        const maxHeight = this.altoJuego * 0.5;
+        // Marco más grande para que el botón Volver no tape las filas del Top 5
+        const maxWidth = this.anchoJuego * 0.6;
+        const maxHeight = this.altoJuego * 0.62;
         const scale = Math.min(maxWidth / puntuacionSprite.width, maxHeight / puntuacionSprite.height);
         puntuacionSprite.scale.set(scale);
         puntuacionSprite.anchor.set(0.5);
@@ -3055,7 +3055,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // Espaciado proporcional a la altura del marco (igual que el encabezado)
             // para que escale bien al maximizar la ventana.
             const filaInicioY = zonaContenidoInicioY + imagenAlto * 0.11;
-            rowContainer.y = filaInicioY + (i * imagenAlto * 0.10);
+            rowContainer.y = filaInicioY + (i * imagenAlto * 0.085);
             
             this.aplicacion.stage.addChild(rowContainer);
             this.elementosFinJuego.push(rowContainer);
