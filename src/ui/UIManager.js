@@ -751,19 +751,57 @@ export class UIManager {
             z-index: 600;
         `;
         
+        // Estilos y filas reutilizables (con los íconos reales de las habilidades)
+        const KEY = "display:inline-block;min-width:30px;text-align:center;padding:3px 9px;border:2px solid #0044CC;border-radius:6px;font-weight:bold;font-family:Arial,sans-serif;background:rgba(0,68,204,0.10);";
+        const ICON = "width:24px;height:24px;object-fit:contain;vertical-align:middle;margin-right:7px;";
+
+        // Filas de controles: [tecla] + (icono opcional) + descripción
+        const filasControles = [
+            ['W', null, 'Avanzar / Acelerar'],
+            ['A / D', null, 'Rotar la nave'],
+            ['ESPACIO', null, 'Disparar'],
+            ['Q', 'assets/cohetes.png', 'Cohetes teledirigidos'],
+            ['E', 'assets/deborador.png', 'Devorador (atrae partículas)'],
+            ['R', 'assets/propulsor.png', 'Propulsor (dash)'],
+            ['P', null, 'Pausa / Abrir MEJORAS'],
+            ['T', null, 'Ver Top 5 (en pausa)'],
+            ['ESC', null, 'Volver al menú'],
+        ].map(([k, ic, d]) =>
+            `<span style="${KEY}">${k}</span>` +
+            `<span style="text-align:left;">${ic ? `<img src="${ic}" style="${ICON}">` : ''}${d}</span>`
+        ).join('');
+
+        // Filas de mejoras: [icono] nombre — efecto (las 8 habilidades)
+        const filasMejoras = [
+            ['assets/proyectil1.png', 'Daño', '+ daño por disparo'],
+            ['assets/escudo1.png', 'Escudo', '+50 HP máx c/u'],
+            ['assets/ultiicon1.png', 'Ulti', '− coste de carga'],
+            ['assets/tiempo fuera.png', 'Tiempo Fuera', '+ regeneración'],
+            ['assets/aceleracion.png', 'Aceleración', '+ tiempo de acel.'],
+            ['assets/propulsor.png', 'Propulsor', '− cooldown (−2s c/u)'],
+            ['assets/deborador.png', 'Devorador', '+ rango/velocidad'],
+            ['assets/cohetes.png', 'Cohetes', '+1 cohete c/u'],
+        ].map(([ic, n, e]) =>
+            `<div style="display:flex;align-items:center;gap:8px;text-align:left;">` +
+            `<img src="${ic}" style="width:28px;height:28px;object-fit:contain;flex:0 0 auto;">` +
+            `<span><strong>${n}</strong> — ${e}</span></div>`
+        ).join('');
+
         // Contenido de cada paso del tutorial
         const pasos = [
             // Paso 1: Objetivo
             {
                 titulo: 'TUTORIAL - OBJETIVO',
                 contenido: `
-                    <div style="color: #0044CC; font-family: 'Segoe Script', cursive; font-size: 32px; font-weight: bold; margin-bottom: 20px; text-align: center;">OBJETIVO DEL JUEGO</div>
-                    <div style="color: #0044CC; font-family: 'Arial', sans-serif; font-size: 20px; text-align: center; line-height: 1.5;">
-                        Tu misión es <strong>destruir asteroides</strong> para obtener partículas BOIDS.<br><br>
-                        Usa esas partículas para <strong>mejorar tu nave</strong> y sobrevivir<br>
-                        tantas oleadas como puedas.<br><br>
-                        Cada vez que tu puntuación sube, aparecen más asteroides.<br>
-                        ¡Sobrevive el mayor tiempo posible!
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:14px;text-align:center;">OBJETIVO DEL JUEGO</div>
+                    <div style="display:flex;justify-content:center;align-items:center;gap:22px;margin-bottom:16px;">
+                        <img src="assets/asteroide250.png" style="width:68px;height:68px;object-fit:contain;">
+                        <img src="assets/Pboids2.png" style="width:64px;height:64px;object-fit:contain;">
+                        <img src="assets/Nave322.png" style="width:68px;height:68px;object-fit:contain;">
+                    </div>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:18px;text-align:center;line-height:1.5;">
+                        Destruí <strong>asteroides</strong> para soltar <strong>partículas BOIDS</strong>, recolectalas y usalas para <strong>mejorar tu nave</strong>.<br><br>
+                        Cuanto más avanzás, más enemigos aparecen. ¡Sobreviví la mayor cantidad de oleadas posible!
                     </div>
                 `
             },
@@ -771,17 +809,9 @@ export class UIManager {
             {
                 titulo: 'TUTORIAL - CONTROLES',
                 contenido: `
-                    <div style="color: #0044CC; font-family: 'Segoe Script', cursive; font-size: 32px; font-weight: bold; margin-bottom: 20px; text-align: center;">CONTROLES</div>
-                    <div style="color: #0044CC; font-family: 'Arial', sans-serif; font-size: 18px; text-align: left; line-height: 1.6; max-width: 500px; margin: 0 auto;">
-                        <strong>W</strong> - Avanzar<br>
-                        <strong>A / D</strong> - Rotar izquierda/derecha<br>
-                        <strong>ESPACIO</strong> - Disparar<br>
-                        <strong>Q</strong> - Cohetes (aceleración)<br>
-                        <strong>E</strong> - Devorador (atrae partículas)<br>
-                        <strong>R</strong> - Propulsor (dash)<br>
-                        <strong>P</strong> - Pausar / Abrir MEJORAS<br>
-                        <strong>T</strong> - Ver Top 5 (en pausa)<br>
-                        <strong>ESC</strong> - Volver al menú principal
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:18px;text-align:center;">CONTROLES</div>
+                    <div style="display:grid;grid-template-columns:auto 1fr;gap:9px 16px;align-items:center;color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;max-width:430px;margin:0 auto;">
+                        ${filasControles}
                     </div>
                 `
             },
@@ -789,15 +819,10 @@ export class UIManager {
             {
                 titulo: 'TUTORIAL - MEJORAS',
                 contenido: `
-                    <div style="color: #0044CC; font-family: 'Segoe Script', cursive; font-size: 32px; font-weight: bold; margin-bottom: 20px; text-align: center;">SISTEMA DE MEJORAS</div>
-                    <div style="color: #0044CC; font-family: 'Arial', sans-serif; font-size: 16px; text-align: left; line-height: 1.5;">
-                        Presiona <strong>P</strong> para abrir el menú de mejoras.<br><br>
-                        <strong>AUMENTO DE DAÑO</strong>: +2, +3, +5, +5, +10<br>
-                        <strong>AUMENTO DE VELOCIDAD</strong>: +5%, +5%, +10%, +10%, +20%<br>
-                        <strong>COSTE DE ULTI</strong>: -50,-50,-50,-50,-50 (de 500 a 250)<br>
-                        <strong>AUMENTO DE ESCUDO</strong>: +50,+50,+50,+50,+50 HP<br>
-                        <strong>REGENERACIÓN</strong>: +5,+10,+15,+20,+30 tras Tiempo Fuera<br><br>
-                        <em style="color: #6688AA;">Paga con partículas del Devorador.</em>
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:8px;text-align:center;">MEJORAS</div>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:15px;text-align:center;margin-bottom:16px;">Abrí el panel con <strong>P</strong> y compralas con partículas. Cada habilidad tiene <strong>5 niveles</strong>.</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;color:#0044CC;font-family:'Arial',sans-serif;font-size:15px;max-width:520px;margin:0 auto;">
+                        ${filasMejoras}
                     </div>
                 `
             },
@@ -805,18 +830,14 @@ export class UIManager {
             {
                 titulo: 'TUTORIAL - PARTÍCULAS',
                 contenido: `
-                    <div style="color: #0044CC; font-family: 'Segoe Script', cursive; font-size: 32px; font-weight: bold; margin-bottom: 15px; text-align: center;">PARTÍCULAS BOIDS</div>
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <img src="assets/Pboids2.png" style="width: 80px; height: 80px; border: 2px solid #0044CC; border-radius: 10px;">
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:12px;text-align:center;">PARTÍCULAS BOIDS</div>
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <img src="assets/Pboids2.png" style="width:76px;height:76px;object-fit:contain;">
                     </div>
-                    <div style="color: #0044CC; font-family: 'Arial', sans-serif; font-size: 16px; text-align: left; line-height: 1.5;">
-                        Los <strong>asteroides especiales</strong> sueltan partículas BOIDS al destruirse.<br><br>
-                        <strong>¿Cómo recolectarlas?</strong><br>
-                        - Presiona <strong>E</strong> para activar el Devorador<br>
-                        - Las partículas serán atraídas hacia ti<br>
-                        - También puedes tocarlas con tu nave<br><br>
-                        Las partículas se usan en el menú de mejoras (tecla P).<br><br>
-                        <em style="color: #6688AA;">¡Recolecta sabiamente!</em>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;text-align:center;line-height:1.5;">
+                        Al destruir enemigos aparecen <strong>partículas BOIDS</strong>.<br>
+                        Activá el <strong>Devorador (E)</strong> para atraerlas, o tocálas con la nave.<br><br>
+                        Son la <strong>moneda</strong> para comprar mejoras (panel con <strong>P</strong>).
                     </div>
                 `
             },
@@ -824,18 +845,10 @@ export class UIManager {
             {
                 titulo: 'TUTORIAL - SOBRECALENTAMIENTO',
                 contenido: `
-                    <div style="color: #FF0000; font-family: 'Segoe Script', cursive; font-size: 32px; font-weight: bold; margin-bottom: 20px; text-align: center;">SOBRECALENTAMIENTO</div>
-                    <div style="color: #0044CC; font-family: 'Arial', sans-serif; font-size: 16px; text-align: left; line-height: 1.5;">
-                        Si tus escudos llegan a <strong>0</strong>, entras en modo<br>
-                        <strong>SOBRECALENTAMIENTO</strong>.<br><br>
-                        Durante <strong>25 segundos</strong>:<br>
-                        - Eres vulnerable<br>
-                        - No puedes usar el propulsor (R)<br>
-                        - Solo puedes moverte y disparar<br><br>
-                        Al terminar, regeneras <strong>10 escudos</strong>.<br>
-                        Las mejoras de ESCUDO (+50 HP cada una) aumentan<br>
-                        tu vida máxima para que puedas resistir más.<br><br>
-                        <em style="color: #6688AA;">¡Mantén tus escudos altos!</em>
+                    <div style="color:#CC0000;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:16px;text-align:center;">SOBRECALENTAMIENTO</div>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;text-align:center;line-height:1.55;">
+                        Si tus escudos llegan a <strong>0</strong> entrás en <strong style="color:#CC0000;">sobrecalentamiento</strong> por <strong>10 segundos</strong>: quedás vulnerable (sin escudos).<br><br>
+                        Al terminar recuperás algo de escudos. Las mejoras de <strong>Escudo</strong> (+50 HP c/u) suben tu vida máxima para aguantar más.
                     </div>
                 `
             }
@@ -849,19 +862,9 @@ export class UIManager {
             container.innerHTML = '';
             
             const paso = pasos[indice];
-            
-            // Título del paso
-            const titulo = document.createElement('div');
-            titulo.innerHTML = paso.titulo;
-            titulo.style.cssText = `
-                color: #0044CC;
-                font-family: 'Segoe Script', cursive;
-                font-size: 26px;
-                font-weight: bold;
-                margin-bottom: 15px;
-            `;
-            container.appendChild(titulo);
-            
+
+            // (El título va dentro de cada `contenido`, no se repite acá.)
+
             // Contenido
             const contenido = document.createElement('div');
             contenido.innerHTML = paso.contenido;

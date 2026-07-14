@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.29.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.29.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.30.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.30.0)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.29.0 (Actual)
+### v1.30.0 (Actual)
+> **Tutorial actualizado con íconos + contenido corregido**
+
+- 🎮 Controles con badges de teclas + íconos reales de cada habilidad (fix: "Q → Cohetes", antes decía "aceleración")
+- ⬆️ Paso de Mejoras rehecho: las 8 habilidades con su ícono y efecto (se quitó la vieja "velocidad"; se agregaron Aceleración, Propulsor, Devorador, Cohetes)
+- 🔧 Sobrecalentamiento: 10 s (antes decía 25)
+
+### v1.29.0
 > **Créditos: sección Diseño Artístico + precio de mejora "MAX" al maximizar**
 
 - 🎨 Créditos: nueva sección "Diseño Artístico" (Braian Zapater, Copilot, Chat GPT); se compactó el texto para que entre bien en el marco

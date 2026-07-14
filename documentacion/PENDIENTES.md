@@ -1,7 +1,21 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.29.0 (ACTUAL)
+**Versión:** v1.30.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.30.0 - Tutorial refrescado con íconos + contenido corregido
+
+Enfoque "A" (refresco visual del modal de 5 pasos, `UIManager.mostrarTutorial`):
+
+- **Contenido corregido** (estaba desactualizado tras los cambios de mejoras):
+  - **Controles**: se corrigió "Q - Cohetes (aceleración)" → "Q — Cohetes teledirigidos" (aceleración es W). Cada tecla se muestra como badge y las habilidades (Q/E/R) llevan su ícono real.
+  - **Mejoras**: se quitó la vieja "AUMENTO DE VELOCIDAD" y se listan las **8 habilidades** en una grilla de 2 columnas, cada una con su ícono (`proyectil1`, `escudo1`, `ultiicon1`, `tiempo fuera`, `aceleracion`, `propulsor`, `deborador`, `cohetes`) y su efecto.
+  - **Sobrecalentamiento**: "25 segundos" → "10 segundos" (según `CONFIG.ESCUDOS.DURACION_SOBRECALENTAMIENTO`).
+  - **Objetivo/Partículas**: reescritos más cortos + íconos (asteroide, Pboids, nave).
+- Se quitó el título redundante del paso (`paso.titulo`): cada `contenido` ya trae su propio título, y el doble título se cortaba arriba en el marco fijo.
+- Verificado en runtime: los íconos cargan en cada paso; Controles y Mejoras entran sin cortarse; sin errores de consola.
 
 ---
 
