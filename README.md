@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.23.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.23.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.24.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.24.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.23.0 (Actual)
+### v1.24.0 (Actual)
+> **Proyectil del jugador a la mitad de tamaño**
+
+- 🔹 El proyectil se redujo a la mitad (visual y hitbox): escala 0.175 → 0.0875, radio 6 → 3
+
+### v1.23.0
 > **Variantes de nave enemiga (spray aleatorio)**
 
 - 👾 Cada nave enemiga generada elige al azar entre 5 sprites (`enimigo1-4` + `enemigo5`), dando variedad visual a los enemigos

@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.23.0 (ACTUAL)
+**Versión:** v1.24.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.24.0 - Proyectil del jugador a la mitad de tamaño
+
+- **Proyectil más chico** (`Projectile.js`): `escala` 0.175 → 0.0875 y `radio` (colisión) 6 → 3. Se redujo tanto el tamaño visual como el hitbox para que queden emparejados. Verificado en runtime: con la textura real (364×200) el sprite pasa de ~64×35px a ~32×18px.
 
 ---
 
