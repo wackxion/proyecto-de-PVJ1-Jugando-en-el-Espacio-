@@ -1195,43 +1195,47 @@ export class UIManager {
             flex-direction: column;
             align-items: center;
             width: 100%;
-            padding: 70px 50px;
+            padding: 40px 50px;
         `;
-        
+
         const titulo = document.createElement('div');
         titulo.textContent = 'CRÉDITOS';
         titulo.style.cssText = `
             color: #0044CC;
             font-family: 'Segoe Script', cursive;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
             text-shadow: 0 0 10px #0044CC;
         `;
         container.appendChild(titulo);
-        
+
         const contenido = document.createElement('div');
         contenido.style.cssText = `
             color: #0044CC;
             font-family: 'Segoe Script', cursive;
-            font-size: 18px;
+            font-size: 16px;
             text-align: center;
-            line-height: 1.2;
+            line-height: 1.15;
         `;
         contenido.innerHTML = `
-            <div style="margin-bottom: 20px; font-weight: bold;">JUGANDO EN EL ESPACIO</div>
+            <div style="margin-bottom: 10px; font-weight: bold;">JUGANDO EN EL ESPACIO</div>
             <div style="font-weight: bold;">Desarrollado por:</div>
             <div>Braian Zapater</div>
-            <div style="margin-top: 20px; font-weight: bold;">Curso:</div>
+            <div style="margin-top: 10px; font-weight: bold;">Diseño Artístico:</div>
+            <div>Braian Zapater</div>
+            <div>Copilot</div>
+            <div>Chat GPT</div>
+            <div style="margin-top: 10px; font-weight: bold;">Curso:</div>
             <div>Programación de Videojuegos 1</div>
             <div>UNAHUR 2026</div>
-            <div style="margin-top: 20px; font-weight: bold;">Profesor:</div>
+            <div style="margin-top: 10px; font-weight: bold;">Profesor:</div>
             <div>Facundo Saiegh</div>
-            <div style="margin-top: 20px; font-weight: bold;">Tecnologías:</div>
+            <div style="margin-top: 10px; font-weight: bold;">Tecnologías:</div>
             <div>PixiJS v8 | Firebase Firestore</div>
             <div style="margin-top: 10px; font-weight: bold;">Asistencia IA:</div>
             <div>OpenCode | Claude (Anthropic)</div>
-            <div style="margin-top: 20px; font-weight: bold;">Beta tester:</div>
+            <div style="margin-top: 10px; font-weight: bold;">Beta tester:</div>
             <div>TPC</div>
         `;
         container.appendChild(contenido);

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.28.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.28.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.29.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.29.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.28.0 (Actual)
+### v1.29.0 (Actual)
+> **Créditos: sección Diseño Artístico + precio de mejora "MAX" al maximizar**
+
+- 🎨 Créditos: nueva sección "Diseño Artístico" (Braian Zapater, Copilot, Chat GPT); se compactó el texto para que entre bien en el marco
+- 🔼 El precio de una mejora ahora muestra "MAX" cuando la sección está al máximo (antes quedaba vacío)
+
+### v1.28.0
 > **Barra de aceleración escala con las mejoras + pips más resaltados**
 
 - ⚡ La barra de aceleración ahora se llena según el máximo actual (que sube con las mejoras), no sobre 100 fijo

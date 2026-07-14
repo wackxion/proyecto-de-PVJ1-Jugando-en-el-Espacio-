@@ -1256,7 +1256,8 @@ export class PixiHUD {
     _refrescarPrecio(g) {
         if (!g.precioText || g.mejoraSeccion === undefined) return;
         const precio = this._precioMejora(g.mejoraSeccion);
-        const txt = (precio === null) ? '' : `${precio}`;
+        // Sección maxeada (todas compradas) → "MAX" en vez de quedar vacío.
+        const txt = (precio === null) ? 'MAX' : `${precio}`;
         const box = g._precioBoxLocal;
         if (g.precioText.text === txt && g._precioBoxFit === box) return;
         g.precioText.text = txt;

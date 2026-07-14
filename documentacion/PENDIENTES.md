@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.28.0 (ACTUAL)
+**Versión:** v1.29.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.29.0 - Créditos con Diseño Artístico + precio "MAX"
+
+- **Créditos** (`UIManager.mostrarCreditos`): se agregó la sección **"Diseño Artístico"** con Braian Zapater, Copilot y Chat GPT. Para que siguiera entrando bien en el marco, se compactó el contenido (fuente 18→16, márgenes de sección 20→10, padding 70→40, título 28→26). Verificado: la ventana pasó de ~750px a **731px** de alto (entra igual/mejor que antes; en viewport 820 queda centrada).
+- **Precio "MAX"** (`PixiHUD._refrescarPrecio`): cuando una sección está maximizada (`_precioMejora` devuelve null), el rectángulo de precio muestra **"MAX"** en vez de quedar vacío. Verificado: maximizar Proyectil (5 niveles) → precio "MAX"; una sección sin maximizar sigue mostrando el número.
 
 ---
 
