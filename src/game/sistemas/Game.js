@@ -3014,8 +3014,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         
         // Centrar el encabezado dentro de la imagen
         headerContainer.x = this.anchoJuego / 2 - 50;
-        // El encabezado va en la parte superior de la zona de contenido de la imagen
-        const zonaContenidoInicioY = (this.altoJuego / 2) - (imagenAlto / 2) + 80 - 50;
+        // El encabezado se posiciona PROPORCIONAL a la altura del marco (no en px
+        // absolutos): así al maximizar la ventana el marco crece y el encabezado
+        // baja con él, sin quedar pegado arriba.
+        const zonaContenidoInicioY = (this.altoJuego / 2) - (imagenAlto / 2) + imagenAlto * 0.17;
         headerContainer.y = zonaContenidoInicioY;
         
         this.aplicacion.stage.addChild(headerContainer);
@@ -3049,10 +3051,11 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             
             rowContainer.addChild(textNum, textNombre, textPuntos, textOleada);
             rowContainer.x = this.anchoJuego / 2 - 30;
-            // Las filas van una debajo de la otra, centradas en la imagen
-            // Empiezan debajo del encabezado y dejan espacio para el botón
-            const filaInicioY = zonaContenidoInicioY + 45 + 20;
-            rowContainer.y = filaInicioY + (i * 38);
+            // Las filas van una debajo de la otra, centradas en la imagen.
+            // Espaciado proporcional a la altura del marco (igual que el encabezado)
+            // para que escale bien al maximizar la ventana.
+            const filaInicioY = zonaContenidoInicioY + imagenAlto * 0.11;
+            rowContainer.y = filaInicioY + (i * imagenAlto * 0.10);
             
             this.aplicacion.stage.addChild(rowContainer);
             this.elementosFinJuego.push(rowContainer);

@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.19.0 (ACTUAL)
+**Versión:** v1.20.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.20.0 - Top 5 de Game Over: título proporcional al marco
+
+- **Ventana de Top 5 al perder** (`Game._mostrarTop5`, PixiJS): el encabezado (N°/NOMBRE/PUNTOS/OLEADAS) y las filas se posicionaban con offsets en píxeles absolutos (`imageTop + 30`, filas cada 38px), pero el marco (`gameOver.png`) escala con el tamaño de ventana. Al maximizar, el marco crecía pero el encabezado quedaba pegado arriba (sobre el borde decorativo, ~8% del marco).
+- **Fix**: posiciones proporcionales a `imagenAlto` — encabezado a `imagenAlto * 0.17`, primeras filas a `+0.11`, espaciado `0.10`. Así el título baja con el marco y queda con aire arriba en cualquier resolución. Verificado en 1280×720: encabezado al 17% del marco (antes 8%), filas hasta 68%, botón Volver al ~78%, sin solaparse.
 
 ---
 

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.19.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.19.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.20.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.20.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.19.0 (Actual)
+### v1.20.0 (Actual)
+> **Top 5 de Game Over: título/tabla ya no queda pegado arriba al maximizar**
+
+- 📋 En la ventana de Top 5 que aparece al perder (PixiJS), el encabezado y las filas ahora se posicionan **proporcional al tamaño del marco** en vez de en píxeles fijos, así al maximizar la ventana el título no queda pegado al borde superior
+
+### v1.19.0
 > **JUGAR arriba de la columna de botones**
 
 - 🎮 El botón **JUGAR** vuelve a estar arriba de todos, como primer botón de la columna (Jugar, Tutorial, Top 5, Opciones, Créditos)
