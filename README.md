@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.24.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.24.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.25.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.25.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.24.0 (Actual)
+### v1.25.0 (Actual)
+> **Fix: el contador de partículas se actualiza al comprar una mejora**
+
+- 🐛 Antes el contador de partículas solo se refrescaba al salir de la compra (el panel pausa el juego y el HUD no corría); ahora baja al instante al comprar
+
+### v1.24.0
 > **Proyectil del jugador a la mitad de tamaño**
 
 - 🔹 El proyectil se redujo a la mitad (visual y hitbox): escala 0.175 → 0.0875, radio 6 → 3

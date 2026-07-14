@@ -1296,6 +1296,10 @@ export class PixiHUD {
             // Refresca pips/precios y la iluminación de TODOS los iconos de mejora
             // (el saldo bajó, otra sección puede haber dejado de ser comprable).
             this._actualizarPreciosMejora();
+            // Refrescar YA el contador de partículas: con el panel de mejoras abierto
+            // el juego está pausado y el loop del HUD no corre, así que sin esto el
+            // contador quedaría congelado hasta salir de la compra.
+            this._actualizarContadorDevorador();
         } else if (res === 'sinSaldo') {
             this._flashPrecioSinSaldo(g);
         }

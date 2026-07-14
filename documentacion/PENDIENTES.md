@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.24.0 (ACTUAL)
+**Versión:** v1.25.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.25.0 - Fix: contador de partículas se actualiza al comprar mejora
+
+- **Bug**: al comprar una mejora, el contador de partículas del HUD (`contadorDevoradorText`) no bajaba hasta salir del panel de compra. Causa: el panel de mejoras pausa el juego, y `_actualizarContadorDevorador()` corre en el loop `actualizar()` del HUD, que no se ejecuta durante la pausa. El precio bajaba (`comprarMejoraSeccion`) pero el texto quedaba congelado.
+- **Fix** (`PixiHUD._comprarMejoraCuadrante`): tras una compra 'ok' se llama `_actualizarContadorDevorador()` de inmediato (además de `_actualizarPreciosMejora()`), así el contador refleja el saldo al instante aunque el juego esté pausado.
+- Verificado en runtime: 500 → comprar (costo 5) → el HUD muestra "495" sin salir del panel.
 
 ---
 
