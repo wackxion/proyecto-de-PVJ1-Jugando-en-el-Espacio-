@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.27.0 (ACTUAL)
+**Versión:** v1.28.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.28.0 - Barra de aceleración escala con mejoras + pips más resaltados
+
+- **Barra de aceleración** (`PixiHUD._actualizarBarraAceleracion` y `_dibujarBarraEscudo`): calculaban el llenado con `cargaAceleracion / 100` fijo, pero la mejora de Aceleración sube `jugador.cargaMax` (hasta 300). La barra se llenaba al 100% con carga 100 aunque faltara mucho para sobrecalentar. Ahora usa `cargaAceleracion / (jugador.cargaMax || 100)`, así se ajusta al máximo actual. Verificado: cargaMax 300, carga 150 → 50%.
+- **Pips más resaltados** (`PixiHUD._pintarPip`): el chip prendido pasa de blanco a `alpha 0.6` → **blanco pleno `alpha 1` y 1.2× de tamaño**; el apagado queda negro `alpha 0.45`. Verificado: pip prendido width 13.3 / alpha 1, apagado 11 / alpha 0.45.
 
 ---
 

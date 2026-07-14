@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.27.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.27.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.28.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.28.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.27.0 (Actual)
+### v1.28.0 (Actual)
+> **Barra de aceleración escala con las mejoras + pips más resaltados**
+
+- ⚡ La barra de aceleración ahora se llena según el máximo actual (que sube con las mejoras), no sobre 100 fijo
+- ⬜ Los chips prendidos (pips) ahora son blanco pleno y un poco más grandes para que resalten
+
+### v1.27.0
 > **Ajuste de precios de mejoras + fix: comprar ya no resetea la vida**
 
 - 💲 Precios: Aceleración y Propulsor [10,20,30,40,50]; Cohetes [20,25,30,35,40]; Devorador [30,35,40,45,50]

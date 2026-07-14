@@ -1359,10 +1359,16 @@ export class PixiHUD {
     _pintarPip(pip, encendido) {
         const s = pip._visual || 8;
         pip.clear();
-        // Overlay ENCIMA del chip: blanco (prendido) lo ilumina, negro (apagado)
-        // lo oscurece. Semi-transparente para dejar ver la textura del chip.
-        pip.rect(-s / 2, -s / 2, s, s).fill(encendido ? 0xFFFFFF : 0x000000);
-        pip.alpha = encendido ? 0.6 : 0.45;
+        // Overlay ENCIMA del chip: prendido = blanco pleno y un poco más grande
+        // para que resalte; apagado = negro semi-transparente (deja ver el chip).
+        if (encendido) {
+            const g = s * 1.2;
+            pip.rect(-g / 2, -g / 2, g, g).fill(0xFFFFFF);
+            pip.alpha = 1;
+        } else {
+            pip.rect(-s / 2, -s / 2, s, s).fill(0x000000);
+            pip.alpha = 0.45;
+        }
     }
 
     /**
@@ -1569,7 +1575,9 @@ export class PixiHUD {
         if (!this.barraAceleracionFill || !this.game || !this.game.jugador) return;
 
         const jugador = this.game.jugador;
-        const porcentaje = Math.max(0, Math.min(100, jugador.cargaAceleracion));
+        // % relativo al máximo actual (cargaMax sube con las mejoras de aceleración)
+        const cargaMax = jugador.cargaMax || 100;
+        const porcentaje = Math.max(0, Math.min(100, (jugador.cargaAceleracion / cargaMax) * 100));
         const anchoMax = this._anchoBarraAceleracion || 100;
         const alto = this._altoBarraAceleracion || 20;
 
@@ -1735,7 +1743,8 @@ export class PixiHUD {
 
         if (def.id === 'aceleracion') {
             sobre = !!jugador.sobrecalentadoAceleracion;
-            fraccion = sobre ? 1 : this._clamp01((jugador.cargaAceleracion || 0) / 100);
+            // Relativo al máximo actual (cargaMax crece con las mejoras)
+            fraccion = sobre ? 1 : this._clamp01((jugador.cargaAceleracion || 0) / (jugador.cargaMax || 100));
             activa = sobre || (jugador.cargaAceleracion || 0) > 0;
         } else if (def.id === 'escudos') {
             const max = jugador.escudosMax || 100;
