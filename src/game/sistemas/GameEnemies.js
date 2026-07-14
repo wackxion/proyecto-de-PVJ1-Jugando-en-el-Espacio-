@@ -415,8 +415,14 @@ export function generarNaveEnemiga(game) {
             break;
     }
     
+    // Elegir una variante de nave enemiga al azar (spray). Fallback a la textura única.
+    const variantes = game.texturasNaveEnemiga;
+    const texturaNave = (variantes && variantes.length)
+        ? variantes[Math.floor(Math.random() * variantes.length)]
+        : game.texturaNaveEnemiga;
+
     // Crear la nave enemiga (orden correcto: x, y, textura, jugador, enemigos, ancho, alto)
-    const nave = new EnemyShip(x, y, game.texturaNaveEnemiga, game.jugador, game.enemigos, game.anchoJuego, game.altoJuego);
+    const nave = new EnemyShip(x, y, texturaNave, game.jugador, game.enemigos, game.anchoJuego, game.altoJuego);
     nave.render(game.aplicacion.stage);
     game.enemigosNaves.push(nave);
 }

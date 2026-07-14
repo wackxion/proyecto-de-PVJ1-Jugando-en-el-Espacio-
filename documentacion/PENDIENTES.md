@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.22.0 (ACTUAL)
+**Versión:** v1.23.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.23.0 - Variantes de nave enemiga (spray aleatorio)
+
+- **5 sprites de nave enemiga** (`assets/enimigo1-4.png` + `assets/enemigo5.png`): al generar una nave (`GameEnemies.generarNaveEnemiga`) se elige una textura al azar del array `game.texturasNaveEnemiga` (cargado en `Game._cargarRecursos`). Fallback a `texturaNaveEnemiga` si el array no está.
+- `EnemyShip` usa escala uniforme (0.3) y radio de colisión fijo, así que las variantes no se deforman y el gameplay es consistente aunque tengan tamaños ligeramente distintos.
+- Verificado en runtime: 12 naves generadas usan varias texturas distintas al azar; sin errores.
 
 ---
 

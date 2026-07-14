@@ -367,7 +367,15 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
                 PIXI.Assets.load('assets/esplocionVerde3.png'),
                 PIXI.Assets.load('assets/esplocionVerde4.png')
             ]);
-            
+
+            // Variantes de nave enemiga (spray). Al generar una nave se elige una al azar.
+            const [naveEnem2, naveEnem3, naveEnem4, naveEnem5] = await Promise.all([
+                PIXI.Assets.load('assets/enimigo2.png'),
+                PIXI.Assets.load('assets/enimigo3.png'),
+                PIXI.Assets.load('assets/enimigo4.png'),
+                PIXI.Assets.load('assets/enemigo5.png')
+            ]);
+
             // Asignar las texturas cargadas
             this.texturaJugador = naveTexture;
             this.texturaAsteroide = asteroideTexture;
@@ -380,6 +388,8 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.texturaExplosionAsteroide = [expRojo1, expRojo2, expRojo3, expRojo4];
             this.texturaExplosionNave = [expVerde1, expVerde2, expVerde3, expVerde4];
             this.texturaNaveEnemiga = enimigoTexture;
+            // Conjunto de variantes de nave enemiga (incluye la original). generarNaveEnemiga elige una al azar.
+            this.texturasNaveEnemiga = [enimigoTexture, naveEnem2, naveEnem3, naveEnem4, naveEnem5].filter(Boolean);
 
             // Crear textura de partícula Boid (2x2px) programáticamente
             // Usar un Graphics directamente como fallback
