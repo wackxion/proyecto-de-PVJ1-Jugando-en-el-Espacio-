@@ -344,8 +344,11 @@ export class UIManager {
         this.mainMenu.appendChild(colDerecha);
 
         this.container.appendChild(this.mainMenu);
+
+        // Decoración: nave aliada paseando + naves enemigas siguiéndola
+        this._animarNavesMenu();
     }
-    
+
     /**
      * Oculta el menú principal con animación
      */
@@ -356,11 +359,112 @@ export class UIManager {
             setTimeout(() => {
                 this.mainMenu.remove();
                 this.mainMenu = null;
+                // Detener la animación de las naves del menú
+                if (this._menuShipsRaf) { cancelAnimationFrame(this._menuShipsRaf); this._menuShipsRaf = null; }
                 if (callback) callback();
             }, 500);
         } else if (callback) {
             callback();
         }
+    }
+
+    /**
+     * Decoración del menú principal: crea una nave aliada que "pasea" por la
+     * pantalla (rebotando suave en los bordes) y varias naves enemigas que la
+     * persiguen. Viven en una capa detrás de los botones (no bloquea clicks) y
+     * se limpian solas al ocultarse el menú (al darle JUGAR).
+     * @private
+     */
+    _animarNavesMenu() {
+        if (!this.mainMenu) return;
+        if (this._menuShipsRaf) cancelAnimationFrame(this._menuShipsRaf);
+
+        // Capa detrás de los botones; no intercepta clicks
+        const capa = document.createElement('div');
+        capa.style.cssText = 'position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;';
+        this.mainMenu.insertBefore(capa, this.mainMenu.firstChild);
+
+        const crearNave = (src, size) => {
+            const el = document.createElement('img');
+            el.src = src;
+            el.style.cssText = `position:absolute; left:0; top:0; width:${size}px; height:auto; will-change:transform; filter: drop-shadow(0 0 10px rgba(140,190,255,0.85)) drop-shadow(0 0 3px rgba(0,0,0,0.6));`;
+            capa.appendChild(el);
+            return el;
+        };
+
+        const W = () => window.innerWidth;
+        const H = () => window.innerHeight;
+        const margin = 80;
+
+        // Nave aliada (la del jugador)
+        const aliada = { el: crearNave('assets/Nave322.png', 72), x: W() / 2, y: H() / 2, ang: Math.random() * Math.PI * 2, vel: 95 };
+
+        // Naves enemigas que la siguen. Uso enimigo1 (apunta a la derecha, igual
+        // que la aliada) para que la orientación al girar se vea bien. Arrancan
+        // detrás de la aliada, como persiguiéndola.
+        const enemigas = [];
+        for (let i = 0; i < 3; i++) {
+            enemigas.push({
+                el: crearNave('assets/enimigo1.png', 68), // tamaño similar a la aliada (72)
+                x: aliada.x - 130 - i * 45, y: aliada.y + (i - 1) * 45,
+                vel: 92 + i * 5, ang: 0,
+                off: (i / 3) * Math.PI * 2,                          // fase orbital inicial
+                orbVel: (i % 2 === 0 ? 1 : -1) * (0.6 + i * 0.28),   // velocidad angular (sentidos alternos)
+                orbRad: 80 + i * 45                                   // radio distinto por nave
+            });
+        }
+
+        // El arte de las naves apunta a la DERECHA → la rotación es directamente
+        // el ángulo de rumbo (sin offset).
+        const colocar = (n) => {
+            n.el.style.transform = `translate(${n.x}px, ${n.y}px) translate(-50%, -50%) rotate(${n.ang}rad)`;
+        };
+        colocar(aliada);
+        enemigas.forEach(colocar);
+
+        // Gira "actual" hacia "objetivo" de a poco (por el camino angular corto)
+        const normAng = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
+        const girarHacia = (actual, objetivo, maxPaso) => {
+            const d = normAng(objetivo - actual);
+            return (Math.abs(d) <= maxPaso) ? objetivo : actual + Math.sign(d) * maxPaso;
+        };
+
+        let last = performance.now();
+
+        const loop = (now) => {
+            if (!capa.isConnected) { this._menuShipsRaf = null; return; } // el menú se fue
+            const dt = Math.min(0.05, (now - last) / 1000);
+            last = now;
+            const w = W(), h = H();
+
+            // Aliada: paseo con deriva suave; si se acerca a un borde, gira despacio
+            // hacia el centro (sin rebotes bruscos → se ve más natural).
+            aliada.ang += (Math.random() - 0.5) * dt * 1.8;
+            if (aliada.x < margin || aliada.x > w - margin || aliada.y < margin || aliada.y > h - margin) {
+                aliada.ang = girarHacia(aliada.ang, Math.atan2(h / 2 - aliada.y, w / 2 - aliada.x), dt * 2.5);
+            }
+            aliada.x += Math.cos(aliada.ang) * aliada.vel * dt;
+            aliada.y += Math.sin(aliada.ang) * aliada.vel * dt;
+            aliada.x = Math.max(30, Math.min(w - 30, aliada.x));
+            aliada.y = Math.max(30, Math.min(h - 30, aliada.y));
+            colocar(aliada);
+
+            // Enemigas: el punto que persiguen ORBITA la aliada, cada una con su
+            // radio y velocidad angular (sentidos alternos) → recorridos distintos
+            // alrededor de la nave. Giran gradualmente (curva natural).
+            for (const e of enemigas) {
+                e.off += e.orbVel * dt;
+                const tx = aliada.x + Math.cos(e.off) * e.orbRad;
+                const ty = aliada.y + Math.sin(e.off) * e.orbRad;
+                e.ang = girarHacia(e.ang, Math.atan2(ty - e.y, tx - e.x), dt * 2.4);
+                e.x += Math.cos(e.ang) * e.vel * dt;
+                e.y += Math.sin(e.ang) * e.vel * dt;
+                colocar(e);
+            }
+
+            this._menuShipsRaf = requestAnimationFrame(loop);
+        };
+        this._menuShipsRaf = requestAnimationFrame(loop);
     }
     
     /**

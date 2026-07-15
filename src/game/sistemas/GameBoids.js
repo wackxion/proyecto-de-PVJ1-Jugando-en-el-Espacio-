@@ -25,28 +25,11 @@ import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
  */
 export function crearParticulasIniciales(game, cantidad) {
     for (let i = 0; i < cantidad; i++) {
-        // Crear partícula FUERA de la pantalla (100px)
-        const borde = Math.floor(Math.random() * 4);
-        let x, y;
-
-        switch (borde) {
-            case 0: // Top
-                x = Math.random() * game.anchoJuego;
-                y = -100;
-                break;
-            case 1: // Bottom
-                x = Math.random() * game.anchoJuego;
-                y = game.altoJuego + 100;
-                break;
-            case 2: // Left
-                x = -100;
-                y = Math.random() * game.altoJuego;
-                break;
-            case 3: // Right
-                x = game.anchoJuego + 100;
-                y = Math.random() * game.altoJuego;
-                break;
-        }
+        // Alrededor de la nave, dentro de un área del tamaño de la pantalla
+        const jx = game.jugador ? game.jugador.x : game.mundoAncho / 2;
+        const jy = game.jugador ? game.jugador.y : game.mundoAlto / 2;
+        const x = jx + (Math.random() - 0.5) * game.anchoJuego;
+        const y = jy + (Math.random() - 0.5) * game.altoJuego;
 
         // Crear partícula
         const particula = new BoidParticle(x, y, game.texturaParticulaBoid, game.texturasPboids);
@@ -57,7 +40,7 @@ export function crearParticulasIniciales(game, cantidad) {
         particula.active = true;
         
         // Renderizar
-        particula.render(game.aplicacion.stage);
+        particula.render(game.mundo);
         game.particulasBoid.push(particula);
     }
 }
@@ -70,33 +53,15 @@ export function crearParticulasIniciales(game, cantidad) {
  * @returns {BoidParticle} La partícula creada
  */
 export function crearParticulaFuera(game) {
-    const borde = Math.floor(Math.random() * 4);
-    let x, y;
-    
-switch (borde) {
-        case 0: // Top
-            x = Math.random() * game.anchoJuego;
-            y = -100;
-            break;
-        case 1: // Bottom
-            x = Math.random() * game.anchoJuego;
-            y = game.altoJuego + 100;
-            break;
-        case 2: // Left
-            x = -100;
-            y = Math.random() * game.altoJuego;
-            break;
-        case 3: // Right
-            x = game.anchoJuego + 100;
-            y = Math.random() * game.altoJuego;
-            break;
-    }
-    
+    // Aparece justo afuera de la vista de la cámara (alrededor de la nave)
+    const p = game._puntoSpawnFueraDeVista(100);
+    const x = p.x, y = p.y;
+
     const particula = new BoidParticle(x, y, game.texturaParticulaBoid, game.texturasPboids);
-    
-    // Velocidad hacia el centro
-    const centroX = game.anchoJuego / 2;
-    const centroY = game.altoJuego / 2;
+
+    // Velocidad hacia la nave
+    const centroX = game.jugador ? game.jugador.x : game.mundoAncho / 2;
+    const centroY = game.jugador ? game.jugador.y : game.mundoAlto / 2;
     const dx = centroX - x;
     const dy = centroY - y;
     const mag = Math.sqrt(dx * dx + dy * dy);
@@ -142,7 +107,7 @@ export function soltarParticulasEn(game, x, y, cantidad = 1) {
             particula.imagen.visible = true;
         }
         game.particulasBoid.push(particula);
-        particula.render(game.aplicacion.stage);
+        particula.render(game.mundo);
     }
 }
 
@@ -188,8 +153,8 @@ export function actualizarParticulasBoid(game, delta) {
             game.jugador, 
             game.enemigosNaves,
             game.enemigos,
-            game.anchoJuego,
-            game.altoJuego
+            game.mundoAncho,
+            game.mundoAlto
         );
         
         // Sincronizar sprite
@@ -198,40 +163,24 @@ export function actualizarParticulasBoid(game, delta) {
             particula.imagen.y = particula.y;
         }
         
-        // Las partículas pueden entrar y salir de la pantalla libremente
-        // Recyclo: si está más de 5 segundos fuera, mandarla de vuelta a un borde
-        const fueraDeLosBordes = particula.x < -50 || particula.x > game.anchoJuego + 50 ||
-                                 particula.y < -50 || particula.y > game.altoJuego + 50;
-        
+        // Reciclado: si está demasiado lejos de la NAVE por más de 5 s, traerla
+        // de vuelta cerca (con cámara, se mide distancia al jugador, no a la pantalla).
+        const limiteRecycle = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
+        const fueraDeLosBordes = game.jugador &&
+            Math.hypot(particula.x - game.jugador.x, particula.y - game.jugador.y) > limiteRecycle;
+
         if (fueraDeLosBordes) {
             particula.contadorFueraDePantalla = (particula.contadorFueraDePantalla || 0) + delta;
             if (particula.contadorFueraDePantalla > 5) {
-                // Recyclo: mover a un borde y dar velocidad hacia el centro
-                const borde = Math.floor(Math.random() * 4);
-                switch (borde) {
-                    case 0: // Top
-                        particula.x = Math.random() * game.anchoJuego;
-                        particula.y = -100;
-                        break;
-                    case 1: // Bottom
-                        particula.x = Math.random() * game.anchoJuego;
-                        particula.y = game.altoJuego + 100;
-                        break;
-                    case 2: // Left
-                        particula.x = -100;
-                        particula.y = Math.random() * game.altoJuego;
-                        break;
-                    case 3: // Right
-                        particula.x = game.anchoJuego + 100;
-                        particula.y = Math.random() * game.altoJuego;
-                        break;
-                }
-                // Velocidad hacia el centro
-                const centroX = game.anchoJuego / 2;
-                const centroY = game.altoJuego / 2;
+                // Reaparece justo afuera de la vista y va hacia la nave
+                const pr = game._puntoSpawnFueraDeVista(100);
+                particula.x = pr.x;
+                particula.y = pr.y;
+                const centroX = game.jugador ? game.jugador.x : game.mundoAncho / 2;
+                const centroY = game.jugador ? game.jugador.y : game.mundoAlto / 2;
                 const dx = centroX - particula.x;
                 const dy = centroY - particula.y;
-                const mag = Math.sqrt(dx * dx + dy * dy);
+                const mag = Math.sqrt(dx * dx + dy * dy) || 1;
                 particula.velX = (dx / mag) * 50 + (Math.random() - 0.5) * 30;
                 particula.velY = (dy / mag) * 50 + (Math.random() - 0.5) * 30;
                 particula.contadorFueraDePantalla = 0;
@@ -305,7 +254,7 @@ export function actualizarSistemaBoid(game, delta) {
         for (let i = 0; i < CONFIG.BOIDS.SPAWN_BATCH; i++) {
             const nuevaParticula = crearParticulaFuera(game);
             game.particulasBoid.push(nuevaParticula);
-            nuevaParticula.render(game.aplicacion.stage);
+            nuevaParticula.render(game.mundo);
         }
     }
     

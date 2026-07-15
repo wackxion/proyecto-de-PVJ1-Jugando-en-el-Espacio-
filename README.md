@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.31.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.31.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.32.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.32.0)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.31.0 (Actual)
+### v1.32.0 (Actual)
+> **Cámara que sigue la nave + mundo grande explorable + naves decorativas en el menú**
+
+- 🎥 **Cámara + mundo 3× la pantalla**: la nave se mueve libre por un mapa más grande y la cámara la sigue (centrada); el HUD y las ventanas quedan fijos
+- 🌌 Todo el juego (nave, enemigos, partículas, disparos, cohetes, efectos) vive en un contenedor "mundo" que la cámara desplaza; spawn y limpieza de enemigos **relativos a la cámara** (aparecen alrededor de la nave)
+- 🐛 Fixes de coordenadas: disparos, cohetes y el efecto de escudo ya no desaparecían; las entidades usan los límites del **mundo** (no de la pantalla)
+- 🚀 **Menú principal**: una nave aliada pasea y naves enemigas la orbitan con recorridos distintos; desaparecen al darle JUGAR
+
+### v1.31.0
 > **Asteroides sueltan partículas al destruirse + botones del tutorial**
 
 - ✨ Al destruir un asteroide ahora **salen partículas BOIDS** en su posición (1/2/3 según tamaño), listas para recolectar con el Devorador

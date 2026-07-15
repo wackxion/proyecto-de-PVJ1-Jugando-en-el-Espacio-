@@ -251,10 +251,24 @@ export class Game {
         
         //('Canvas agregado al container');
         
-        // Guardar las dimensiones del área de juego
+        // Guardar las dimensiones del área de juego (= tamaño de la VENTANA/cámara)
         this.anchoJuego = width;
         this.altoJuego = height;
-        
+
+        // === MUNDO / CÁMARA ===
+        // El "mundo" es un contenedor más grande que la pantalla; la cámara lo
+        // desplaza para seguir a la nave. Todos los objetos del juego (fondo,
+        // nave, enemigos, partículas, proyectiles, efectos) viven dentro de
+        // this.mundo. El HUD y los overlays (Game Over, Top 5) quedan FUERA,
+        // directamente en el stage, así no se mueven con la cámara.
+        this.mundoAncho = width * 3;
+        this.mundoAlto = height * 3;
+        this.mundo = new PIXI.Container();
+        this.mundo.sortableChildren = true;
+        this.aplicacion.stage.addChild(this.mundo);
+        this._camaraX = 0;
+        this._camaraY = 0;
+
         // Crear el InputManager para manejar el teclado
         this.gestorEntrada = new GestorEntrada();
 
@@ -441,9 +455,11 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
     _crearFondo() {
         //('Creando fondo, stage:', this.aplicacion.stage);
         
-        const w = this.anchoJuego;
-        const h = this.altoJuego;
-        
+        // El fondo cubre TODO el mundo (no solo la pantalla), así al mover la
+        // cámara siempre hay fondo alrededor de la nave.
+        const w = this.mundoAncho;
+        const h = this.mundoAlto;
+
         // Verificar si hay una textura de fondo cargada
         if (this.texturaFondo) {
             // Crear fondo infinito usando mosaicos (tiling)
@@ -472,8 +488,8 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
                 }
             }
             
-            // Agregar al stage
-            this.aplicacion.stage.addChild(this.contenedorFondo);
+            // Agregar al MUNDO (se mueve con la cámara)
+            this.mundo.addChild(this.contenedorFondo);
             
             // Guardar dimensiones para el movimiento infinito
             this._anchoMosaico = imagenAncho;
@@ -514,8 +530,8 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             graphics.fill({ color: 0xFFFFFF, alpha: alpha });
         }
         
-        // Agregar el fondo al stage
-        this.aplicacion.stage.addChild(graphics);
+        // Agregar el fondo al MUNDO
+        this.mundo.addChild(graphics);
     }
     
     /**
@@ -523,14 +539,14 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
      * Se posiciona en el centro de la pantalla
      */
     _crearJugador() {
-        // Calcular posición central
-        const centerX = this.anchoJuego / 2;
-        const centerY = this.altoJuego / 2;
-        
+        // Posición central DEL MUNDO (no de la pantalla): la cámara lo seguirá
+        const centerX = this.mundoAncho / 2;
+        const centerY = this.mundoAlto / 2;
+
         //('Creando jugador en:', centerX, centerY, 'textura:', this.texturaJugador);
-        
-        // Crear el objeto Player con la textura de la nave
-        this.jugador = new Jugador(centerX, centerY, this.texturaJugador, this.anchoJuego, this.altoJuego);
+
+        // Crear el objeto Player. Sus límites de movimiento son los del MUNDO.
+        this.jugador = new Jugador(centerX, centerY, this.texturaJugador, this.mundoAncho, this.mundoAlto);
         
         //('Jugador creado, imagen:', this.jugador.imagen);
         
@@ -542,7 +558,7 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         this.jugador.reiniciarVelocidadDisparo();
         
         // Renderizar el jugador en el stage
-        this.jugador.render(this.aplicacion.stage);
+        this.jugador.render(this.mundo);
         
         //('Jugador renderizado, parent:', this.jugador.imagen?.parent);
         
@@ -959,8 +975,10 @@ _crearParticulaBoidFuera() {
             this.gestorSonido.reproducir('disparo');
         }
 
-        // Crear proyectil SIN usar pool (forma original)
-        const projectile = new Proyectil(x, y, direction, this.anchoJuego, this.altoJuego, this.texturaProyectil);
+        // Crear proyectil SIN usar pool (forma original). Los límites son los del
+        // MUNDO (no de la pantalla): el proyectil se autoelimina al salir del
+        // mundo, no de la cámara (sino desaparecería apenas creado).
+        const projectile = new Proyectil(x, y, direction, this.mundoAncho, this.mundoAlto, this.texturaProyectil);
         
         // Calcular bonus de daño basado en mejoras compradas (indices 0-4)
         // +2, +3, +5, +5, +10 (se acumulan si compras varias)
@@ -974,7 +992,7 @@ _crearParticulaBoidFuera() {
         projectile.dano += bonusDano;
 
         // Renderizar
-        projectile.render(this.aplicacion.stage);
+        projectile.render(this.mundo);
         
         // Agregar a la lista
         this.proyectiles.push(projectile);
@@ -1040,7 +1058,7 @@ _crearParticulaBoidFuera() {
         );
         
         // Renderizar el efecto
-        this.efectoUlti.render(this.aplicacion.stage);
+        this.efectoUlti.render(this.mundo);
     }
     
     /**
@@ -1127,7 +1145,7 @@ _crearParticulaBoidFuera() {
                     this.anchoJuego,
                     this.altoJuego
                 );
-                especial.render(this.aplicacion.stage);
+                especial.render(this.mundo);
                 this.enemigosSpeciales.push(especial);
                 return; // No crear más
             }
@@ -1199,7 +1217,7 @@ _crearParticulaBoidFuera() {
             enemigo.direccionY = dirY;
             
             // Renderizar y agregar a la lista
-            enemigo.render(this.aplicacion.stage);
+            enemigo.render(this.mundo);
             this.enemigos.push(enemigo);
             
             // Crear partícula Boid a 10px del enemigo
@@ -1259,7 +1277,7 @@ _crearParticulaBoidFuera() {
         //('TexturaAsteroide:', this.texturaAsteroide);
         
         // Renderizar y agregar a la lista
-        enemigo.render(this.aplicacion.stage);
+        enemigo.render(this.mundo);
         
         //('Enemigo renderizado, parent:', enemigo.imagen?.parent);
         
@@ -1322,7 +1340,7 @@ _crearParticulaBoidFuera() {
         }
         
         this.particulasBoid.push(particula);
-        particula.render(this.aplicacion.stage);
+        particula.render(this.mundo);
     }
     
 /**
@@ -1413,7 +1431,7 @@ _crearParticulaBoidFuera() {
                             this.texturaExplosion,
                             1.0
                         );
-                        explosion.render(this.aplicacion.stage);
+                        explosion.render(this.mundo);
                         this.efectosImpacto.push(explosion);
                         
                         // Destruir ambos proyectiles
@@ -1448,12 +1466,12 @@ _crearParticulaBoidFuera() {
                         enemy.x, enemy.y, 
                         this.texturaExplosion
                     );
-                    explocion.render(this.aplicacion.stage);
+                    explocion.render(this.mundo);
                     this.efectosImpacto.push(explocion);
                     
                     // Crear efecto visual de impacto (doble tamaño: escala = 2)
                     const hit = new HitEffect(enemy.x, enemy.y, 'hit', 2);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // El proyectil hace daño al enemigo
@@ -1463,13 +1481,13 @@ _crearParticulaBoidFuera() {
                     // Si hay fragmentos (el asteroide se rompió), crear efecto visual de fragmentación
                     if (newAsteroids && newAsteroids.length > 0) {
                         const hit = new HitEffect(enemy.x, enemy.y, 'fragment', 4, 0xCC0000);
-                        hit.render(this.aplicacion.stage);
+                        hit.render(this.mundo);
                         this.efectosImpacto.push(hit);
                     }
                     
                     // Agregar los nuevos fragmentos a la lista
                     for (const nuevoEnemigo of newAsteroids) {
-                        nuevoEnemigo.render(this.aplicacion.stage);
+                        nuevoEnemigo.render(this.mundo);
                         this.enemigos.push(nuevoEnemigo);
                     }
                     
@@ -1497,7 +1515,7 @@ _crearParticulaBoidFuera() {
                                 this.texturaExplosionAsteroide,
                                 escalaAnim
                             );
-                            astroExplosion.render(this.aplicacion.stage);
+                            astroExplosion.render(this.mundo);
                             this.efectosImpacto.push(astroExplosion);
                         }
                         
@@ -1562,7 +1580,7 @@ _crearParticulaBoidFuera() {
                             this.texturaExplosion,
                             1.5
                         );
-                        explosion.render(this.aplicacion.stage);
+                        explosion.render(this.mundo);
                         this.efectosImpacto.push(explosion);
                         
                         // El proyectil hace daño
@@ -1598,7 +1616,7 @@ _crearParticulaBoidFuera() {
                                 0.5,  // Escala mediana
                                 0x0000FF  // Color AZUL
                             );
-                            astroExplosion.render(this.aplicacion.stage);
+                            astroExplosion.render(this.mundo);
                             this.efectosImpacto.push(astroExplosion);
                             
                             // Convertir en mini y orbitar
@@ -1631,7 +1649,7 @@ _crearParticulaBoidFuera() {
                 if (this._verificarColision(projectile, naveEnemiga)) {
                     // Crear efecto visual de impacto (doble tamaño: escala = 2)
                     const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 2);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // El proyectil hace daño a la nave enemiga
@@ -1645,7 +1663,7 @@ _crearParticulaBoidFuera() {
                             this.texturaExplosionNave,
                             0.5 // Escala para nave enemiga
                         );
-                        naveExplosion.render(this.aplicacion.stage);
+                        naveExplosion.render(this.mundo);
                         this.efectosImpacto.push(naveExplosion);
                         
                         // Sumar puntos por destruir nave enemiga
@@ -1728,7 +1746,7 @@ _crearParticulaBoidFuera() {
                     this.texturaExplosionAsteroide,
                     escalaAnim
                 );
-                astroExplosion.render(this.aplicacion.stage);
+                astroExplosion.render(this.mundo);
                 this.efectosImpacto.push(astroExplosion);
 
                 // Destruir el enemigo (siempre se destruye al chocar)
@@ -1753,7 +1771,7 @@ _crearParticulaBoidFuera() {
                         0.84,  // Escala LARGE
                         0x0000FF  // Color AZUL
                     );
-                    astroExplosion.render(this.aplicacion.stage);
+                    astroExplosion.render(this.mundo);
                     this.efectosImpacto.push(astroExplosion);
                     
                     // Contar cuántos especiales ya están en órbita para asignar índice único
@@ -1778,7 +1796,7 @@ _crearParticulaBoidFuera() {
                     
                     // Crear animación de impacto
                     const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // Si se destruyó porcollisión con enemigo
@@ -1790,7 +1808,7 @@ _crearParticulaBoidFuera() {
                             0.42,  // Escala MEDIUM
                             0x0000FF  // Color AZUL
                         );
-                        astroExplosion.render(this.aplicacion.stage);
+                        astroExplosion.render(this.mundo);
                         this.efectosImpacto.push(astroExplosion);
                         
                         especial.destroy();
@@ -1819,7 +1837,7 @@ _crearParticulaBoidFuera() {
                     
                     // Animación de impacto
                     const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // === ANIMACIÓN DE DESTRUCCIÓN DEL ASTEROIDE ===
@@ -1841,7 +1859,7 @@ _crearParticulaBoidFuera() {
                         this.texturaExplosionAsteroide,
                         escalaAnim
                     );
-                    astroExplosion.render(this.aplicacion.stage);
+                    astroExplosion.render(this.mundo);
                     this.efectosImpacto.push(astroExplosion);
 
                     // Dar puntos al jugador por destruir el asteroide
@@ -1863,7 +1881,7 @@ _crearParticulaBoidFuera() {
                             0.42,
                             0x0000FF
                         );
-                        astroExplosion.render(this.aplicacion.stage);
+                        astroExplosion.render(this.mundo);
                         this.efectosImpacto.push(astroExplosion);
                         
                         especial.destroy();
@@ -1903,7 +1921,7 @@ _crearParticulaBoidFuera() {
                         
                         // Animación de impacto
                         const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                        hit.render(this.aplicacion.stage);
+                        hit.render(this.mundo);
                         this.efectosImpacto.push(hit);
                         
                         // Destruir el proyectil enemigo
@@ -1918,7 +1936,7 @@ _crearParticulaBoidFuera() {
                                 0.42,
                                 0x0000FF
                             );
-                            astroExplosion.render(this.aplicacion.stage);
+                            astroExplosion.render(this.mundo);
                             this.efectosImpacto.push(astroExplosion);
                             
                             especial.destroy();
@@ -1943,7 +1961,7 @@ _crearParticulaBoidFuera() {
                     this.texturaExplosionNave,
                     0.5
                 );
-                explosion.render(this.aplicacion.stage);
+                explosion.render(this.mundo);
                 this.efectosImpacto.push(explosion);
                 
                 // El jugador recibe daño por chocar con la nave enemiga
@@ -1974,7 +1992,7 @@ _crearParticulaBoidFuera() {
                     
                     // Animación de impacto
                     const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 1.5);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // Si la nave enemiga se destruyó
@@ -1985,7 +2003,7 @@ _crearParticulaBoidFuera() {
                             this.texturaExplosionNave,
                             0.5
                         );
-                        explosion.render(this.aplicacion.stage);
+                        explosion.render(this.mundo);
                         this.efectosImpacto.push(explosion);
                         
                         // Puntos por destruir nave
@@ -2003,7 +2021,7 @@ _crearParticulaBoidFuera() {
                     
                     // Animación de impacto en el especial
                     const hitEsp = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hitEsp.render(this.aplicacion.stage);
+                    hitEsp.render(this.mundo);
                     this.efectosImpacto.push(hitEsp);
                     
                     // Si el especial se destruyó
@@ -2014,7 +2032,7 @@ _crearParticulaBoidFuera() {
                             0.42,
                             0x0000FF
                         );
-                        astroExplosion.render(this.aplicacion.stage);
+                        astroExplosion.render(this.mundo);
                         this.efectosImpacto.push(astroExplosion);
                         
                         especial.destroy();
@@ -2609,7 +2627,17 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         if (this.aplicacion && this.aplicacion.stage) {
             this.aplicacion.stage.removeChildren();
         }
-        
+
+        // Recrear el contenedor del MUNDO: removeChildren() lo sacó del stage.
+        // Creamos uno nuevo (el viejo, con los objetos de la partida anterior, se
+        // descarta) y reseteamos la cámara. El HUD se re-agrega más abajo, así
+        // que queda por encima del mundo.
+        this.mundo = new PIXI.Container();
+        this.mundo.sortableChildren = true;
+        this.aplicacion.stage.addChild(this.mundo);
+        this._camaraX = 0;
+        this._camaraY = 0;
+
         // Reiniciar todas las variables del juego
         this.puntuacion = 0;
         this.proyectiles = [];
@@ -2740,6 +2768,52 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
      * 
      * @param {object} ticker - Objeto de PixiJS que proporciona información del frame
      */
+    /**
+     * Mueve el contenedor del mundo para que la cámara siga a la nave, dejándola
+     * centrada en pantalla. Se clampea a los bordes del mundo para no mostrar
+     * "vacío" fuera de él.
+     */
+    _actualizarCamara() {
+        if (!this.mundo || !this.jugador) return;
+        const sw = this.anchoJuego, sh = this.altoJuego;
+        // Cámara centrada en la nave
+        let camX = this.jugador.x - sw / 2;
+        let camY = this.jugador.y - sh / 2;
+        // No pasar de los bordes del mundo (si el mundo es más chico que la
+        // pantalla en algún eje, se centra).
+        const maxX = Math.max(0, this.mundoAncho - sw);
+        const maxY = Math.max(0, this.mundoAlto - sh);
+        camX = Math.max(0, Math.min(maxX, camX));
+        camY = Math.max(0, Math.min(maxY, camY));
+        this._camaraX = camX;
+        this._camaraY = camY;
+        this.mundo.x = Math.round(-camX);
+        this.mundo.y = Math.round(-camY);
+    }
+
+    /**
+     * Devuelve un punto (en coords de mundo) justo AFUERA de lo que ve la cámara,
+     * en un borde al azar. Se usa para spawnear enemigos/partículas alrededor de
+     * la nave (no en una esquina fija del mundo). Clampeado a los bordes del mundo.
+     * @param {number} margen - cuántos px afuera de la vista
+     * @returns {{x:number, y:number}}
+     */
+    _puntoSpawnFueraDeVista(margen = 80) {
+        const cx = this._camaraX, cy = this._camaraY; // esquina sup-izq de la vista en el mundo
+        const sw = this.anchoJuego, sh = this.altoJuego;
+        const borde = Math.floor(Math.random() * 4);
+        let x, y;
+        switch (borde) {
+            case 0: x = cx + Math.random() * sw; y = cy - margen; break;        // arriba
+            case 1: x = cx + Math.random() * sw; y = cy + sh + margen; break;   // abajo
+            case 2: x = cx - margen; y = cy + Math.random() * sh; break;        // izquierda
+            default: x = cx + sw + margen; y = cy + Math.random() * sh; break;  // derecha
+        }
+        x = Math.max(0, Math.min(this.mundoAncho, x));
+        y = Math.max(0, Math.min(this.mundoAlto, y));
+        return { x, y };
+    }
+
     async _gameLoop(ticker) {
         // Si el juego no está corriendo, salir
         if (!this.ejecutando) return;
@@ -2785,6 +2859,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             if (this.jugador && this.jugador.active) {
                 this.jugador.update(delta, this.gestorEntrada);
             }
+
+            // === CÁMARA: seguir a la nave ===
+            this._actualizarCamara();
 
     // === DEVORADOR DE PARTÍCULAS BOID (Tecla E) - usando módulo ===
             const devoradorActivadoAhora = actualizarHabilidadDevorador(this, delta);
@@ -2835,22 +2912,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
                 this.pixiHUD.actualizar();
             }
 
-            // === ACTUALIZAR FONDO INFINITO ===
-            if (this.contenedorFondo && this.mosaicosFondo) {
-                // Mover el fondo lentamente para dar efecto de movimiento
-                // Usar velocidad basada en delta (60fps base)
-                const velocidadFondo = 0.3 * delta;
-
-                // Mover cada mosaico
-                for (const mosaico of this.mosaicosFondo) {
-                    mosaico.x -= velocidadFondo;
-
-                    // Si el mosaico sale de la pantalla por la izquierda, moverlo a la derecha
-                    if (mosaico.x < -this._anchoMosaico) {
-                        mosaico.x += this._anchoMosaico * this._columnasMosaico;
-                    }
-                }
-            }
+            // === FONDO ===
+            // Ya no se auto-desplaza: el fondo es fijo dentro del mundo y la
+            // sensación de movimiento la da la cámara al seguir a la nave.
         } catch (error) {
             // Cualquier error no controlado en el game loop se loguea
             // pero NO detiene el ticker de PixiJS.
@@ -2881,7 +2945,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
                     const puntoMedioX = (enemy1.x + enemy2.x) / 2;
                     const puntoMedioY = (enemy1.y + enemy2.y) / 2;
                     const hit = new HitEffect(puntoMedioX, puntoMedioY, 'hit', 2, 0xCC0000);
-                    hit.render(this.aplicacion.stage);
+                    hit.render(this.mundo);
                     this.efectosImpacto.push(hit);
                     
                     // ALTERAR DIRECCIÓN de TODOS los asteroides que chocan
@@ -2934,13 +2998,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Crear fragmentos
         const fragmentos = enemy._romper();
         for (const frag of fragmentos) {
-            frag.render(this.aplicacion.stage);
+            frag.render(this.mundo);
             this.enemigos.push(frag);
         }
         
         // Efecto de explosión (asteroide rojo)
         const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, this.texturaExplosionAsteroide, 0.5);
-        astroExplosion.render(this.aplicacion.stage);
+        astroExplosion.render(this.mundo);
         this.efectosExplosion.push(astroExplosion);
 }
     

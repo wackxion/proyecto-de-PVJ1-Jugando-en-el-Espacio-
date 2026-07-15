@@ -1,7 +1,31 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.31.0 (ACTUAL)
+**Versión:** v1.32.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.32.0 - Cámara/mundo grande + naves decorativas en el menú
+
+### Cámara + mundo explorable (Game.js y sistemas)
+- **Contenedor `this.mundo`** (creado en `init`, tamaño `mundoAncho/Alto = pantalla × 3`): todos los objetos del juego (fondo, nave, enemigos, partículas, proyectiles, cohetes, efectos) se renderizan dentro de él. El HUD (`PixiHUD`) y los overlays (Game Over, Top 5, mejoras) quedan en el `stage`, fijos a la pantalla.
+- **Cámara** (`Game._actualizarCamara`): cada frame desplaza `this.mundo` para centrar la nave, clampeando a los bordes del mundo. La nave se mueve con **límites del mundo** (`_crearJugador` la crea en el centro del mundo con `mundoAncho/Alto`).
+- **Fondo**: cubre todo el mundo (mosaico) y se movió a `this.mundo`; se desactivó el auto-scroll (la cámara da el movimiento).
+- **Spawn relativo a la cámara** (`Game._puntoSpawnFueraDeVista`): asteroides, naves, especiales y partículas aparecen justo afuera de lo que ve la cámara (alrededor de la nave), no en una esquina fija.
+- **Culling por distancia a la nave** (`GameEnemies`): enemigos/naves/partículas se eliminan/reciclan según la distancia al jugador, no contra los bordes de pantalla. Las naves disparan cuando están dentro de la vista de la cámara.
+- **Reinicio** (`_reiniciarJuego`): `stage.removeChildren()` sacaba el mundo; ahora se recrea `this.mundo` y se resetea la cámara.
+
+### Fixes de coordenadas (todo lo que "desaparecía")
+- **Entidades con el tamaño del MUNDO**: `Proyectil`, `EnemyProjectile`, `Enemigo`, `EnemyShip`, `SpecialEnemy` reciben `mundoAncho/Alto`; así su auto-eliminación/reciclado interno usa el mundo, no la pantalla (sino se borraban apenas creados en coords de mundo).
+- **Disparos del jugador**: además del check interno, `GameProjectiles.actualizarProyectilesJugador` los eliminaba fuera de **pantalla** → ahora usa el mundo.
+- **Cohetes** (`GameSkills.actualizarCohetes`): se autoeliminaban fuera de pantalla (nacen en la nave, en coords de mundo) → se borraban en el 1er frame (sonaba pero no se veían ni impactaban). Ahora usan los límites del mundo.
+- **Efectos del jugador** (`Player.js`): el efecto de impacto/escudo (`damageEffect`) y la partícula de rotación (`_crearEfectoRotacion`) se agregaban al `stage` con coords de mundo (descolocados) → ahora al `mundo`.
+- **Escudo curvo del HUD** (`PixiHUD._actualizarEscudoCurvo`): vive en el stage (pantalla) pero seguía a la nave por coords de mundo → se convierte restando el offset de cámara.
+
+### Decoración del menú principal (UIManager)
+- **`_animarNavesMenu`**: una nave aliada (`Nave322.png`) "pasea" por el menú (deriva suave, gira despacio hacia el centro cerca de los bordes) y 3 naves enemigas (`enimigo1.png`, tamaño similar a la aliada) la **orbitan con recorridos distintos** (radio y velocidad angular propios, sentidos alternos), girando gradualmente (curvas naturales). Viven en una capa `pointer-events:none` detrás de los botones. La rotación usa el rumbo directo (el arte apunta a la derecha). Al darle JUGAR (`ocultarMenuPrincipal`) se cancela el `requestAnimationFrame` y desaparecen con el menú.
+
+Verificado en runtime: nave centrada por la cámara, enemigos spawnean cerca, disparos/cohetes visibles e impactando, escudo en su lugar, reinicio OK, y las naves del menú con recorridos distintos que se limpian al jugar.
 
 ---
 

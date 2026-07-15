@@ -70,42 +70,19 @@ export function generarEnemigo(game) {
         if (game.enemigosSpeciales.length >= 3) {
             size = 'large'; // Si llegó al límite, crear uno normal
         } else {
-            // Aparece fuera de la pantalla y se mueve hacia el jugador
-            const w = game.anchoJuego;
-            const h = game.altoJuego;
-            
-            // Elegir un borde aleatorio para spawnear
-            const borde = Math.floor(Math.random() * 4);
-            let x, y;
-            
-            switch (borde) {
-                case 0: // Top
-                    x = Math.random() * w;
-                    y = -80;
-                    break;
-                case 1: // Bottom
-                    x = Math.random() * w;
-                    y = h + 80;
-                    break;
-                case 2: // Left
-                    x = -80;
-                    y = Math.random() * h;
-                    break;
-                case 3: // Right
-                    x = w + 80;
-                    y = Math.random() * h;
-                    break;
-            }
-            
+            // Aparece justo afuera de la vista de la cámara (alrededor de la nave)
+            const p = game._puntoSpawnFueraDeVista(80);
+            const x = p.x, y = p.y;
+
             // Crear con posición fuera de la pantalla
             const especial = new SpecialEnemy(
                 x, y,
                 game.jugador,
                 game.texturaAsteroideSpecial,
-                game.anchoJuego,
-                game.altoJuego
+                game.mundoAncho,
+                game.mundoAlto
             );
-            especial.render(game.aplicacion.stage);
+            especial.render(game.mundo);
             game.enemigosSpeciales.push(especial);
             return; // No crear más
         }
@@ -113,56 +90,21 @@ export function generarEnemigo(game) {
         // Los rezagados aparecen desde un borde y cruzan la pantalla
         // pero evitan la zona central (donde está la nave)
         // Mantienen una línea recta SIN dirigirse a la nave
-        let dirX = 0;
-        let dirY = 0;
-        
-        if (Math.random() < 0.5) {
-            // Eje horizontal: aparecen a izquierda/derecha
-            if (Math.random() < 0.5) {
-                // Nace a la izquierda, va hacia la derecha
-                x = -60;
-                dirX = 1;
-            } else {
-                // Nace a la derecha, va hacia la izquierda
-                x = w + 60;
-                dirX = -1;
-            }
-            
-            // Y en zona superior O inferior (evitando el centro 30%)
-            if (Math.random() < 0.5) {
-                // Zona superior (0% al 40% del alto)
-                y = Math.random() * (h * 0.4);
-            } else {
-                // Zona inferior (60% al 100% del alto)
-                y = h * 0.6 + Math.random() * (h * 0.4);
-            }
-        } else {
-            // Eje vertical: aparecen arriba/abajo
-            if (Math.random() < 0.5) {
-                // Nace arriba, va hacia abajo
-                y = -60;
-                dirY = 1;
-            } else {
-                // Nace abajo, va hacia arriba
-                y = h + 60;
-                dirY = -1;
-            }
-            
-            // X en zona izquierda O derecha (evitando el centro 30%)
-            if (Math.random() < 0.5) {
-                // Zona izquierda (0% al 40% del ancho)
-                x = Math.random() * (w * 0.4);
-            } else {
-                // Zona derecha (60% al 100% del ancho)
-                x = w * 0.6 + Math.random() * (w * 0.4);
-            }
-        }
+        // Aparecen justo afuera de la vista de la cámara y cruzan en línea recta
+        // hacia la zona de la nave (sin homing).
+        const p = game._puntoSpawnFueraDeVista(60);
+        x = p.x; y = p.y;
+        const ddx = (game.jugador ? game.jugador.x : x) - x;
+        const ddy = (game.jugador ? game.jugador.y : y) - y;
+        const dm = Math.hypot(ddx, ddy) || 1;
+        let dirX = ddx / dm;
+        let dirY = ddy / dm;
         
         // Elegir textura según el tipo
         const textura = (size === 'special') ? game.texturaAsteroideSpecial : game.texturaAsteroide;
         
         // Crear el enemigo
-        const enemigo = new Enemigo(x, y, size, game.jugador, textura, null, false, game.anchoJuego, game.altoJuego);
+        const enemigo = new Enemigo(x, y, size, game.jugador, textura, null, false, game.mundoAncho, game.mundoAlto);
         
         // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
         const oleadasAumento = Math.floor(game.contadorOleadas / 5);
@@ -175,7 +117,7 @@ export function generarEnemigo(game) {
         enemigo.direccionY = dirY;
         
         // Renderizar y agregar a la lista
-        enemigo.render(game.aplicacion.stage);
+        enemigo.render(game.mundo);
         game.enemigos.push(enemigo);
         
         return;
@@ -186,16 +128,10 @@ export function generarEnemigo(game) {
         let posicionLibre = false;
         
         while (!posicionLibre && intentos < 5) {
-            if (Math.random() < 0.5) {
-                // Eje horizontal (izquierda o derecha)
-                x = Math.random() < 0.5 ? -60 : w + 60;
-                y = Math.random() * h;
-            } else {
-                // Eje vertical (arriba o abajo)
-                x = Math.random() * w;
-                y = Math.random() < 0.5 ? -60 : h + 60;
-            }
-            
+            // Aparecen justo afuera de la vista de la cámara (alrededor de la nave)
+            const p = game._puntoSpawnFueraDeVista(60);
+            x = p.x; y = p.y;
+
             // Obtener radio según el tipo de asteroide
             let radioNuevo = 16; // default small
             if (size === 'large') radioNuevo = 64;
@@ -217,7 +153,7 @@ export function generarEnemigo(game) {
     const texturaNormal = (size === 'special') ? game.texturaAsteroideSpecial : game.texturaAsteroide;
     
     // Crear el enemigo con todos los parámetros necesarios
-    const enemigo = new Enemigo(x, y, size, game.jugador, texturaNormal, null, false, game.anchoJuego, game.altoJuego);
+    const enemigo = new Enemigo(x, y, size, game.jugador, texturaNormal, null, false, game.mundoAncho, game.mundoAlto);
     
     // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
     const oleadasAumento = Math.floor(game.contadorOleadas / 5);
@@ -226,7 +162,7 @@ export function generarEnemigo(game) {
     enemigo.multiplicadorVelocidad = multiplicadorVelocidad;
     
     // Renderizar y agregar a la lista
-    enemigo.render(game.aplicacion.stage);
+    enemigo.render(game.mundo);
     game.enemigos.push(enemigo);
 }
 
@@ -271,7 +207,7 @@ export function crearParticulaBoidCercaDe(game, enemigo) {
     }
     
     game.particulasBoid.push(particula);
-    particula.render(game.aplicacion.stage);
+    particula.render(game.mundo);
 }
 
 /**
@@ -349,10 +285,10 @@ export function actualizarEnemigos(game, delta) {
             enemy.imagen.rotation = enemy.rotacion || 0;
         }
         
-        // Eliminar si está muy lejos de la pantalla (para rezagados)
-        const margen = 200;
-        if (enemy.x < -margen || enemy.x > game.anchoJuego + margen ||
-            enemy.y < -margen || enemy.y > game.altoJuego + margen) {
+        // Eliminar si está muy lejos de la NAVE (con cámara, se mide distancia
+        // al jugador, no a los bordes de la pantalla).
+        const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
+        if (game.jugador && Math.hypot(enemy.x - game.jugador.x, enemy.y - game.jugador.y) > limite) {
             
             // Destruir sprite
             if (enemy.imagen && enemy.imagen.parent) {
@@ -390,31 +326,10 @@ export function actualizarEnemigos(game, delta) {
  * @param {Game} game - Referencia al objeto Game principal
  */
 export function generarNaveEnemiga(game) {
-    // Elegir un borde aleatorio para spawnear
-    const borde = Math.floor(Math.random() * 4);
-    const w = game.anchoJuego;
-    const h = game.altoJuego;
-    let x, y;
-    
-    switch (borde) {
-        case 0: // Top
-            x = Math.random() * w;
-            y = -50;
-            break;
-        case 1: // Bottom
-            x = Math.random() * w;
-            y = h + 50;
-            break;
-        case 2: // Left
-            x = -50;
-            y = Math.random() * h;
-            break;
-        case 3: // Right
-            x = w + 50;
-            y = Math.random() * h;
-            break;
-    }
-    
+    // Aparece justo afuera de la vista de la cámara (alrededor de la nave)
+    const p = game._puntoSpawnFueraDeVista(50);
+    const x = p.x, y = p.y;
+
     // Elegir una variante de nave enemiga al azar (spray). Fallback a la textura única.
     const variantes = game.texturasNaveEnemiga;
     const texturaNave = (variantes && variantes.length)
@@ -422,8 +337,8 @@ export function generarNaveEnemiga(game) {
         : game.texturaNaveEnemiga;
 
     // Crear la nave enemiga (orden correcto: x, y, textura, jugador, enemigos, ancho, alto)
-    const nave = new EnemyShip(x, y, texturaNave, game.jugador, game.enemigos, game.anchoJuego, game.altoJuego);
-    nave.render(game.aplicacion.stage);
+    const nave = new EnemyShip(x, y, texturaNave, game.jugador, game.enemigos, game.mundoAncho, game.mundoAlto);
+    nave.render(game.mundo);
     game.enemigosNaves.push(nave);
 }
 
@@ -475,9 +390,9 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
         // Actualizar la nave enemiga
         naveEnemiga.update(delta);
         
-        // Solo disparar si está en pantalla
-        if (naveEnemiga.x > 0 && naveEnemiga.x < game.anchoJuego &&
-            naveEnemiga.y > 0 && naveEnemiga.y < game.altoJuego) {
+        // Solo disparar si está dentro de lo que ve la cámara
+        if (naveEnemiga.x > game._camaraX && naveEnemiga.x < game._camaraX + game.anchoJuego &&
+            naveEnemiga.y > game._camaraY && naveEnemiga.y < game._camaraY + game.altoJuego) {
             
             // Verificar si dispara (cada 3 segundos)
             if (naveEnemiga.yaDisparo && !naveEnemiga.disparoCreado) {
@@ -527,7 +442,7 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                     game.texturaExplosionAsteroide,
                     escala * 0.35
                 );
-                astroExplosion.render(game.aplicacion.stage);
+                astroExplosion.render(game.mundo);
                 game.efectosImpacto.push(astroExplosion);
                 
                 // Destruir la nave enemiga
@@ -537,10 +452,9 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
             }
         }
         
-        // Si la nave enemiga está muy lejos, destruirla
-        const margin = 200;
-        if (naveEnemiga.x < -margin || naveEnemiga.x > game.anchoJuego + margin ||
-            naveEnemiga.y < -margin || naveEnemiga.y > game.altoJuego + margin) {
+        // Si la nave enemiga está muy lejos de la NAVE del jugador, destruirla
+        const limiteNave = Math.hypot(game.anchoJuego, game.altoJuego) * 1.6;
+        if (game.jugador && Math.hypot(naveEnemiga.x - game.jugador.x, naveEnemiga.y - game.jugador.y) > limiteNave) {
             naveEnemiga.destroy();
         }
         
@@ -569,14 +483,14 @@ function _crearProyectilEnemigo(game, x, y, direction) {
     // Crear proyectil teledirigido
     const projectile = new EnemyProjectile(
         origenX, origenY, direction,
-        game.anchoJuego, game.altoJuego,
+        game.mundoAncho, game.mundoAlto,
         game.texturaProyectil,
         game.jugador,
         game.enemigos
     );
     
     // Renderizarlo
-    projectile.render(game.aplicacion.stage);
+    projectile.render(game.mundo);
     
     // Agregar a la lista
     if (!game.proyectilesEnemigos) {
@@ -656,7 +570,7 @@ export function procesarColisionesEnemigos(game) {
                 const puntoMedioX = (enemy1.x + enemy2.x) / 2;
                 const puntoMedioY = (enemy1.y + enemy2.y) / 2;
                 const hit = new HitEffect(puntoMedioX, puntoMedioY, 'hit', 2, 0xCC0000);
-                hit.render(game.aplicacion.stage);
+                hit.render(game.mundo);
                 game.efectosImpacto.push(hit);
                 
                 enemy1.alterDirection();
@@ -696,13 +610,12 @@ export function limpiarEnemigosLejanos(game) {
         return;
     }
     
-    const margin = 200;
-    
+    const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
+
     for (let i = game.enemigos.length - 1; i >= 0; i--) {
         const enemy = game.enemigos[i];
-        
-        if (enemy.x < -margin || enemy.x > game.anchoJuego + margin ||
-            enemy.y < -margin || enemy.y > game.altoJuego + margin) {
+
+        if (game.jugador && Math.hypot(enemy.x - game.jugador.x, enemy.y - game.jugador.y) > limite) {
             
             const enemyVisual = enemy.imagen || enemy.sprite;
             if (enemyVisual && enemyVisual.parent) {
@@ -732,7 +645,7 @@ export function limpiarEnemigosLejanos(game) {
                 const puntoMedioX = (enemy.x + especial.x) / 2;
                 const puntoMedioY = (enemy.y + especial.y) / 2;
                 const hit = new HitEffect(puntoMedioX, puntoMedioY, 'hit', 2, 0xCC0000);
-                hit.render(game.aplicacion.stage);
+                hit.render(game.mundo);
                 game.efectosImpacto.push(hit);
 
                 enemy.alterDirection();
@@ -740,7 +653,7 @@ export function limpiarEnemigosLejanos(game) {
                 if (especial.salud <= 0) {
                     // Destruir mini especial con animación y puntos
                     const explosion = new AsteroidExplosion(especial.x, especial.y, game.texturaAsteroidExplosion, 0.25, 0x0000FF);
-                    explosion.render(game.aplicacion.stage);
+                    explosion.render(game.mundo);
                     game.efectosExplosion.push(explosion);
 
                     game.puntuacion += 50;
@@ -762,12 +675,12 @@ export function limpiarEnemigosLejanos(game) {
 function _destruirYFragmentar(game, enemy, indice) {
     const escala = (enemy.radio || 32) / 64;
     const explosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escala * 0.5);
-    explosion.render(game.aplicacion.stage);
+    explosion.render(game.mundo);
     game.efectosExplosion.push(explosion);
     
     const fragmentos = enemy.recibirDano(1000);
     for (const frag of fragmentos) {
-        frag.render(game.aplicacion.stage);
+        frag.render(game.mundo);
         game.enemigos.push(frag);
     }
     
@@ -803,7 +716,7 @@ export function procesarColisionesJugador(game) {
             else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
             
             const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
-            astroExplosion.render(game.aplicacion.stage);
+            astroExplosion.render(game.mundo);
             game.efectosExplosion.push(astroExplosion);
             
             enemy.destroy();
@@ -825,7 +738,7 @@ export function procesarColisionesJugador(game) {
             game.jugador.recibirDano(nave.dano || 20);
 
             const explosion = new AsteroidExplosion(nave.x, nave.y, game.texturaExplosionNave, 0.5);
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosExplosion.push(explosion);
             
             nave.destroy();
@@ -866,7 +779,7 @@ export function procesarColisionesJugador(game) {
                 
                 // Animación de transformación
                 const astroExplosion = new AsteroidExplosion(especial.x, especial.y, game.texturaAsteroidExplosion, 0.5, 0x0000FF);
-                astroExplosion.render(game.aplicacion.stage);
+                astroExplosion.render(game.mundo);
                 game.efectosExplosion.push(astroExplosion);
             }
         }
@@ -888,7 +801,7 @@ export function procesarColisionesJugador(game) {
                     
                     // Animación de impacto
                     const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 1.5);
-                    hit.render(game.aplicacion.stage);
+                    hit.render(game.mundo);
                     game.efectosImpacto.push(hit);
                     
                     // Si la nave enemiga se destruyó
@@ -899,7 +812,7 @@ export function procesarColisionesJugador(game) {
                             game.texturaExplosionNave,
                             0.5
                         );
-                        explosion.render(game.aplicacion.stage);
+                        explosion.render(game.mundo);
                         game.efectosExplosion.push(explosion);
                         
                         // Puntos por destruir nave
@@ -919,7 +832,7 @@ export function procesarColisionesJugador(game) {
                     
                     // Animación de impacto en el especial
                     const hitEsp = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hitEsp.render(game.aplicacion.stage);
+                    hitEsp.render(game.mundo);
                     game.efectosImpacto.push(hitEsp);
                     
                     // Si el especial se destruyó
@@ -930,7 +843,7 @@ export function procesarColisionesJugador(game) {
                             0.42,
                             0x0000FF
                         );
-                        astroExplosion.render(game.aplicacion.stage);
+                        astroExplosion.render(game.mundo);
                         game.efectosExplosion.push(astroExplosion);
                         
                         especial.destroy();

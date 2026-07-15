@@ -73,7 +73,7 @@ export function activarUlti(game) {
     );
     
     // Renderizar el efecto
-    game.efectoUlti.render(game.aplicacion.stage);
+    game.efectoUlti.render(game.mundo);
 }
 
 /**
@@ -120,7 +120,7 @@ export function verificarColisionesProyectiles(game) {
                         game.texturaExplosion,
                         1.0
                     );
-                    explosion.render(game.aplicacion.stage);
+                    explosion.render(game.mundo);
                     game.efectosImpacto.push(explosion);
                     
                     // Destruir ambos proyectiles
@@ -150,7 +150,7 @@ export function verificarColisionesProyectiles(game) {
  */
 export function crearEfectoImpacto(game, x, y, tipo, escala, color) {
     const hit = new HitEffect(x, y, tipo, escala, color);
-    hit.render(game.aplicacion.stage);
+    hit.render(game.mundo);
     game.efectosImpacto.push(hit);
 }
 
@@ -181,7 +181,7 @@ export function crearExplosionAsteroide(game, enemy) {
             game.texturaExplosionAsteroide,
             escalaAnim
         );
-        astroExplosion.render(game.aplicacion.stage);
+        astroExplosion.render(game.mundo);
         game.efectosExplosion.push(astroExplosion);
     }
 }

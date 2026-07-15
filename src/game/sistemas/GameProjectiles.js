@@ -29,10 +29,10 @@ import { soltarParticulasEn } from './GameBoids.js';
  */
 export function crearProyectil(game, x, y, direction, multiplicadorVelocidad = 1.0) {
     // Crear proyectil SIN usar pool (forma original)
-    const projectile = new Proyectil(x, y, direction, game.anchoJuego, game.altoJuego, game.texturaProyectil, multiplicadorVelocidad);
+    const projectile = new Proyectil(x, y, direction, game.mundoAncho, game.mundoAlto, game.texturaProyectil, multiplicadorVelocidad);
 
     // Renderizar
-    projectile.render(game.aplicacion.stage);
+    projectile.render(game.mundo);
 
     // Agregar a la lista
     game.proyectiles.push(projectile);
@@ -65,9 +65,10 @@ export function actualizarProyectiles(game, delta) {
         // Actualizar posición y velocidad
         projectile.update(delta);
 
-        // Verificar si el proyectil salió de la pantalla
-        if (projectile.x < -50 || projectile.x > game.anchoJuego + 50 ||
-            projectile.y < -50 || projectile.y > game.altoJuego + 50) {
+        // Verificar si el proyectil salió del MUNDO (no de la pantalla): la nave
+        // y sus disparos están en coords de mundo, que caen fuera de la pantalla.
+        if (projectile.x < -50 || projectile.x > game.mundoAncho + 50 ||
+            projectile.y < -50 || projectile.y > game.mundoAlto + 50) {
 
             // Destruir el proyectil
             if (projectile.destroy) {
@@ -142,7 +143,7 @@ export function actualizarProyectilesEnemigos(game, delta) {
                     game.texturaExplosionAsteroide,
                     escala * 0.35
                 );
-                explosion.render(game.aplicacion.stage);
+                explosion.render(game.mundo);
                 game.efectosImpacto.push(explosion);
 
                 ast.destroy();
@@ -182,7 +183,7 @@ export function procesarColisionesProyectiles(game) {
 
                 if (game._verificarColision(projectile, projEnemigo)) {
                     const explosion = new ProyectilExplosion(projectile.x, projectile.y, game.texturaExplosion, 1.0);
-                    explosion.render(game.aplicacion.stage);
+                    explosion.render(game.mundo);
                     game.efectosImpacto.push(explosion);
 
                     projectile.destroy();
@@ -209,14 +210,14 @@ export function procesarColisionesProyectiles(game) {
 
             if (game._verificarColision(projectile, especial)) {
                 const explocion = new ProyectilExplosion(especial.x, especial.y, game.texturaExplosion);
-                explocion.render(game.aplicacion.stage);
+                explocion.render(game.mundo);
                 game.efectosImpacto.push(explocion);
 
                 especial.salud -= projectile.dano;
                 
                 // Efectos de impacto visual
                 const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                hit.render(game.aplicacion.stage);
+                hit.render(game.mundo);
                 game.efectosImpacto.push(hit);
 
                 if (especial.salud <= 0) {
@@ -229,10 +230,10 @@ export function procesarColisionesProyectiles(game) {
                     const xMini = game.jugador.x + Math.cos(angulo) * 130;
                     const yMini = game.jugador.y + Math.sin(angulo) * 130;
                     
-                    const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.anchoJuego, game.altoJuego, true);
+                    const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.mundoAncho, game.mundoAlto, true);
                     mini.enOrbita = true;
                     mini.indiceOrbita = 0;
-                    mini.render(game.aplicacion.stage);
+                    mini.render(game.mundo);
                     game.enemigosSpeciales.push(mini);
 
                     especial.destroy();
@@ -257,11 +258,11 @@ export function procesarColisionesProyectiles(game) {
 
             if (game._verificarColision(projectile, enemy)) {
                 const explocion = new ProyectilExplosion(enemy.x, enemy.y, game.texturaExplosion);
-                explocion.render(game.aplicacion.stage);
+                explocion.render(game.mundo);
                 game.efectosImpacto.push(explocion);
 
                 const hit = new HitEffect(enemy.x, enemy.y, 'hit', 2);
-                hit.render(game.aplicacion.stage);
+                hit.render(game.mundo);
                 game.efectosImpacto.push(hit);
 
                 // Daño normal a enemigos
@@ -269,12 +270,12 @@ export function procesarColisionesProyectiles(game) {
 
                 if (newAsteroids && newAsteroids.length > 0) {
                     const hitFrag = new HitEffect(enemy.x, enemy.y, 'fragment', 4, 0xCC0000);
-                    hitFrag.render(game.aplicacion.stage);
+                    hitFrag.render(game.mundo);
                     game.efectosImpacto.push(hitFrag);
                 }
 
                 for (const nuevoEnemigo of newAsteroids) {
-                    nuevoEnemigo.render(game.aplicacion.stage);
+                    nuevoEnemigo.render(game.mundo);
                     game.enemigos.push(nuevoEnemigo);
                 }
 
@@ -295,7 +296,7 @@ export function procesarColisionesProyectiles(game) {
                         else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
 
                         const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
-                        astroExplosion.render(game.aplicacion.stage);
+                        astroExplosion.render(game.mundo);
                         game.efectosExplosion.push(astroExplosion);
 
                         // Soltar partículas Boid donde se destruyó el asteroide
@@ -313,12 +314,12 @@ export function procesarColisionesProyectiles(game) {
                             const xMini = enemy.x + Math.cos(angulo) * 20;
                             const yMini = enemy.y + Math.sin(angulo) * 20;
 
-                            const mini = new Enemigo(xMini, yMini, 'small', game.jugador, game.texturaAsteroide, null, false, game.anchoJuego, game.altoJuego);
+                            const mini = new Enemigo(xMini, yMini, 'small', game.jugador, game.texturaAsteroide, null, false, game.mundoAncho, game.mundoAlto);
                             mini.velX = Math.cos(angulo) * velocidad;
                             mini.velY = Math.sin(angulo) * velocidad;
                             mini.puntos = 20;
                             mini.cargaUlti = 5;
-                            mini.render(game.aplicacion.stage);
+                            mini.render(game.mundo);
                             game.enemigos.push(mini);
                         }
                     }
@@ -357,7 +358,7 @@ export function procesarColisionesProyectiles(game) {
                 if (game._verificarColision(projectile, naveEnemiga)) {
                     // Efecto visual de impacto
                     const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 2);
-                    hit.render(game.aplicacion.stage);
+                    hit.render(game.mundo);
                     game.efectosImpacto.push(hit);
 
                     // Aplicar daño a la nave enemiga
@@ -375,7 +376,7 @@ export function procesarColisionesProyectiles(game) {
                             game.texturaExplosionNave,
                             0.5
                         );
-                        naveExplosion.render(game.aplicacion.stage);
+                        naveExplosion.render(game.mundo);
                         game.efectosImpacto.push(naveExplosion);
 
                         // Sumar puntos

@@ -1716,7 +1716,12 @@ export class PixiHUD {
             return;
         }
         cont.visible = true;
-        cont.position.set(jugador.x, jugador.y);
+        // El escudo curvo vive en el stage (pantalla), pero la nave está en el
+        // MUNDO (que la cámara desplaza). Convertimos las coords de mundo a
+        // pantalla restando el offset de cámara.
+        const camX = this.game._camaraX || 0;
+        const camY = this.game._camaraY || 0;
+        cont.position.set(jugador.x - camX, jugador.y - camY);
 
         for (const barra of this.escudoCurvo.barras) {
             this._dibujarBarraEscudo(barra, jugador);

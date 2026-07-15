@@ -101,7 +101,7 @@ export class UltiEffect extends GameObject {
                 0.84,
                 0x0000FF
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'large' || enemy.tamanio === 'large_rezagado') {
             // Asteroides grandes: animación de asteroide (rojo)
@@ -110,7 +110,7 @@ export class UltiEffect extends GameObject {
                 game.texturaExplosionAsteroide,
                 0.84
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'medium' || enemy.tamanio === 'medium_rezagado') {
             // Asteroides medianos (rojo)
@@ -119,7 +119,7 @@ export class UltiEffect extends GameObject {
                 game.texturaExplosionAsteroide,
                 0.42
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
         } else if (enemy.tamanio === 'small' || enemy.tamanio === 'small_rezagado') {
             // Asteroides pequeños (rojo)
@@ -128,7 +128,7 @@ export class UltiEffect extends GameObject {
                 game.texturaExplosionAsteroide,
                 0.24
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
         } else {
             // Por defecto (cualquier tipo no reconocido), usar animación mediana (rojo)
@@ -137,7 +137,7 @@ export class UltiEffect extends GameObject {
                 game.texturaExplosionAsteroide,
                 0.42
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
         }
     }
@@ -156,7 +156,7 @@ export class UltiEffect extends GameObject {
             game.texturaExplosionNave,
             0.5
         );
-        explosion.render(game.aplicacion.stage);
+        explosion.render(game.mundo);
         game.efectosImpacto.push(explosion);
     }
     
@@ -310,7 +310,7 @@ export class UltiEffect extends GameObject {
                             0.84,
                             0x0000FF
                         );
-                        explosion.render(this.gameRef.aplicacion.stage);
+                        explosion.render(this.gameRef.mundo);
                         this.gameRef.efectosImpacto.push(explosion);
                     }
                     

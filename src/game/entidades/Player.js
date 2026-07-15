@@ -205,8 +205,8 @@ this.rotacion = 0;
         
         // Agregar el efecto al stage (pantalla principal del juego)
         // Solo si el juego existe y tiene un stage
-        if (this.juego && this.juego.aplicacion && this.juego.aplicacion.stage) {
-            this.juego.aplicacion.stage.addChild(this.damageEffect);
+        if (this.juego && this.juego.mundo) {
+            this.juego.mundo.addChild(this.damageEffect);
         }
         
         // Establecer timer = 0.5 segundos para que desaparezca el efecto
@@ -582,8 +582,8 @@ this.rotacion = 0;
         this.damageEffect.x = this.x;
         this.damageEffect.y = this.y;
         
-        if (this.juego && this.juego.aplicacion && this.juego.aplicacion.stage) {
-            this.juego.aplicacion.stage.addChild(this.damageEffect);
+        if (this.juego && this.juego.mundo) {
+            this.juego.mundo.addChild(this.damageEffect);
         }
         
         this.damageEffectTimer = 0.5;
@@ -598,9 +598,9 @@ this.rotacion = 0;
         // Usar tipo 'rotation' para mayor dispersión
         const hit = new HitEffect(this.x, this.y, 'rotation', 1.7);
         
-        // Renderizar pero agregar en índice 1 (ANTES/debajo de la nave)
-        if (hit.sprite) {
-            this.juego.aplicacion.stage.addChildAt(hit.sprite, 1);
+        // Renderizar pero agregar en índice 1 (ANTES/debajo de la nave) DENTRO del mundo
+        if (hit.sprite && this.juego && this.juego.mundo) {
+            this.juego.mundo.addChildAt(hit.sprite, 1);
         }
         
         // Guardar en el array

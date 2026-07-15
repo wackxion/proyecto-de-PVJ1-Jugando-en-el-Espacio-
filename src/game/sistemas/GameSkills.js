@@ -97,7 +97,7 @@ export function crearCohetes(game) {
                 enemigo,
                 game.texturaCohete
             );
-            cohete.render(game.aplicacion.stage);
+            cohete.render(game.mundo);
             game.cohetes.push(cohete);
             algunoLanzado = true;
         }
@@ -210,7 +210,7 @@ export function actualizarCohetes(game, delta) {
                 escala * 0.5,
                 esObjetivoEspecial ? 0x0000FF : null
             );
-            explosion.render(game.aplicacion.stage);
+            explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
             
             // Agregar puntos, carga Ulti y actualizar contador de oleada
@@ -236,10 +236,10 @@ export function actualizarCohetes(game, delta) {
                 const angulo = Math.random() * Math.PI * 2;
                 const xMini = game.jugador.x + Math.cos(angulo) * 130;
                 const yMini = game.jugador.y + Math.sin(angulo) * 130;
-                const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.anchoJuego, game.altoJuego, true);
+                const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.mundoAncho, game.mundoAlto, true);
                 mini.enOrbita = true;
                 mini.indiceOrbita = 0;
-                mini.render(game.aplicacion.stage);
+                mini.render(game.mundo);
                 game.enemigosSpeciales.push(mini);
             }
 
@@ -264,9 +264,10 @@ export function actualizarCohetes(game, delta) {
             continue;
         }
         
-        // Eliminar si está fuera de pantalla
-        if (cohete.x < -100 || cohete.x > game.anchoJuego + 100 ||
-            cohete.y < -100 || cohete.y > game.altoJuego + 100) {
+        // Eliminar si está fuera del MUNDO (no de la pantalla): el cohete nace en
+        // la posición de la nave en coords de mundo, que quedan fuera de la pantalla.
+        if (cohete.x < -100 || cohete.x > game.mundoAncho + 100 ||
+            cohete.y < -100 || cohete.y > game.mundoAlto + 100) {
             cohete.destroy();
             game.cohetes.splice(i, 1);
         }
@@ -290,7 +291,7 @@ export function actualizarHabilidadDevorador(game, delta) {
     
     if (devoradorActivadoAhora && game.jugador && game.jugador.active) {
         game.efectoSuccion = new SuccionEffect(game.jugador.x, game.jugador.y, game.anchoJuego, game.altoJuego);
-        game.efectoSuccion.render(game.aplicacion.stage);
+        game.efectoSuccion.render(game.mundo);
 
         // Sonido del devorador al activarse
         if (game.gestorSonido) game.gestorSonido.reproducir('devorador');
