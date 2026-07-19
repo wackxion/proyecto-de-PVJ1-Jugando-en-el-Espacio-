@@ -537,6 +537,9 @@ this.rotacion = 0;
                 this.juego.gestorSonido.reproducir('recibirImpacto');
             }
 
+            // Sacudida de cámara al recibir un impacto
+            if (this.juego && this.juego.sacudirCamara) this.juego.sacudirCamara(7, 0.25);
+
             // Crear efecto visual de daño
             this._crearEfectoDano();
             

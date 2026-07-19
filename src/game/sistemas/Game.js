@@ -435,53 +435,39 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
      * Si no hay imagen, dibuja estrellas programáticamente
      */
     _crearFondo() {
-        
-        // El fondo cubre TODO el mundo (no solo la pantalla), así al mover la
-        // cámara siempre hay fondo alrededor de la nave.
-        const w = this.mundoAncho;
-        const h = this.mundoAlto;
+        const sw = this.anchoJuego, sh = this.altoJuego;
 
-        // Verificar si hay una textura de fondo cargada
         if (this.texturaFondo) {
-            // Crear fondo infinito usando mosaicos (tiling)
-            // Esto permite que el espacio sea infinito
-            
-            // Crear un contenedor para el fondo
-            this.contenedorFondo = new PIXI.Container();
-            
-            // Calcular cuántas veces cabe la imagen horizontal y verticalmente
-            const imagenAncho = this.texturaFondo.width;
-            const imagenAlto = this.texturaFondo.height;
-            
-            const columnas = Math.ceil(w / imagenAncho) + 1;
-            const filas = Math.ceil(h / imagenAlto) + 1;
-            
-            // Crear mosaicos para cubrir toda la pantalla
-            this.mosaicosFondo = [];
-            
-            for (let col = 0; col < columnas; col++) {
-                for (let fila = 0; fila < filas; fila++) {
-                    const mosaico = new PIXI.Sprite(this.texturaFondo);
-                    mosaico.x = col * imagenAncho;
-                    mosaico.y = fila * imagenAlto;
-                    this.contenedorFondo.addChild(mosaico);
-                    this.mosaicosFondo.push(mosaico);
-                }
-            }
-            
-            // Agregar al MUNDO (se mueve con la cámara)
-            this.mundo.addChild(this.contenedorFondo);
-            
-            // Guardar dimensiones para el movimiento infinito
-            this._anchoMosaico = imagenAncho;
-            this._altoMosaico = imagenAlto;
-            this._columnasMosaico = columnas;
-            this._filasMosaico = filas;
+            // PARALLAX: dos capas fijas a la PANTALLA que se desplazan a una
+            // fracción del movimiento de la cámara → dan profundidad (el mundo se
+            // mueve 1:1, el fondo más lento). Van DEBAJO del mundo en el stage.
+            this.fondoParallax = new PIXI.TilingSprite({ texture: this.texturaFondo, width: sw, height: sh });
+            this.fondoParallax.factorParallax = 0.5;
+            this.aplicacion.stage.addChildAt(this.fondoParallax, 0);
+
+            // Capa de estrellas más cercana (se mueve un poco más rápido)
+            this.estrellasParallax = new PIXI.TilingSprite({ texture: this._crearTexturaEstrellas(), width: sw, height: sh });
+            this.estrellasParallax.factorParallax = 0.85;
+            this.aplicacion.stage.addChildAt(this.estrellasParallax, 1);
         } else {
-            // Fallback: dibujar estrellas programáticamente
-            this._crearFondoConEstrellas(w, h);
+            // Fallback: estrellas dibujadas dentro del mundo
+            this._crearFondoConEstrellas(this.mundoAncho, this.mundoAlto);
         }
-        
+    }
+
+    /**
+     * Genera una textura chica (256×256) de estrellas al azar para la capa de
+     * parallax cercana (se tilea sobre la pantalla). @private
+     */
+    _crearTexturaEstrellas() {
+        const g = new PIXI.Graphics();
+        const size = 256;
+        for (let i = 0; i < 45; i++) {
+            const x = Math.random() * size, y = Math.random() * size;
+            const r = Math.random() * 1.4 + 0.4, a = Math.random() * 0.5 + 0.35;
+            g.circle(x, y, r).fill({ color: 0xFFFFFF, alpha: a });
+        }
+        return this.aplicacion.renderer.generateTexture(g);
     }
     
     /**
@@ -880,6 +866,9 @@ _crearParticulaBoidFuera() {
         if (this.gestorSonido) {
             this.gestorSonido.reproducir('ulti');
         }
+
+        // Sacudida de cámara fuerte al lanzar la Ulti
+        this.sacudirCamara(14, 0.5);
 
         // Guardar referencia a "this" para usar dentro del callback
         const game = this;
@@ -1674,22 +1663,69 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
      * centrada en pantalla. Se clampea a los bordes del mundo para no mostrar
      * "vacío" fuera de él.
      */
-    _actualizarCamara() {
+    _actualizarCamara(delta = 1 / 60) {
         if (!this.mundo || !this.jugador) return;
         const sw = this.anchoJuego, sh = this.altoJuego;
-        // Cámara centrada en la nave
-        let camX = this.jugador.x - sw / 2;
-        let camY = this.jugador.y - sh / 2;
-        // No pasar de los bordes del mundo (si el mundo es más chico que la
-        // pantalla en algún eje, se centra).
+        const j = this.jugador;
+        const dt = delta > 0 ? delta : 1 / 60;
+
+        // --- Look-ahead: la cámara "mira" un poco hacia donde se mueve la nave ---
+        // Velocidad estimada por delta de posición (independiente del modelo interno).
+        const vx = (j.x - (this._prevJugX ?? j.x)) / dt;
+        const vy = (j.y - (this._prevJugY ?? j.y)) / dt;
+        this._prevJugX = j.x; this._prevJugY = j.y;
+        const vmag = Math.hypot(vx, vy);
+        const MAX_LOOK = 110;
+        let laX = 0, laY = 0;
+        if (vmag > 15) {
+            const f = Math.min(1, vmag / (CONFIG.JUGADOR.VELOCIDAD_MAX || 300));
+            laX = (vx / vmag) * MAX_LOOK * f;
+            laY = (vy / vmag) * MAX_LOOK * f;
+        }
+        const s = Math.min(1, dt * 3); // suavizado del look-ahead
+        this._lookX = (this._lookX || 0) + (laX - (this._lookX || 0)) * s;
+        this._lookY = (this._lookY || 0) + (laY - (this._lookY || 0)) * s;
+
+        // Cámara centrada en la nave + look-ahead, clampeada al mundo
+        let camX = j.x + this._lookX - sw / 2;
+        let camY = j.y + this._lookY - sh / 2;
         const maxX = Math.max(0, this.mundoAncho - sw);
         const maxY = Math.max(0, this.mundoAlto - sh);
         camX = Math.max(0, Math.min(maxX, camX));
         camY = Math.max(0, Math.min(maxY, camY));
         this._camaraX = camX;
         this._camaraY = camY;
-        this.mundo.x = Math.round(-camX);
-        this.mundo.y = Math.round(-camY);
+
+        // --- Parallax: las capas de fondo se desplazan a una fracción de la cámara ---
+        if (this.fondoParallax) this.fondoParallax.tilePosition.set(-camX * this.fondoParallax.factorParallax, -camY * this.fondoParallax.factorParallax);
+        if (this.estrellasParallax) this.estrellasParallax.tilePosition.set(-camX * this.estrellasParallax.factorParallax, -camY * this.estrellasParallax.factorParallax);
+
+        // --- Screen shake (decae con el tiempo) ---
+        let shx = 0, shy = 0;
+        if ((this._shakeTime || 0) > 0) {
+            this._shakeTime -= dt;
+            const k = Math.max(0, this._shakeTime / (this._shakeDur || 0.3));
+            const mag = (this._shakeMag || 0) * k;
+            shx = (Math.random() - 0.5) * 2 * mag;
+            shy = (Math.random() - 0.5) * 2 * mag;
+        }
+
+        this.mundo.x = Math.round(-camX + shx);
+        this.mundo.y = Math.round(-camY + shy);
+    }
+
+    /**
+     * Dispara una sacudida de cámara (screen shake). Si ya hay una en curso, se
+     * queda con la más fuerte.
+     * @param {number} magnitud - amplitud en px
+     * @param {number} duracion - segundos
+     */
+    sacudirCamara(magnitud, duracion = 0.3) {
+        if ((this._shakeTime || 0) <= 0 || magnitud >= (this._shakeMag || 0)) {
+            this._shakeMag = magnitud;
+            this._shakeDur = duracion;
+            this._shakeTime = duracion;
+        }
     }
 
     /**
@@ -1762,7 +1798,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             }
 
             // === CÁMARA: seguir a la nave ===
-            this._actualizarCamara();
+            this._actualizarCamara(delta);
 
     // === DEVORADOR DE PARTÍCULAS BOID (Tecla E) - usando módulo ===
             const devoradorActivadoAhora = actualizarHabilidadDevorador(this, delta);

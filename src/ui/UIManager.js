@@ -429,6 +429,14 @@ export class UIManager {
             return (Math.abs(d) <= maxPaso) ? objetivo : actual + Math.sign(d) * maxPaso;
         };
 
+        // Borde izquierdo de la columna de botones: las naves no deben entrar ahí.
+        const botones = [...this.mainMenu.querySelectorAll('img')].filter(i => (i.src || '').includes('boton'));
+        let zonaBotonesLeft = W() * 0.72;
+        if (botones.length) {
+            const lefts = botones.map(b => b.getBoundingClientRect().left).filter(x => x > 1);
+            if (lefts.length) zonaBotonesLeft = Math.min(...lefts);
+        }
+
         let last = performance.now();
 
         const loop = (now) => {
@@ -436,32 +444,55 @@ export class UIManager {
             const dt = Math.min(0.05, (now - last) / 1000);
             last = now;
             const w = W(), h = H();
+            const limDer = zonaBotonesLeft - 40;    // borde derecho útil (antes de los botones)
+            const cx = limDer / 2, cy = h / 2;       // centro del área jugable
 
-            // Aliada: paseo con deriva suave; si se acerca a un borde, gira despacio
-            // hacia el centro (sin rebotes bruscos → se ve más natural).
+            // Aliada: paseo con deriva suave; si se acerca a un borde del área
+            // (incluida la zona de botones), gira despacio hacia el centro del área.
             aliada.ang += (Math.random() - 0.5) * dt * 1.8;
-            if (aliada.x < margin || aliada.x > w - margin || aliada.y < margin || aliada.y > h - margin) {
-                aliada.ang = girarHacia(aliada.ang, Math.atan2(h / 2 - aliada.y, w / 2 - aliada.x), dt * 2.5);
+            if (aliada.x < margin || aliada.x > limDer - margin || aliada.y < margin || aliada.y > h - margin) {
+                aliada.ang = girarHacia(aliada.ang, Math.atan2(cy - aliada.y, cx - aliada.x), dt * 2.5);
             }
             aliada.x += Math.cos(aliada.ang) * aliada.vel * dt;
             aliada.y += Math.sin(aliada.ang) * aliada.vel * dt;
-            aliada.x = Math.max(30, Math.min(w - 30, aliada.x));
+            aliada.x = Math.max(30, Math.min(limDer, aliada.x));
             aliada.y = Math.max(30, Math.min(h - 30, aliada.y));
-            colocar(aliada);
 
-            // Enemigas: el punto que persiguen ORBITA la aliada, cada una con su
-            // radio y velocidad angular (sentidos alternos) → recorridos distintos
-            // alrededor de la nave. Giran gradualmente (curva natural).
+            // Enemigas: orbitan la aliada (recorridos distintos); el punto objetivo
+            // y su posición se clampean al área jugable (fuera de los botones).
             for (const e of enemigas) {
                 e.off += e.orbVel * dt;
-                const tx = aliada.x + Math.cos(e.off) * e.orbRad;
-                const ty = aliada.y + Math.sin(e.off) * e.orbRad;
+                let tx = aliada.x + Math.cos(e.off) * e.orbRad;
+                let ty = aliada.y + Math.sin(e.off) * e.orbRad;
+                tx = Math.max(30, Math.min(limDer, tx));
+                ty = Math.max(30, Math.min(h - 30, ty));
                 e.ang = girarHacia(e.ang, Math.atan2(ty - e.y, tx - e.x), dt * 2.4);
                 e.x += Math.cos(e.ang) * e.vel * dt;
                 e.y += Math.sin(e.ang) * e.vel * dt;
-                colocar(e);
             }
 
+            // Separación: que las naves no se superpongan (empuje suave entre las
+            // que estén demasiado cerca). La aliada tiene prioridad (manda su paseo).
+            const todas = [aliada, ...enemigas];
+            const minDist = 62;
+            for (let a = 0; a < todas.length; a++) {
+                for (let b = a + 1; b < todas.length; b++) {
+                    const A = todas[a], B = todas[b];
+                    let dx = B.x - A.x, dy = B.y - A.y;
+                    const d = Math.hypot(dx, dy);
+                    if (d < minDist && d > 0.001) {
+                        const push = (minDist - d) / 2;
+                        dx /= d; dy /= d;
+                        if (a === 0) { B.x += dx * push * 2; B.y += dy * push * 2; }         // no mover la aliada
+                        else { A.x -= dx * push; A.y -= dy * push; B.x += dx * push; B.y += dy * push; }
+                    }
+                }
+            }
+            // Re-clampear enemigas al área tras la separación
+            for (const e of enemigas) { e.x = Math.max(20, Math.min(limDer, e.x)); e.y = Math.max(20, Math.min(h - 20, e.y)); }
+
+            colocar(aliada);
+            enemigas.forEach(colocar);
             this._menuShipsRaf = requestAnimationFrame(loop);
         };
         this._menuShipsRaf = requestAnimationFrame(loop);

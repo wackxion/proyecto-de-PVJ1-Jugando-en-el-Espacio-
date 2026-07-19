@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.32.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.32.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.33.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.0)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.32.1 (Actual)
+### v1.33.0 (Actual)
+> **Pulido de cámara (shake + parallax + look-ahead) + naves del menú acomodadas**
+
+- 💥 **Screen shake**: la cámara tiembla al recibir un impacto y (más fuerte) al lanzar la Ulti
+- 🌌 **Parallax**: fondo en dos capas fijas a la pantalla que scrollean más lento que el mundo → profundidad
+- 👀 **Look-ahead**: la cámara se adelanta un poco hacia donde se mueve la nave
+- 🚀 **Menú**: las naves decorativas ya no se superponen ni pasan por la zona de los botones
+
+### v1.32.1
 > **Limpieza de código muerto (~1925 líneas) — sin cambios de comportamiento**
 
 - 🧹 `Game.js` 3252 → 2066 líneas: se eliminaron sistemas duplicados sin usar (colisiones, spawn y partículas viejas, ya migrados a los módulos `sistemas/`)

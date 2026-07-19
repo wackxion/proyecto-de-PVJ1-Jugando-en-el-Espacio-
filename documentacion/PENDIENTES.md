@@ -1,7 +1,21 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.32.1 (ACTUAL)
+**Versión:** v1.33.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.33.0 - Pulido de cámara + naves del menú acomodadas
+
+### Cámara (`Game._actualizarCamara`, ahora recibe `delta`)
+- **Screen shake** (`Game.sacudirCamara(magnitud, duracion)`): agrega un offset aleatorio que decae al `mundo`. Se dispara al **recibir daño** (`Player.recibirDano`, magnitud 7) y al lanzar la **Ulti** (`Game.activarUlti`, magnitud 14).
+- **Look-ahead**: la cámara se adelanta hacia donde se mueve la nave. La velocidad se estima por delta de posición (independiente del modelo interno) y el offset se suaviza (lerp).
+- **Parallax** (`Game._crearFondo` reescrito): en vez de un mosaico pegado al mundo, dos `TilingSprite` **fijos a la pantalla** (debajo del mundo) cuyo `tilePosition` se desplaza a una fracción de la cámara (fondo 0.5×, estrellas 0.85× vía textura generada en `_crearTexturaEstrellas`) → sensación de profundidad. Verificado: las capas se mueven más lento que el mundo.
+- **Escudo curvo** (`PixiHUD._actualizarEscudoCurvo`): ahora usa `mundo.x + jugador.x` (posición real en pantalla), así sigue a la nave incluyendo el shake y el look-ahead.
+
+### Naves decorativas del menú (`UIManager._animarNavesMenu`)
+- **Fuera de la zona de botones**: se mide el borde izquierdo de la columna de botones y las naves se mantienen a la izquierda de él (la aliada gira hacia el centro del área jugable, las enemigas se clampean).
+- **Sin superponerse**: pase de separación que empuja las naves que quedan demasiado cerca (la aliada tiene prioridad). Verificado: distancia mínima ~60px, nunca entran en los botones.
 
 ---
 

@@ -1717,11 +1717,11 @@ export class PixiHUD {
         }
         cont.visible = true;
         // El escudo curvo vive en el stage (pantalla), pero la nave está en el
-        // MUNDO (que la cámara desplaza). Convertimos las coords de mundo a
-        // pantalla restando el offset de cámara.
-        const camX = this.game._camaraX || 0;
-        const camY = this.game._camaraY || 0;
-        cont.position.set(jugador.x - camX, jugador.y - camY);
+        // MUNDO (que la cámara desplaza). La posición REAL en pantalla de la nave
+        // es mundo.x + jugador.x → así el escudo sigue a la nave incluyendo el
+        // look-ahead y el screen shake de la cámara.
+        const m = this.game.mundo;
+        if (m) cont.position.set(m.x + jugador.x, m.y + jugador.y);
 
         for (const barra of this.escudoCurvo.barras) {
             this._dibujarBarraEscudo(barra, jugador);
