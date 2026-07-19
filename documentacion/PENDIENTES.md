@@ -1,7 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.32.0 (ACTUAL)
+**Versión:** v1.32.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.32.1 - Limpieza de código muerto (~1925 líneas)
+
+Limpieza sin cambios de comportamiento (verificada en runtime: game loop, spawn, colisiones, compra de mejoras, pausa y captura de partículas siguen andando; ~0.31 ms/frame bajo carga pesada; sin errores de consola).
+
+- **`Game.js` 3252 → 2066 líneas**: se borraron métodos duplicados que ya vivían en los módulos `sistemas/` y no tenían ninguna llamada: `_procesarColisionesProyectiles`, `_procesarColisionesJugador`, `_procesarColisionesEnemigos`, `_destruirYFragmentar`, `_generarEnemigo`, `_crearParticulaBoidCercaDe`, `_verificarPosicionLibre`, `_encontrarEnemigosCercanos`, `_capturarParticulaBoid`, `_verificarColisionesParticula`, `_mantenerParticulaEnPantalla`. Se conservaron los vivos intercalados (`_sonidoCapturaBoid`, `_verificarColision`, `gameOver`, etc.).
+- **`GameMejoras.js` 685 → 37 líneas**: se eliminó la ventana de mejoras vieja (modal centrado, deshabilitada desde que existen los chips del HUD): `crearVentanaMejoras`, `comprarMejora`, `actualizarUIMejoras`, `limpiarVentanaMejoras` y sus helpers. Quedó solo `inicializarMejoras` (lo único que se usa).
+- **`ObjectPool.js` eliminado** (91 líneas, sin uso) + se quitaron `this.poolProyectiles`/`poolParticulasBoid` (siempre en null) y el import.
+- **15 logs de debug comentados** (`//(...)`) borrados de Game.js.
 
 ---
 

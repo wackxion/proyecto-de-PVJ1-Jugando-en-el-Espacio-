@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.32.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.32.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.32.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.32.1)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.32.0 (Actual)
+### v1.32.1 (Actual)
+> **Limpieza de código muerto (~1925 líneas) — sin cambios de comportamiento**
+
+- 🧹 `Game.js` 3252 → 2066 líneas: se eliminaron sistemas duplicados sin usar (colisiones, spawn y partículas viejas, ya migrados a los módulos `sistemas/`)
+- 🧹 `GameMejoras.js` 685 → 37 líneas: se quitó la ventana de mejoras vieja (deshabilitada; reemplazada por los chips del HUD)
+- 🧹 Eliminado `ObjectPool.js` (sin uso), pools y 15 logs comentados
+- ✅ Verificado en runtime: rendimiento ~0.31 ms/frame bajo carga pesada; todo funciona igual
+
+### v1.32.0
 > **Cámara que sigue la nave + mundo grande explorable + naves decorativas en el menú**
 
 - 🎥 **Cámara + mundo 3× la pantalla**: la nave se mueve libre por un mapa más grande y la cámara la sigue (centrada); el HUD y las ventanas quedan fijos

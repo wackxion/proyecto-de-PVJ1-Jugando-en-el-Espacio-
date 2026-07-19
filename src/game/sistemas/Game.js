@@ -25,7 +25,6 @@ import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
 import { Top5 } from '../mecanicas/Top5.js';
 import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
 import { Cohete } from '../mecanicas/Cohete.js';
-import { ObjectPool } from './ObjectPool.js';
 import { UIManager } from '../../ui/UIManager.js';
 import { GestorEntrada } from '../../systems/InputManager.js';
 import { GestorSonido } from '../../systems/SoundManager.js';
@@ -37,7 +36,7 @@ import { generarEnemigo, actualizarEnemigos, generarNaveEnemiga, actualizarNaves
 import { actualizarHabilidadCohetes, actualizarHabilidadDevorador, actualizarHabilidadPropulsor } from './GameSkills.js';
 import { activarUlti, actualizarUlti, actualizarEfectosImpacto } from './GameEffects.js';
 import { crearParticulaFuera, actualizarParticulasBoid, resetearContadorCapturadas, actualizarSistemaBoid } from './GameBoids.js';
-import { inicializarMejoras, crearVentanaMejoras, comprarMejora, actualizarUIMejoras, limpiarVentanaMejoras } from './GameMejoras.js';
+import { inicializarMejoras } from './GameMejoras.js';
 import { PixiHUD } from '../ui/PixiHUD.js';
 
 export class Game {
@@ -89,13 +88,6 @@ export class Game {
         
         // Partículas Boid = partículas con comportamiento de enjambre
         this.particulasBoid = [];
-        
-        // === OBJECT POOLS ===
-        // Pool de proyectiles del jugador - INICIALIZAR DESPUÉS de cargar texturas
-        this.poolProyectiles = null;
-        
-        // Pool de partículas Boi
-        this.poolParticulasBoid = null;
         
         // EfectoUlti = el ataque especial (aro expansivo)
         this.efectoUlti = null;
@@ -244,12 +236,10 @@ export class Game {
             autoDensity: true
         });
 
-        //('Aplicación PixiJS iniciada, canvas:', this.aplicacion.canvas);
         
         // Agregar el canvas (elemento visual del juego) al contenedor HTML
         container.appendChild(this.aplicacion.canvas);
         
-        //('Canvas agregado al container');
         
         // Guardar las dimensiones del área de juego (= tamaño de la VENTANA/cámara)
         this.anchoJuego = width;
@@ -272,7 +262,6 @@ export class Game {
         // Crear el InputManager para manejar el teclado
         this.gestorEntrada = new GestorEntrada();
 
-        //('GestorEntrada creado');
 
         // Crear el GestorSonido y registrar los sonidos del juego
         this.gestorSonido = new GestorSonido();
@@ -281,12 +270,10 @@ export class Game {
         // Cargar los assets (imágenes) del juego
         await this._cargarRecursos();
         
-        //('Recursos cargados, texturas:', this.texturaJugador, this.texturaAsteroide);
         
         // Crear el fondo con estrellas
         this._crearFondo();
         
-        //('Fondo creado');
         
         // Crear el jugador (nave)
         this._crearJugador();
@@ -320,7 +307,6 @@ export class Game {
             console.error('No se pudo cargar cohetes -habilidad.png; el cohete usará la textura por defecto', e);
         }
         
-        //('Jugador creado y renderizado');
         
         // Configurar la interfaz de usuario (UI)
         this._configurarUI();
@@ -343,7 +329,6 @@ export class Game {
      * Son las imágenes que se usan en el juego
      */
     async _cargarRecursos() {
-        //('Cargando assets...');
         
         try {
             // Inicializar PixiJS Assets
@@ -414,11 +399,9 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
                 console.error('Error: textura de nave enemiga no se cargó');
             }
             
-            //('Assets cargados correctamente - Jugador:', this.texturaJugador, 'Asteroide:', this.texturaAsteroide);
         } catch (error) {
             console.error('Error cargando assets:', error);
             
-            //('Usando texturas generadas como fallback...');
             
             // Crear Graphics para la nave
             const naveGraphics = new PIXI.Graphics();
@@ -444,7 +427,6 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             // Convertir a textura
             this.texturaAsteroide = this.aplicacion.renderer.generateTexture(astroGraphics);
             
-            //('Fallback listo - Jugador:', this.texturaJugador, 'Asteroide:', this.texturaAsteroide);
         }
     }
     
@@ -453,7 +435,6 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
      * Si no hay imagen, dibuja estrellas programáticamente
      */
     _crearFondo() {
-        //('Creando fondo, stage:', this.aplicacion.stage);
         
         // El fondo cubre TODO el mundo (no solo la pantalla), así al mover la
         // cámara siempre hay fondo alrededor de la nave.
@@ -501,7 +482,6 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this._crearFondoConEstrellas(w, h);
         }
         
-        //('Fondo agregado al stage, children:', this.aplicacion.stage.children.length);
     }
     
     /**
@@ -543,12 +523,10 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         const centerX = this.mundoAncho / 2;
         const centerY = this.mundoAlto / 2;
 
-        //('Creando jugador en:', centerX, centerY, 'textura:', this.texturaJugador);
 
         // Crear el objeto Player. Sus límites de movimiento son los del MUNDO.
         this.jugador = new Jugador(centerX, centerY, this.texturaJugador, this.mundoAncho, this.mundoAlto);
         
-        //('Jugador creado, imagen:', this.jugador.imagen);
         
         // Guardar referencia al juego en el jugador
         // Esto permite que el jugador pueda crear proyectiles
@@ -560,7 +538,6 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         // Renderizar el jugador en el stage
         this.jugador.render(this.mundo);
         
-        //('Jugador renderizado, parent:', this.jugador.imagen?.parent);
         
         // Inicializar sistema de mejoras después de crear el jugador
         inicializarMejoras(this);
@@ -671,23 +648,6 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         return 'ok';
     }
 
-/**
-     * Capturar partícula Boid cuando la nave se acerca
-     * @param {BoidParticle} particula - Partícula a capturar
-     * @param {number} indice - Índice en el array
-     */
-    _capturarParticulaBoid(particula, indice) {
-        // Eliminar la partícula (NO se crea otra automáticamente)
-        particula.destroy(this.poolParticulasBoid);
-        this.particulasBoid.splice(indice, 1);
-        
-        // Incrementar contador de partículas capturadas (PixiHUD lo muestra)
-        this.particulasCapturadas++;
-
-        // Sonido de captura (con throttle interno)
-        this._sonidoCapturaBoid();
-    }
-
     /**
      * Reproduce el sonido de captura de Boid con "throttle": como se pueden
      * capturar muchas partículas por segundo, limita la frecuencia (mínimo
@@ -763,93 +723,6 @@ _crearParticulaBoidFuera() {
         }
         
         return particula;
-    }
-    
-    /**
-     * Encontrar los N enemigos más cercanos a la nave del jugador
-     * @param {number} cantidad - Número de enemigos a encontrar
-     * @returns {Array} Array con los enemigos más cercanos
-     */
-    _encontrarEnemigosCercanos(cantidad) {
-        if (!this.jugador || !this.jugador.active) return [];
-        
-        // Crear lista de enemigos con su distancia
-        const enemigosConDistancia = [];
-        
-        for (const enemigo of this.enemigos) {
-            if (!enemigo.active) continue;
-            
-            const dx = enemigo.x - this.jugador.x;
-            const dy = enemigo.y - this.jugador.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);
-            
-            enemigosConDistancia.push({ enemigo, distancia });
-        }
-        
-        // Ordenar por distancia
-        enemigosConDistancia.sort((a, b) => a.distancia - b.distancia);
-        
-        // Devolver los primeros N
-        return enemigosConDistancia.slice(0, cantidad).map(e => e.enemigo);
-    }
-    
-    /**
-     * Verificar colisiones de la partícula con otros objetos (sin efecto)
-     * @param {BoidParticle} particula - Partícula a verificar
-     */
-    _verificarColisionesParticula(particula) {
-        // Colisiones con asteroides
-        for (const enemigo of this.enemigos) {
-            if (!enemigo.active) continue;
-            if (particula.verificarColision(enemigo)) {
-                // Colisión detectada pero no hace nada
-            }
-        }
-        
-        // Colisiones con naves enemigas
-        for (const nave of this.enemigosNaves) {
-            if (!nave.active) continue;
-            if (particula.verificarColision(nave)) {
-                // Colisión detectada pero no hace nada
-            }
-        }
-        
-        // Colisiones con proyectiles
-        for (const proj of this.proyectiles) {
-            if (!proj.active) continue;
-            if (particula.verificarColision(proj)) {
-                // Colisión detectada pero no hace nada
-            }
-        }
-        
-        // Colisiones con proyectiles enemigos
-        for (const proj of this.proyectilesEnemigos) {
-            if (!proj.active) continue;
-            if (particula.verificarColision(proj)) {
-                // Colisión detectada pero no hace nada
-            }
-        }
-    }
-    
-    /**
-     * Mantener partícula dentro de la pantalla (wrap-around)
-     * @param {BoidParticle} particula - Partícula a verificar
-     */
-    _mantenerParticulaEnPantalla(particula) {
-        const margen = 5;
-        
-        // Si sale por un lado, aparece por el otro
-        if (particula.x < -margen) {
-            particula.x = this.anchoJuego + margen;
-        } else if (particula.x > this.anchoJuego + margen) {
-            particula.x = -margen;
-        }
-        
-        if (particula.y < -margen) {
-            particula.y = this.altoJuego + margen;
-        } else if (particula.y > this.altoJuego + margen) {
-            particula.y = -margen;
-        }
     }
     
     /**
@@ -1061,288 +934,6 @@ _crearParticulaBoidFuera() {
         this.efectoUlti.render(this.mundo);
     }
     
-    /**
-     * Genera un nuevo asteroide
-     * Se llama periódicamente para crear nuevos enemigos
-     */
-    _generarEnemigo() {
-        // Sin límite en pantalla - siempre spawnea nuevos asteroides
-        
-        // Elegir un tamaño aleatorio
-        const rand = Math.random();
-        let size;
-        
-        // Calcular probabilidad de special: 2% normal, 4% desde oleada 10
-        const probabilidadSpecial = (this.contadorOleadas >= 10) ? 0.04 : 0.02;
-        
-        // Distribución de tipos de asteroides:
-        // special: 2% (4% desde oleada 10), rezagados: 39% (13% cada uno), large: 22%, medium: 17%, small: 20%
-        if (rand < probabilidadSpecial) {
-            size = 'special';          // 2% (4% desde oleada 10)
-        } else if (rand < 0.18) {
-            size = 'large_rezagado';  // 13%
-        } else if (rand < 0.31) {
-            size = 'medium_rezagado'; // 13%
-        } else if (rand < 0.44) {
-            size = 'small_rezagado';  // 13%
-        } else if (rand < 0.66) {
-            size = 'large';           // 22%
-        } else if (rand < 0.83) {
-            size = 'medium';          // 17%
-        } else {
-            size = 'small';           // 20%
-        }
-        
-        //('Size asignado directamente:', size);
-        
-        // Determinar posición de spawn (los asteroides aparecen desde los bordes)
-        const w = this.anchoJuego;
-        const h = this.altoJuego;
-        let x, y;
-        
-        // Verificar si es un tipo rezagado usando strings
-        const isRezagado = size === 'large_rezagado' || 
-                          size === 'medium_rezagado' || 
-                          size === 'small_rezagado';
-        
-        if (size === 'special') {
-            // Verificar límite de especiales (máximo 3 en pantalla)
-            if (this.enemigosSpeciales.length >= 3) {
-                size = 'large'; // Si llegó al límite, crear uno normal
-            } else {
-                // Aparece fuera de la pantalla y se mueve hacia el jugador
-                const w = this.anchoJuego;
-                const h = this.altoJuego;
-                
-                // Elegir un borde aleatorio para spawnear
-                const borde = Math.floor(Math.random() * 4);
-                let x, y;
-                
-                switch (borde) {
-                    case 0: // Top
-                        x = Math.random() * w;
-                        y = -80;
-                        break;
-                    case 1: // Bottom
-                        x = Math.random() * w;
-                        y = h + 80;
-                        break;
-                    case 2: // Left
-                        x = -80;
-                        y = Math.random() * h;
-                        break;
-                    case 3: // Right
-                        x = w + 80;
-                        y = Math.random() * h;
-                        break;
-                }
-                
-                // Crear con posición fuera de la pantalla
-                const especial = new SpecialEnemy(
-                    x, y,
-                    this.jugador,
-                    this.texturaAsteroideSpecial,
-                    this.anchoJuego,
-                    this.altoJuego
-                );
-                especial.render(this.mundo);
-                this.enemigosSpeciales.push(especial);
-                return; // No crear más
-            }
-        } else if (size === 'large_rezagado' || size === 'medium_rezagado' || size === 'small_rezagado') {
-            // Los rezagados aparecen desde un borde y cruzan la pantalla
-            // pero evitan la zona central (donde está la nave)
-            // Mantienen una línea recta SIN dirigirse a la nave
-            let dirX = 0;
-            let dirY = 0;
-            
-            if (Math.random() < 0.5) {
-                // Eje horizontal: aparecen a izquierda/derecha
-                if (Math.random() < 0.5) {
-                    // Nace a la izquierda, va hacia la derecha
-                    x = -60;
-                    dirX = 1;
-                } else {
-                    // Nace a la derecha, va hacia la izquierda
-                    x = w + 60;
-                    dirX = -1;
-                }
-                
-                // Y en zona superior O inferior (evitando el centro 30%)
-                if (Math.random() < 0.5) {
-                    // Zona superior (0% al 40% del alto)
-                    y = Math.random() * (h * 0.4);
-                } else {
-                    // Zona inferior (60% al 100% del alto)
-                    y = h * 0.6 + Math.random() * (h * 0.4);
-                }
-            } else {
-                // Eje vertical: aparecen arriba/abajo
-                if (Math.random() < 0.5) {
-                    // Nace arriba, va hacia abajo
-                    y = -60;
-                    dirY = 1;
-                } else {
-                    // Nace abajo, va hacia arriba
-                    y = h + 60;
-                    dirY = -1;
-                }
-                
-                // X en zona izquierda O derecha (evitando el centro 30%)
-                if (Math.random() < 0.5) {
-                    // Zona izquierda (0% al 40% del ancho)
-                    x = Math.random() * (w * 0.4);
-                } else {
-                    // Zona derecha (60% al 100% del ancho)
-                    x = w * 0.6 + Math.random() * (w * 0.4);
-                }
-            }
-            
-            // Elegir textura según el tipo
-            const textura = (size === 'special') ? this.texturaAsteroideSpecial : this.texturaAsteroide;
-            
-            // Crear el enemigo
-            const enemigo = new Enemigo(x, y, size, this.jugador, textura, null, false, this.anchoJuego, this.altoJuego);
-            
-            // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
-            // Cada 5 oleadas, los asteroides aumentan un 10% su velocidad
-            // Hasta un máximo del 60% (oleada 30+)
-            const oleadasAumento = Math.floor(this.contadorOleadas / 5);
-            const aumentoVelocidad = Math.min(oleadasAumento * 0.10, 0.60);
-            const multiplicadorVelocidad = 1 + aumentoVelocidad;
-            enemigo.multiplicadorVelocidad = multiplicadorVelocidad;
-            
-            // Asignar la dirección correcta al rezagado
-            enemigo.direccionX = dirX;
-            enemigo.direccionY = dirY;
-            
-            // Renderizar y agregar a la lista
-            enemigo.render(this.mundo);
-            this.enemigos.push(enemigo);
-            
-            // Crear partícula Boid a 10px del enemigo
-            this._crearParticulaBoidCercaDe(enemigo);
-            
-            return;
-        } else {
-            // Asteroides normales aparecen desde cualquier borde
-            // Intentamos hasta 5 veces encontrar una posición libre
-            let intentos = 0;
-            let posicionLibre = false;
-            
-            while (!posicionLibre && intentos < 5) {
-                if (Math.random() < 0.5) {
-                    // Eje horizontal (izquierda o derecha)
-                    x = Math.random() < 0.5 ? -60 : w + 60;
-                    y = Math.random() * h;
-                } else {
-                    // Eje vertical (arriba o abajo)
-                    x = Math.random() * w;
-                    y = Math.random() < 0.5 ? -60 : h + 60;
-                }
-                
-                // Obtener radio según el tipo de asteroide
-                let radioNuevo = 16; // default small
-                if (size === 'large') radioNuevo = 64;
-                else if (size === 'medium') radioNuevo = 32;
-                else if (size === 'small') radioNuevo = 16;
-                
-                // Verificar si la posición está libre
-                posicionLibre = this._verificarPosicionLibre(x, y, radioNuevo);
-                intentos++;
-            }
-            
-            // Si no encontró posición libre después de 5 intentos, no crear el asteroide
-            if (!posicionLibre) {
-                return;
-            }
-        }
-        
-        // Elegir textura según el tipo
-        const texturaNormal = (size === 'special') ? this.texturaAsteroideSpecial : this.texturaAsteroide;
-        
-        // Crear el enemigo con todos los parámetros necesarios
-        const enemigo = new Enemigo(x, y, size, this.jugador, texturaNormal, null, false, this.anchoJuego, this.altoJuego);
-        
-        // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
-        // === AUMENTAR VELOCIDAD CADA 5 OLEADAS ===
-        // Cada 5 oleadas, los asteroides aumentan un 10% su velocidad
-        // Hasta un máximo del 60% (oleada 30+)
-        const oleadasAumento = Math.floor(this.contadorOleadas / 5);
-        const aumentoVelocidad = Math.min(oleadasAumento * 0.10, 0.60);
-        const multiplicadorVelocidad = 1 + aumentoVelocidad;
-        enemigo.multiplicadorVelocidad = multiplicadorVelocidad;
-        
-        //('Enemigo creado:', size, 'imagen:', enemigo.imagen);
-        //('TexturaAsteroide:', this.texturaAsteroide);
-        
-        // Renderizar y agregar a la lista
-        enemigo.render(this.mundo);
-        
-        //('Enemigo renderizado, parent:', enemigo.imagen?.parent);
-        
-        this.enemigos.push(enemigo);
-        
-        // Crear partícula Boid a 10px del enemigo
-        this._crearParticulaBoidCercaDe(enemigo);
-    }
-    
-/**
-     * Crear partícula Boid FUERA de la pantalla (cuando se destruye un enemigo)
-     * @param {Enemigo} enemigo - Enemy that was destroyed (no usado para posición)
-     */
-    _crearParticulaBoidCercaDe(enemigo) {
-        // Crear partícula FUERA de la pantalla (100px margen)
-        const borde = Math.floor(Math.random() * 4);
-        let x, y;
-
-        switch (borde) {
-            case 0: // Top
-                x = Math.random() * this.anchoJuego;
-                y = -100;
-                break;
-            case 1: // Bottom
-                x = Math.random() * this.anchoJuego;
-                y = this.altoJuego + 100;
-                break;
-            case 2: // Left
-                x = -100;
-                y = Math.random() * this.altoJuego;
-                break;
-            case 3: // Right
-                x = this.anchoJuego + 100;
-                y = Math.random() * this.altoJuego;
-                break;
-        }
-        
-        // Crear partícula en esa posición
-        const particula = new BoidParticle(x, y, this.texturaParticulaBoid, this.texturasPboids);
-        
-        // Velocidad aleatoria hacia el centro
-        const centroX = this.anchoJuego / 2;
-        const centroY = this.altoJuego / 2;
-        const dx = centroX - x;
-        const dy = centroY - y;
-        const mag = Math.sqrt(dx * dx + dy * dy);
-        
-        // Configurar posición y velocidad
-        particula.x = x;
-        particula.y = y;
-        particula.velX = (dx / mag) * 50 + (Math.random() - 0.5) * 30;
-        particula.velY = (dy / mag) * 50 + (Math.random() - 0.5) * 30;
-        particula.active = true;
-        
-        // Configurar sprite
-        if (particula.imagen) {
-            particula.imagen.x = x;
-            particula.imagen.y = y;
-            particula.imagen.visible = true;
-        }
-        
-        this.particulasBoid.push(particula);
-        particula.render(this.mundo);
-    }
-    
 /**
      * Verifica si dos objetos circulares están en colisión
      * Usa la fórmula de distancia entre centros
@@ -1366,696 +957,6 @@ _crearParticulaBoidFuera() {
         // Hay colisión si la distancia es menor a la suma de los radios
         // Esto significa que los círculos se superponen
         return dist < (radio1 + radio2);
-    }
-    
-    /**
-     * Verifica si una posición de spawn está libre de asteroides
-     * Evita que aparezcan asteroides uno encima de otro
-     * 
-     * @param {number} x - Posición X del nuevo asteroide
-     * @param {number} y - Posición Y del nuevo asteroide
-     * @param {number} radio - Radio del nuevo asteroide
-     * @returns {boolean} - true si está libre, false si hay colisión
-     */
-    _verificarPosicionLibre(x, y, radio) {
-        // Verificar contra todos los asteroides normales
-        for (const enemigo of this.enemigos) {
-            if (!enemigo.active) continue;
-            
-            const dist = Math.sqrt((x - enemigo.x) ** 2 + (y - enemigo.y) ** 2);
-            const sumaRadios = radio + enemigo.radio;
-            
-            // Si la distancia es menor a la suma de radios, hay superposición
-            if (dist < sumaRadios * 1.5) {
-                return false; // Posición ocupada
-            }
-        }
-        
-        // Verificar contra especiales
-        for (const especial of this.enemigosSpeciales) {
-            if (!especial.active) continue;
-            
-            const dist = Math.sqrt((x - especial.x) ** 2 + (y - especial.y) ** 2);
-            const sumaRadios = radio + especial.radio;
-            
-            if (dist < sumaRadios * 1.5) {
-                return false;
-            }
-        }
-        
-        return true; // Posición libre
-    }
-    
-    /**
-     * Procesa las colisiones entre proyectiles y enemigos
-     * Se llama en cada frame del juego
-     */
-    _procesarColisionesProyectiles() {
-        // === VERIFICAR COLISIÓN ENTRE PROYECTILES ALIADOS Y ENEMIGOS ===
-        if (this.proyectiles && this.proyectiles.length > 0 && 
-            this.proyectilesEnemigos && this.proyectilesEnemigos.length > 0) {
-            
-            for (let i = this.proyectiles.length - 1; i >= 0; i--) {
-                const projectile = this.proyectiles[i];
-                if (!projectile || !projectile.active) continue;
-                
-                // Verificar colisión con proyectiles enemigos
-                for (let j = this.proyectilesEnemigos.length - 1; j >= 0; j--) {
-                    const projEnemigo = this.proyectilesEnemigos[j];
-                    if (!projEnemigo || !projEnemigo.active) continue;
-                    
-                    if (this._verificarColision(projectile, projEnemigo)) {
-                        // Animación de colisión (típica de proyectil)
-                        const explosion = new ProyectilExplosion(
-                            projectile.x, projectile.y,
-                            this.texturaExplosion,
-                            1.0
-                        );
-                        explosion.render(this.mundo);
-                        this.efectosImpacto.push(explosion);
-                        
-                        // Destruir ambos proyectiles
-                        projectile.destroy();
-                        this.proyectiles.splice(i, 1);
-                        
-                        projEnemigo.destroy();
-                        this.proyectilesEnemigos.splice(j, 1);
-                        
-                        break; // El proyectil aliado ya no puede chocar con nada más
-                    }
-                }
-            }
-        }
-        
-        // Recorrer todos los proyectiles (de atrás hacia adelante para poder eliminar)
-        for (let i = this.proyectiles.length - 1; i >= 0; i--) {
-            const projectile = this.proyectiles[i];
-            
-            // Si el proyectil ya no está activo, saltar
-            if (!projectile || !projectile.active) continue;
-            
-            // Verificar colisión con cada enemigo
-            for (let j = this.enemigos.length - 1; j >= 0; j--) {
-                const enemy = this.enemigos[j];
-                if (!enemy.active) continue;
-                
-                // Verificar si hay colisión
-                if (this._verificarColision(projectile, enemy)) {
-                    // Crear efecto visual de explosión del proyectil (animación de 5 frames)
-                    const explocion = new ProyectilExplosion(
-                        enemy.x, enemy.y, 
-                        this.texturaExplosion
-                    );
-                    explocion.render(this.mundo);
-                    this.efectosImpacto.push(explocion);
-                    
-                    // Crear efecto visual de impacto (doble tamaño: escala = 2)
-                    const hit = new HitEffect(enemy.x, enemy.y, 'hit', 2);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // El proyectil hace daño al enemigo
-                    // recibirDano() devuelve un array con nuevos asteroides si se rompió
-                    const newAsteroids = enemy.recibirDano(projectile.dano);
-                    
-                    // Si hay fragmentos (el asteroide se rompió), crear efecto visual de fragmentación
-                    if (newAsteroids && newAsteroids.length > 0) {
-                        const hit = new HitEffect(enemy.x, enemy.y, 'fragment', 4, 0xCC0000);
-                        hit.render(this.mundo);
-                        this.efectosImpacto.push(hit);
-                    }
-                    
-                    // Agregar los nuevos fragmentos a la lista
-                    for (const nuevoEnemigo of newAsteroids) {
-                        nuevoEnemigo.render(this.mundo);
-                        this.enemigos.push(nuevoEnemigo);
-                    }
-                    
-                    // Si el enemigo fue destruido (health <= 0)
-                    if (!enemy.active) {
-                        // Crear animación de destrucción del asteroide (solo para no especiales)
-                        // Ajustar escala según el tamaño del asteroide (+20%)
-                        if (enemy.tamanio !== 'special') {
-                            let escalaAnim = 0.24; // SMALL +20%
-                            if (enemy.tamanio === 'medium') {
-                                escalaAnim = 0.42; // +20%
-                            } else if (enemy.tamanio === 'large') {
-                                escalaAnim = 0.84; // +20%
-                            } else if (enemy.tamanio === 'rezagado1') {
-                                escalaAnim = 0.84; // LARGE +20%
-                            } else if (enemy.tamanio === 'rezagado2') {
-                                escalaAnim = 0.42; // MEDIUM +20%
-                            } else if (enemy.tamanio === 'rezagado3') {
-                                escalaAnim = 0.24; // SMALL +20%
-                            }
-                            
-                            // Usar animación de ASTEROIDE (rojo)
-                            const astroExplosion = new AsteroidExplosion(
-                                enemy.x, enemy.y,
-                                this.texturaExplosionAsteroide,
-                                escalaAnim
-                            );
-                            astroExplosion.render(this.mundo);
-                            this.efectosImpacto.push(astroExplosion);
-                        }
-                        
-                        // El especial se destruye sin animación de destrucción
-                        // Sumar puntos
-                        this.puntuacion += enemy.puntos;
-                        
-                        // Agregar carga al ataque especial
-                        this.jugador.agregarCargaUlti(enemy.cargaUlti);
-                        
-                        // Incrementar contador de asteroides destroyed en la oleada actual
-                        this.asteroidesDestruidos++;
-                        
-                        // Verificar si completamos la oleada (cada 10 asteroides)
-                        if (this.asteroidesDestruidos >= this.objetivoOleada) {
-                            this.contadorOleadas++;
-                            this.asteroidesDestruidos = 0;
-                            
-                            // La siguiente oleada necesita 10 asteroides más
-                            this.objetivoOleada = 10 + (this.contadorOleadas * 10);
-                            
-                            // Reducir el intervalo de spawn (aumentar dificultad)
-                            // Pero ahora de forma más gradual
-                            if (this.intervaloSpawn > this.intervaloMinimoSpawn) {
-                                this.intervaloSpawn = Math.max(
-                                    this.intervaloMinimoSpawn,
-                                    this.intervaloSpawn - this.tasaDisminucionSpawn
-                                );
-                            }
-                            
-                            // El avance de oleadas se maneja por temporizador (cada 10 segundos)
-                            // this._crearNaveEnemiga(); // Deshabilitado - ahora aparece por temporizador
-                        }
-                        
-                        // Remover el enemigo de la lista
-                        this.enemigos.splice(j, 1);
-                    }
-                    
-                    // Destruir el proyectil (ya impactó)
-                    projectile.destroy(this.poolProyectiles);
-                    this.proyectiles.splice(i, 1);
-                    
-                    
-                    // Salir del for de enemigos (el proyectil solo puede golpear uno)
-                    break;
-                }
-            }
-            
-            // Verificar colisión con enemigos especiales
-            for (let k = this.enemigosSpeciales.length - 1; k >= 0; k--) {
-                const especial = this.enemigosSpeciales[k];
-                if (!especial || !especial.active) continue;
-                
-                if (this._verificarColision(projectile, especial)) {
-                    // Si está en órbita, el proyectil del aliado traspasa (no colisiona)
-                    if (especial.enOrbita) {
-                        // No hacer nada, el proyectil sigue su camino
-                    } else {
-                        // Animación de proyectil (típica cuando colisiona)
-                        const explosion = new ProyectilExplosion(
-                            especial.x, especial.y,
-                            this.texturaExplosion,
-                            1.5
-                        );
-                        explosion.render(this.mundo);
-                        this.efectosImpacto.push(explosion);
-                        
-                        // El proyectil hace daño
-                        especial.salud -= projectile.dano;
-                        
-                        // Si fue destruido, convertir en mini y orbitar (como cuando el jugador colisiona)
-                        let seConvirtioEnMini = false;
-                        if (especial.salud <= 0) {
-                            // Contar cuántos especiales ya están en órbita
-                            let indiceOrbita = 0;
-                            for (const esp of this.enemigosSpeciales) {
-                                if (esp !== especial && esp.active && esp.enOrbita) {
-                                    indiceOrbita++;
-                                }
-                            }
-                            
-                            // Calcular primera posición en la órbita para la animación
-                            const velocidadBase = 1.5;
-                            const radioBase = 130;
-                            const variacionVelocidad = (indiceOrbita % 3) * 0.3;
-                            const variacionRadio = (indiceOrbita % 4) * 15;
-                            const velocidadActual = velocidadBase + variacionVelocidad;
-                            const radioActual = radioBase + variacionRadio;
-                            
-                            // Calcular posición inicial en la órbita
-                            const posX = this.jugador.x + Math.cos(especial.anguloOrbita) * radioActual;
-                            const posY = this.jugador.y + Math.sin(especial.anguloOrbita) * radioActual;
-                            
-                            // Animación de transformación (AZUL) en la posición de órbita
-                            const astroExplosion = new AsteroidExplosion(
-                                posX, posY,
-                                this.texturaAsteroidExplosion,
-                                0.5,  // Escala mediana
-                                0x0000FF  // Color AZUL
-                            );
-                            astroExplosion.render(this.mundo);
-                            this.efectosImpacto.push(astroExplosion);
-                            
-                            // Convertir en mini y orbitar
-                            especial.convertirEnOrbita();
-                            especial.active = true;
-                            seConvirtioEnMini = true;
-                            
-                            especial.indiceOrbita = indiceOrbita;
-                            
-                            // Puntos
-                            this.puntuacion += especial.puntos;
-                        }
-                        
-                        // Solo destruir el proyectil si NO se convirtió en mini
-                        if (!seConvirtioEnMini) {
-                            projectile.destroy(this.poolProyectiles);
-                            this.proyectiles.splice(i, 1);
-                        }
-                    }
-                    break;
-                }
-            }
-            
-            // Verificar colisión con cada nave enemiga
-            for (let k = this.enemigosNaves.length - 1; k >= 0; k--) {
-                const naveEnemiga = this.enemigosNaves[k];
-                if (!naveEnemiga || !naveEnemiga.active) continue;
-                
-                // Verificar si hay colisión
-                if (this._verificarColision(projectile, naveEnemiga)) {
-                    // Crear efecto visual de impacto (doble tamaño: escala = 2)
-                    const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 2);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // El proyectil hace daño a la nave enemiga
-                    const destruida = naveEnemiga.recibirDano(projectile.dano);
-                    
-                    // Si la nave enemiga fue destruida
-                    if (destruida) {
-                        // Crear animación de destrucción de la nave enemiga (verde)
-                        const naveExplosion = new AsteroidExplosion(
-                            naveEnemiga.x, naveEnemiga.y,
-                            this.texturaExplosionNave,
-                            0.5 // Escala para nave enemiga
-                        );
-                        naveExplosion.render(this.mundo);
-                        this.efectosImpacto.push(naveExplosion);
-                        
-                        // Sumar puntos por destruir nave enemiga
-                        this.puntuacion += 500;
-                        
-                        // Agregar carga de ULTi
-                        this.jugador.agregarCargaUlti(naveEnemiga.cargaUlti);
-                        
-                        // Incrementar contador
-                        this.asteroidesDestruidos++;
-                        
-                        // Verificar si completamos la oleada
-                        if (this.asteroidesDestruidos >= this.objetivoOleada) {
-                            this.contadorOleadas++;
-                            this.asteroidesDestruidos = 0;
-                            this.objetivoOleada = 10 + (this.contadorOleadas * 10);
-                            if (this.intervaloSpawn > this.intervaloMinimoSpawn) {
-                                this.intervaloSpawn = Math.max(
-                                    this.intervaloMinimoSpawn,
-                                    this.intervaloSpawn - this.tasaDisminucionSpawn
-                                );
-                            }
-                            // Nave enemiga aparece por temporizador (cada 10s)
-                        }
-                        
-                        // Remover la nave enemiga de la lista
-                        this.enemigosNaves.splice(k, 1);
-                    }
-                    
-                    // Destruir el proyectil
-                    projectile.destroy(this.poolProyectiles);
-                    this.proyectiles.splice(i, 1);
-                    
-                    
-                    break;
-                }
-            }
-        }
-    }
-    
-    /**
-     * Procesa las colisiones entre el jugador y los enemigos
-     * Se llama en cada frame del juego
-     */
-    _procesarColisionesJugador() {
-        // Si no hay jugador o no está activo, salir
-        if (!this.jugador || !this.jugador.active) return;
-        
-        // Recorrer todos los enemigos
-        for (let i = this.enemigos.length - 1; i >= 0; i--) {
-            const enemy = this.enemigos[i];
-            if (!enemy.active) continue;
-            
-            // Verificar colisión con el jugador
-            if (this._verificarColision(this.jugador, enemy)) {
-                // Si NO es el asteroide especial, hacer daño
-                // El especial es un power-up y no hace daño al chocar
-                if (enemy.tamanio !== 'special') {
-                    // El jugador recibe daño (reduce los escudos)
-                    // Si está en sobrecalentamiento, pierde el enfriamiento al recibir daño
-                    this.jugador.recibirDano(enemy.dano);
-                }
-                
-                // === ANIMACIÓN DE DESTRUCCIÓN DEL ASTEROIDE ===
-                let escalaAnim = 0.24; // SMALL
-                if (enemy.tamanio === 'medium') {
-                    escalaAnim = 0.42;
-                } else if (enemy.tamanio === 'large') {
-                    escalaAnim = 0.84;
-                } else if (enemy.tamanio === 'rezagado1') {
-                    escalaAnim = 0.84;
-                } else if (enemy.tamanio === 'rezagado2') {
-                    escalaAnim = 0.42;
-                } else if (enemy.tamanio === 'rezagado3') {
-                    escalaAnim = 0.24;
-                }
-                
-                const astroExplosion = new AsteroidExplosion(
-                    enemy.x, enemy.y,
-                    this.texturaExplosionAsteroide,
-                    escalaAnim
-                );
-                astroExplosion.render(this.mundo);
-                this.efectosImpacto.push(astroExplosion);
-
-                // Destruir el enemigo (siempre se destruye al chocar)
-                enemy.destroy();
-                this.enemigos.splice(i, 1);
-                
-            }
-        }
-        
-        // Verificar colisión con enemigos especiales
-        for (let i = this.enemigosSpeciales.length - 1; i >= 0; i--) {
-            const especial = this.enemigosSpeciales[i];
-            if (!especial || !especial.active) continue;
-            
-            if (this._verificarColision(this.jugador, especial)) {
-                // Si el especial NO está en órbita, convertirlo en mini y orbitar
-                if (!especial.enOrbita) {
-                    // Primero hacer la animación de destrucción
-                    const astroExplosion = new AsteroidExplosion(
-                        especial.x, especial.y,
-                        this.texturaAsteroidExplosion,
-                        0.84,  // Escala LARGE
-                        0x0000FF  // Color AZUL
-                    );
-                    astroExplosion.render(this.mundo);
-                    this.efectosImpacto.push(astroExplosion);
-                    
-                    // Contar cuántos especiales ya están en órbita para asignar índice único
-                    let indiceOrbita = 0;
-                    for (const esp of this.enemigosSpeciales) {
-                        if (esp !== especial && esp.active && esp.enOrbita) {
-                            indiceOrbita++;
-                        }
-                    }
-                    
-                    // Asignar índice para evitar superposición
-                    especial.indiceOrbita = indiceOrbita;
-                    
-                    // Luego convertir en modo órbita
-                    especial.convertirEnOrbita();
-                    
-                    // No dar power-up ni puntos (solo cuando se destruye con proyectil)
-                    // El especial se queda orbitando
-                } else {
-                    // Si ya está en órbita, hacer daño a sus HP (25 - same as medium asteroid)
-                    especial.salud -= 25;
-                    
-                    // Crear animación de impacto
-                    const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // Si se destruyó porcollisión con enemigo
-                    if (especial.salud <= 0) {
-                        // Animación de destrucción
-                        const astroExplosion = new AsteroidExplosion(
-                            especial.x, especial.y,
-                            this.texturaAsteroidExplosion,
-                            0.42,  // Escala MEDIUM
-                            0x0000FF  // Color AZUL
-                        );
-                        astroExplosion.render(this.mundo);
-                        this.efectosImpacto.push(astroExplosion);
-                        
-                        especial.destroy();
-                        this.enemigosSpeciales.splice(i, 1);
-                    }
-                }
-                
-            }
-        }
-        
-        // Verificar colisión de especiales en órbita con otros enemigos
-        for (let i = this.enemigosSpeciales.length - 1; i >= 0; i--) {
-            const especial = this.enemigosSpeciales[i];
-            if (!especial || !especial.active || !especial.enOrbita) continue;
-            
-            // Verificar colisión con asteroides normales
-            for (let j = this.enemigos.length - 1; j >= 0; j--) {
-                const enemy = this.enemigos[j];
-                if (!enemy || !enemy.active) continue;
-                
-                if (this._verificarColision(especial, enemy)) {
-                    // El especial en órbita recibe daño según el tipo de asteroide
-                    // Mismo daño que el asteroide le hace al jugador
-                    const danoAsteroide = enemy.dano || 25;
-                    especial.salud -= danoAsteroide;
-                    
-                    // Animación de impacto
-                    const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // === ANIMACIÓN DE DESTRUCCIÓN DEL ASTEROIDE ===
-                    let escalaAnim = 0.24; // SMALL
-                    if (enemy.tamanio === 'medium') {
-                        escalaAnim = 0.42;
-                    } else if (enemy.tamanio === 'large') {
-                        escalaAnim = 0.84;
-                    } else if (enemy.tamanio === 'rezagado1') {
-                        escalaAnim = 0.84;
-                    } else if (enemy.tamanio === 'rezagado2') {
-                        escalaAnim = 0.42;
-                    } else if (enemy.tamanio === 'rezagado3') {
-                        escalaAnim = 0.24;
-                    }
-                    
-                    const astroExplosion = new AsteroidExplosion(
-                        enemy.x, enemy.y,
-                        this.texturaExplosionAsteroide,
-                        escalaAnim
-                    );
-                    astroExplosion.render(this.mundo);
-                    this.efectosImpacto.push(astroExplosion);
-
-                    // Dar puntos al jugador por destruir el asteroide
-                    const puntosAsteroide = enemy.puntos || 10;
-                    this.puntuacion += puntosAsteroide;
-                    
-                    // Agregar carga de ULTi
-                    this.jugador.agregarCargaUlti(enemy.cargaUlti || 5);
-                    
-                    // Destruir el asteroide que chocó
-                    enemy.destroy();
-                    this.enemigos.splice(j, 1);
-                    
-                    // Si el especial se destruyó
-                    if (especial.salud <= 0) {
-                        const astroExplosion = new AsteroidExplosion(
-                            especial.x, especial.y,
-                            this.texturaAsteroidExplosion,
-                            0.42,
-                            0x0000FF
-                        );
-                        astroExplosion.render(this.mundo);
-                        this.efectosImpacto.push(astroExplosion);
-                        
-                        especial.destroy();
-                        this.enemigosSpeciales.splice(i, 1);
-                        break; // Salir del loop de enemigos
-                    }
-                }
-            }
-        }
-        
-        // Verificar colisión con proyectiles enemigos
-        if (this.proyectilesEnemigos) {
-            for (let i = this.proyectilesEnemigos.length - 1; i >= 0; i--) {
-                const projEnemigo = this.proyectilesEnemigos[i];
-                if (!projEnemigo.active) continue;
-                
-                // Verificar colisión con el jugador
-                if (this._verificarColision(this.jugador, projEnemigo)) {
-                    // El jugador recibe daño
-                    this.jugador.recibirDano(25); // Mismo daño que el jugador
-                    
-                    // Destruir el proyectil
-                    projEnemigo.destroy();
-                    this.proyectilesEnemigos.splice(i, 1);
-                    
-                    continue;
-                }
-                
-                // Verificar colisión con mini asteroides especiales en órbita
-                for (let j = this.enemigosSpeciales.length - 1; j >= 0; j--) {
-                    const especial = this.enemigosSpeciales[j];
-                    if (!especial || !especial.active || !especial.enOrbita) continue;
-                    
-                    if (this._verificarColision(projEnemigo, especial)) {
-                        // El proyectil enemigo hace daño al mini asteroide en órbita (25)
-                        especial.salud -= 25;
-                        
-                        // Animación de impacto
-                        const hit = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                        hit.render(this.mundo);
-                        this.efectosImpacto.push(hit);
-                        
-                        // Destruir el proyectil enemigo
-                        projEnemigo.destroy();
-                        this.proyectilesEnemigos.splice(i, 1);
-                        
-                        // Si el especial se destruyó
-                        if (especial.salud <= 0) {
-                            const astroExplosion = new AsteroidExplosion(
-                                especial.x, especial.y,
-                                this.texturaAsteroidExplosion,
-                                0.42,
-                                0x0000FF
-                            );
-                            astroExplosion.render(this.mundo);
-                            this.efectosImpacto.push(astroExplosion);
-                            
-                            especial.destroy();
-                            this.enemigosSpeciales.splice(j, 1);
-                        }
-                        
-                        break; // Salir del loop de especiales
-                    }
-                }
-            }
-        }
-        
-        // Verificar colisión con naves enemigas
-        for (let i = this.enemigosNaves.length - 1; i >= 0; i--) {
-            const naveEnemiga = this.enemigosNaves[i];
-            if (!naveEnemiga || !naveEnemiga.active) continue;
-            
-            if (this._verificarColision(this.jugador, naveEnemiga)) {
-                // Crear animación de explosión (verde)
-                const explosion = new AsteroidExplosion(
-                    naveEnemiga.x, naveEnemiga.y,
-                    this.texturaExplosionNave,
-                    0.5
-                );
-                explosion.render(this.mundo);
-                this.efectosImpacto.push(explosion);
-                
-                // El jugador recibe daño por chocar con la nave enemiga
-                this.jugador.recibirDano(25);
-                
-                // Agregar carga de ULTi
-                this.jugador.agregarCargaUlti(naveEnemiga.cargaUlti);
-                
-                // Destruir la nave enemiga
-                naveEnemiga.destroy();
-                this.enemigosNaves.splice(i, 1);
-                
-            }
-        }
-        
-        // Verificar colisión de mini asteroides en órbita con naves enemigas
-        for (let i = this.enemigosSpeciales.length - 1; i >= 0; i--) {
-            const especial = this.enemigosSpeciales[i];
-            if (!especial || !especial.active || !especial.enOrbita) continue;
-            
-            for (let j = this.enemigosNaves.length - 1; j >= 0; j--) {
-                const naveEnemiga = this.enemigosNaves[j];
-                if (!naveEnemiga || !naveEnemiga.active) continue;
-                
-                if (this._verificarColision(especial, naveEnemiga)) {
-                    // El mini asteroide hace 25 de daño a la nave enemiga
-                    naveEnemiga.salud -= 25;
-                    
-                    // Animación de impacto
-                    const hit = new HitEffect(naveEnemiga.x, naveEnemiga.y, 'hit', 1.5);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // Si la nave enemiga se destruyó
-                    if (naveEnemiga.salud <= 0) {
-                        // Animación de destrucción (verde)
-                        const explosion = new AsteroidExplosion(
-                            naveEnemiga.x, naveEnemiga.y,
-                            this.texturaExplosionNave,
-                            0.5
-                        );
-                        explosion.render(this.mundo);
-                        this.efectosImpacto.push(explosion);
-                        
-                        // Puntos por destruir nave
-                        this.puntuacion += 500;
-                        
-                        // Agregar carga de ULTi
-                        this.jugador.agregarCargaUlti(naveEnemiga.cargaUlti);
-                        
-                        naveEnemiga.destroy();
-                        this.enemigosNaves.splice(j, 1);
-                    }
-                    
-                    // El mini asteroide también recibe daño (-10)
-                    especial.salud -= 10;
-                    
-                    // Animación de impacto en el especial
-                    const hitEsp = new HitEffect(especial.x, especial.y, 'hit', 1.5);
-                    hitEsp.render(this.mundo);
-                    this.efectosImpacto.push(hitEsp);
-                    
-                    // Si el especial se destruyó
-                    if (especial.salud <= 0) {
-                        const astroExplosion = new AsteroidExplosion(
-                            especial.x, especial.y,
-                            this.texturaAsteroidExplosion,
-                            0.42,
-                            0x0000FF
-                        );
-                        astroExplosion.render(this.mundo);
-                        this.efectosImpacto.push(astroExplosion);
-                        
-                        especial.destroy();
-                        this.enemigosSpeciales.splice(i, 1);
-                        break; // Salir del loop de naves
-                    }
-                }
-            }
-        }
-        
-        // Las colisiones nave-asteroide se verifican en el loop de actualización de naves enemigas
-        
-        // Verificar colisión del jugador con partículas boid (captura directa al tocar)
-        for (let i = this.particulasBoid.length - 1; i >= 0; i--) {
-            const particula = this.particulasBoid[i];
-            if (!particula || !particula.active) continue;
-            
-            // Verificar colisión directa entre el jugador y la partícula
-            if (this.jugador && particula.verificarColision(this.jugador)) {
-                // Capturar la partícula
-                this._capturarParticulaBoid(particula, i);
-            }
-        }
     }
     
     /**
@@ -2921,92 +1822,6 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             console.error('[Game] Error en game loop:', error);
         }
     }
-    
-    /**
-     * Procesa colisiones entre asteroides
-     * - Todos los asteroides rebotan al chocar
-     - Solo los asteroides GRANDES entre sí se hacen daño y se fragmentan
-     */
-    _procesarColisionesEnemigos() {
-        for (let i = 0; i < this.enemigos.length; i++) {
-            const enemy1 = this.enemigos[i];
-            if (!enemy1.active) continue;
-            
-            for (let j = i + 1; j < this.enemigos.length; j++) {
-                const enemy2 = this.enemigos[j];
-                if (!enemy2.active) continue;
-                
-                // Verificar si alguno está en cooldown de colisión
-                if (enemy1.enfriamientoColision > 0 || enemy2.enfriamientoColision > 0) continue;
-                
-                // Verificar colisión entre los dos asteroides
-                if (this._verificarColision(enemy1, enemy2)) {
-                    // Crear efecto visual de impacto cuando asteroides chocan (doble tamaño, color ROJO)
-                    const puntoMedioX = (enemy1.x + enemy2.x) / 2;
-                    const puntoMedioY = (enemy1.y + enemy2.y) / 2;
-                    const hit = new HitEffect(puntoMedioX, puntoMedioY, 'hit', 2, 0xCC0000);
-                    hit.render(this.mundo);
-                    this.efectosImpacto.push(hit);
-                    
-                    // ALTERAR DIRECCIÓN de TODOS los asteroides que chocan
-                    enemy1.alterDirection();
-                    enemy2.alterDirection();
-                    
-                    // Aplicar cooldown para evitar colisiones múltiples seguidas
-                    enemy1.enfriamientoColision = 0.5;
-                    enemy2.enfriamientoColision = 0.5;
-                    
-                    // === SÓLO LOS GRANDES RECIBEN DAÑO ===
-                    // Si ambos son grandes (o rezagados), se hacen daño mutuo
-                    const esGrande1 = enemy1.tamanio === 'large' || enemy1.tamanio === 'large_rezagado';
-                    const esGrande2 = enemy2.tamanio === 'large' || enemy2.tamanio === 'large_rezagado';
-                    
-                    if (esGrande1 && esGrande2) {
-                        // Ambos asteroides reciben daño por la colisión
-                        // El daño es el mismo que el grande hace al jugador (50)
-                        const danoColision = 50;
-                        enemy1.salud -= danoColision;
-                        enemy2.salud -= danoColision;
-                        
-                        // Si la salud llega a 0 o menos, el asteroide se destruye y fragmenta
-                        if (enemy1.salud <= 0) {
-                            this._destruirYFragmentar(enemy1);
-                        }
-                        
-                        if (enemy2.salud <= 0) {
-                            this._destruirYFragmentar(enemy2);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
-     * Destruye un asteroide y crea fragmentos
-     * Método helper para usar en colisiones
-     */
-    _destruirYFragmentar(enemy) {
-        enemy.salud = 0;
-        enemy.active = false;
-        
-        // Destruir sprite
-        if (enemy.imagen && enemy.imagen.parent) {
-            enemy.imagen.parent.removeChild(enemy.imagen);
-        }
-        
-        // Crear fragmentos
-        const fragmentos = enemy._romper();
-        for (const frag of fragmentos) {
-            frag.render(this.mundo);
-            this.enemigos.push(frag);
-        }
-        
-        // Efecto de explosión (asteroide rojo)
-        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, this.texturaExplosionAsteroide, 0.5);
-        astroExplosion.render(this.mundo);
-        this.efectosExplosion.push(astroExplosion);
-}
     
     /**
      * Detiene el juego
