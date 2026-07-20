@@ -1255,19 +1255,30 @@ export class PixiHUD {
         const titulo = new PIXI.Text('', {
             fontFamily: 'Segoe Script, cursive', fontSize: 18, fill: 0x0B2E6B, fontWeight: 'bold'
         });
-        titulo.position.set(12, 9);
         c.addChild(titulo);
 
         const desc = new PIXI.Text('', {
             fontFamily: 'Segoe Script, cursive', fontSize: 15, fill: 0x111111,
-            wordWrap: true, wordWrapWidth: 240
+            wordWrap: true, wordWrapWidth: 230
         });
-        desc.position.set(12, 34);
         c.addChild(desc);
+
+        // Fila inferior: 5 pips de nivel (izquierda) + precio (derecha).
+        const pips = [];
+        for (let i = 0; i < 5; i++) {
+            const p = new PIXI.Graphics();
+            c.addChild(p);
+            pips.push(p);
+        }
+        const precio = new PIXI.Text('', {
+            fontFamily: 'Segoe Script, cursive', fontSize: 17, fill: 0x0A7D2C, fontWeight: 'bold'
+        });
+        precio.anchor.set(1, 0.5);   // anclado a la derecha, centrado vertical
+        c.addChild(precio);
 
         // Última: se agrega tras _crearEscudoCurvo, así queda encima del resto.
         this.container.addChild(c);
-        this._tooltipMejora = { c, bg, titulo, desc };
+        this._tooltipMejora = { c, bg, titulo, desc, pips, precio };
     }
 
     /**
@@ -1291,8 +1302,11 @@ export class PixiHUD {
     }
 
     /**
-     * Muestra el tooltip de la mejora del cuadrante g junto a su icono. Incluye
-     * el efecto, el nivel actual (n/5) y el costo del próximo nivel (o MAX).
+     * Muestra el tooltip de la mejora del cuadrante g junto a su icono. Estructura:
+     * título + línea separadora + descripción + fila con pips de nivel (izq) y
+     * precio del próximo nivel (der), coloreado según si se puede pagar (verde) o
+     * no (rojo), o "MAX" (azul) si la sección está completa. Una flecha apunta al
+     * icono. Todo en tinta de birome sobre papel.
      * @private
      */
     _mostrarTooltipMejora(g) {
@@ -1301,34 +1315,83 @@ export class PixiHUD {
         const info = this._infoMejora(g.mejoraSeccion);
         if (!info) return;
 
+        const AZUL = 0x0B2E6B, VERDE = 0x0A7D2C, ROJO = 0xCC0000, PAPEL = 0xFBF7EC;
+        const PAD = 12;
+
         // Nivel comprado de la sección (cuántos de los 5 están en >=1).
         let niveles = 0;
         for (let i = 0; i < 5; i++) {
             if (this.game && this.game.mejoras && (this.game.mejoras[g.mejoraSeccion + i] || 0) >= 1) niveles++;
         }
-        const precio = this._precioMejora(g.mejoraSeccion);
-        const estado = (precio === null) ? 'MAX (5/5)' : `Nivel ${niveles}/5  ·  ${precio}`;
+        const precioVal = this._precioMejora(g.mejoraSeccion);
+        const particulas = this.game ? (this.game.particulasCapturadas || 0) : 0;
 
+        // Textos
         tt.titulo.text = info[0];
-        tt.desc.text = `${info[1]}\n${estado}`;
+        tt.titulo.position.set(PAD, 9);
+        tt.desc.text = info[1];
+        const sepY = Math.round(tt.titulo.y + tt.titulo.height + 6);
+        tt.desc.position.set(PAD, sepY + 7);
 
-        // Caja: se ajusta al texto más ancho.
-        const w = Math.max(tt.titulo.width, tt.desc.width) + 24;
-        const h = tt.desc.y + tt.desc.height + 12;
-        tt.bg.clear();
-        tt.bg.roundRect(0, 0, w, h, 8)
-            .fill({ color: 0xFBF7EC, alpha: 0.98 })   // papel
-            .stroke({ width: 2, color: 0x0B2E6B });   // borde tinta azul
+        // Fila inferior (pips + precio)
+        const filaY = Math.round(tt.desc.y + tt.desc.height + 12);
+        const pipR = 5, pipGap = 15;
+        for (let i = 0; i < 5; i++) {
+            const p = tt.pips[i];
+            const on = i < niveles;
+            p.clear();
+            p.circle(PAD + pipR + i * pipGap, filaY + pipR, pipR)
+                .fill({ color: on ? AZUL : PAPEL })
+                .stroke({ width: 1.5, color: AZUL });
+            p.visible = true;
+        }
+        const pipsAncho = 2 * pipR + 4 * pipGap;
+
+        // Precio coloreado por disponibilidad (o MAX)
+        let precioColor;
+        if (precioVal === null) { tt.precio.text = 'MAX'; precioColor = AZUL; }
+        else { tt.precio.text = `${precioVal}`; precioColor = (particulas >= precioVal) ? VERDE : ROJO; }
+        tt.precio.style.fill = precioColor;
+
+        // Ancho/alto de la caja
+        const contenido = Math.max(
+            tt.titulo.width,
+            tt.desc.width,
+            pipsAncho + 14 + tt.precio.width
+        );
+        const w = Math.round(contenido + PAD * 2);
+        const h = filaY + pipR * 2 + PAD;
+        tt.precio.position.set(w - PAD, filaY + pipR);
 
         // Posición: al lado del icono, en coordenadas de pantalla.
         const gp = g.upgradeSprite.getGlobalPosition();
         const sw = this.app.screen.width;
-        // Columna derecha → tooltip a la izquierda del icono; izquierda → a la derecha.
-        let x = (gp.x > sw / 2) ? (gp.x - w - 14) : (gp.x + 14);
+        const sh = this.app.screen.height || 720;
+        const derecha = gp.x > sw / 2;   // icono en columna derecha → tooltip a la izquierda
+        const gapFlecha = 16;
+        let x = derecha ? (gp.x - w - gapFlecha) : (gp.x + gapFlecha);
         if (x < 4) x = 4;
         if (x + w > sw - 4) x = sw - 4 - w;
         let y = gp.y - h / 2;
-        y = Math.max(4, Math.min((this.app.screen.height || 720) - h - 4, y));
+        y = Math.max(4, Math.min(sh - h - 4, y));
+
+        // Dibujo del fondo + separador + flecha hacia el icono.
+        const flechaY = Math.max(14, Math.min(h - 14, gp.y - y));
+        tt.bg.clear();
+        tt.bg.roundRect(0, 0, w, h, 8)
+            .fill({ color: PAPEL, alpha: 0.98 })
+            .stroke({ width: 2, color: AZUL });
+        // Separador bajo el título
+        tt.bg.moveTo(PAD, sepY).lineTo(w - PAD, sepY).stroke({ width: 1, color: AZUL, alpha: 0.4 });
+        // Flecha (triángulo): relleno que solapa el borde de la caja + dos aristas externas
+        if (derecha) {
+            tt.bg.poly([w - 1, flechaY - 7, w + 9, flechaY, w - 1, flechaY + 7]).fill({ color: PAPEL, alpha: 0.98 });
+            tt.bg.moveTo(w - 1, flechaY - 7).lineTo(w + 9, flechaY).lineTo(w - 1, flechaY + 7).stroke({ width: 2, color: AZUL });
+        } else {
+            tt.bg.poly([1, flechaY - 7, -9, flechaY, 1, flechaY + 7]).fill({ color: PAPEL, alpha: 0.98 });
+            tt.bg.moveTo(1, flechaY - 7).lineTo(-9, flechaY).lineTo(1, flechaY + 7).stroke({ width: 2, color: AZUL });
+        }
+
         tt.c.position.set(Math.round(x), Math.round(y));
         tt.c.visible = true;
     }

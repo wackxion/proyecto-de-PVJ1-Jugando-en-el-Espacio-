@@ -1,7 +1,19 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.0 (ACTUAL)
+**Versión:** v1.34.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.1 - Tooltip de mejora mejorado
+
+- **Rediseño del globo** (`PixiHUD._crearTooltipMejora` / `_mostrarTooltipMejora`): además del nombre + descripción, ahora muestra:
+  - **Nivel como pips**: 5 puntitos (círculos) que se llenan de azul según los niveles comprados (antes era texto "Nivel n/5").
+  - **Precio coloreado por disponibilidad**: verde (`0x0A7D2C`) si `particulasCapturadas >= precio`, rojo (`0xCC0000`) si no alcanza, o **MAX** en azul (`0x0B2E6B`) si la sección está completa.
+  - **Flecha** (triángulo) que apunta al icono del chip (a la derecha si el tooltip está a la izquierda del icono y viceversa), dibujada solapando el borde de la caja para que no quede costura.
+  - **Línea separadora** bajo el título.
+  - El tooltip ahora reúne `{ c, bg, titulo, desc, pips[5], precio }`; la fila inferior es pips (izq) + precio (der, ancla derecha).
+- Verificado en runtime con hover real: estados verde/rojo/MAX correctos, pips reflejan el nivel, se muestra/oculta bien, sin errores en consola.
 
 ---
 

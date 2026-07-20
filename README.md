@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.34.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.34.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.34.0 (Actual)
+### v1.34.1 (Actual)
+> **Tooltip de mejora mejorado (pips, precio por color, flecha)**
+
+- 🎨 El tooltip de la mejora ahora muestra el **nivel como pips** (5 puntitos que se llenan), el **precio coloreado** según si te alcanza (verde) o no (rojo) —o **MAX** en azul si está completa—, una **flecha** que apunta al chip y un **separador** bajo el título
+
+### v1.34.0
 > **Tooltip en los chips de mejora del HUD**
 
 - 💬 Al pasar el cursor sobre el icono de una mejora en el HUD aparece un globo con su **nombre, qué hace, el nivel actual (n/5) y el costo del próximo** (o **MAX** si está completa); estilo tinta de birome sobre papel
