@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.33.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.33.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.33.1 (Actual)
+### v1.33.2 (Actual)
+> **Naves del menú: pasean y se esquivan (ya no se chocan)**
+
+- 🛸 Las 4 naves del menú ahora pasean independientes (cada una su recorrido) y se **esquivan** entre sí girando antes de tocarse; ya no se amontonan/chocan
+
+### v1.33.1
 > **Estrellas que titilan (se prenden y apagan)**
 
 - ✨ La capa de estrellas ahora son estrellas individuales que titilan cada una a su ritmo; al apagarse dejan de verse

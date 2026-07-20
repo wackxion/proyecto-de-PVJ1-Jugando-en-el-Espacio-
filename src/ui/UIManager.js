@@ -396,103 +396,77 @@ export class UIManager {
         const H = () => window.innerHeight;
         const margin = 80;
 
-        // Nave aliada (la del jugador)
-        const aliada = { el: crearNave('assets/Nave322.png', 72), x: W() / 2, y: H() / 2, ang: Math.random() * Math.PI * 2, vel: 95 };
-
-        // Naves enemigas que la siguen. Uso enimigo1 (apunta a la derecha, igual
-        // que la aliada) para que la orientación al girar se vea bien. Arrancan
-        // detrás de la aliada, como persiguiéndola.
-        const enemigas = [];
-        for (let i = 0; i < 3; i++) {
-            enemigas.push({
-                el: crearNave('assets/enimigo1.png', 68), // tamaño similar a la aliada (72)
-                x: aliada.x - 130 - i * 45, y: aliada.y + (i - 1) * 45,
-                vel: 92 + i * 5, ang: 0,
-                off: (i / 3) * Math.PI * 2,                          // fase orbital inicial
-                orbVel: (i % 2 === 0 ? 1 : -1) * (0.6 + i * 0.28),   // velocidad angular (sentidos alternos)
-                orbRad: 80 + i * 45                                   // radio distinto por nave
-            });
-        }
-
-        // El arte de las naves apunta a la DERECHA → la rotación es directamente
-        // el ángulo de rumbo (sin offset).
+        // El arte de las naves apunta a la DERECHA → la rotación es el rumbo (sin offset).
         const colocar = (n) => {
             n.el.style.transform = `translate(${n.x}px, ${n.y}px) translate(-50%, -50%) rotate(${n.ang}rad)`;
         };
-        colocar(aliada);
-        enemigas.forEach(colocar);
-
-        // Gira "actual" hacia "objetivo" de a poco (por el camino angular corto)
         const normAng = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
         const girarHacia = (actual, objetivo, maxPaso) => {
             const d = normAng(objetivo - actual);
             return (Math.abs(d) <= maxPaso) ? objetivo : actual + Math.sign(d) * maxPaso;
         };
 
-        // Borde izquierdo de la columna de botones: las naves no deben entrar ahí.
+        // Borde izquierdo de la columna de botones: las naves no entran ahí.
         const botones = [...this.mainMenu.querySelectorAll('img')].filter(i => (i.src || '').includes('boton'));
         let zonaBotonesLeft = W() * 0.72;
         if (botones.length) {
             const lefts = botones.map(b => b.getBoundingClientRect().left).filter(x => x > 1);
             if (lefts.length) zonaBotonesLeft = Math.min(...lefts);
         }
+        const areaDer = zonaBotonesLeft - 40;
 
+        // Todas las naves PASEAN de forma independiente (cada una su rumbo y
+        // velocidad → recorridos distintos) y se ESQUIVAN entre sí (giran para
+        // evitarse ANTES de tocarse), así no se chocan. La aliada usa Nave322 y
+        // las 3 enemigas enimigo1 (ambas apuntan a la derecha).
+        const naves = [];
+        const nuevaNave = (src, size, vel) => {
+            naves.push({
+                el: crearNave(src, size), vel, ang: Math.random() * Math.PI * 2,
+                x: 60 + Math.random() * Math.max(60, areaDer - 120),
+                y: 60 + Math.random() * Math.max(60, H() - 120)
+            });
+        };
+        nuevaNave('assets/Nave322.png', 72, 92);   // aliada
+        nuevaNave('assets/enimigo1.png', 68, 84);  // enemigas (velocidades distintas)
+        nuevaNave('assets/enimigo1.png', 68, 100);
+        nuevaNave('assets/enimigo1.png', 68, 74);
+        naves.forEach(colocar);
+
+        const AVOID_R = 95;   // radio a partir del cual una nave esquiva a otra
         let last = performance.now();
 
         const loop = (now) => {
             if (!capa.isConnected) { this._menuShipsRaf = null; return; } // el menú se fue
             const dt = Math.min(0.05, (now - last) / 1000);
             last = now;
-            const w = W(), h = H();
-            const limDer = zonaBotonesLeft - 40;    // borde derecho útil (antes de los botones)
-            const cx = limDer / 2, cy = h / 2;       // centro del área jugable
+            const h = H();
+            const limDer = zonaBotonesLeft - 40;
+            const cx = limDer / 2, cy = h / 2;
 
-            // Aliada: paseo con deriva suave; si se acerca a un borde del área
-            // (incluida la zona de botones), gira despacio hacia el centro del área.
-            aliada.ang += (Math.random() - 0.5) * dt * 1.8;
-            if (aliada.x < margin || aliada.x > limDer - margin || aliada.y < margin || aliada.y > h - margin) {
-                aliada.ang = girarHacia(aliada.ang, Math.atan2(cy - aliada.y, cx - aliada.x), dt * 2.5);
-            }
-            aliada.x += Math.cos(aliada.ang) * aliada.vel * dt;
-            aliada.y += Math.sin(aliada.ang) * aliada.vel * dt;
-            aliada.x = Math.max(30, Math.min(limDer, aliada.x));
-            aliada.y = Math.max(30, Math.min(h - 30, aliada.y));
-
-            // Enemigas: orbitan la aliada (recorridos distintos); el punto objetivo
-            // y su posición se clampean al área jugable (fuera de los botones).
-            for (const e of enemigas) {
-                e.off += e.orbVel * dt;
-                let tx = aliada.x + Math.cos(e.off) * e.orbRad;
-                let ty = aliada.y + Math.sin(e.off) * e.orbRad;
-                tx = Math.max(30, Math.min(limDer, tx));
-                ty = Math.max(30, Math.min(h - 30, ty));
-                e.ang = girarHacia(e.ang, Math.atan2(ty - e.y, tx - e.x), dt * 2.4);
-                e.x += Math.cos(e.ang) * e.vel * dt;
-                e.y += Math.sin(e.ang) * e.vel * dt;
-            }
-
-            // Separación: que las naves no se superpongan (empuje suave entre las
-            // que estén demasiado cerca). La aliada tiene prioridad (manda su paseo).
-            const todas = [aliada, ...enemigas];
-            const minDist = 62;
-            for (let a = 0; a < todas.length; a++) {
-                for (let b = a + 1; b < todas.length; b++) {
-                    const A = todas[a], B = todas[b];
-                    let dx = B.x - A.x, dy = B.y - A.y;
+            for (const n of naves) {
+                // 1) Esquiva: si hay otra nave cerca, girar hacia el lado opuesto.
+                let ax = 0, ay = 0;
+                for (const o of naves) {
+                    if (o === n) continue;
+                    const dx = n.x - o.x, dy = n.y - o.y;
                     const d = Math.hypot(dx, dy);
-                    if (d < minDist && d > 0.001) {
-                        const push = (minDist - d) / 2;
-                        dx /= d; dy /= d;
-                        if (a === 0) { B.x += dx * push * 2; B.y += dy * push * 2; }         // no mover la aliada
-                        else { A.x -= dx * push; A.y -= dy * push; B.x += dx * push; B.y += dy * push; }
-                    }
+                    if (d < AVOID_R && d > 0.001) { ax += (dx / d) * (AVOID_R - d); ay += (dy / d) * (AVOID_R - d); }
                 }
+                if (ax !== 0 || ay !== 0) {
+                    n.ang = girarHacia(n.ang, Math.atan2(ay, ax), dt * 4);              // esquivar
+                } else if (n.x < margin || n.x > limDer - margin || n.y < margin || n.y > h - margin) {
+                    n.ang = girarHacia(n.ang, Math.atan2(cy - n.y, cx - n.x), dt * 2.5); // volver al centro
+                } else {
+                    n.ang += (Math.random() - 0.5) * dt * 1.6;                          // paseo (deriva suave)
+                }
+                n.x += Math.cos(n.ang) * n.vel * dt;
+                n.y += Math.sin(n.ang) * n.vel * dt;
+                n.x = Math.max(25, Math.min(limDer, n.x));
+                n.y = Math.max(25, Math.min(h - 25, n.y));
+                colocar(n);
             }
-            // Re-clampear enemigas al área tras la separación
-            for (const e of enemigas) { e.x = Math.max(20, Math.min(limDer, e.x)); e.y = Math.max(20, Math.min(h - 20, e.y)); }
 
-            colocar(aliada);
-            enemigas.forEach(colocar);
             this._menuShipsRaf = requestAnimationFrame(loop);
         };
         this._menuShipsRaf = requestAnimationFrame(loop);

@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.33.1 (ACTUAL)
+**Versión:** v1.33.2 (ACTUAL)
+
+---
+
+## ✅ Completado v1.33.2 - Naves del menú: pasean y se esquivan
+
+- **Animación del menú rehecha** (`UIManager._animarNavesMenu`): antes las enemigas ORBITABAN a la aliada y un empuje de separación las hacía amontonar/chocar. Ahora las 4 naves (1 aliada Nave322 + 3 enemigas enimigo1) **pasean de forma independiente** (rumbo y velocidad propios → recorridos distintos) y se **esquivan** con steering (giran hacia el lado opuesto cuando otra entra en un radio de 95px) → se evitan antes de tocarse, sin choques. Siguen respetando el borde de la zona de botones y los bordes de la pantalla. Verificado: distancia mínima entre naves ~69px (no se chocan), nunca entran en los botones, y cada una recorre distinto.
 
 ---
 
