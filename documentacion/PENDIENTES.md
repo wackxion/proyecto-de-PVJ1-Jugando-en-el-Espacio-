@@ -1,7 +1,17 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 13/07/2026  
-**Versión:** v1.33.2 (ACTUAL)
+**Última actualización:** 20/07/2026  
+**Versión:** v1.34.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.0 - Tooltip en los chips de mejora del HUD
+
+- **Globo de ayuda al pasar el cursor** (`PixiHUD`): al hacer hover sobre el icono de una mejora (`upgradeSprite`) aparece un tooltip con el **nombre**, **qué hace**, el **nivel actual (n/5)** y el **costo del próximo nivel** (o **MAX** si está completa). Se oculta al sacar el cursor (`pointerover`/`pointerout`).
+  - Nuevos métodos: `_crearTooltipMejora()` (lo agrega el creador en `_inicializar`, último → encima de todo, en `this.container` = espacio de pantalla escala 1), `_infoMejora(seccion)` (mapa sección→[nombre, descripción]), `_mostrarTooltipMejora(g)` (arma texto + caja auto-ajustada + posiciona junto al icono usando `getGlobalPosition`; columna derecha → a la izquierda del icono y viceversa, con clamp a pantalla) y `_ocultarTooltipMejora()`.
+  - Estilo tinta de birome sobre papel: fondo papel (`0xFBF7EC`), borde y título azul (`0x0B2E6B`), descripción negra, fuente `Segoe Script`.
+  - El tooltip viejo vivía en `GameMejoras.js` y se había borrado en la limpieza (v1.32.1); este es el reemplazo para el HUD nuevo de chips.
+  - Verificado en runtime: texto correcto por sección, posición por columna, se muestra/oculta bien, sin errores en consola.
 
 ---
 

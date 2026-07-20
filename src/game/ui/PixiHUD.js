@@ -345,6 +345,7 @@ export class PixiHUD {
             ['_crearContadorDevorador', () => this._crearContadorDevorador()],
             ['_crearPanelPuntuacion', () => this._crearPanelPuntuacion()],
             ['_crearEscudoCurvo', () => this._crearEscudoCurvo()],
+            ['_crearTooltipMejora', () => this._crearTooltipMejora()],
         ];
 
         for (const [nombre, fn] of creadores) {
@@ -1197,6 +1198,9 @@ export class PixiHUD {
                     g.upgradeSprite.eventMode = 'static';
                     g.upgradeSprite.cursor = 'pointer';
                     g.upgradeSprite.on('pointertap', () => this._comprarMejoraCuadrante(g));
+                    // Tooltip: al pasar el cursor por el icono, mostrar qué hace la mejora.
+                    g.upgradeSprite.on('pointerover', () => this._mostrarTooltipMejora(g));
+                    g.upgradeSprite.on('pointerout', () => this._ocultarTooltipMejora());
                 } else {
                     g.upgradeSprite.eventMode = 'none'; // cuadrante sin mejora
                 }
@@ -1230,6 +1234,108 @@ export class PixiHUD {
             contenedor.addChild(g.precioText);
             this._refrescarPrecio(g);
         }
+    }
+
+    /**
+     * Crea el globo de ayuda (tooltip) que aparece al pasar el cursor sobre el
+     * icono de una mejora. Vive en el contenedor raíz (espacio de pantalla,
+     * escala 1) por encima de todo; se posiciona por frame según el icono.
+     * Estilo tinta de birome sobre papel: fondo papel, borde y texto azul/negro.
+     * @private
+     */
+    _crearTooltipMejora() {
+        const c = new PIXI.Container();
+        c.visible = false;
+        c.eventMode = 'none';   // no intercepta clicks/hover
+        c.zIndex = 9999;
+
+        const bg = new PIXI.Graphics();
+        c.addChild(bg);
+
+        const titulo = new PIXI.Text('', {
+            fontFamily: 'Segoe Script, cursive', fontSize: 18, fill: 0x0B2E6B, fontWeight: 'bold'
+        });
+        titulo.position.set(12, 9);
+        c.addChild(titulo);
+
+        const desc = new PIXI.Text('', {
+            fontFamily: 'Segoe Script, cursive', fontSize: 15, fill: 0x111111,
+            wordWrap: true, wordWrapWidth: 240
+        });
+        desc.position.set(12, 34);
+        c.addChild(desc);
+
+        // Última: se agrega tras _crearEscudoCurvo, así queda encima del resto.
+        this.container.addChild(c);
+        this._tooltipMejora = { c, bg, titulo, desc };
+    }
+
+    /**
+     * Nombre y descripción del efecto de una sección de mejora.
+     * @param {number} seccion - índice de inicio (0,5,10,...,35)
+     * @returns {[string,string]|null}
+     * @private
+     */
+    _infoMejora(seccion) {
+        const M = {
+            0:  ['Daño',         'Aumenta el daño de cada disparo.'],
+            5:  ['Escudo',       'Sube el escudo máximo y lo recarga.'],
+            10: ['Ulti',         'Reduce el coste de carga de la ulti.'],
+            15: ['Tiempo Fuera', 'Mejora la regeneración al reaparecer.'],
+            20: ['Aceleración',  'Más tiempo de acelerón antes de recalentar.'],
+            25: ['Propulsor',    'Baja 2 s el enfriamiento del propulsor.'],
+            30: ['Devorador',    'Más alcance y velocidad de atracción.'],
+            35: ['Cohetes',      'Lanza un cohete extra por nivel.'],
+        };
+        return M[seccion] || null;
+    }
+
+    /**
+     * Muestra el tooltip de la mejora del cuadrante g junto a su icono. Incluye
+     * el efecto, el nivel actual (n/5) y el costo del próximo nivel (o MAX).
+     * @private
+     */
+    _mostrarTooltipMejora(g) {
+        const tt = this._tooltipMejora;
+        if (!tt || !g || g.mejoraSeccion === undefined || !g.upgradeSprite) return;
+        const info = this._infoMejora(g.mejoraSeccion);
+        if (!info) return;
+
+        // Nivel comprado de la sección (cuántos de los 5 están en >=1).
+        let niveles = 0;
+        for (let i = 0; i < 5; i++) {
+            if (this.game && this.game.mejoras && (this.game.mejoras[g.mejoraSeccion + i] || 0) >= 1) niveles++;
+        }
+        const precio = this._precioMejora(g.mejoraSeccion);
+        const estado = (precio === null) ? 'MAX (5/5)' : `Nivel ${niveles}/5  ·  ${precio}`;
+
+        tt.titulo.text = info[0];
+        tt.desc.text = `${info[1]}\n${estado}`;
+
+        // Caja: se ajusta al texto más ancho.
+        const w = Math.max(tt.titulo.width, tt.desc.width) + 24;
+        const h = tt.desc.y + tt.desc.height + 12;
+        tt.bg.clear();
+        tt.bg.roundRect(0, 0, w, h, 8)
+            .fill({ color: 0xFBF7EC, alpha: 0.98 })   // papel
+            .stroke({ width: 2, color: 0x0B2E6B });   // borde tinta azul
+
+        // Posición: al lado del icono, en coordenadas de pantalla.
+        const gp = g.upgradeSprite.getGlobalPosition();
+        const sw = this.app.screen.width;
+        // Columna derecha → tooltip a la izquierda del icono; izquierda → a la derecha.
+        let x = (gp.x > sw / 2) ? (gp.x - w - 14) : (gp.x + 14);
+        if (x < 4) x = 4;
+        if (x + w > sw - 4) x = sw - 4 - w;
+        let y = gp.y - h / 2;
+        y = Math.max(4, Math.min((this.app.screen.height || 720) - h - 4, y));
+        tt.c.position.set(Math.round(x), Math.round(y));
+        tt.c.visible = true;
+    }
+
+    /** Oculta el tooltip de mejora. @private */
+    _ocultarTooltipMejora() {
+        if (this._tooltipMejora) this._tooltipMejora.c.visible = false;
     }
 
     /**

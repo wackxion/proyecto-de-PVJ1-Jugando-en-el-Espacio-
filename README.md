@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.33.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.34.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.33.2 (Actual)
+### v1.34.0 (Actual)
+> **Tooltip en los chips de mejora del HUD**
+
+- 💬 Al pasar el cursor sobre el icono de una mejora en el HUD aparece un globo con su **nombre, qué hace, el nivel actual (n/5) y el costo del próximo** (o **MAX** si está completa); estilo tinta de birome sobre papel
+
+### v1.33.2
 > **Naves del menú: pasean y se esquivan (ya no se chocan)**
 
 - 🛸 Las 4 naves del menú ahora pasean independientes (cada una su recorrido) y se **esquivan** entre sí girando antes de tocarse; ya no se amontonan/chocan
