@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.4 (ACTUAL)
+**Versión:** v1.34.5 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.5 - Chips de mejora de la columna derecha en espejo
+
+- **Placa espejada en la derecha** (`PixiHUD._dibujarChipMejoras`): el marco ya estaba espejado entre columnas, pero la placa (pips + precio + botón de compra) se dibujaba igual en las dos → en la izquierda el botón quedaba pegado al icono y en la derecha en el borde de afuera (asimétrico). Ahora se espeja el contenido de la placa en la columna DERECHA (`espejarPlaca = !espejo`, con `fracX(f) = 1 - f`): imagen de la placa con `scale.x` negativa (origen +imgW), y pips/botón/precio con la frac X invertida. El icono de la habilidad NO se movió. Verificado en runtime: tooltip OK, compra OK (pips llenan en orden espejado), sin errores.
 
 ---
 

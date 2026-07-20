@@ -1145,6 +1145,14 @@ export class PixiHUD {
         const chipX = inX0 + (espejo ? this._chipShiftIzq : -this._chipShiftDer); // esquina sup-izq
         const chipY = y + inY0 + Math.max(0, (inH - imgH) / 2);   // centrada vertical en el interior
 
+        // El MARCO ya está espejado entre columnas, pero la PLACA (pips + precio +
+        // botón de compra) se dibujaba IGUAL en las dos → en la izquierda el botón
+        // quedaba pegado al icono y en la derecha en el borde de afuera (asimétrico).
+        // Espejamos el contenido de la placa en la columna DERECHA (espejo === false)
+        // para que sea espejo de la izquierda: botón de compra pegado al icono en ambas.
+        const espejarPlaca = !espejo;
+        const fracX = (f) => espejarPlaca ? (1 - f) : f;   // frac X espejada dentro de la placa
+
         // PIPS: van DETRÁS de la placa (zIndex menor), centrados en el hueco de
         // cada chip; la placa opaca los tapa salvo por el hueco, así al ponerse
         // blanco "prende" el chip. Ya NO se clickean: reflejan el nivel comprado
@@ -1154,7 +1162,7 @@ export class PixiHUD {
         if (!g.pips) g.pips = [];
         if (!g.pipsEstado) g.pipsEstado = [false, false, false, false, false];
         for (let i = 0; i < 5; i++) {
-            const cx = chipX + imgW * this._chipFracs[i];   // centro X del chip i
+            const cx = chipX + imgW * fracX(this._chipFracs[i]);   // centro X del chip i (espejado en la der)
             const cy = chipY + imgH * this._chipHuecoY;     // centro Y del chip
             let pip = g.pips[i];
             if (!pip) {
@@ -1181,8 +1189,10 @@ export class PixiHUD {
             g.chipSprite.eventMode = 'none';
         }
         g.chipSprite.texture = this._texturaChip;
-        g.chipSprite.scale.set(escChip);
-        g.chipSprite.position.set(chipX, chipY);
+        // Espejar la imagen de la placa en la columna derecha (scale X negativa);
+        // con anchor (0,0) hay que correr el origen +imgW para que quede en su lugar.
+        g.chipSprite.scale.set(espejarPlaca ? -escChip : escChip, escChip);
+        g.chipSprite.position.set(espejarPlaca ? chipX + imgW : chipX, chipY);
         contenedor.addChild(g.chipSprite);
 
         // Icono de mejora (upgreate) dentro del cuadrado gris del chip grande,
@@ -1210,7 +1220,7 @@ export class PixiHUD {
             const boxW = imgW * uf.w, boxH = imgH * uf.h;
             const escU = Math.min(boxW / this._texturaUpgrade.width, boxH / this._texturaUpgrade.height) * 0.99; // +10% sobre 0.9
             g.upgradeSprite.scale.set(escU);
-            g.upgradeSprite.position.set(chipX + imgW * uf.x, chipY + imgH * uf.y);
+            g.upgradeSprite.position.set(chipX + imgW * fracX(uf.x), chipY + imgH * uf.y);
             // Cuadrantes SIN mejora: icono siempre atenuado (no hay nada que
             // comprar). Los que tienen mejora los ilumina _actualizarPreciosMejora.
             if (g.mejoraSeccion === undefined) g.upgradeSprite.alpha = 0.4;
@@ -1229,7 +1239,7 @@ export class PixiHUD {
                 g.precioText.zIndex = 4;         // encima de la placa (zIndex 3)
                 g.precioText.eventMode = 'none';
             }
-            g.precioText.position.set(chipX + imgW * this._chipPrecioFrac.x, chipY + imgH * this._chipPrecioFrac.y);
+            g.precioText.position.set(chipX + imgW * fracX(this._chipPrecioFrac.x), chipY + imgH * this._chipPrecioFrac.y);
             g._precioBoxLocal = { w: imgW * this._chipPrecioBox.w, h: imgH * this._chipPrecioBox.h };
             contenedor.addChild(g.precioText);
             this._refrescarPrecio(g);
