@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.33.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.33.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.33.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.33.0 (Actual)
+### v1.33.1 (Actual)
+> **Estrellas que titilan (se prenden y apagan)**
+
+- ✨ La capa de estrellas ahora son estrellas individuales que titilan cada una a su ritmo; al apagarse dejan de verse
+
+### v1.33.0
 > **Pulido de cámara (shake + parallax + look-ahead) + naves del menú acomodadas**
 
 - 💥 **Screen shake**: la cámara tiembla al recibir un impacto y (más fuerte) al lanzar la Ulti

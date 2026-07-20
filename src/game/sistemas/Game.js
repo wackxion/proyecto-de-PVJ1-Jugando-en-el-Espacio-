@@ -445,10 +445,8 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
             this.fondoParallax.factorParallax = 0.5;
             this.aplicacion.stage.addChildAt(this.fondoParallax, 0);
 
-            // Capa de estrellas más cercana (se mueve un poco más rápido)
-            this.estrellasParallax = new PIXI.TilingSprite({ texture: this._crearTexturaEstrellas(), width: sw, height: sh });
-            this.estrellasParallax.factorParallax = 0.85;
-            this.aplicacion.stage.addChildAt(this.estrellasParallax, 1);
+            // Capa de estrellas que titilan (más cercana, parallax más rápido)
+            this._crearEstrellas();
         } else {
             // Fallback: estrellas dibujadas dentro del mundo
             this._crearFondoConEstrellas(this.mundoAncho, this.mundoAlto);
@@ -456,18 +454,68 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
     }
 
     /**
-     * Genera una textura chica (256×256) de estrellas al azar para la capa de
-     * parallax cercana (se tilea sobre la pantalla). @private
+     * Crea el campo de estrellas que TITILAN: estrellas individuales, cada una
+     * con su ritmo, que se prenden y apagan (invisibles al apagarse). Se
+     * desplazan con parallax y se envuelven (wrap) para cubrir siempre la
+     * pantalla. Van debajo del mundo, encima del fondo. @private
      */
-    _crearTexturaEstrellas() {
-        const g = new PIXI.Graphics();
-        const size = 256;
-        for (let i = 0; i < 45; i++) {
-            const x = Math.random() * size, y = Math.random() * size;
-            const r = Math.random() * 1.4 + 0.4, a = Math.random() * 0.5 + 0.35;
-            g.circle(x, y, r).fill({ color: 0xFFFFFF, alpha: a });
+    _crearEstrellas() {
+        this.estrellas = new PIXI.Container();
+        this.aplicacion.stage.addChildAt(this.estrellas, 1);
+        this.estrellasFactor = 0.85;
+        this.estrellasData = [];
+        this._estT = 0;
+        const tex = this._crearTexturaPuntoEstrella();
+        const N = 90;
+        for (let i = 0; i < N; i++) {
+            const sp = new PIXI.Sprite(tex);
+            sp.anchor.set(0.5);
+            sp.scale.set(0.5 + Math.random() * 1.3);
+            this.estrellas.addChild(sp);
+            this.estrellasData.push({
+                sp,
+                bx: Math.random(),                  // posición base normalizada [0,1)
+                by: Math.random(),
+                fase: Math.random() * Math.PI * 2,  // desfase del titileo
+                vel: 0.5 + Math.random() * 2.5,     // velocidad de titileo (cada una distinta)
+                brilloMax: 0.45 + Math.random() * 0.55
+            });
         }
+    }
+
+    /**
+     * Textura chica de un punto de estrella (con un halo tenue). @private
+     */
+    _crearTexturaPuntoEstrella() {
+        const g = new PIXI.Graphics();
+        g.circle(5, 5, 3).fill({ color: 0xFFFFFF, alpha: 0.25 }); // halo
+        g.circle(5, 5, 1.6).fill({ color: 0xFFFFFF, alpha: 1 });  // núcleo
         return this.aplicacion.renderer.generateTexture(g);
+    }
+
+    /**
+     * Actualiza el titileo y el parallax de las estrellas. Cada estrella oscila
+     * su brillo (curva al cuadrado → pasa más tiempo "apagada") y se oculta del
+     * todo cuando está apagada. El parallax se aplica con wrap (módulo).
+     * @private
+     */
+    _actualizarEstrellas(delta) {
+        if (!this.estrellas || !this.estrellasData) return;
+        const pad = 40;
+        const tw = this.anchoJuego + pad, th = this.altoJuego + pad;
+        const ox = -this._camaraX * this.estrellasFactor;
+        const oy = -this._camaraY * this.estrellasFactor;
+        this._estT += (delta > 0 ? delta : 1 / 60);
+        for (const d of this.estrellasData) {
+            let x = (d.bx * tw + ox) % tw; if (x < 0) x += tw;
+            let y = (d.by * th + oy) % th; if (y < 0) y += th;
+            d.sp.x = x - pad / 2;
+            d.sp.y = y - pad / 2;
+            const osc = Math.sin(this._estT * d.vel + d.fase) * 0.5 + 0.5; // 0..1
+            const a = osc * osc * d.brilloMax; // al cuadrado: pasa más tiempo apagada
+            if (a > 0.03) { d.sp.visible = true; d.sp.alpha = a; }
+            else { d.sp.visible = false; } // apagada = no se ve
+        }
     }
     
     /**
@@ -1696,9 +1744,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this._camaraX = camX;
         this._camaraY = camY;
 
-        // --- Parallax: las capas de fondo se desplazan a una fracción de la cámara ---
+        // --- Parallax: el fondo se desplaza a una fracción de la cámara; las
+        // estrellas titilan y se mueven aparte (con wrap) ---
         if (this.fondoParallax) this.fondoParallax.tilePosition.set(-camX * this.fondoParallax.factorParallax, -camY * this.fondoParallax.factorParallax);
-        if (this.estrellasParallax) this.estrellasParallax.tilePosition.set(-camX * this.estrellasParallax.factorParallax, -camY * this.estrellasParallax.factorParallax);
+        this._actualizarEstrellas(dt);
 
         // --- Screen shake (decae con el tiempo) ---
         let shx = 0, shy = 0;

@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 13/07/2026  
-**Versión:** v1.33.0 (ACTUAL)
+**Versión:** v1.33.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.33.1 - Estrellas que titilan
+
+- **Campo de estrellas con titileo** (`Game._crearEstrellas`, `_actualizarEstrellas`, `_crearTexturaPuntoEstrella`): se reemplazó el `TilingSprite` estático de estrellas por **90 estrellas individuales** (sprites), cada una con su fase y velocidad de titileo. El brillo oscila con `sin²` (pasa más tiempo apagada) y cuando baja de 0.03 la estrella se pone `visible=false` (no se ve). Mantienen el parallax (factor 0.85) con wrap por módulo para cubrir siempre la pantalla. Verificado: los brillos cambian de forma independiente y varias quedan apagadas.
 
 ---
 
