@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.35.1 (ACTUAL)
+**Versión:** v1.35.2 (ACTUAL)
+
+---
+
+## ✅ Completado v1.35.2 - Disparo: +velocidad, -alcance
+
+- **Balance del proyectil** (`config.js` → `PROYECTIL`): `VELOCIDAD` 600 → **800 px/s** y `TIEMPO_DE_VIDA` 2 → **0.75 s**. Alcance = 800 × 0.75 = **600 px** (mitad de los 1200 previos). Verificado en runtime.
 
 ---
 

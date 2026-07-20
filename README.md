@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.35.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.35.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.35.1 (Actual)
+### v1.35.2 (Actual)
+> **Disparo más rápido y con la mitad de alcance**
+
+- 🔫 El proyectil del jugador ahora va a **800 px/s** (antes 600) y dura **0.75 s** (antes 2 s) → alcance **600 px** (la mitad de los 1200 anteriores)
+
+### v1.35.1
 > **Fix: el efecto de giro ya no se dibuja encima de la nave**
 
 - 🐛 El efecto azul de giro quedaba **sobre** la nave (el `mundo` ordena por `zIndex`, no por índice de inserción). Ahora tiene `zIndex −1` → se dibuja **detrás** de la nave

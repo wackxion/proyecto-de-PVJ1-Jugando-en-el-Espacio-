@@ -64,9 +64,9 @@ export const CONFIG = {
 
     // === PROYECTIL DEL JUGADOR ===
     PROYECTIL: {
-        VELOCIDAD: 600,                 // px/s
+        VELOCIDAD: 800,                 // px/s
         DANO: 25,                       // Daño que hace a los asteroides
-        TIEMPO_DE_VIDA: 2,              // Segundos antes de autodestruirse
+        TIEMPO_DE_VIDA: 0.75,           // Segundos antes de autodestruirse (800×0.75 = 600px de alcance)
     },
 
     // === PROYECTIL ENEMIGO (teledirigido) ===
