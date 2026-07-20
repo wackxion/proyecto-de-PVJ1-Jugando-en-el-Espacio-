@@ -866,9 +866,10 @@ export class UIManager {
 
         // Filas de controles: [tecla] + (icono opcional) + descripción
         const filasControles = [
-            ['W', null, 'Avanzar / Acelerar'],
-            ['A / D', null, 'Rotar la nave'],
-            ['ESPACIO', null, 'Disparar'],
+            ['MOUSE', null, 'Apuntar la nave (mira al cursor)'],
+            ['CLICK IZQ', null, 'Disparar'],
+            ['CLICK DER', null, 'Acelerar (avanzar hacia el cursor)'],
+            ['W / ESPACIO', null, 'Acelerar / Disparar (teclado, alternativo)'],
             ['Q', 'assets/cohetes.png', 'Cohetes teledirigidos'],
             ['E', 'assets/deborador.png', 'Devorador (atrae partículas)'],
             ['R', 'assets/propulsor.png', 'Propulsor (dash)'],

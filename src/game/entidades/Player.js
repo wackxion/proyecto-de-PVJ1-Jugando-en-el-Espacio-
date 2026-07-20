@@ -298,27 +298,30 @@ this.rotacion = 0;
             this.imagen.y = this.y;
         }
         
-        // ROTACIÓN - Puedo girar en cualquier momento (pero NO durante el propulsor)
-        const direccionRotacion = input.obtenerRotacion();
-        
-        // Solo rotar si no está en propulsor (dash)
-        if (direccionRotacion !== 0 && !this.enPropulsor) {
-            this.rotacion += direccionRotacion * this.velocidadRotacion * delta;
+        // APUNTADO CON EL MOUSE - la nave mira siempre al cursor (NO durante el dash).
+        // Se calcula el ángulo desde la nave EN PANTALLA (su pos de mundo desplazada
+        // por la cámara) hacia el cursor, así el apuntado es exacto con cámara/zoom/shake.
+        const rotacionPrevia = this.rotacion;
+        if (!this.enPropulsor && input.mouseMovido && this.juego && this.juego.mundo) {
+            const sx = this.x + this.juego.mundo.x;   // pos de la nave en pantalla (X)
+            const sy = this.y + this.juego.mundo.y;   // pos de la nave en pantalla (Y)
+            this.rotacion = Math.atan2(input.mouseY - sy, input.mouseX - sx);
             this.imagen.rotation = this.rotacion;
         }
-        
-        // EFECTO DE ROTACIÓN - Crear efecto azul cuando gira (cada 0.1 segundo)
-        if (direccionRotacion !== 0) {
-            // Reducir cooldown
+
+        // EFECTO DE ROTACIÓN - efecto azul cuando la nave cambia de orientación.
+        // Con el apuntado al mouse, "girar" = que el ángulo cambie de un frame a otro.
+        let difRot = this.rotacion - rotacionPrevia;
+        while (difRot > Math.PI) difRot -= 2 * Math.PI;    // normalizar a [-PI, PI]
+        while (difRot < -Math.PI) difRot += 2 * Math.PI;
+        const estaGirando = !this.enPropulsor && Math.abs(difRot) > 0.05;
+        if (estaGirando) {
             this.rotationEffectTimer -= delta;
-            
-            // Crear nuevo efecto cada 0.1 segundo
             if (this.rotationEffectTimer <= 0) {
-                this._crearEfectoRotacion(direccionRotacion);
+                this._crearEfectoRotacion(difRot > 0 ? 1 : -1);
                 this.rotationEffectTimer = this.rotationEffectCooldown;
             }
         } else {
-            // Si no se está girando, destruir todos los efectos y resetear timer
             this._destruirEfectoRotacion();
             this.rotationEffectTimer = 0;
         }

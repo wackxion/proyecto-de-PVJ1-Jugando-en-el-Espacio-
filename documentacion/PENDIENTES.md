@@ -1,7 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.5 (ACTUAL)
+**Versión:** v1.35.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.35.0 - Control con apuntado al mouse
+
+- **Nuevo esquema de control** (mouse):
+  - `InputManager`: se agregó tracking del mouse (`mouseX/Y` en coords del canvas vía `_rectCanvas`, `mouseMovido`, `mouseIzquierdo`, `mouseDerecho`) con listeners `mousemove`/`mousedown`/`mouseup` y `contextmenu` (preventDefault, para que el click derecho no abra el menú). `debeDisparar` ahora acepta **click izquierdo** o Espacio; `debeAvanzar` acepta **click derecho** o W. `reiniciar`/`deshabilitar` sueltan los botones.
+  - `Player.update`: la rotación por A/D se reemplazó por **apuntado al mouse** — `rotacion = atan2(mouseY - naveEnPantallaY, mouseX - naveEnPantallaX)`, usando la pos de la nave en pantalla (`this.x + juego.mundo.x`) para que sea exacto con cámara/shake. El efecto de giro azul ahora se dispara cuando cambia el ángulo (umbral 0.05 rad). No apunta durante el dash (propulsor).
+  - Consistencia: como los proyectiles y el thrust usan `this.rotacion`, disparás y acelerás **hacia el cursor**.
+  - Tutorial (`UIManager.filasControles`) actualizado: MOUSE / CLICK IZQ / CLICK DER / W-ESPACIO (alternativo).
+- Verificado en runtime: apuntado coincide con `atan2` (2.952 ≈ 2.953), thrust sube la velocidad (23→103 con click der), disparo crea proyectil (0→1 con click izq), sin errores. A/D quedaron sin uso (mapeados pero ignorados).
 
 ---
 

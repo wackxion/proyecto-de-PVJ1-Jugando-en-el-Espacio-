@@ -5,11 +5,11 @@
  * Controla qué teclas están presionadas y determina las acciones del jugador.
  * 
  * Controles del juego:
- * - W / Flecha Arriba: Avanzar (con inercia)
- * - Espacio: Disparar proyectil
+ * - MOUSE: la nave apunta al cursor
+ * - Click izquierdo: Disparar (o Espacio)
+ * - Click derecho: Acelerar / avanzar hacia el cursor (o W / Flecha Arriba)
  * - S / Flecha Abajo: Ataque especial (Ulti)
- * - A / Flecha Izquierda: Rotar nave hacia la izquierda
- * - D / Flecha Derecha: Rotar nave hacia la derecha
+ * - A / D / Flechas: ya NO rotan (el apuntado es con el mouse)
  */
 import { CONFIG } from '../config.js';
 
@@ -62,6 +62,16 @@ export class GestorEntrada {
             'KeyT': 'mostrarTop5'          // T - Mostrar Top 5 (solo cuando está pausado)
         };
         
+        // === MOUSE (apuntado + acciones) ===
+        // La nave APUNTA al cursor; el click primario (izq) DISPARA y el click
+        // secundario (der) ACELERA. Coexisten con el teclado (W/Espacio) como respaldo.
+        this.mouseX = 0;                 // posición del cursor en coords del canvas
+        this.mouseY = 0;
+        this.mouseMovido = false;        // false hasta el primer mousemove (evita apuntar a 0,0)
+        this.mouseIzquierdo = false;     // click primario → disparar
+        this.mouseDerecho = false;       // click secundario → acelerar
+        this._canvas = null;             // ref al canvas (para pasar coords de pantalla)
+
         // EnfriamientoDisparo = temporizador entre disparos
         // Evita que el jugador dispare constantemente con una sola tecla
         this.enfriamientoDisparo = 0;
@@ -122,6 +132,35 @@ export class GestorEntrada {
                 e.preventDefault();
             }
         });
+
+        // --- Mouse: apuntado y acciones (izq = disparar, der = acelerar) ---
+        window.addEventListener('mousemove', (e) => {
+            const r = this._rectCanvas();
+            this.mouseX = e.clientX - r.left;
+            this.mouseY = e.clientY - r.top;
+            this.mouseMovido = true;
+        });
+        window.addEventListener('mousedown', (e) => {
+            if (!this.habilitado) return;
+            if (e.button === 0) this.mouseIzquierdo = true;        // primario → disparar
+            else if (e.button === 2) this.mouseDerecho = true;     // secundario → acelerar
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0) this.mouseIzquierdo = false;
+            else if (e.button === 2) this.mouseDerecho = false;
+        });
+        // Evitar el menú contextual del click derecho (se usa para acelerar)
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    /**
+     * Rect del canvas para convertir coords de pantalla (clientX/Y) a coords del
+     * canvas. Se resuelve perezosamente (el canvas puede no existir al construir).
+     * @private
+     */
+    _rectCanvas() {
+        if (!this._canvas) this._canvas = document.querySelector('canvas');
+        return this._canvas ? this._canvas.getBoundingClientRect() : { left: 0, top: 0 };
     }
     
     /**
@@ -166,8 +205,8 @@ export class GestorEntrada {
         // Reducir el temporizador de enfriamiento
         this.enfriamientoDisparo -= delta;
         
-        // Si la tecla de disparar está presionada Y el enfriamiento llegó a 0
-        if (this.estaPresionada('disparar') && this.enfriamientoDisparo <= 0) {
+        // Si dispara (tecla Espacio O click izquierdo) Y el enfriamiento llegó a 0
+        if ((this.estaPresionada('disparar') || this.mouseIzquierdo) && this.enfriamientoDisparo <= 0) {
             // Reiniciar el enfriamiento al valor máximo
             this.enfriamientoDisparo = this.enfriamientoDisparoMax;
             
@@ -186,7 +225,8 @@ export class GestorEntrada {
      * @returns {boolean} - true si debe avanzar
      */
     debeAvanzar(delta) {
-        return this.estaPresionada('avanzar');
+        // Avanza con W/Flecha arriba O con el click derecho del mouse.
+        return this.estaPresionada('avanzar') || this.mouseDerecho;
     }
     
     /**
@@ -260,7 +300,11 @@ export class GestorEntrada {
      */
     reiniciar() {
         this.teclas.clear();
-        
+
+        // Soltar botones del mouse (evita disparar/acelerar "pegado" al reiniciar)
+        this.mouseIzquierdo = false;
+        this.mouseDerecho = false;
+
         // Resetear cooldowns de habilidades
         this.enfriamientoCohetes = 0;
         this.enfriamientoDevorar = 0;
@@ -274,6 +318,8 @@ export class GestorEntrada {
     deshabilitar() {
         this.habilitado = false;
         this.teclas.clear();
+        this.mouseIzquierdo = false;
+        this.mouseDerecho = false;
     }
     
     /**

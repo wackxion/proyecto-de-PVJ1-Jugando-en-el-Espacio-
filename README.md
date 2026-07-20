@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.34.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.35.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.34.5 (Actual)
+### v1.35.0 (Actual)
+> **Nuevo control: apuntado con el mouse (click der acelera, click izq dispara)**
+
+- 🖱️ La nave ahora **apunta al cursor del mouse**; **click derecho** acelera (avanza hacia el cursor) y **click izquierdo** dispara. W/Espacio siguen andando como respaldo; A/D ya no rotan. Tutorial de controles actualizado
+
+### v1.34.5
 > **Chips de mejora de la columna derecha en espejo**
 
 - 🔁 La placa de mejoras de la **columna derecha** ahora se dibuja en **espejo** de la izquierda (pips + precio + botón de compra): el botón de compra queda **pegado al icono** en las dos columnas. El icono de la habilidad no se movió
