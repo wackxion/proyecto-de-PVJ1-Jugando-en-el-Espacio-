@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.34.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.34.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.4)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.34.3 (Actual)
+### v1.34.4 (Actual)
+> **Fuente del tooltip: Comic Sans MS**
+
+- 🔤 El texto del tooltip de mejora (título, descripción y precio) ahora usa **Comic Sans MS** en vez de Segoe Script
+
+### v1.34.3
 > **El tooltip se actualiza al instante al comprar**
 
 - 🔄 Al comprar una mejora con el cursor sobre el chip, el tooltip ahora refresca **al toque** los pips, el precio del próximo nivel y su color (antes había que sacar y volver a poner el cursor)

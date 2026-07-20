@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.3 (ACTUAL)
+**Versión:** v1.34.4 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.4 - Fuente del tooltip: Comic Sans MS
+
+- **Cambio de fuente** (`PixiHUD._crearTooltipMejora`): título, descripción y precio del tooltip pasan de `'Segoe Script, cursive'` a `"'Comic Sans MS', 'Comic Sans', cursive"`. Solo afecta al tooltip de mejora (el resto del HUD/menús sigue en Segoe Script/Arial). Verificado en runtime.
 
 ---
 

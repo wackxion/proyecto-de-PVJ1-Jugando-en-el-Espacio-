@@ -1253,12 +1253,12 @@ export class PixiHUD {
         c.addChild(bg);
 
         const titulo = new PIXI.Text('', {
-            fontFamily: 'Segoe Script, cursive', fontSize: 18, fill: 0x0B2E6B, fontWeight: 'bold'
+            fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", fontSize: 18, fill: 0x0B2E6B, fontWeight: 'bold'
         });
         c.addChild(titulo);
 
         const desc = new PIXI.Text('', {
-            fontFamily: 'Segoe Script, cursive', fontSize: 15, fill: 0x111111,
+            fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", fontSize: 15, fill: 0x111111,
             wordWrap: true, wordWrapWidth: 230
         });
         c.addChild(desc);
@@ -1271,7 +1271,7 @@ export class PixiHUD {
             pips.push(p);
         }
         const precio = new PIXI.Text('', {
-            fontFamily: 'Segoe Script, cursive', fontSize: 17, fill: 0x0A7D2C, fontWeight: 'bold'
+            fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", fontSize: 17, fill: 0x0A7D2C, fontWeight: 'bold'
         });
         precio.anchor.set(1, 0.5);   // anclado a la derecha, centrado vertical
         c.addChild(precio);
