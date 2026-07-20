@@ -1,7 +1,14 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.35.2 (ACTUAL)
+**Versión:** v1.35.3 (ACTUAL)
+
+---
+
+## ✅ Completado v1.35.3 - Botones del tutorial anclados + docs
+
+- **Botones del tutorial** (`UIManager.mostrarTutorial`): el contenedor tiene alto fijo (700px) con `justify-content: center`, así que el bloque completo (contenido + progreso + botones) se centraba y **los botones Anterior/Siguiente cambiaban de altura según el contenido de cada página** (y podían superponerse en las páginas cargadas). Fix: el `contenido` ahora es `flex: 1 1 0; min-height: 0; overflow-y: auto` con centrado interno → empuja progreso y botones **siempre al fondo** (misma ubicación en las 5 páginas) y, si una página tuviera demasiado contenido, scrollea en su área en vez de solaparse. Verificado en runtime (páginas 1/3/5: botones a la misma altura, sin overlap).
+- **Documentación**: `SPEC.md` § Mecánicas Principales actualizado a los controles de mouse (apuntar con mouse, click der acelera, click izq dispara). `GDD.md` se dejó como está (es changelog histórico de commits).
 
 ---
 

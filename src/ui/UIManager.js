@@ -975,9 +975,22 @@ export class UIManager {
 
             // (El título va dentro de cada `contenido`, no se repite acá.)
 
-            // Contenido
+            // Contenido: ocupa el espacio disponible y centra su contenido dentro.
+            // Con flex:1 empuja el progreso y los botones SIEMPRE al fondo (misma
+            // ubicación en las 5 páginas). overflow-y:auto evita que una página con
+            // mucho contenido se superponga con los botones (scrollea en su área).
             const contenido = document.createElement('div');
             contenido.innerHTML = paso.contenido;
+            contenido.style.cssText = `
+                flex: 1 1 0;
+                min-height: 0;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+            `;
             container.appendChild(contenido);
             
             // Indicador de progreso

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.35.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.35.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.3)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.35.2 (Actual)
+### v1.35.3 (Actual)
+> **Botones del tutorial anclados abajo (misma posición, sin superponerse)**
+
+- 🧩 En el tutorial, los botones **Anterior/Siguiente** ahora quedan **anclados al fondo** de la ventana en las 5 páginas (antes flotaban según cuánto contenido tenía cada página) y ya no se superponen con el contenido. SPEC.md actualizado con los controles de mouse
+
+### v1.35.2
 > **Disparo más rápido y con la mitad de alcance**
 
 - 🔫 El proyectil del jugador ahora va a **800 px/s** (antes 600) y dura **0.75 s** (antes 2 s) → alcance **600 px** (la mitad de los 1200 anteriores)
