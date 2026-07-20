@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.1 (ACTUAL)
+**Versión:** v1.34.2 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.2 - Colores del precio del tooltip
+
+- **Recoloreado del precio** (`PixiHUD._mostrarTooltipMejora`): se sacaron el verde y el rojo. Ahora: **azul claro pastel** (`0x6FA8DC`) = se puede comprar, **negro** (`0x1A1A1A`) = no alcanza, **azul** (`0x0B2E6B`, el del título) = MAX/completo. Más acorde a la paleta de tinta (azul/negro sobre papel). Verificado en runtime los tres estados.
 
 ---
 

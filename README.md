@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.34.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.34.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.34.2)
 
 ---
 
@@ -361,10 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.34.1 (Actual)
+### v1.34.2 (Actual)
+> **Colores del precio del tooltip: paleta de tinta azul/negro**
+
+- 🎨 El precio en el tooltip ahora usa **azul claro pastel** cuando se puede comprar, **negro** cuando no alcanza y el **azul** de siempre para **MAX** (se sacaron el verde y el rojo)
+
+### v1.34.1
 > **Tooltip de mejora mejorado (pips, precio por color, flecha)**
 
-- 🎨 El tooltip de la mejora ahora muestra el **nivel como pips** (5 puntitos que se llenan), el **precio coloreado** según si te alcanza (verde) o no (rojo) —o **MAX** en azul si está completa—, una **flecha** que apunta al chip y un **separador** bajo el título
+- 🎨 El tooltip de la mejora ahora muestra el **nivel como pips** (5 puntitos que se llenan), el **precio coloreado** según si te alcanza o no —o **MAX** si está completa—, una **flecha** que apunta al chip y un **separador** bajo el título
 
 ### v1.34.0
 > **Tooltip en los chips de mejora del HUD**

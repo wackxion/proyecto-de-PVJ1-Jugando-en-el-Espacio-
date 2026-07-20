@@ -1304,9 +1304,9 @@ export class PixiHUD {
     /**
      * Muestra el tooltip de la mejora del cuadrante g junto a su icono. Estructura:
      * título + línea separadora + descripción + fila con pips de nivel (izq) y
-     * precio del próximo nivel (der), coloreado según si se puede pagar (verde) o
-     * no (rojo), o "MAX" (azul) si la sección está completa. Una flecha apunta al
-     * icono. Todo en tinta de birome sobre papel.
+     * precio del próximo nivel (der), coloreado según si se puede pagar (azul
+     * claro pastel) o no (negro), o "MAX" (azul) si la sección está completa. Una
+     * flecha apunta al icono. Todo en tinta de birome sobre papel.
      * @private
      */
     _mostrarTooltipMejora(g) {
@@ -1315,7 +1315,7 @@ export class PixiHUD {
         const info = this._infoMejora(g.mejoraSeccion);
         if (!info) return;
 
-        const AZUL = 0x0B2E6B, VERDE = 0x0A7D2C, ROJO = 0xCC0000, PAPEL = 0xFBF7EC;
+        const AZUL = 0x0B2E6B, AZUL_CLARO = 0x6FA8DC, NEGRO = 0x1A1A1A, PAPEL = 0xFBF7EC;
         const PAD = 12;
 
         // Nivel comprado de la sección (cuántos de los 5 están en >=1).
@@ -1347,10 +1347,11 @@ export class PixiHUD {
         }
         const pipsAncho = 2 * pipR + 4 * pipGap;
 
-        // Precio coloreado por disponibilidad (o MAX)
+        // Precio coloreado por disponibilidad: azul claro pastel = se puede
+        // comprar, negro = no alcanza, azul (el del título) = MAX/completo.
         let precioColor;
         if (precioVal === null) { tt.precio.text = 'MAX'; precioColor = AZUL; }
-        else { tt.precio.text = `${precioVal}`; precioColor = (particulas >= precioVal) ? VERDE : ROJO; }
+        else { tt.precio.text = `${precioVal}`; precioColor = (particulas >= precioVal) ? AZUL_CLARO : NEGRO; }
         tt.precio.style.fill = precioColor;
 
         // Ancho/alto de la caja
