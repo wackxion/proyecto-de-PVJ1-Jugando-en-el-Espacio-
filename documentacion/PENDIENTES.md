@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.35.0 (ACTUAL)
+**Versión:** v1.35.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.35.1 - Fix: efecto de giro detrás de la nave
+
+- **Z-order del efecto de giro** (`Player._crearEfectoRotacion`): el efecto azul se dibujaba ENCIMA de la nave. Causa: `mundo.sortableChildren = true` ordena por `zIndex` e ignora el índice de `addChildAt(1)`; el efecto y la nave tenían `zIndex 0` y, al agregarse el efecto después, quedaba arriba. Fix: `hit.sprite.zIndex = -1` + `addChild` → siempre detrás de la nave (zIndex 0). Verificado en runtime (efectoZIndex −1 < naveZIndex 0, nave sin blob encima).
 
 ---
 

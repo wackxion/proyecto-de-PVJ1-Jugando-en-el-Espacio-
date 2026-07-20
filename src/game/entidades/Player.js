@@ -604,9 +604,12 @@ this.rotacion = 0;
         // Usar tipo 'rotation' para mayor dispersión
         const hit = new HitEffect(this.x, this.y, 'rotation', 1.7);
         
-        // Renderizar pero agregar en índice 1 (ANTES/debajo de la nave) DENTRO del mundo
+        // El efecto va DEBAJO de la nave. Como el mundo usa sortableChildren (ordena
+        // por zIndex, ignora el índice de addChildAt), hay que darle un zIndex menor
+        // al de la nave (0); si no, al agregarse después quedaba DIBUJADO ENCIMA.
         if (hit.sprite && this.juego && this.juego.mundo) {
-            this.juego.mundo.addChildAt(hit.sprite, 1);
+            hit.sprite.zIndex = -1;
+            this.juego.mundo.addChild(hit.sprite);
         }
         
         // Guardar en el array

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.35.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.35.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.35.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.35.0 (Actual)
+### v1.35.1 (Actual)
+> **Fix: el efecto de giro ya no se dibuja encima de la nave**
+
+- 🐛 El efecto azul de giro quedaba **sobre** la nave (el `mundo` ordena por `zIndex`, no por índice de inserción). Ahora tiene `zIndex −1` → se dibuja **detrás** de la nave
+
+### v1.35.0
 > **Nuevo control: apuntado con el mouse (click der acelera, click izq dispara)**
 
 - 🖱️ La nave ahora **apunta al cursor del mouse**; **click derecho** acelera (avanza hacia el cursor) y **click izquierdo** dispara. W/Espacio siguen andando como respaldo; A/D ya no rotan. Tutorial de controles actualizado
