@@ -1474,6 +1474,12 @@ export class PixiHUD {
             // el juego está pausado y el loop del HUD no corre, así que sin esto el
             // contador quedaría congelado hasta salir de la compra.
             this._actualizarContadorDevorador();
+            // Si el tooltip de esta mejora está abierto (el cursor sigue sobre el
+            // icono recién comprado), recalcularlo YA: nivel/pips, próximo precio y
+            // color (bajó el saldo). Si no, quedaría con la info vieja hasta re-hover.
+            if (this._tooltipMejora && this._tooltipMejora.c.visible) {
+                this._mostrarTooltipMejora(g);
+            }
         } else if (res === 'sinSaldo') {
             this._flashPrecioSinSaldo(g);
         }

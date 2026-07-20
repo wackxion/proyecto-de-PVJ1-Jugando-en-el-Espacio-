@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.34.2 (ACTUAL)
+**Versión:** v1.34.3 (ACTUAL)
+
+---
+
+## ✅ Completado v1.34.3 - Tooltip se refresca al comprar
+
+- **Refresco inmediato** (`PixiHUD._comprarMejoraCuadrante`): tras una compra `'ok'`, si el tooltip está visible se vuelve a llamar `_mostrarTooltipMejora(g)` para recalcular pips (nivel), precio del próximo nivel y color (bajó el saldo). Antes el tooltip quedaba con la info vieja hasta sacar y volver a poner el cursor. Verificado en runtime: precio 5→15, nivel 0→1, saldo descontado, sin re-hover.
 
 ---
 
