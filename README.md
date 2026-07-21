@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.37.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.37.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.37.0 (Actual)
+### v1.37.1 (Actual)
+> **Mapa toroidal — paso A+B: mundo sin costura + todo envuelve**
+
+- 🌀 Ahora **todas las entidades envuelven** (asteroides, enemigos, naves, proyectiles, boids, cohetes) y se dibujan en su **copia más cercana a la nave** → el mundo se ve **sin costura** (desaparece el salto del borde). El culling y las colisiones usan **distancia toroidal** (no atravesás cosas que se ven pegadas cerca del borde). *Falta el paso C: puntería de enemigos, atracción de boids y cohetes teledirigidos por el camino corto*
+
+### v1.37.0
 > **Mapa toroidal — paso 1: la nave y la cámara envuelven**
 
 - 🌀 Con `CONFIG.MUNDO.TOROIDAL` la nave **sale por un borde y entra por el opuesto** (mundo mismo tamaño, sensación de infinito). La cámara la sigue sin clamp y queda centrada al cruzar; el look-ahead no se dispara en el wrap. *Paso 1: solo nave + cámara — los enemigos/asteroides/boids y el render sin costura vienen después*

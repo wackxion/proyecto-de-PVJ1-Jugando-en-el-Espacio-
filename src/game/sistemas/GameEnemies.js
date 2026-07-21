@@ -287,9 +287,11 @@ export function actualizarEnemigos(game, delta) {
         
         // Eliminar si está muy lejos de la NAVE (con cámara, se mide distancia
         // al jugador, no a los bordes de la pantalla).
+        // Distancia TOROIDAL: en mundo toroidal, un enemigo "detrás" por el wrap está
+        // cerca aunque en línea recta esté lejos → no se lo culea por error.
         const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
-        if (game.jugador && Math.hypot(enemy.x - game.jugador.x, enemy.y - game.jugador.y) > limite) {
-            
+        if (game.jugador && game.distanciaToroidal(enemy.x, enemy.y, game.jugador.x, game.jugador.y) > limite) {
+
             // Destruir sprite
             if (enemy.imagen && enemy.imagen.parent) {
                 enemy.imagen.parent.removeChild(enemy.imagen);
@@ -454,7 +456,7 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
         
         // Si la nave enemiga está muy lejos de la NAVE del jugador, destruirla
         const limiteNave = Math.hypot(game.anchoJuego, game.altoJuego) * 1.6;
-        if (game.jugador && Math.hypot(naveEnemiga.x - game.jugador.x, naveEnemiga.y - game.jugador.y) > limiteNave) {
+        if (game.jugador && game.distanciaToroidal(naveEnemiga.x, naveEnemiga.y, game.jugador.x, game.jugador.y) > limiteNave) {
             naveEnemiga.destroy();
         }
         
@@ -615,7 +617,7 @@ export function limpiarEnemigosLejanos(game) {
     for (let i = game.enemigos.length - 1; i >= 0; i--) {
         const enemy = game.enemigos[i];
 
-        if (game.jugador && Math.hypot(enemy.x - game.jugador.x, enemy.y - game.jugador.y) > limite) {
+        if (game.jugador && game.distanciaToroidal(enemy.x, enemy.y, game.jugador.x, game.jugador.y) > limite) {
             
             const enemyVisual = enemy.imagen || enemy.sprite;
             if (enemyVisual && enemyVisual.parent) {

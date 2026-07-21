@@ -984,10 +984,16 @@ _crearParticulaBoidFuera() {
         const radio1 = obj1.radio || obj1.radius || 30;
         const radio2 = obj2.radio || obj2.radius || 30;
         
-        // Calcular la distancia entre los centros de los dos objetos
-        const dx = obj1.x - obj2.x;  // Diferencia en X
-        const dy = obj1.y - obj2.y;  // Diferencia en Y
-        
+        // Diferencia entre centros. En mundo TOROIDAL se toma el camino más corto
+        // (si no, cerca de un borde dos objetos que SE VEN pegados darían "lejos" y
+        // la nave los atravesaría).
+        let dx = obj1.x - obj2.x;
+        let dy = obj1.y - obj2.y;
+        if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL) {
+            dx = this._wrapDelta(dx, this.mundoAncho);
+            dy = this._wrapDelta(dy, this.mundoAlto);
+        }
+
         // Teorema de Pitágoras: distancia = sqrt(dx² + dy²)
         const dist = Math.sqrt(dx * dx + dy * dy);
         
@@ -1777,6 +1783,56 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     }
 
     /**
+     * Envuelve un delta al camino más corto del toroide (queda en [-size/2, size/2]).
+     * @private
+     */
+    _wrapDelta(d, size) {
+        const h = size / 2;
+        if (d > h) return d - size;
+        if (d < -h) return d + size;
+        return d;
+    }
+
+    /**
+     * Distancia entre dos puntos considerando el mundo TOROIDAL (camino más corto).
+     * En modo no toroidal es la distancia euclidiana normal.
+     */
+    distanciaToroidal(ax, ay, bx, by) {
+        if (!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL)) return Math.hypot(bx - ax, by - ay);
+        return Math.hypot(this._wrapDelta(bx - ax, this.mundoAncho), this._wrapDelta(by - ay, this.mundoAlto));
+    }
+
+    /**
+     * Paso central del mundo TOROIDAL (A + B). Para cada entidad:
+     *  - B: envuelve su posición lógica (x/y) al tamaño del mundo (módulo), así en
+     *    vez de auto-borrarse en un borde, "aparece" por el opuesto.
+     *  - A: ubica su sprite en la COPIA más cercana a la nave → el mundo se ve SIN
+     *    costura (al acercarte a un borde ya asoma lo del otro lado, sin salto).
+     * La lógica (IA, colisiones, cohetes) todavía usa distancia recta salvo el
+     * culling de enemigos; hacerla toroidal es el paso C.
+     * @private
+     */
+    _actualizarToroide() {
+        if (!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL) || !this.jugador) return;
+        const W = this.mundoAncho, H = this.mundoAlto;
+        const sx = this.jugador.x, sy = this.jugador.y;
+        const listas = [this.enemigos, this.enemigosSpeciales, this.enemigosNaves,
+                        this.proyectiles, this.proyectilesEnemigos, this.particulasBoid, this.cohetes];
+        for (const lista of listas) {
+            if (!lista) continue;
+            for (const e of lista) {
+                if (!e || !e.imagen) continue;
+                // B: envolver la posición lógica al mundo
+                e.x = ((e.x % W) + W) % W;
+                e.y = ((e.y % H) + H) % H;
+                // A: render en la copia más cercana a la nave (sin costura)
+                e.imagen.x = sx + this._wrapDelta(e.x - sx, W);
+                e.imagen.y = sy + this._wrapDelta(e.y - sy, H);
+            }
+        }
+    }
+
+    /**
      * Dispara una sacudida de cámara (screen shake). Si ya hay una en curso, se
      * queda con la más fuerte.
      * @param {number} magnitud - amplitud en px
@@ -1808,8 +1864,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             case 2: x = cx - margen; y = cy + Math.random() * sh; break;        // izquierda
             default: x = cx + sw + margen; y = cy + Math.random() * sh; break;  // derecha
         }
-        x = Math.max(0, Math.min(this.mundoAncho, x));
-        y = Math.max(0, Math.min(this.mundoAlto, y));
+        // En modo TOROIDAL no se clampea (el spawn puede caer "fuera" del mundo y el
+        // paso toroidal lo envuelve); así el enemigo aparece justo afuera de la vista
+        // aunque la nave esté cerca de un borde del mundo.
+        if (!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL)) {
+            x = Math.max(0, Math.min(this.mundoAncho, x));
+            y = Math.max(0, Math.min(this.mundoAlto, y));
+        }
         return { x, y };
     }
 
@@ -1904,6 +1965,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // === GENERAR NUEVOS ENEMIGOS Y NAVES - usando módulo ===
             actualizarGeneracion(this, delta);
 
+            // === MUNDO TOROIDAL (A+B): envolver posiciones + render sin costura ===
+            // Va al final, tras mover/generar todo, para que cada sprite quede en su
+            // copia más cercana a la nave este frame.
+            this._actualizarToroide();
 
             // === ACTUALIZAR PIXI HUD (nuevo HUD en PixiJS) ===
             // Se actualiza cada frame para reflejar el estado del juego

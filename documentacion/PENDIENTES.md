@@ -1,11 +1,27 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.0 (ACTUAL)
+**Versión:** v1.37.1 (ACTUAL)
 
 ---
 
-## 🚧 En progreso v1.37.0 - Mapa toroidal (paso 1: nave + cámara)
+## 🚧 En progreso v1.37.1 - Mapa toroidal (paso A+B: sin costura + todo envuelve)
+
+> ⚠️ Commiteado **local, sin pushear** (se está probando).
+
+- **Helpers** (`Game`): `_wrapDelta(d, size)` (delta por el camino corto), `distanciaToroidal(ax,ay,bx,by)` (distancia toroidal, o euclidiana si el flag está off).
+- **A + B centralizado** (`Game._actualizarToroide`, llamado al final del loop tras mover/generar): por cada entidad (asteroides, especiales, naves, proyectiles, proyectiles enemigos, boids, cohetes) **(B)** envuelve `x/y` módulo mundo y **(A)** ubica el sprite en la copia más cercana a la nave (`imagen = nave + wrapDelta(e - nave)`) → sin costura. La nave ya envolvía (v1.37.0); su sprite queda en el centro y el resto se dibuja alrededor.
+- **Culling toroidal** (`GameEnemies`: asteroides, naves, `limpiarEnemigosLejanos`): usa `distanciaToroidal` para no borrar enemigos que están cerca por el wrap.
+- **Spawn** (`Game._puntoSpawnFueraDeVista`): en toroidal no clampea (deja que el paso toroidal envuelva), así aparecen fuera de vista aunque la nave esté en un borde del mundo.
+- **Colisiones toroidales** (`Game._verificarColision`): mínimo necesario de C traído para que sea jugable — sin esto, cerca del borde atravesarías cosas que se ven pegadas. Casi todas las colisiones pasan por acá.
+- Verificado: asteroide en `x≈W` renderiza a la izquierda de la nave (copia cercana), posición envuelta a `[0,W)`, distancia/colisión toroidales OK, juego a 60 FPS sin errores.
+- **PENDIENTE (paso C, lo que falta):** que la **lógica de comportamiento** use el camino corto — puntería de naves enemigas, atracción del **devorador** (boids), **cohetes teledirigidos**. También: los **efectos** (explosiones) todavía no se dibujan envueltos (son breves), y los asteroides **rezagados** ya no se auto-borran en el borde (envuelven).
+
+---
+
+## ✅ Completado v1.37.0 - Mapa toroidal (paso 1: nave + cámara)
+
+> Nota: v1.37.0 quedó como "en progreso" y sigue local/sin pushear junto con v1.37.1.
 
 - **Flag** (`config.js` → `CONFIG.MUNDO.TOROIDAL = true`): activa el mundo toroidal (wrap-around).
 - **Nave** (`Player._mantenerEnPantalla`): en modo toroidal, en vez de clampear, **envuelve** la posición módulo el tamaño del mundo (sale por un borde, entra por el opuesto), en X e Y. Verificado: cruzar der→x=8, izq→W-8, abajo→y=8.
