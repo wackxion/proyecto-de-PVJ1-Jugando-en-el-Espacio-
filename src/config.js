@@ -50,6 +50,25 @@ export const CONFIG = {
         MULTIPLICADOR_MEJORA: 0.8,      // Cada mejora multiplica el enfriamiento por esto
     },
 
+    // === CONTROLES (mapeo editable) ===
+    // Cada acción tiene un `label` (para la UI de Opciones) y una lista de
+    // `teclas` (bindings). Un binding puede ser una tecla del teclado
+    // ('KeyW', 'Space', 'ArrowUp', ...) o un botón del mouse ('MouseLeft',
+    // 'MouseRight'). El GestorEntrada arma el mapa código→acción desde acá, y el
+    // jugador puede reasignar cada control desde Opciones (se guarda en
+    // localStorage). El APUNTADO con el mouse (posición del cursor) es fijo, no
+    // se reasigna. El orden acá define el orden en la pantalla de Controles.
+    CONTROLES: {
+        avanzar:     { label: 'Acelerar',        teclas: ['MouseRight', 'KeyW', 'ArrowUp'] },
+        disparar:    { label: 'Disparar',        teclas: ['MouseLeft', 'Space'] },
+        ulti:        { label: 'Ulti',            teclas: ['KeyS', 'ArrowDown'] },
+        devorar:     { label: 'Devorador',       teclas: ['KeyE'] },
+        cohetes:     { label: 'Cohetes',         teclas: ['KeyQ'] },
+        propulsor:   { label: 'Propulsor',       teclas: ['KeyR'] },
+        pausa:       { label: 'Pausa / Mejoras', teclas: ['KeyP'] },
+        mostrarTop5: { label: 'Ver Top 5',       teclas: ['KeyT'] },
+    },
+
     // === ATAQUE ESPECIAL (ULTI) ===
     ULTI: {
         CARGA_MAXIMA: 500,              // Puntos necesarios para cargar la ulti

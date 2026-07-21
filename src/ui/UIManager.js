@@ -10,6 +10,7 @@
  */
 import { GestorSonido } from '../systems/SoundManager.js';
 import { CONFIG } from '../config.js';
+import { GestorEntrada } from '../systems/InputManager.js';
 
 export class UIManager {
     /**
@@ -153,7 +154,194 @@ export class UIManager {
         `;
         container.appendChild(nota);
 
+        // Botón para abrir la pantalla de reasignación de controles.
+        const btnControles = document.createElement('div');
+        btnControles.textContent = 'CONTROLES';
+        btnControles.style.cssText = `
+            color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold;
+            font-size: 20px; cursor: pointer; padding: 8px 26px; margin-bottom: 16px;
+            border: 2px solid #0044CC; border-radius: 10px; background: rgba(0,68,204,0.08);
+            transition: background 0.2s ease, transform 0.2s ease;
+        `;
+        btnControles.addEventListener('mouseenter', () => { btnControles.style.background = 'rgba(0,68,204,0.20)'; btnControles.style.transform = 'scale(1.05)'; });
+        btnControles.addEventListener('mouseleave', () => { btnControles.style.background = 'rgba(0,68,204,0.08)'; btnControles.style.transform = 'scale(1)'; });
+        btnControles.addEventListener('click', () => { this._click(); this.mostrarControles(); });
+        container.appendChild(btnControles);
+
         container.appendChild(this.crearBotonVolver(() => modal.remove()));
+
+        exterior.appendChild(container);
+        modal.appendChild(exterior);
+        this.container.appendChild(modal);
+    }
+
+    /**
+     * Pantalla de CONTROLES (reasignación de teclas/botones). Lista cada acción con
+     * su binding actual y un botón "Reasignar" que captura la próxima tecla o click.
+     * Funciona con o sin partida activa (usa los métodos estáticos de GestorEntrada
+     * sobre localStorage). Si hay una partida en curso (window.game), le avisa para
+     * que recargue los controles al instante.
+     */
+    mostrarControles() {
+        const previo = document.getElementById('controles-modal');
+        if (previo) previo.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'controles-modal';
+        modal.style.cssText = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0D0D1A;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 640;
+        `;
+
+        const exterior = document.createElement('div');
+        exterior.style.cssText = `
+            border-style: solid; border-width: 36px;
+            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            box-sizing: border-box;
+            width: ${Math.min(600, this.width * 0.92)}px;
+            max-height: ${Math.min(680, this.height * 0.92)}px;
+            display: flex; justify-content: center; align-items: center;
+        `;
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; padding: 40px 44px; box-sizing: border-box; overflow: hidden;
+        `;
+
+        const titulo = document.createElement('div');
+        titulo.textContent = 'CONTROLES';
+        titulo.style.cssText = `
+            color: #0044CC; font-family: 'Segoe Script', cursive;
+            font-size: 28px; font-weight: bold; margin-bottom: 6px;
+            text-shadow: 0 0 10px #0044CC;
+        `;
+        container.appendChild(titulo);
+
+        const nota = document.createElement('div');
+        nota.textContent = 'El apuntado es con el mouse (fijo). Clic en una acción para reasignarla.';
+        nota.style.cssText = `
+            color: #0044CC; font-family: 'Arial', sans-serif; font-size: 13px;
+            opacity: 0.75; margin-bottom: 18px; text-align: center; max-width: 420px;
+        `;
+        container.appendChild(nota);
+
+        // Área scrolleable con la lista de acciones (por si no entran todas).
+        const lista = document.createElement('div');
+        lista.style.cssText = `
+            display: flex; flex-direction: column; width: 100%; max-width: 440px;
+            gap: 8px; overflow-y: auto; min-height: 0; padding-right: 4px;
+        `;
+        container.appendChild(lista);
+
+        // Estado de captura: mientras se espera una tecla/click para reasignar.
+        let capturando = null;   // { accion, valor } o null
+        let tragarClick = false; // tras capturar un botón del mouse, se traga el 'click' que le sigue
+
+        const nombre = (c) => GestorEntrada.nombreCodigo(c);
+
+        // Redibuja la lista según los controles guardados.
+        const render = () => {
+            const controles = GestorEntrada.cargarControlesConfig();
+            lista.innerHTML = '';
+            for (const [accion, cfg] of Object.entries(controles)) {
+                const fila = document.createElement('div');
+                fila.style.cssText = `
+                    display: flex; align-items: center; justify-content: space-between;
+                    gap: 12px; padding: 7px 12px; border: 2px solid #0044CC; border-radius: 8px;
+                    background: rgba(0,68,204,0.06); cursor: pointer;
+                    color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold; font-size: 18px;
+                `;
+                const lbl = document.createElement('span');
+                lbl.textContent = cfg.label || accion;
+
+                const valor = document.createElement('span');
+                valor.style.cssText = `font-family: 'Arial', sans-serif; font-size: 14px; text-align: right; min-width: 130px;`;
+                valor.textContent = (cfg.teclas || []).map(nombre).join('  ·  ') || '—';
+
+                fila.appendChild(lbl);
+                fila.appendChild(valor);
+
+                // Al clickear la fila, entra en modo captura para esa acción.
+                fila.addEventListener('click', () => {
+                    if (capturando) return;
+                    this._click();
+                    capturando = { accion, valor };
+                    valor.textContent = 'Presioná una tecla o click…';
+                    fila.style.background = 'rgba(0,68,204,0.22)';
+                });
+                lista.appendChild(fila);
+            }
+        };
+        render();
+
+        // Captura de la próxima tecla o botón del mouse para la acción elegida.
+        const onKey = (e) => {
+            if (!capturando) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.code === 'Escape') { capturando = null; render(); return; }  // Escape = cancelar
+            GestorEntrada.reasignarEn(GestorEntrada.cargarControlesConfig(), capturando.accion, e.code);
+            const acc = capturando.accion; capturando = null;
+            if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.recargarControles();
+            render();
+        };
+        const onMouse = (e) => {
+            if (!capturando) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const codigo = e.button === 0 ? 'MouseLeft' : e.button === 1 ? 'MouseMiddle' : e.button === 2 ? 'MouseRight' : null;
+            if (!codigo) return;
+            GestorEntrada.reasignarEn(GestorEntrada.cargarControlesConfig(), capturando.accion, codigo);
+            capturando = null;
+            tragarClick = true;   // el 'click' que sigue a este mousedown no debe reabrir captura
+            if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.recargarControles();
+            render();
+        };
+        // Traga el 'click' inmediatamente posterior a capturar un botón del mouse
+        // (si no, tras redibujar la lista podría caer sobre una fila y reabrir captura).
+        const onClick = (e) => {
+            if (tragarClick) { e.preventDefault(); e.stopPropagation(); tragarClick = false; }
+        };
+        // `capture:true` para interceptar antes que el juego; se limpian al cerrar.
+        window.addEventListener('keydown', onKey, true);
+        window.addEventListener('mousedown', onMouse, true);
+        window.addEventListener('click', onClick, true);
+        modal.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        const cerrar = () => {
+            window.removeEventListener('keydown', onKey, true);
+            window.removeEventListener('mousedown', onMouse, true);
+            window.removeEventListener('click', onClick, true);
+            modal.remove();
+        };
+
+        // Botones inferiores: Restaurar por defecto + Volver.
+        const botones = document.createElement('div');
+        botones.style.cssText = `display: flex; gap: 14px; align-items: center; margin-top: 20px; flex-wrap: wrap; justify-content: center;`;
+
+        const btnRestaurar = document.createElement('div');
+        btnRestaurar.textContent = 'Restaurar por defecto';
+        btnRestaurar.style.cssText = `
+            color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold; font-size: 17px;
+            cursor: pointer; padding: 7px 18px; border: 2px solid #0044CC; border-radius: 8px;
+            background: rgba(0,68,204,0.08); transition: background 0.2s ease;
+        `;
+        btnRestaurar.addEventListener('mouseenter', () => { btnRestaurar.style.background = 'rgba(0,68,204,0.20)'; });
+        btnRestaurar.addEventListener('mouseleave', () => { btnRestaurar.style.background = 'rgba(0,68,204,0.08)'; });
+        btnRestaurar.addEventListener('click', () => {
+            this._click();
+            capturando = null;
+            GestorEntrada.restaurarControlesConfig();
+            if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.recargarControles();
+            render();
+        });
+        botones.appendChild(btnRestaurar);
+
+        botones.appendChild(this.crearBotonVolver(cerrar));
+        container.appendChild(botones);
 
         exterior.appendChild(container);
         modal.appendChild(exterior);

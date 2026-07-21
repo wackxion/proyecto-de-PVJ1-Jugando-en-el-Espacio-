@@ -1,7 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.35.3 (ACTUAL)
+**Versión:** v1.36.0 (ACTUAL)
+
+---
+
+## ✅ Completado v1.36.0 - Controles configurables (config + remapeo en Opciones)
+
+- **Archivo de config** (`config.js` → `CONFIG.CONTROLES`): cada acción tiene `{label, teclas:[codigos]}`. Los códigos son teclas (`KeyW`, `Space`, `ArrowUp`, ...) o botones del mouse (`MouseLeft`, `MouseRight`). Editar un control = cambiar una línea.
+- **InputManager refactorizado** (`systems/InputManager.js`):
+  - El `mapeoTeclas` se construye desde `CONFIG.CONTROLES` con override de `localStorage` (`controlesJEE`). Se sacó el diccionario hardcodeado y los booleanos `mouseIzquierdo/mouseDerecho`: los botones del mouse ahora son bindings normales (`MouseLeft/MouseRight`) que entran al mismo `Map` de teclas → `debeDisparar`/`debeAvanzar` solo consultan `estaPresionada`.
+  - Métodos **estáticos** (funcionan sin instancia, para la UI del menú): `defaultControles`, `cargarControlesConfig`, `guardarControlesConfig`, `reasignarEn`, `restaurarControlesConfig`, `nombreCodigo`. Wrappers de instancia: `obtenerControles`, `reasignarControl`, `restaurarControles`, `recargarControles`. El apuntado con el mouse (posición del cursor) sigue fijo.
+- **Pantalla CONTROLES en Opciones** (`UIManager.mostrarControles` + botón en `mostrarOpciones`): lista cada acción con sus bindings (vía `nombreCodigo`); al hacer clic en una acción entra en captura y toma la próxima tecla/click (Escape cancela); resuelve conflictos (saca el código de otra acción); botón **Restaurar por defecto**; guarda en localStorage y, si hay partida en curso, avisa al `gestorEntrada` para que recargue al instante. Funciona en el menú aunque todavía no exista una partida (usa los estáticos).
+- Verificado en runtime: mapeo desde config OK, disparo/acelerar por el camino unificado, reasignar (Ulti→M, guardado) y restaurar (vuelve a S·↓, limpia localStorage), sin errores.
 
 ---
 

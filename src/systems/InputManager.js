@@ -4,14 +4,24 @@
  * Esta clase maneja toda la entrada del usuario mediante el teclado.
  * Controla qué teclas están presionadas y determina las acciones del jugador.
  * 
- * Controles del juego:
- * - MOUSE: la nave apunta al cursor
- * - Click izquierdo: Disparar (o Espacio)
- * - Click derecho: Acelerar / avanzar hacia el cursor (o W / Flecha Arriba)
- * - S / Flecha Abajo: Ataque especial (Ulti)
- * - A / D / Flechas: ya NO rotan (el apuntado es con el mouse)
+ * El mapeo de controles vive en `CONFIG.CONTROLES` (config.js) y es EDITABLE:
+ * el jugador puede reasignar cada acción desde Opciones (se guarda en localStorage).
+ * Teclado y mouse se unifican como "bindings" (códigos): las teclas usan su
+ * `KeyboardEvent.code` ('KeyW', 'Space', ...) y los botones del mouse los códigos
+ * 'MouseLeft' / 'MouseRight'. El APUNTADO con el mouse (posición del cursor) es
+ * fijo, no reasignable.
+ *
+ * Controles por defecto:
+ * - MOUSE: la nave apunta al cursor (fijo)
+ * - Click izquierdo / Espacio: Disparar
+ * - Click derecho / W / Flecha Arriba: Acelerar hacia el cursor
+ * - S / Flecha Abajo: Ulti · E: Devorador · Q: Cohetes · R: Propulsor
+ * - P: Pausa/Mejoras · T: Ver Top 5
  */
 import { CONFIG } from '../config.js';
+
+// Clave de localStorage donde se guardan los controles reasignados por el jugador.
+const STORAGE_KEY_CONTROLES = 'controlesJEE';
 
 export class GestorEntrada {
     /**
@@ -19,57 +29,30 @@ export class GestorEntrada {
      * Inicializa el mapa de teclas y los temporizadores
      */
     constructor() {
-        // Teclas = Map (diccionario) que guarda el estado de cada tecla
-        // true = presionada, false = no presionada
+        // Teclas = Map (diccionario) que guarda el estado de cada ACCIÓN
+        // (true = presionada). Sirve para teclado Y mouse: los botones del mouse
+        // entran como códigos 'MouseLeft'/'MouseRight', igual que una tecla.
         this.teclas = new Map();
-        
+
         // Flag para habilitar/deshabilitar el input (usado cuando se pide el nombre)
         this.habilitado = true;
-        
-// MapeoTeclas = mapeo entre códigos de teclas y acciones
-        // Convierte el código de la tecla (ej: 'KeyW') en una acción (ej: 'avanzar')
-        this.mapeoTeclas = {
-            // Teclas para avanzar (W con inercia)
-            'KeyW': 'avanzar',           // W
-            'ArrowUp': 'avanzar',        // Flecha arriba
-            
-            // Teclas para disparar (Barra espaciadora)
-            'Space': 'disparar',          // Barra espaciadora
-            
-            // Teclas para ataque especial
-            'KeyS': 'ulti',            // S
-            'ArrowDown': 'ulti',       // Flecha abajo
-            
-            // Teclas para rotar izquierda
-            'KeyA': 'rotarIzquierda',      // A
-            'ArrowLeft': 'rotarIzquierda', // Flecha izquierda
-            
-            // Teclas para rotar derecha
-            'KeyD': 'rotarDerecha',     // D
-            'ArrowRight': 'rotarDerecha', // Flecha derecha
-            
-            // Teclas para devorar partículas Boid
-            'KeyE': 'devorar',          // E
-            
-            // Teclas para cohetes
-            'KeyQ': 'cohetes',          // Q
-            
-            // Teclas para propulsor
-            'KeyR': 'propulsor',        // R
-            
-            // Teclas de control del juego
-            'KeyP': 'pausa',               // P - Pausar el juego
-            'KeyT': 'mostrarTop5'          // T - Mostrar Top 5 (solo cuando está pausado)
-        };
-        
-        // === MOUSE (apuntado + acciones) ===
-        // La nave APUNTA al cursor; el click primario (izq) DISPARA y el click
-        // secundario (der) ACELERA. Coexisten con el teclado (W/Espacio) como respaldo.
+
+        // Controles editables: se cargan de config.js (CONFIG.CONTROLES) con
+        // override de localStorage si el jugador los reasignó. `this.controles`
+        // es {accion: {label, teclas:[codigos]}}; `this.mapeoTeclas` es el índice
+        // inverso {codigo: accion} que se consulta en cada evento de teclado/mouse.
+        // (La carga/guardado son estáticos → la pantalla de Opciones puede editar
+        //  los controles aunque todavía no exista una instancia de juego.)
+        this.controles = GestorEntrada.cargarControlesConfig();
+        this.mapeoTeclas = this._construirMapeo(this.controles);
+
+        // === MOUSE (apuntado) ===
+        // La nave APUNTA a la posición del cursor (fijo, NO reasignable). Los
+        // BOTONES del mouse son bindings normales (MouseLeft/MouseRight) y entran
+        // por el mismo camino que las teclas (this.teclas).
         this.mouseX = 0;                 // posición del cursor en coords del canvas
         this.mouseY = 0;
         this.mouseMovido = false;        // false hasta el primer mousemove (evita apuntar a 0,0)
-        this.mouseIzquierdo = false;     // click primario → disparar
-        this.mouseDerecho = false;       // click secundario → acelerar
         this._canvas = null;             // ref al canvas (para pasar coords de pantalla)
 
         // EnfriamientoDisparo = temporizador entre disparos
@@ -142,12 +125,15 @@ export class GestorEntrada {
         });
         window.addEventListener('mousedown', (e) => {
             if (!this.habilitado) return;
-            if (e.button === 0) this.mouseIzquierdo = true;        // primario → disparar
-            else if (e.button === 2) this.mouseDerecho = true;     // secundario → acelerar
+            // Los botones del mouse son bindings: se resuelven contra el mismo mapa.
+            const accion = this.mapeoTeclas[this._codigoBotonMouse(e.button)];
+            if (accion) this.teclas.set(accion, true);
         });
         window.addEventListener('mouseup', (e) => {
-            if (e.button === 0) this.mouseIzquierdo = false;
-            else if (e.button === 2) this.mouseDerecho = false;
+            // El mouseup SIEMPRE libera (aunque el input esté deshabilitado) para
+            // que no quede una acción "pegada".
+            const accion = this.mapeoTeclas[this._codigoBotonMouse(e.button)];
+            if (accion) this.teclas.set(accion, false);
         });
         // Evitar el menú contextual del click derecho (se usa para acelerar)
         window.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -161,6 +147,154 @@ export class GestorEntrada {
     _rectCanvas() {
         if (!this._canvas) this._canvas = document.querySelector('canvas');
         return this._canvas ? this._canvas.getBoundingClientRect() : { left: 0, top: 0 };
+    }
+
+    /**
+     * Traduce el número de botón del mouse a un código de binding.
+     * @param {number} button - e.button (0=izq, 1=medio, 2=der)
+     * @returns {string|null}
+     * @private
+     */
+    _codigoBotonMouse(button) {
+        if (button === 0) return 'MouseLeft';
+        if (button === 1) return 'MouseMiddle';
+        if (button === 2) return 'MouseRight';
+        return null;
+    }
+
+    // ===================== CONFIG DE CONTROLES (estático) =====================
+    // Estos métodos operan sobre CONFIG.CONTROLES + localStorage SIN necesitar una
+    // instancia, así la pantalla de Controles (Opciones) funciona en el menú aunque
+    // todavía no exista una partida (el GestorEntrada se crea recién al jugar).
+
+    /**
+     * Copia profunda de los controles por defecto (CONFIG.CONTROLES).
+     * @returns {Object} {accion: {label, teclas:[...]}}
+     */
+    static defaultControles() {
+        const def = {};
+        for (const [accion, cfg] of Object.entries(CONFIG.CONTROLES || {})) {
+            def[accion] = { label: cfg.label, teclas: [...(cfg.teclas || [])] };
+        }
+        return def;
+    }
+
+    /**
+     * Carga los controles: parte de los defaults y pisa las `teclas` de cada
+     * acción con lo guardado en localStorage (si el jugador reasignó algo).
+     * @returns {Object}
+     */
+    static cargarControlesConfig() {
+        const controles = GestorEntrada.defaultControles();
+        try {
+            const guardado = JSON.parse(localStorage.getItem(STORAGE_KEY_CONTROLES) || 'null');
+            if (guardado && typeof guardado === 'object') {
+                for (const accion of Object.keys(controles)) {
+                    if (Array.isArray(guardado[accion])) controles[accion].teclas = [...guardado[accion]];
+                }
+            }
+        } catch (e) { /* localStorage no disponible o JSON inválido → defaults */ }
+        return controles;
+    }
+
+    /** Persiste los controles (solo las teclas) en localStorage. @param {Object} controles */
+    static guardarControlesConfig(controles) {
+        try {
+            const soloTeclas = {};
+            for (const [accion, cfg] of Object.entries(controles)) soloTeclas[accion] = cfg.teclas;
+            localStorage.setItem(STORAGE_KEY_CONTROLES, JSON.stringify(soloTeclas));
+        } catch (e) { /* localStorage no disponible → no persiste, no rompe */ }
+    }
+
+    /**
+     * Reasigna EN un objeto de controles: el `codigo` pasa a ser el único binding
+     * de `accion`, sacándolo de cualquier otra acción (evita conflictos). Guarda.
+     * @returns {boolean} true si se reasignó
+     */
+    static reasignarEn(controles, accion, codigo) {
+        if (!controles[accion] || !codigo) return false;
+        for (const [otra, cfg] of Object.entries(controles)) {
+            if (otra === accion) continue;
+            cfg.teclas = cfg.teclas.filter(c => c !== codigo);
+        }
+        controles[accion].teclas = [codigo];
+        GestorEntrada.guardarControlesConfig(controles);
+        return true;
+    }
+
+    /** Borra el override de localStorage y devuelve los controles por defecto. @returns {Object} */
+    static restaurarControlesConfig() {
+        try { localStorage.removeItem(STORAGE_KEY_CONTROLES); } catch (e) { /* ignorar */ }
+        return GestorEntrada.defaultControles();
+    }
+
+    // ===================== CONFIG DE CONTROLES (instancia) =====================
+
+    /**
+     * Arma el índice inverso {codigo: accion} desde el objeto de controles.
+     * @param {Object} controles
+     * @returns {Object}
+     * @private
+     */
+    _construirMapeo(controles) {
+        const mapa = {};
+        for (const [accion, cfg] of Object.entries(controles)) {
+            for (const codigo of (cfg.teclas || [])) mapa[codigo] = accion;
+        }
+        return mapa;
+    }
+
+    /**
+     * Devuelve el objeto de controles actual (para la pantalla de Opciones).
+     * @returns {Object} {accion: {label, teclas:[...]}}
+     */
+    obtenerControles() {
+        return this.controles;
+    }
+
+    /**
+     * Reasigna un control en esta instancia (guarda + reconstruye el mapa).
+     * @returns {boolean} true si se reasignó
+     */
+    reasignarControl(accion, codigo) {
+        if (!GestorEntrada.reasignarEn(this.controles, accion, codigo)) return false;
+        this.mapeoTeclas = this._construirMapeo(this.controles);
+        this.teclas.clear();   // soltar cualquier acción "pegada" tras el remapeo
+        return true;
+    }
+
+    /** Restaura los controles por defecto en esta instancia. */
+    restaurarControles() {
+        this.controles = GestorEntrada.restaurarControlesConfig();
+        this.mapeoTeclas = this._construirMapeo(this.controles);
+        this.teclas.clear();
+    }
+
+    /** Recarga los controles desde localStorage (tras un cambio hecho fuera de esta instancia). */
+    recargarControles() {
+        this.controles = GestorEntrada.cargarControlesConfig();
+        this.mapeoTeclas = this._construirMapeo(this.controles);
+        this.teclas.clear();
+    }
+
+    /**
+     * Nombre legible de un código de binding para mostrar en la UI.
+     * @param {string} codigo - 'KeyW', 'Space', 'MouseRight', ...
+     * @returns {string}
+     */
+    static nombreCodigo(codigo) {
+        const especiales = {
+            MouseLeft: 'Click Izq', MouseRight: 'Click Der', MouseMiddle: 'Click Medio',
+            Space: 'Espacio', ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
+            Escape: 'Esc', Enter: 'Enter', ShiftLeft: 'Shift', ShiftRight: 'Shift',
+            ControlLeft: 'Ctrl', ControlRight: 'Ctrl',
+        };
+        if (especiales[codigo]) return especiales[codigo];
+        if (typeof codigo === 'string') {
+            if (codigo.startsWith('Key')) return codigo.slice(3);      // KeyW → W
+            if (codigo.startsWith('Digit')) return codigo.slice(5);    // Digit1 → 1
+        }
+        return codigo || '—';
     }
     
     /**
@@ -205,8 +339,8 @@ export class GestorEntrada {
         // Reducir el temporizador de enfriamiento
         this.enfriamientoDisparo -= delta;
         
-        // Si dispara (tecla Espacio O click izquierdo) Y el enfriamiento llegó a 0
-        if ((this.estaPresionada('disparar') || this.mouseIzquierdo) && this.enfriamientoDisparo <= 0) {
+        // Si dispara (cualquier binding de 'disparar': Espacio o click izq) Y el enfriamiento llegó a 0
+        if (this.estaPresionada('disparar') && this.enfriamientoDisparo <= 0) {
             // Reiniciar el enfriamiento al valor máximo
             this.enfriamientoDisparo = this.enfriamientoDisparoMax;
             
@@ -225,8 +359,8 @@ export class GestorEntrada {
      * @returns {boolean} - true si debe avanzar
      */
     debeAvanzar(delta) {
-        // Avanza con W/Flecha arriba O con el click derecho del mouse.
-        return this.estaPresionada('avanzar') || this.mouseDerecho;
+        // Avanza con cualquier binding de 'avanzar' (W/Flecha arriba o click der).
+        return this.estaPresionada('avanzar');
     }
     
     /**
@@ -299,11 +433,8 @@ export class GestorEntrada {
      * Se llama al reiniciar el juego para evitar teclas "atascadas"
      */
     reiniciar() {
+        // teclas.clear() ya libera todo (teclado y botones del mouse van al mismo Map).
         this.teclas.clear();
-
-        // Soltar botones del mouse (evita disparar/acelerar "pegado" al reiniciar)
-        this.mouseIzquierdo = false;
-        this.mouseDerecho = false;
 
         // Resetear cooldowns de habilidades
         this.enfriamientoCohetes = 0;
@@ -318,8 +449,6 @@ export class GestorEntrada {
     deshabilitar() {
         this.habilitado = false;
         this.teclas.clear();
-        this.mouseIzquierdo = false;
-        this.mouseDerecho = false;
     }
     
     /**
