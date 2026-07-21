@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.36.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.36.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.36.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.36.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.36.0 (Actual)
+### v1.36.1 (Actual)
+> **Botón "Volver" 25% más chico**
+
+- 🔎 El botón **Volver** de todas las ventanas (Opciones, Controles, Top 5, Créditos) pasó de 320px a **240px** de ancho (−25%)
+
+### v1.36.0
 > **Controles configurables: archivo de config + remapeo desde Opciones**
 
 - ⚙️ Los controles ahora viven en `CONFIG.CONTROLES` (config.js) — editar un control es cambiar una línea. Teclado y mouse unificados como *bindings*

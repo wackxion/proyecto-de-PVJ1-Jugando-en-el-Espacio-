@@ -725,6 +725,8 @@ export class UIManager {
             cursor: pointer;
             transition: all 0.3s ease;
             display: block;
+            width: 240px;   /* 25% menos que el natural (320px) */
+            height: auto;
         `;
         
         boton.addEventListener('mouseenter', () => {

@@ -1,7 +1,13 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.36.0 (ACTUAL)
+**Versión:** v1.36.1 (ACTUAL)
+
+---
+
+## ✅ Completado v1.36.1 - Botón "Volver" más chico
+
+- **Tamaño del botón Volver** (`UIManager.crearBotonVolver`): se le puso `width: 240px; height: auto` (antes usaba el natural del PNG, 320×120) → **−25%** (240×90). Afecta a todas las ventanas que lo usan (Opciones, Controles, Top 5, Créditos). Verificado en runtime (renderW 240).
 
 ---
 
