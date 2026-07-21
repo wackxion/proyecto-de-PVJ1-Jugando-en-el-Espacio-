@@ -1556,8 +1556,8 @@ export class UIManager {
             <div>PixiJS v8 | Firebase Firestore</div>
             <div style="margin-top: 10px; font-weight: bold;">Asistencia IA:</div>
             <div>OpenCode | Claude (Anthropic)</div>
-            <div style="margin-top: 10px; font-weight: bold;">Beta tester:</div>
-            <div>TPC</div>
+            <div style="margin-top: 10px; font-weight: bold;">Beta testers:</div>
+            <div>TPC | JANOPRO</div>
         `;
         container.appendChild(contenido);
         container.appendChild(this.crearBotonVolver(() => modal.remove()));

@@ -1,13 +1,20 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.3 (ACTUAL)
+**Versión:** v1.37.4 (ACTUAL)
 
 ---
 
-## 🚧 En progreso v1.37.3 - Mapa toroidal: fondo/estrellas sin costura
+## ✅ Completado v1.37.4 - JANOPRO en beta testers + cierre del toroide
 
-> ⚠️ Commiteado **local, sin pushear** (se está probando).
+- **Créditos** (`UIManager.mostrarCreditos`): se agregó **JANOPRO** a los beta testers (junto a TPC; título a plural "Beta testers").
+- **Mapa toroidal cerrado**: los pasos 1 (nave+cámara), A+B (entidades sin costura), C (lógica toroidal + disparos rectos) y el fondo/estrellas continuo fueron **probados y aprobados** por el dev → se **pushean** todos.
+
+---
+
+## ✅ Completado v1.37.3 - Mapa toroidal: fondo/estrellas sin costura
+
+> ✅ Probado y aprobado — **pusheado** con v1.37.4.
 
 - **Parallax continuo** (`Game._actualizarCamara` + `_actualizarEstrellas`): el fondo (`fondoParallax`) y las estrellas se calculaban desde `camX/camY`, que **salta ~mundo entero** cuando la nave envuelve su posición → el fondo/estrellas pegaban un salto en el cruce. Ahora se usa un **acumulador continuo** `_shipContX/_shipContY` (suma el delta de la nave "por el camino corto", que ya se calcula para el look-ahead) y de ahí `_bgX/_bgY` (= acumulador + look-ahead − media pantalla). El parallax usa `_bgX/_bgY` en vez de `camX/camY` → **nunca salta**, con cualquier imagen (no depende de que el fondo sea simétrico/tileable). En modo no toroidal se sigue usando `camX/camY` (cámara clampeada). Se resetean los acumuladores en setup/reinicio.
 - Verificado: en el cruce `camX` salta −2318 pero `_bgX` cambia solo +15.5 (el movimiento real) → continuo. Sin errores.
@@ -15,9 +22,9 @@
 
 ---
 
-## 🚧 (previo) v1.37.2 - Mapa toroidal (paso C: lógica toroidal + disparos rectos)
+## ✅ Completado v1.37.2 - Mapa toroidal (paso C: lógica toroidal + disparos rectos)
 
-> ⚠️ Commiteado **local, sin pushear** (se está probando).
+> ✅ Probado y aprobado — **pusheado** con v1.37.4.
 
 - **Disparos enemigos rectos** (`EnemyProjectile`): se sacó la teledirección y el evita-asteroides. La nave apunta al jugador al disparar y el proyectil viaja en línea recta (verificado: dirección constante, se mueve exactamente en el ángulo de disparo).
 - **Naves enemigas** (`EnemyShip`): puntería, destino de órbita y esquiva de asteroides usan la posición del jugador/asteroide por el **camino corto** del toroide (helper `_wrap` inline con `this.anchoJuego/altoJuego`).
@@ -29,9 +36,9 @@
 
 ---
 
-## 🚧 (previo) v1.37.1 - Mapa toroidal (paso A+B: sin costura + todo envuelve)
+## ✅ Completado v1.37.1 - Mapa toroidal (paso A+B: sin costura + todo envuelve)
 
-> ⚠️ Commiteado **local, sin pushear** (se está probando).
+> ✅ Probado y aprobado — **pusheado** con v1.37.4.
 
 - **Helpers** (`Game`): `_wrapDelta(d, size)` (delta por el camino corto), `distanciaToroidal(ax,ay,bx,by)` (distancia toroidal, o euclidiana si el flag está off).
 - **A + B centralizado** (`Game._actualizarToroide`, llamado al final del loop tras mover/generar): por cada entidad (asteroides, especiales, naves, proyectiles, proyectiles enemigos, boids, cohetes) **(B)** envuelve `x/y` módulo mundo y **(A)** ubica el sprite en la copia más cercana a la nave (`imagen = nave + wrapDelta(e - nave)`) → sin costura. La nave ya envolvía (v1.37.0); su sprite queda en el centro y el resto se dibuja alrededor.
@@ -45,7 +52,7 @@
 
 ## ✅ Completado v1.37.0 - Mapa toroidal (paso 1: nave + cámara)
 
-> Nota: v1.37.0 quedó como "en progreso" y sigue local/sin pushear junto con v1.37.1.
+> Nota: v1.37.0 fue el primer paso del toroide; probado y aprobado, pusheado con v1.37.4.
 
 - **Flag** (`config.js` → `CONFIG.MUNDO.TOROIDAL = true`): activa el mundo toroidal (wrap-around).
 - **Nave** (`Player._mantenerEnPantalla`): en modo toroidal, en vez de clampear, **envuelve** la posición módulo el tamaño del mundo (sale por un borde, entra por el opuesto), en X e Y. Verificado: cruzar der→x=8, izq→W-8, abajo→y=8.
