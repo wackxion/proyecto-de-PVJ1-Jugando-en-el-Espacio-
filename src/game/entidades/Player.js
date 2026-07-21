@@ -659,23 +659,20 @@ this.rotacion = 0;
      * Evita que la nave se salga de la pantalla
      */
     _mantenerEnPantalla() {
-        // Definir límites del área de juego
-        const bounds = { width: this.anchoJuego, height: this.altoJuego };
-        
-        // Calcular la mitad del ancho y alto del sprite
-        const halfWidth = this.width / 2;
-        const halfHeight = this.height / 2;
-        
-        // Math.max(min, valor) = no dejar que sea menor al mínimo
-        // Math.min(max, valor) = no dejar que sea mayor al máximo
-        // Esto "agarra" la posición para que quede dentro de los bordes
-        
-        // X: entre left edge y right edge
-        this.x = Math.max(halfWidth, Math.min(bounds.width - halfWidth, this.x));
-        
-        // Y: entre top edge y bottom edge
-        this.y = Math.max(halfHeight, Math.min(bounds.height - halfHeight, this.y));
-        
+        const W = this.anchoJuego, H = this.altoJuego;
+
+        if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL) {
+            // Mundo TOROIDAL: la nave envuelve (sale por un borde y entra por el
+            // opuesto). Se envuelve la posición módulo el tamaño del mundo.
+            if (this.x < 0) this.x += W; else if (this.x >= W) this.x -= W;
+            if (this.y < 0) this.y += H; else if (this.y >= H) this.y -= H;
+        } else {
+            // Modo clásico: la nave queda "agarrada" dentro de los bordes.
+            const halfWidth = this.width / 2, halfHeight = this.height / 2;
+            this.x = Math.max(halfWidth, Math.min(W - halfWidth, this.x));
+            this.y = Math.max(halfHeight, Math.min(H - halfHeight, this.y));
+        }
+
         // Actualizar posición del sprite para que coincida
         this.imagen.x = this.x;
         this.imagen.y = this.y;

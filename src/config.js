@@ -13,6 +13,7 @@ export const CONFIG = {
     MUNDO: {
         ANCHO: 1080,                    // Ancho del área de juego (px)
         ALTO: 720,                      // Alto del área de juego (px)
+        TOROIDAL: true,                 // Mundo toroidal: la nave sale por un borde y entra por el opuesto (paso 1: solo nave + cámara)
         MAX_ASTEROIDES: 30,             // Máximo de asteroides en pantalla
         SPAWN_INTERVALO: 1.5,           // Segundos entre oleadas de asteroides
         SPAWN_INTERVALO_MINIMO: 0.3,    // Intervalo mínimo (dificultad máxima)

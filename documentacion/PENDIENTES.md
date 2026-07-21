@@ -1,7 +1,18 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.36.2 (ACTUAL)
+**Versión:** v1.37.0 (ACTUAL)
+
+---
+
+## 🚧 En progreso v1.37.0 - Mapa toroidal (paso 1: nave + cámara)
+
+- **Flag** (`config.js` → `CONFIG.MUNDO.TOROIDAL = true`): activa el mundo toroidal (wrap-around).
+- **Nave** (`Player._mantenerEnPantalla`): en modo toroidal, en vez de clampear, **envuelve** la posición módulo el tamaño del mundo (sale por un borde, entra por el opuesto), en X e Y. Verificado: cruzar der→x=8, izq→W-8, abajo→y=8.
+- **Cámara** (`Game._actualizarCamara`): en modo toroidal **no clampea** (sigue a la nave aunque cruce el borde, así queda centrada al envolver). El look-ahead calcula el delta de posición por el **camino corto** (si la nave envolvió, corrige el salto de ~mundo entero) para no dispararse en el cruce. Verificado: camX sin clamp (−375), nave centrada (mundoX 376), lookX ~5.5 (no 110), sin errores.
+- **PENDIENTE (próximos pasos si gusta el feeling):**
+  - Render **sin costura**: hoy en el cruce hay un "salto" visual de asteroides/fondo (fantasmas del lado opuesto sin dibujar todavía).
+  - **Distancia toroidal** en la lógica: IA de enemigos, boids, cohetes teledirigidos, colisiones y auto-borrado. Hoy los enemigos/asteroides/boids NO envuelven (siguen en `[0, mundo]`).
 
 ---
 

@@ -1719,8 +1719,17 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
 
         // --- Look-ahead: la cámara "mira" un poco hacia donde se mueve la nave ---
         // Velocidad estimada por delta de posición (independiente del modelo interno).
-        const vx = (j.x - (this._prevJugX ?? j.x)) / dt;
-        const vy = (j.y - (this._prevJugY ?? j.y)) / dt;
+        const toroidal = !!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL);
+        let dxJ = j.x - (this._prevJugX ?? j.x);
+        let dyJ = j.y - (this._prevJugY ?? j.y);
+        if (toroidal) {
+            // Si la nave envolvió, el delta "salta" ~mundo entero: tomar el camino corto
+            // para que el look-ahead no se dispare en el cruce.
+            if (dxJ > this.mundoAncho / 2) dxJ -= this.mundoAncho; else if (dxJ < -this.mundoAncho / 2) dxJ += this.mundoAncho;
+            if (dyJ > this.mundoAlto / 2) dyJ -= this.mundoAlto; else if (dyJ < -this.mundoAlto / 2) dyJ += this.mundoAlto;
+        }
+        const vx = dxJ / dt;
+        const vy = dyJ / dt;
         this._prevJugX = j.x; this._prevJugY = j.y;
         const vmag = Math.hypot(vx, vy);
         const MAX_LOOK = 110;
@@ -1734,13 +1743,17 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this._lookX = (this._lookX || 0) + (laX - (this._lookX || 0)) * s;
         this._lookY = (this._lookY || 0) + (laY - (this._lookY || 0)) * s;
 
-        // Cámara centrada en la nave + look-ahead, clampeada al mundo
+        // Cámara centrada en la nave + look-ahead. En modo clásico se clampea al
+        // mundo; en TOROIDAL no se clampea (la cámara sigue a la nave aunque cruce
+        // el borde, así la nave queda siempre centrada al envolver).
         let camX = j.x + this._lookX - sw / 2;
         let camY = j.y + this._lookY - sh / 2;
-        const maxX = Math.max(0, this.mundoAncho - sw);
-        const maxY = Math.max(0, this.mundoAlto - sh);
-        camX = Math.max(0, Math.min(maxX, camX));
-        camY = Math.max(0, Math.min(maxY, camY));
+        if (!toroidal) {
+            const maxX = Math.max(0, this.mundoAncho - sw);
+            const maxY = Math.max(0, this.mundoAlto - sh);
+            camX = Math.max(0, Math.min(maxX, camX));
+            camY = Math.max(0, Math.min(maxY, camY));
+        }
         this._camaraX = camX;
         this._camaraY = camY;
 
