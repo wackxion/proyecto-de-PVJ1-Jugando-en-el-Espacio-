@@ -258,6 +258,11 @@ export class Game {
         this.aplicacion.stage.addChild(this.mundo);
         this._camaraX = 0;
         this._camaraY = 0;
+        // Resetear acumuladores de cámara/parallax para no arrastrar estado previo
+        this._prevJugX = undefined; this._prevJugY = undefined;
+        this._shipContX = undefined; this._shipContY = undefined;
+        this._bgX = 0; this._bgY = 0;
+        this._lookX = 0; this._lookY = 0;
 
         // Crear el InputManager para manejar el teclado
         this.gestorEntrada = new GestorEntrada();
@@ -503,8 +508,10 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         if (!this.estrellas || !this.estrellasData) return;
         const pad = 40;
         const tw = this.anchoJuego + pad, th = this.altoJuego + pad;
-        const ox = -this._camaraX * this.estrellasFactor;
-        const oy = -this._camaraY * this.estrellasFactor;
+        // Usa la referencia CONTINUA del parallax (no salta al envolver la nave).
+        const refX = (this._bgX ?? this._camaraX), refY = (this._bgY ?? this._camaraY);
+        const ox = -refX * this.estrellasFactor;
+        const oy = -refY * this.estrellasFactor;
         this._estT += (delta > 0 ? delta : 1 / 60);
         for (const d of this.estrellasData) {
             let x = (d.bx * tw + ox) % tw; if (x < 0) x += tw;
@@ -1581,6 +1588,11 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this.aplicacion.stage.addChild(this.mundo);
         this._camaraX = 0;
         this._camaraY = 0;
+        // Resetear acumuladores de cámara/parallax para no arrastrar estado previo
+        this._prevJugX = undefined; this._prevJugY = undefined;
+        this._shipContX = undefined; this._shipContY = undefined;
+        this._bgX = 0; this._bgY = 0;
+        this._lookX = 0; this._lookY = 0;
 
         // Reiniciar todas las variables del juego
         this.puntuacion = 0;
@@ -1737,6 +1749,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         const vx = dxJ / dt;
         const vy = dyJ / dt;
         this._prevJugX = j.x; this._prevJugY = j.y;
+
+        // Acumulador CONTINUO del desplazamiento de la nave (para el parallax del
+        // fondo/estrellas): suma el delta "por el camino corto", así NUNCA salta al
+        // envolver la nave → el fondo scrollea sin costura con cualquier imagen.
+        this._shipContX = (this._shipContX ?? j.x) + dxJ;
+        this._shipContY = (this._shipContY ?? j.y) + dyJ;
         const vmag = Math.hypot(vx, vy);
         const MAX_LOOK = 110;
         let laX = 0, laY = 0;
@@ -1763,9 +1781,15 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         this._camaraX = camX;
         this._camaraY = camY;
 
+        // Referencia del PARALLAX (fondo + estrellas): en TOROIDAL usa el acumulador
+        // continuo (no salta al envolver la nave → sin costura); en modo clásico usa
+        // la cámara clampeada como siempre.
+        this._bgX = toroidal ? (this._shipContX + this._lookX - sw / 2) : camX;
+        this._bgY = toroidal ? (this._shipContY + this._lookY - sh / 2) : camY;
+
         // --- Parallax: el fondo se desplaza a una fracción de la cámara; las
         // estrellas titilan y se mueven aparte (con wrap) ---
-        if (this.fondoParallax) this.fondoParallax.tilePosition.set(-camX * this.fondoParallax.factorParallax, -camY * this.fondoParallax.factorParallax);
+        if (this.fondoParallax) this.fondoParallax.tilePosition.set(-this._bgX * this.fondoParallax.factorParallax, -this._bgY * this.fondoParallax.factorParallax);
         this._actualizarEstrellas(dt);
 
         // --- Screen shake (decae con el tiempo) ---

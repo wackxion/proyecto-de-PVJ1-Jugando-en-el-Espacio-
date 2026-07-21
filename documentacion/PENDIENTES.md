@@ -1,11 +1,21 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.2 (ACTUAL)
+**Versión:** v1.37.3 (ACTUAL)
 
 ---
 
-## 🚧 En progreso v1.37.2 - Mapa toroidal (paso C: lógica toroidal + disparos rectos)
+## 🚧 En progreso v1.37.3 - Mapa toroidal: fondo/estrellas sin costura
+
+> ⚠️ Commiteado **local, sin pushear** (se está probando).
+
+- **Parallax continuo** (`Game._actualizarCamara` + `_actualizarEstrellas`): el fondo (`fondoParallax`) y las estrellas se calculaban desde `camX/camY`, que **salta ~mundo entero** cuando la nave envuelve su posición → el fondo/estrellas pegaban un salto en el cruce. Ahora se usa un **acumulador continuo** `_shipContX/_shipContY` (suma el delta de la nave "por el camino corto", que ya se calcula para el look-ahead) y de ahí `_bgX/_bgY` (= acumulador + look-ahead − media pantalla). El parallax usa `_bgX/_bgY` en vez de `camX/camY` → **nunca salta**, con cualquier imagen (no depende de que el fondo sea simétrico/tileable). En modo no toroidal se sigue usando `camX/camY` (cámara clampeada). Se resetean los acumuladores en setup/reinicio.
+- Verificado: en el cruce `camX` salta −2318 pero `_bgX` cambia solo +15.5 (el movimiento real) → continuo. Sin errores.
+- **Con esto el toroide se ve fluido de punta a punta.** Ya no queda salto visual al cruzar.
+
+---
+
+## 🚧 (previo) v1.37.2 - Mapa toroidal (paso C: lógica toroidal + disparos rectos)
 
 > ⚠️ Commiteado **local, sin pushear** (se está probando).
 

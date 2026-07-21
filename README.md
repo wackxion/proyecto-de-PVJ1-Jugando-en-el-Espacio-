@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.37.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.37.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.3)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.37.2 (Actual)
+### v1.37.3 (Actual)
+> **Mapa toroidal — fondo y estrellas sin costura (parallax continuo)**
+
+- 🌌 El fondo y las estrellas ahora usan un **acumulador continuo** del movimiento de la nave en vez de la cámara (que **saltaba** al envolver) → al cruzar el borde el parallax scrollea **parejo, sin salto**, con cualquier imagen. Con esto el toroide se ve fluido de punta a punta
+
+### v1.37.2
 > **Mapa toroidal — paso C: lógica toroidal + disparos enemigos rectos**
 
 - 🎯 Los **disparos de las naves enemigas ya NO son teledirigidos**: apuntan al jugador al disparar y van **rectos**
