@@ -1,11 +1,25 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.1 (ACTUAL)
+**Versión:** v1.37.2 (ACTUAL)
 
 ---
 
-## 🚧 En progreso v1.37.1 - Mapa toroidal (paso A+B: sin costura + todo envuelve)
+## 🚧 En progreso v1.37.2 - Mapa toroidal (paso C: lógica toroidal + disparos rectos)
+
+> ⚠️ Commiteado **local, sin pushear** (se está probando).
+
+- **Disparos enemigos rectos** (`EnemyProjectile`): se sacó la teledirección y el evita-asteroides. La nave apunta al jugador al disparar y el proyectil viaja en línea recta (verificado: dirección constante, se mueve exactamente en el ángulo de disparo).
+- **Naves enemigas** (`EnemyShip`): puntería, destino de órbita y esquiva de asteroides usan la posición del jugador/asteroide por el **camino corto** del toroide (helper `_wrap` inline con `this.anchoJuego/altoJuego`).
+- **Boids** (`BoidParticle`, `GameBoids`, `GameSkills`): fuga de la nave (`calcularFuga`), captura (`puedeSerCapturada`), reset/reciclado de atracción y la **atracción del devorador** usan distancia/delta toroidal (`distanciaToroidal` / `_wrapDelta` guardado por el flag).
+- **Cohetes** (`Cohete`): homing y colisión toroidales (se le pasa `mundoAncho/Alto` al crearlo en `GameSkills`). Verificado: cerca de un borde apunta por el lado corto (π), no el largo.
+- **Spawn** (`verificarPosicionLibre`): distancia toroidal (no spawnea encima del jugador vía wrap).
+- **Colisiones y culling**: ya eran toroidales desde A+B (`_verificarColision`, `limpiarEnemigosLejanos`).
+- **Nota**: el "salto" visual que queda al cruzar el borde es del **fondo + estrellas** (manejados por `camX`, que salta al envolver la nave), NO de las entidades. Es un tema aparte pendiente (hacer que el fondo/estrellas también envuelvan continuo); la imagen de fondo la ajusta el dev.
+
+---
+
+## 🚧 (previo) v1.37.1 - Mapa toroidal (paso A+B: sin costura + todo envuelve)
 
 > ⚠️ Commiteado **local, sin pushear** (se está probando).
 

@@ -129,11 +129,9 @@ export function actualizarParticulasBoid(game, delta) {
     for (let i = game.particulasBoid.length - 1; i >= 0; i--) {
         const particula = game.particulasBoid[i];
         
-        // Resetear flag de atracción si está muy lejos de la nave
+        // Resetear flag de atracción si está muy lejos de la nave (distancia toroidal)
         if (game.jugador && game.jugador.active) {
-            const dx = game.jugador.x - particula.x;
-            const dy = game.jugador.y - particula.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);
+            const distancia = game.distanciaToroidal(particula.x, particula.y, game.jugador.x, game.jugador.y);
             if (distancia > CONFIG.BOIDS.RANGO_RESET_ATRACCION * (game.mejoraDevoradorMult || 1)) {
                 particula.siendoAtraida = false;
             }
@@ -167,7 +165,7 @@ export function actualizarParticulasBoid(game, delta) {
         // de vuelta cerca (con cámara, se mide distancia al jugador, no a la pantalla).
         const limiteRecycle = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
         const fueraDeLosBordes = game.jugador &&
-            Math.hypot(particula.x - game.jugador.x, particula.y - game.jugador.y) > limiteRecycle;
+            game.distanciaToroidal(particula.x, particula.y, game.jugador.x, game.jugador.y) > limiteRecycle;
 
         if (fueraDeLosBordes) {
             particula.contadorFueraDePantalla = (particula.contadorFueraDePantalla || 0) + delta;

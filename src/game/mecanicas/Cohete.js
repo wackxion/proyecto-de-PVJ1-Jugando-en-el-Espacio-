@@ -61,10 +61,16 @@ export class Cohete extends GameObject {
     update(delta) {
         if (!this.active) return;
         
-        // Si el objetivo está activo, actualizar dirección
+        // Si el objetivo está activo, actualizar dirección (por el camino corto del
+        // toroide, así persigue al objetivo aunque esté del otro lado de la costura).
         if (this.objetivo && this.objetivo.active) {
-            const dx = this.objetivo.x - this.x;
-            const dy = this.objetivo.y - this.y;
+            let dx = this.objetivo.x - this.x;
+            let dy = this.objetivo.y - this.y;
+            if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL && this.mundoAncho) {
+                const h1 = this.mundoAncho / 2, h2 = this.mundoAlto / 2;
+                if (dx > h1) dx -= this.mundoAncho; else if (dx < -h1) dx += this.mundoAncho;
+                if (dy > h2) dy -= this.mundoAlto; else if (dy < -h2) dy += this.mundoAlto;
+            }
             this.rotacion = Math.atan2(dy, dx);
             this.imagen.rotation = this.rotacion;
             
@@ -87,11 +93,17 @@ export class Cohete extends GameObject {
      */
     verificarColision() {
         if (!this.objetivo || !this.objetivo.active) return false;
-        
-        const dx = this.x - this.objetivo.x;
-        const dy = this.y - this.objetivo.y;
+
+        // Distancia toroidal (impacta aunque estén en bordes opuestos, "pegados").
+        let dx = this.x - this.objetivo.x;
+        let dy = this.y - this.objetivo.y;
+        if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL && this.mundoAncho) {
+            const h1 = this.mundoAncho / 2, h2 = this.mundoAlto / 2;
+            if (dx > h1) dx -= this.mundoAncho; else if (dx < -h1) dx += this.mundoAncho;
+            if (dy > h2) dy -= this.mundoAlto; else if (dy < -h2) dy += this.mundoAlto;
+        }
         const distancia = Math.sqrt(dx * dx + dy * dy);
-        
+
         const radioObjetivo = this.objetivo.radio || 32;
         
         return distancia < (CONFIG.COHETE.RADIO + radioObjetivo);

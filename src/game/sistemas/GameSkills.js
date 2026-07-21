@@ -97,6 +97,9 @@ export function crearCohetes(game) {
                 enemigo,
                 game.texturaCohete
             );
+            // Tamaño del mundo para el homing toroidal (persigue por el camino corto).
+            cohete.mundoAncho = game.mundoAncho;
+            cohete.mundoAlto = game.mundoAlto;
             cohete.render(game.mundo);
             game.cohetes.push(cohete);
             algunoLanzado = true;
@@ -299,10 +302,14 @@ export function actualizarHabilidadDevorador(game, delta) {
         const multDevorador = game.mejoraDevoradorMult || 1;
         const radioDevorar = CONFIG.HABILIDADES.DEVORADOR_RANGO * multDevorador;
         const velDevorar = CONFIG.HABILIDADES.DEVORADOR_VELOCIDAD * multDevorador;
+        const _tor = !!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL);
         for (const particula of game.particulasBoid) {
             if (!particula.active) continue;
-            const dx = game.jugador.x - particula.x;
-            const dy = game.jugador.y - particula.y;
+            // Delta hacia el jugador por el camino corto del toroide (así atrae
+            // partículas que se ven cerca aunque estén del otro lado de la costura).
+            let dx = game.jugador.x - particula.x;
+            let dy = game.jugador.y - particula.y;
+            if (_tor) { dx = game._wrapDelta(dx, game.mundoAncho); dy = game._wrapDelta(dy, game.mundoAlto); }
             const distancia = Math.sqrt(dx * dx + dy * dy);
             if (distancia < radioDevorar && distancia > 0) {
                 particula.velX = (dx / distancia) * velDevorar;

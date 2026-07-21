@@ -224,24 +224,20 @@ export function verificarPosicionLibre(game, x, y, radio) {
     // Verificar con enemigos existentes
     for (const enemigo of game.enemigos) {
         if (!enemigo.active) continue;
-        
-        const dx = x - enemigo.x;
-        const dy = y - enemigo.y;
-        const distancia = Math.sqrt(dx * dx + dy * dy);
+
+        const distancia = game.distanciaToroidal(x, y, enemigo.x, enemigo.y);
         const radioEnemigo = enemigo.radio || 32;
-        
+
         // Necesario mantener distancia mínima
         if (distancia < (radio + radioEnemigo + 50)) {
             return false;
         }
     }
-    
+
     // Verificar con el jugador
     if (game.jugador && game.jugador.active) {
-        const dx = x - game.jugador.x;
-        const dy = y - game.jugador.y;
-        const distancia = Math.sqrt(dx * dx + dy * dy);
-        
+        const distancia = game.distanciaToroidal(x, y, game.jugador.x, game.jugador.y);
+
         // Mantener distancia mínima del jugador
         if (distancia < (radio + 100)) {
             return false;

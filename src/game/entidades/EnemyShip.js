@@ -125,8 +125,16 @@ export class EnemyShip extends GameObject {
             this.tiempoInicio -= delta;
         }
         
-        const dxJugador = this.jugador.x - this.x;
-        const dyJugador = this.jugador.y - this.y;
+        // Posición del jugador "más cercana" a esta nave por el wrap del toroide,
+        // así apunta y orbita por el camino corto (no el largo) cerca de un borde.
+        const W = this.anchoJuego, H = this.altoJuego;
+        const _tor = !!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL);
+        const _wrap = (d, s) => { if (!_tor) return d; const h = s / 2; if (d > h) return d - s; if (d < -h) return d + s; return d; };
+        const jugX = this.x + _wrap(this.jugador.x - this.x, W);
+        const jugY = this.y + _wrap(this.jugador.y - this.y, H);
+
+        const dxJugador = jugX - this.x;
+        const dyJugador = jugY - this.y;
         const anguloJugador = Math.atan2(dyJugador, dxJugador);
         
         this.tiempoDisparo += delta;
@@ -148,8 +156,8 @@ export class EnemyShip extends GameObject {
         const radioDeseado = 400 + Math.sin(this.tiempoMovimiento * 0.5) * 100;
         this.radioOrbita += (radioDeseado - this.radioOrbita) * 0.05 * delta;
         
-        const destinoX = this.jugador.x + Math.cos(this.anguloOrbita) * this.radioOrbita;
-        const destinoY = this.jugador.y + Math.sin(this.anguloOrbita) * this.radioOrbita;
+        const destinoX = jugX + Math.cos(this.anguloOrbita) * this.radioOrbita;
+        const destinoY = jugY + Math.sin(this.anguloOrbita) * this.radioOrbita;
         
         // ----------------------------------------
         // 3. CALCULAR ACELERACIÓN DESEADA
@@ -172,12 +180,14 @@ export class EnemyShip extends GameObject {
         
         for (const ast of this.enemigosAsteroides) {
             if (!ast.active) continue;
-            const distAst = Math.sqrt((ast.x - this.x) ** 2 + (ast.y - this.y) ** 2);
+            // Delta toroidal al asteroide (camino corto)
+            const adx = _wrap(ast.x - this.x, W), ady = _wrap(ast.y - this.y, H);
+            const distAst = Math.sqrt(adx * adx + ady * ady);
             // Solo esquivar si está muy cerca (radio de esquiva = 100px)
             if (distAst < 100) {
                 const fuerza = (100 - distAst) / 100;
-                esquivarX += ((this.x - ast.x) / distAst) * fuerza;
-                esquivarY += ((this.y - ast.y) / distAst) * fuerza;
+                esquivarX += (-adx / distAst) * fuerza;   // alejarse del asteroide
+                esquivarY += (-ady / distAst) * fuerza;
             }
         }
         

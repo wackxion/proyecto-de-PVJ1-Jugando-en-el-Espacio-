@@ -74,6 +74,9 @@ export class BoidParticle extends GameObject {
      */
     actualizar(delta, vecinos, jugador = null, enemigos = [], asteroides = [], anchoJuego = 800, altoJuego = 600) {
         if (!this.active) return;
+
+        // Guardar el tamaño del mundo para los cálculos toroidales (calcularFuga).
+        this._wMundo = anchoJuego; this._hMundo = altoJuego;
         
         // Animación: 1,2,3,4,3,2,1 en bucle
         if (this.texturasAnimacion && this.texturasAnimacion.length > 0) {
@@ -288,9 +291,16 @@ export class BoidParticle extends GameObject {
      */
     calcularFuga(objetivo, rango = null) {
         const rangoFuga = rango || this.rangoFuga;
-        
-        const dx = this.x - objetivo.x;
-        const dy = this.y - objetivo.y;
+
+        // Delta al objetivo por el camino corto del toroide (así huye para el lado
+        // correcto aunque el objetivo esté del otro lado de la costura).
+        let dx = this.x - objetivo.x;
+        let dy = this.y - objetivo.y;
+        if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL && this._wMundo) {
+            const h1 = this._wMundo / 2, h2 = this._hMundo / 2;
+            if (dx > h1) dx -= this._wMundo; else if (dx < -h1) dx += this._wMundo;
+            if (dy > h2) dy -= this._hMundo; else if (dy < -h2) dy += this._hMundo;
+        }
         const distancia = Math.sqrt(dx * dx + dy * dy);
         
         if (distancia > 0 && distancia < rangoFuga) {
@@ -400,11 +410,18 @@ export class BoidParticle extends GameObject {
      */
     puedeSerCapturada(nave) {
         if (!nave || !nave.x || !nave.y) return false;
-        
-        const dx = this.x - nave.x;
-        const dy = this.y - nave.y;
+
+        // Distancia toroidal (la nave "toca" partículas que se ven pegadas aunque
+        // estén del otro lado de la costura).
+        let dx = this.x - nave.x;
+        let dy = this.y - nave.y;
+        if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL && nave.anchoJuego) {
+            const h1 = nave.anchoJuego / 2, h2 = nave.altoJuego / 2;
+            if (dx > h1) dx -= nave.anchoJuego; else if (dx < -h1) dx += nave.anchoJuego;
+            if (dy > h2) dy -= nave.altoJuego; else if (dy < -h2) dy += nave.altoJuego;
+        }
         const distancia = Math.sqrt(dx * dx + dy * dy);
-        
+
         const radioCaptura = nave.radio + 15;
         
         return distancia < radioCaptura;

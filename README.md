@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.37.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.37.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.2)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.37.1 (Actual)
+### v1.37.2 (Actual)
+> **Mapa toroidal — paso C: lógica toroidal + disparos enemigos rectos**
+
+- 🎯 Los **disparos de las naves enemigas ya NO son teledirigidos**: apuntan al jugador al disparar y van **rectos**
+- 🌀 La lógica ahora usa el **camino corto** del toroide: puntería/órbita/esquiva de las naves enemigas, atracción y fuga de los **boids** (devorador), homing de los **cohetes** y el spawn. Cerca de la costura todo apunta/persigue/impacta bien (antes iba por el lado largo)
+
+### v1.37.1
 > **Mapa toroidal — paso A+B: mundo sin costura + todo envuelve**
 
 - 🌀 Ahora **todas las entidades envuelven** (asteroides, enemigos, naves, proyectiles, boids, cohetes) y se dibujan en su **copia más cercana a la nave** → el mundo se ve **sin costura** (desaparece el salto del borde). El culling y las colisiones usan **distancia toroidal** (no atravesás cosas que se ven pegadas cerca del borde). *Falta el paso C: puntería de enemigos, atracción de boids y cohetes teledirigidos por el camino corto*

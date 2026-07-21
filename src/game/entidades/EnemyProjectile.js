@@ -1,11 +1,10 @@
 /**
- * EnemyProjectile - Proyectil teledirigido de la nave enemiga
- * 
- * Este proyectil sigue al jugador y evita asteroides.
- * 
+ * EnemyProjectile - Proyectil de la nave enemiga (disparo RECTO)
+ *
+ * La nave apunta al jugador al momento de disparar y el proyectil viaja en línea
+ * recta en esa dirección (ya NO es teledirigido ni esquiva asteroides).
+ *
  * Características:
- * - Perseguir al jugador (teledirigido)
- * - Evita asteroides
  * - Velocidad: 400 px/s
  * - Tiempo de vida: 3 segundos
  */
@@ -56,61 +55,8 @@ export class EnemyProjectile extends GameObject {
             return;
         }
         
-        // ===== TELERRECCIÓN: Perseguir hacia el jugador =====
-        const dx = this.jugador.x - this.x;
-        const dy = this.jugador.y - this.y;
-        const distJugador = Math.sqrt(dx * dx + dy * dy);
-        
-        // Ángulo deseado hacia el jugador
-        let dirX = dx / distJugador;
-        let dirY = dy / distJugador;
-        
-        // ===== EVITAR ASTEROIDES =====
-        let evitarX = 0;
-        let evitarY = 0;
-        
-        for (const ast of this.enemigos) {
-            if (!ast.active) continue;
-            
-            const distAst = Math.sqrt((ast.x - this.x) ** 2 + (ast.y - this.y) ** 2);
-            
-            // Si hay un asteroide cerca (menos de 80px)
-            if (distAst < 80) {
-                // Fuerza de repulsión
-                const fuerza = (80 - distAst) / 80;
-                evitarX += ((this.x - ast.x) / distAst) * fuerza * 2;
-                evitarY += ((this.y - ast.y) / distAst) * fuerza * 2;
-            }
-        }
-        
-        // Normalizar vector de evasión
-        const magEvasion = Math.sqrt(evitarX * evitarX + evitarY * evitarY);
-        if (magEvasion > 0) {
-            evitarX /= magEvasion;
-            evitarY /= magEvasion;
-        }
-        
-        // Mezclar: 70% hacia jugador, 30% evitar asteroides
-        dirX = dirX * 0.7 + evitarX * 0.3;
-        dirY = dirY * 0.7 + evitarY * 0.3;
-        
-        // Normalizar dirección final
-        const mag = Math.sqrt(dirX * dirX + dirY * dirY);
-        if (mag > 0) {
-            dirX /= mag;
-            dirY /= mag;
-        }
-        
-        // Actualizar dirección del proyectil (interpolación suave)
-        const anguloDeseado = Math.atan2(dirY, dirX);
-        let diff = anguloDeseado - this.direccion;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        
-        // Suavizar giro (factor 2)
-        this.direccion += diff * 2 * delta;
-        
-        // Mover proyectil
+        // Disparo RECTO: se mueve en la dirección con la que fue disparado (la nave
+        // apuntó al jugador al disparar). Ya NO persigue ni esquiva (sin teledirección).
         this.x += Math.cos(this.direccion) * this.velocidad * delta;
         this.y += Math.sin(this.direccion) * this.velocidad * delta;
         
