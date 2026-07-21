@@ -725,7 +725,7 @@ export class UIManager {
             cursor: pointer;
             transition: all 0.3s ease;
             display: block;
-            width: 240px;   /* 25% menos que el natural (320px) */
+            width: 180px;   /* natural 320px → −25% (240) → −25% otra vez (180) */
             height: auto;
         `;
         

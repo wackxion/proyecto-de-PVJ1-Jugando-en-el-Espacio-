@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.36.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.36.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.36.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.36.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.36.1 (Actual)
+### v1.36.2 (Actual)
+> **Botón "Volver" otro 25% más chico**
+
+- 🔎 El botón **Volver** bajó de 240px a **180px** de ancho (−25% otra vez; queda parejo con el botón CONTROLES)
+
+### v1.36.1
 > **Botón "Volver" 25% más chico**
 
 - 🔎 El botón **Volver** de todas las ventanas (Opciones, Controles, Top 5, Créditos) pasó de 320px a **240px** de ancho (−25%)
