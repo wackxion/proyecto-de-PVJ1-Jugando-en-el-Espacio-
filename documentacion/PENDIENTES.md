@@ -5,6 +5,20 @@
 
 ---
 
+## 📋 Pendiente / Backlog (para más adelante)
+
+- **Soporte de joystick / gamepad — Opción A (apuntado analógico, "igual al mouse")**. Consultado el 20/07/2026, elegido dejar anotado para hacer después.
+  - **Idea**: leer la **Gamepad API** (`navigator.getGamepads()`) cada frame y mapear el joystick manteniendo el modelo actual (apuntás y acelerás *hacia* donde apuntás):
+    - **Stick derecho** → apunta la nave (reemplaza la posición del mouse)
+    - **Gatillo/botón (RT o A)** → acelerar hacia donde apunta (como el click derecho)
+    - **Gatillo/botón (LT o X)** → disparar (como el click izquierdo)
+    - **Botones** → Ulti, Cohetes, Devorador, Propulsor
+  - **A favor / cómo encaja**: el `InputManager` ya centraliza el input y `CONFIG.CONTROLES` ya maneja bindings → los **botones** entran al mismo sistema de acciones (como las teclas / clicks). El **apuntado analógico** del stick derecho es la parte especial (equivale a `input.mouseX/Y` → ángulo hacia el cursor en `Player.update`). Coexiste con teclado/mouse (usás lo que tengas a mano).
+  - **A resolver**: deadzone en los sticks (para que no derive), detección de conexión/desconexión del gamepad (`gamepadconnected`/`gamepaddisconnected`), y una fracción de sensibilidad para el apuntado.
+  - **Opción B (twin-stick, alternativa más grande)**: stick izq mueve la nave / stick der apunta y dispara. Se siente muy bien pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. Queda como paso 2 si se quiere el feel puro twin-stick.
+
+---
+
 ## ✅ Completado v1.37.5 - Fix Game Over: reiniciar solo con el botón
 
 - **Bug**: en el Game Over había un "reiniciar al hacer click en cualquier lado" (`stage.on('pointerdown', …)`) + ENTER global. Con la ventana de **NUEVO RÉCORD** abierta, un click/ENTER fuera del input de nombre reiniciaba el juego **por debajo** mientras se ingresaba el nombre → la ventana de récord quedaba huérfana y los botones de Game Over flotando (sistema viejo).
