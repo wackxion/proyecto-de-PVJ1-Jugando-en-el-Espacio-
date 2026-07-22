@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.38.0 (ACTUAL)
+**Versión:** v1.38.1 (ACTUAL)
 
 ---
 
@@ -9,6 +9,13 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.38.1 - Joystick: apuntar con el stick izquierdo
+
+- **Cambio de stick** (`GestorEntrada.actualizarGamepad`): el apuntado pasó al **stick IZQUIERDO** (`axes[0]/[1]`) a pedido del dev. El **derecho** (`axes[2]/[3]`) queda como **alternativa**: solo se usa si el izquierdo está dentro de la zona muerta. Así se apunta y se avanza (con el gatillo) con el mismo pulgar.
+- Verificado con la Gamepad API mockeada: izq a 45° → apunta 0.785 y la nave rota ahí; con el izq en centro y el der a −90° → apunta −1.571 (alternativa OK); ambos en centro → no apunta. Tutorial actualizado ("Stick izq: apuntar").
 
 ---
 

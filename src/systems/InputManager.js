@@ -19,7 +19,8 @@
  * - P: Pausa/Mejoras · T: Ver Top 5
  *
  * JOYSTICK / GAMEPAD (Gamepad API, por polling — ver actualizarGamepad()):
- * - Stick DERECHO: apunta la nave (equivale al mouse)
+ * - Stick IZQUIERDO: apunta la nave (equivale al mouse). El derecho también sirve,
+ *   como alternativa, si el izquierdo está en el centro.
  * - RT / A: Acelerar · LT / X: Disparar
  * - B: Ulti · LB: Devorador · RB: Cohetes · Y: Propulsor
  * Convive con teclado y mouse: se usa lo que haya a mano.
@@ -339,12 +340,18 @@ export class GestorEntrada {
             if (b && (b.pressed || b.value > 0.4)) this.gamepadAcciones.add(this.gamepadBotones[idx]);
         }
 
-        // --- Stick derecho → apuntado (dirección analógica) ---
+        // --- Stick → apuntado (dirección analógica) ---
+        // El IZQUIERDO (axes 0/1) es el principal: con él apuntás y, apretando el
+        // gatillo de acelerar, te movés en esa dirección. El DERECHO (axes 2/3) queda
+        // como alternativa por si se prefiere apuntar con ese.
         const ejes = pad.axes || [];
-        const rx = ejes[2] || 0, ry = ejes[3] || 0;
-        if (Math.hypot(rx, ry) > this.gamepadDeadzone) {
+        let ax = ejes[0] || 0, ay = ejes[1] || 0;
+        if (Math.hypot(ax, ay) <= this.gamepadDeadzone) {
+            ax = ejes[2] || 0; ay = ejes[3] || 0;
+        }
+        if (Math.hypot(ax, ay) > this.gamepadDeadzone) {
             this.gamepadApuntando = true;
-            this.gamepadAngulo = Math.atan2(ry, rx);
+            this.gamepadAngulo = Math.atan2(ay, ax);
         }
         // Si el stick vuelve al centro, la nave conserva el último ángulo (no se resetea).
     }
