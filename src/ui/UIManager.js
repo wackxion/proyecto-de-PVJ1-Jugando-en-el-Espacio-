@@ -1060,6 +1060,7 @@ export class UIManager {
             ['CLICK IZQ', null, 'Disparar'],
             ['CLICK DER', null, 'Acelerar (avanzar hacia el cursor)'],
             ['W / ESPACIO', null, 'Acelerar / Disparar (teclado, alternativo)'],
+            ['JOYSTICK', null, 'Stick der: apuntar · RT/A: acelerar · LT/X: disparar · B: Ulti · LB: Devorador · RB: Cohetes · Y: Propulsor'],
             ['Q', 'assets/cohetes.png', 'Cohetes teledirigidos'],
             ['E', 'assets/deborador.png', 'Devorador (atrae partículas)'],
             ['R', 'assets/propulsor.png', 'Propulsor (dash)'],

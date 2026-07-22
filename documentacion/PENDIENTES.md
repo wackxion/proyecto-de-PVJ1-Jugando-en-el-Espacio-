@@ -1,21 +1,27 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.5 (ACTUAL)
+**Versión:** v1.38.0 (ACTUAL)
 
 ---
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-- **Soporte de joystick / gamepad — Opción A (apuntado analógico, "igual al mouse")**. Consultado el 20/07/2026, elegido dejar anotado para hacer después.
-  - **Idea**: leer la **Gamepad API** (`navigator.getGamepads()`) cada frame y mapear el joystick manteniendo el modelo actual (apuntás y acelerás *hacia* donde apuntás):
-    - **Stick derecho** → apunta la nave (reemplaza la posición del mouse)
-    - **Gatillo/botón (RT o A)** → acelerar hacia donde apunta (como el click derecho)
-    - **Gatillo/botón (LT o X)** → disparar (como el click izquierdo)
-    - **Botones** → Ulti, Cohetes, Devorador, Propulsor
-  - **A favor / cómo encaja**: el `InputManager` ya centraliza el input y `CONFIG.CONTROLES` ya maneja bindings → los **botones** entran al mismo sistema de acciones (como las teclas / clicks). El **apuntado analógico** del stick derecho es la parte especial (equivale a `input.mouseX/Y` → ángulo hacia el cursor en `Player.update`). Coexiste con teclado/mouse (usás lo que tengas a mano).
-  - **A resolver**: deadzone en los sticks (para que no derive), detección de conexión/desconexión del gamepad (`gamepadconnected`/`gamepaddisconnected`), y una fracción de sensibilidad para el apuntado.
-  - **Opción B (twin-stick, alternativa más grande)**: stick izq mueve la nave / stick der apunta y dispara. Se siente muy bien pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. Queda como paso 2 si se quiere el feel puro twin-stick.
+- **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
+- **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.38.0 - Soporte de joystick / gamepad (Opción A)
+
+- **Gamepad API por polling** (`GestorEntrada.actualizarGamepad()`, llamado 1 vez por frame desde `Game._gameLoop`): reconstruye el estado del mando en cada frame (así soltar un botón lo libera solo, sin manejar eventos de "keyup").
+- **Mapeo (layout "standard", tipo Xbox)** — mantiene el modelo actual (apuntás y acelerás *hacia* donde apuntás):
+  - **Stick derecho** (`axes[2]/[3]`) → apunta la nave (equivale al mouse). Con **zona muerta** de 0.25 para que no derive. Si el stick vuelve al centro, la nave conserva el último ángulo.
+  - **RT (7) / A (0)** → acelerar · **LT (6) / X (2)** → disparar
+  - **B (1)** → Ulti · **LB (4)** → Devorador · **RB (5)** → Cohetes · **Y (3)** → Propulsor
+- **Cómo encaja (clave)**: las acciones del mando van a un `Set` (`gamepadAcciones`) que se **OR-ea en `estaPresionada()`** → como todos los `debeXxx()` consultan ese método, el joystick quedó soportado en disparo/aceleración/ulti/cohetes/devorador/propulsor **sin tocar esos métodos**. El apuntado analógico expone `gamepadApuntando` + `gamepadAngulo`, y `Player.update` los usa con prioridad sobre el mouse.
+- **Convive con teclado y mouse**: se usa lo que haya a mano; sin mando conectado no cambia nada.
+- Verificado en runtime con la Gamepad API **mockeada**: botones → acciones (RT/X/B), stick der apunta a 45° y la nave rota exactamente ahí, zona muerta OK (no apunta con el stick apenas movido), disparo OK, y sin mando → sin acciones y el mouse sigue mandando. Sin errores. Tutorial actualizado con la fila **JOYSTICK**.
 
 ---
 

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.37.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.38.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.38.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.37.5 (Actual)
+### v1.38.0 (Actual)
+> **Soporte de joystick / gamepad**
+
+- 🎮 Ahora se puede jugar con **joystick** (Gamepad API): **stick derecho** apunta la nave, **RT/A** acelera, **LT/X** dispara, **B** Ulti, **LB** Devorador, **RB** Cohetes, **Y** Propulsor. Convive con teclado y mouse (usás lo que tengas a mano), con zona muerta en el stick y detección automática del mando. Tutorial actualizado
+
+### v1.37.5
 > **Fix Game Over: reiniciar solo con el botón (no al hacer click afuera)**
 
 - 🐛 Se sacó el "reiniciar al hacer click en cualquier lado" (y con ENTER) en el Game Over: chocaba con la ventana de **nuevo récord** — un click afuera del input reiniciaba el juego por debajo y dejaba la ventana huérfana con los botones flotando. Ahora el reinicio **depende solo del botón Reiniciar**

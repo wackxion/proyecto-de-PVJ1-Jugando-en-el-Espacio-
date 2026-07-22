@@ -17,6 +17,12 @@
  * - Click derecho / W / Flecha Arriba: Acelerar hacia el cursor
  * - S / Flecha Abajo: Ulti · E: Devorador · Q: Cohetes · R: Propulsor
  * - P: Pausa/Mejoras · T: Ver Top 5
+ *
+ * JOYSTICK / GAMEPAD (Gamepad API, por polling — ver actualizarGamepad()):
+ * - Stick DERECHO: apunta la nave (equivale al mouse)
+ * - RT / A: Acelerar · LT / X: Disparar
+ * - B: Ulti · LB: Devorador · RB: Cohetes · Y: Propulsor
+ * Convive con teclado y mouse: se usa lo que haya a mano.
  */
 import { CONFIG } from '../config.js';
 
@@ -75,7 +81,31 @@ export class GestorEntrada {
         // EnfriamientoPropulsor = temporizador para el propulsor (dash)
         this.enfriamientoPropulsor = 0;
         this.enfriamientoPropulsorMax = CONFIG.HABILIDADES.PROPULSOR_COOLDOWN; // 15 segundos de cooldown
-        
+
+        // === JOYSTICK / GAMEPAD (Gamepad API) ===
+        // Se lee por polling cada frame (actualizarGamepad()), no por eventos.
+        // Modelo "igual al mouse": el stick DERECHO apunta la nave y los gatillos/
+        // botones disparan y aceleran. Convive con teclado y mouse (se usa lo que
+        // haya a mano): las acciones del gamepad se OR-ean en estaPresionada().
+        this.gamepadConectado = false;
+        this.gamepadAcciones = new Set();   // acciones activas por botones del joystick
+        this.gamepadApuntando = false;      // true si el stick derecho está fuera de la zona muerta
+        this.gamepadAngulo = 0;             // ángulo de apuntado del stick derecho (rad)
+        this.gamepadDeadzone = 0.25;        // zona muerta del stick (evita deriva)
+        // Mapeo de botones (layout "standard", tipo Xbox) → acciones del juego.
+        // La PAUSA queda fuera a propósito: es un toggle y al mantener el botón
+        // se dispararía en cada frame (se puede sumar con detección de flanco).
+        this.gamepadBotones = {
+            7: 'avanzar',    // RT (gatillo derecho)
+            0: 'avanzar',    // A
+            6: 'disparar',   // LT (gatillo izquierdo)
+            2: 'disparar',   // X
+            1: 'ulti',       // B
+            5: 'cohetes',    // RB
+            4: 'devorar',    // LB
+            3: 'propulsor',  // Y
+        };
+
         // Vincular los eventos del teclado
         this._vincularEventos();
     }
@@ -277,6 +307,48 @@ export class GestorEntrada {
         this.teclas.clear();
     }
 
+    // ========================= JOYSTICK / GAMEPAD =========================
+
+    /**
+     * Lee el estado del joystick (Gamepad API) y lo vuelca en:
+     *  - `gamepadAcciones`: acciones activas por botones (se OR-ean en estaPresionada)
+     *  - `gamepadApuntando` / `gamepadAngulo`: apuntado con el stick DERECHO
+     *
+     * La Gamepad API es por POLLING: hay que llamarlo UNA vez por frame (lo hace el
+     * game loop). Se reconstruye el estado desde cero en cada llamada, así soltar un
+     * botón lo libera solo y no hace falta manejar eventos de "keyup".
+     */
+    actualizarGamepad() {
+        // Reconstruir el estado del frame desde cero
+        this.gamepadAcciones.clear();
+        this.gamepadApuntando = false;
+
+        // Si el input está deshabilitado (ej: escribiendo el nombre), ignorar el joystick
+        if (!this.habilitado) { this.gamepadConectado = false; return; }
+
+        const pads = (navigator.getGamepads && navigator.getGamepads()) || [];
+        let pad = null;
+        for (const p of pads) { if (p && p.connected) { pad = p; break; } }
+        this.gamepadConectado = !!pad;
+        if (!pad) return;
+
+        // --- Botones → acciones (los gatillos son analógicos: .value) ---
+        const botones = pad.buttons || [];
+        for (const idx in this.gamepadBotones) {
+            const b = botones[idx];
+            if (b && (b.pressed || b.value > 0.4)) this.gamepadAcciones.add(this.gamepadBotones[idx]);
+        }
+
+        // --- Stick derecho → apuntado (dirección analógica) ---
+        const ejes = pad.axes || [];
+        const rx = ejes[2] || 0, ry = ejes[3] || 0;
+        if (Math.hypot(rx, ry) > this.gamepadDeadzone) {
+            this.gamepadApuntando = true;
+            this.gamepadAngulo = Math.atan2(ry, rx);
+        }
+        // Si el stick vuelve al centro, la nave conserva el último ángulo (no se resetea).
+    }
+
     /**
      * Nombre legible de un código de binding para mostrar en la UI.
      * @param {string} codigo - 'KeyW', 'Space', 'MouseRight', ...
@@ -304,7 +376,10 @@ export class GestorEntrada {
      * @returns {boolean} - true si la tecla está presionada
      */
     estaPresionada(accion) {
-        return this.teclas.get(accion) === true;
+        // Teclado/mouse (this.teclas) O joystick (gamepadAcciones): se usa lo que
+        // haya a mano. Como todos los debeXxx() consultan este método, el gamepad
+        // queda soportado en disparo, aceleración, ulti, cohetes, devorador y propulsor.
+        return this.teclas.get(accion) === true || this.gamepadAcciones.has(accion);
     }
     
     /**
@@ -435,6 +510,7 @@ export class GestorEntrada {
     reiniciar() {
         // teclas.clear() ya libera todo (teclado y botones del mouse van al mismo Map).
         this.teclas.clear();
+        this.gamepadAcciones.clear();   // soltar también las acciones del joystick
 
         // Resetear cooldowns de habilidades
         this.enfriamientoCohetes = 0;
@@ -449,6 +525,8 @@ export class GestorEntrada {
     deshabilitar() {
         this.habilitado = false;
         this.teclas.clear();
+        this.gamepadAcciones.clear();
+        this.gamepadApuntando = false;
     }
     
     /**

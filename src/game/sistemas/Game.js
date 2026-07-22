@@ -1877,6 +1877,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // ticker.deltaTime viene en frames, convertir a segundos dividiendo por 60
             const delta = ticker.deltaTime / 60;
 
+            // === JOYSTICK / GAMEPAD ===
+            // La Gamepad API es por polling: hay que leerla UNA vez por frame, antes
+            // de consultar las acciones (disparar, acelerar, habilidades) y el apuntado.
+            if (this.gestorEntrada && this.gestorEntrada.actualizarGamepad) {
+                this.gestorEntrada.actualizarGamepad();
+            }
+
     // === CONTROL DE PAUSA (Tecla P) ===
             // Si se presiona P, alternar pausa (solo si no está en Game Over)
             if (this.gestorEntrada.debePausar() && !this.enGameOver) {

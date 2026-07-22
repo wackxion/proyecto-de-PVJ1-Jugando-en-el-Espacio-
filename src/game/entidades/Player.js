@@ -302,7 +302,12 @@ this.rotacion = 0;
         // Se calcula el ángulo desde la nave EN PANTALLA (su pos de mundo desplazada
         // por la cámara) hacia el cursor, así el apuntado es exacto con cámara/zoom/shake.
         const rotacionPrevia = this.rotacion;
-        if (!this.enPropulsor && input.mouseMovido && this.juego && this.juego.mundo) {
+        if (!this.enPropulsor && input.gamepadApuntando) {
+            // JOYSTICK: el stick derecho da una DIRECCIÓN analógica directa.
+            // Tiene prioridad sobre el mouse mientras se lo esté empujando.
+            this.rotacion = input.gamepadAngulo;
+            this.imagen.rotation = this.rotacion;
+        } else if (!this.enPropulsor && input.mouseMovido && this.juego && this.juego.mundo) {
             const sx = this.x + this.juego.mundo.x;   // pos de la nave en pantalla (X)
             const sy = this.y + this.juego.mundo.y;   // pos de la nave en pantalla (Y)
             this.rotacion = Math.atan2(input.mouseY - sy, input.mouseX - sx);
