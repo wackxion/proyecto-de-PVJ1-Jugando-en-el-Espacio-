@@ -17,10 +17,12 @@
 
 **Concepto:** Juego de nave espacial en vista superior (top-down) donde el jugador controla una nave que debe destruir asteroides de diferentes tamaños y naves enemigas.
 
-**Mecánicas Principales (controles actualizados en v1.35.0):**
+**Mecánicas Principales (controles actualizados en v1.38.1):**
 - **Apuntar** la nave con el **mouse** (la nave mira siempre al cursor)
 - **Avanzar / acelerar** con **click derecho** (o W) - inercia + sobrecalentamiento
 - **Disparar** con **click izquierdo** (o Espacio) hacia el cursor
+- **Joystick / gamepad** (alternativa, convive con teclado y mouse): **stick izquierdo** apunta la nave (el derecho como alternativa), **RT/A** acelera, **LT/X** dispara, **B** Ulti, **LB** Devorador, **RB** Cohetes, **Y** Propulsor
+- **Controles reasignables** desde Opciones → CONTROLES (se guardan en localStorage)
 - **Ataque especial (Ulti)** - Pulso expansivo que sale de la nave y destruye todo a su paso
 - Sistema de **escudos** (porcentaje 0-100%) en lugar de vidas
 - Efecto visual de **esfera azul** al recibir daño
