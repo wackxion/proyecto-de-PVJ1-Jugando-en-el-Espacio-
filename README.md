@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.37.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.37.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.37.5)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.37.4 (Actual)
+### v1.37.5 (Actual)
+> **Fix Game Over: reiniciar solo con el botón (no al hacer click afuera)**
+
+- 🐛 Se sacó el "reiniciar al hacer click en cualquier lado" (y con ENTER) en el Game Over: chocaba con la ventana de **nuevo récord** — un click afuera del input reiniciaba el juego por debajo y dejaba la ventana huérfana con los botones flotando. Ahora el reinicio **depende solo del botón Reiniciar**
+
+### v1.37.4
 > **Créditos: JANOPRO en beta testers**
 
 - 🙌 Se agregó **JANOPRO** a la sección de beta testers en Créditos (junto a TPC). Cierre del mapa toroidal (pasos 1 + A+B + C + fondo sin costura), probado y aprobado

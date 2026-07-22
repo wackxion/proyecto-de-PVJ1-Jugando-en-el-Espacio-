@@ -1,7 +1,15 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.37.4 (ACTUAL)
+**Versión:** v1.37.5 (ACTUAL)
+
+---
+
+## ✅ Completado v1.37.5 - Fix Game Over: reiniciar solo con el botón
+
+- **Bug**: en el Game Over había un "reiniciar al hacer click en cualquier lado" (`stage.on('pointerdown', …)`) + ENTER global. Con la ventana de **NUEVO RÉCORD** abierta, un click/ENTER fuera del input de nombre reiniciaba el juego **por debajo** mientras se ingresaba el nombre → la ventana de récord quedaba huérfana y los botones de Game Over flotando (sistema viejo).
+- **Fix** (`Game.gameOver`): se quitaron los dos handlers globales (stage `pointerdown` y window `keydown` ENTER). El reinicio ahora **depende solo del botón Reiniciar** (`btnReiniciar.onclick` ya llamaba a `_limpiarFinJuego()` + `_reiniciarJuego()` por su cuenta). Predecible y sin cruces con el input del récord.
+- Verificado en runtime: en Game Over `listeners_pointerdown: 0` (no reinicia por click), y el botón reinicia (`enGameOver: true → false`). Sin errores.
 
 ---
 

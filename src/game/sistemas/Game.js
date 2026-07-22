@@ -1362,48 +1362,15 @@ _crearParticulaBoidFuera() {
         this._crearBotonesGameOverHTML(gameOverSprite.x, gameOverSprite.y, gameOverSprite.height);
         
         // === FIN GAME OVER ===
-        
-        // Flag para controlar el click handler
-        this.clickHandlerActivo = true;
-        this.botonClicked = false;  // Track si se hizo click en un boton
-        
-        // Esperar la tecla ENTER para reiniciar
-        const restartHandler = (e) => {
-            if (e.code === 'Enter') {
-                window.removeEventListener('keydown', restartHandler);
-                this._limpiarFinJuego();
-                this._reiniciarJuego();
-            }
-        };
-        window.addEventListener('keydown', restartHandler);
-        
-        // También permitir click en cualquier parte de la pantalla (solo si no se hizo click en botón)
-        const clickHandler = (event) => {
-            // Si ya se hizo click en un botón, no hacer nada
-            if (this.botonClicked) {
-                this.botonClicked = false;
-                return;
-            }
-            
-            // Si estamos esperando nombre para el Top 5, NO reiniciar
-            if (this.esperandoNombreTop5 || !this.clickHandlerActivo) return;
-            
-            // Si los botones están ocultos (input de guardar activo), no hacer nada
-            const btnReiniciar = document.getElementById('btn-reiniciar');
-            const btnTop5 = document.getElementById('btn-top5');
-            if ((btnReiniciar && btnReiniciar.style.display === 'none') || 
-                (btnTop5 && btnTop5.style.display === 'none')) {
-                return;
-            }
-            
-            window.removeEventListener('keydown', restartHandler);
-            this.aplicacion.stage.off('pointerdown', clickHandler);
-            this._limpiarFinJuego();
-            this._reiniciarJuego();
-        };
-        this.aplicacion.stage.eventMode = 'static';
-        this.aplicacion.stage.hitArea = null;  // Asegurar que el stage tiene hitArea
-        this.aplicacion.stage.on('pointerdown', clickHandler);
+        // El reinicio depende SOLO del botón "Reiniciar" (btnReiniciar.onclick, que
+        // llama a _limpiarFinJuego() + _reiniciarJuego() por su cuenta).
+        //
+        // Se QUITÓ el "reiniciar al hacer click en cualquier lado" (pointerdown en el
+        // stage) y el "reiniciar con ENTER" globales: chocaban con la ventana de
+        // NUEVO RÉCORD. Un click/ENTER fuera del input de nombre reiniciaba el juego
+        // por debajo mientras se ingresaba el nombre, dejando la ventana de récord
+        // huérfana y los botones de Game Over flotando. Con el botón como único
+        // disparador, el flujo queda limpio y predecible.
     }
     
     /**
