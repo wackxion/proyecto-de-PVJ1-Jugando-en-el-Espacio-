@@ -311,7 +311,9 @@ this.rotacion = 0;
             // Tiene prioridad sobre el mouse mientras se lo esté empujando.
             this.rotacion = input.gamepadAngulo;
             this.imagen.rotation = this.rotacion;
-        } else if (!this.enPropulsor && input.mouseMovido && this.juego && this.juego.mundo) {
+        } else if (!this.enPropulsor && input.mouseMovido && !input.controlTactilActivo && this.juego && this.juego.mundo) {
+            // Apuntado con el mouse (solo si NO hay controles táctiles activos: en
+            // táctil el joystick manda y, al soltarlo, la nave conserva su ángulo).
             const sx = this.x + this.juego.mundo.x;   // pos de la nave en pantalla (X)
             const sy = this.y + this.juego.mundo.y;   // pos de la nave en pantalla (Y)
             this.rotacion = Math.atan2(input.mouseY - sy, input.mouseX - sx);

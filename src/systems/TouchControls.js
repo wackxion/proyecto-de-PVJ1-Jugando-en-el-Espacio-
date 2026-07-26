@@ -179,6 +179,9 @@ export class ControlesTactiles {
         if (forzar) this.forzado = true;
         if (!(this.forzado || ControlesTactiles.soportado())) return;
         if (this.overlay) this.overlay.style.display = 'block';
+        // Con los controles táctiles activos, el apuntado es SOLO por joystick
+        // (se desactiva el mouse, que en táctil se emula y robaría la dirección).
+        if (this.input) this.input.controlTactilActivo = true;
     }
 
     /** Oculta el overlay y suelta cualquier acción táctil pegada. */
@@ -187,6 +190,7 @@ export class ControlesTactiles {
         if (this.input) {
             this.input.limpiarTactilApuntado();
             this.input.tactilAcciones.clear();
+            this.input.controlTactilActivo = false;   // reactivar apuntado por mouse
         }
         this._jsTouchId = null;
         if (this.perilla) this.perilla.style.transform = 'translate(-50%, -50%)';

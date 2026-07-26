@@ -1,17 +1,25 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.39.0 (ACTUAL)
+**Versión:** v1.39.1 (ACTUAL)
 
 ---
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
 - **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: **bloquear orientación landscape** + aviso "girá el dispositivo", verificar menús/tutorial/Top5/Créditos en táctil (+ bug del menú-por-detrás), y **empaquetar con Capacitor** (Android/AAB). Probar en celular real (targets de dedo, rendimiento).
-- **Táctil — pulir (opcional)**: en dispositivos táctiles, desactivar el apuntado-por-mouse (los toques emulan mousemove y podrían mover el apuntado al tocar el área vacía); ubicación/tamaño de botones según feedback.
+- **Táctil — pulir (opcional)**: ubicación/tamaño de botones y del área tocable de los iconos del HUD según feedback en celular real.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.39.1 - Fix táctil: soltar el joystick conserva la dirección
+
+- **Bug**: al soltar el joystick virtual, `tactilApuntando` pasa a false y el **apuntado por mouse** tomaba el control — y en táctil los toques emulan `mousemove` (`mouseMovido`/`mouseX/Y` quedan seteados), así que la nave "saltaba" al último punto tocado en vez de conservar la dirección del joystick.
+- **Fix**: nuevo flag `GestorEntrada.controlTactilActivo` (lo prende `ControlesTactiles.mostrar()` y lo apaga `ocultar()`). La rama de apuntado por mouse en `Player.update` ahora exige `!input.controlTactilActivo` → con los táctiles activos el apuntado es **solo por joystick**; al soltar, la nave conserva su ángulo. En desktop (sin táctiles) el mouse sigue apuntando igual.
+- Verificado: joystick a 45° → 0.785; soltar + mouse "movido" a otro lado → conserva 0.785; ocultar controles → el mouse vuelve a apuntar. Sin errores.
 
 ---
 

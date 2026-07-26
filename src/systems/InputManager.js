@@ -114,6 +114,10 @@ export class GestorEntrada {
         this.tactilApuntando = false;
         this.tactilAngulo = 0;
         this.tactilAcciones = new Set();
+        // true mientras los controles táctiles están en pantalla: desactiva el
+        // apuntado-por-mouse (en táctil los toques emulan mousemove y, al soltar el
+        // joystick, robarían el apuntado en vez de conservar la última dirección).
+        this.controlTactilActivo = false;
 
         // Vincular los eventos del teclado
         this._vincularEventos();
