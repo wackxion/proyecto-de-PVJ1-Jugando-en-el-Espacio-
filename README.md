@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.38.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.38.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.39.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.39.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.38.1 (Actual)
+### v1.39.0 (Actual)
+> **Controles táctiles (celular) — paso 1 del roadmap mobile**
+
+- 📱 Overlay en pantalla para jugar en celular: **joystick virtual** (abajo-izq) que **apunta y acelera** la nave, y un **botón de disparo** (abajo-der). Las **habilidades** (Ulti, Devorador, Cohetes, Propulsor) se usan **tocando sus iconos en el HUD** — sin botones aparte. Convive con teclado/mouse/joystick y solo aparece en dispositivos táctiles. Entra por el mismo patrón que el gamepad (no toca la lógica del juego)
+
+### v1.38.1
 > **Joystick: apuntar con el stick izquierdo**
 
 - 🕹️ El apuntado pasó al **stick izquierdo** (antes era el derecho). El derecho queda como **alternativa** si el izquierdo está en el centro

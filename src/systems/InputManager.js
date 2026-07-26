@@ -107,6 +107,14 @@ export class GestorEntrada {
             3: 'propulsor',  // Y
         };
 
+        // === TÁCTIL (mobile) ===
+        // Los controles en pantalla (joystick virtual + botones) escriben acá.
+        // Mismo patrón que el gamepad: acciones en un Set que se OR-ea en
+        // estaPresionada(), y el apuntado como un ángulo con prioridad.
+        this.tactilApuntando = false;
+        this.tactilAngulo = 0;
+        this.tactilAcciones = new Set();
+
         // Vincular los eventos del teclado
         this._vincularEventos();
     }
@@ -383,10 +391,27 @@ export class GestorEntrada {
      * @returns {boolean} - true si la tecla está presionada
      */
     estaPresionada(accion) {
-        // Teclado/mouse (this.teclas) O joystick (gamepadAcciones): se usa lo que
-        // haya a mano. Como todos los debeXxx() consultan este método, el gamepad
-        // queda soportado en disparo, aceleración, ulti, cohetes, devorador y propulsor.
-        return this.teclas.get(accion) === true || this.gamepadAcciones.has(accion);
+        // Teclado/mouse (teclas) O joystick (gamepadAcciones) O táctil (tactilAcciones):
+        // se usa lo que haya a mano. Como todos los debeXxx() consultan este método,
+        // las 3 fuentes quedan soportadas en disparo/aceleración/ulti/cohetes/devorador/propulsor.
+        return this.teclas.get(accion) === true
+            || this.gamepadAcciones.has(accion)
+            || this.tactilAcciones.has(accion);
+    }
+
+    // ============================= TÁCTIL =============================
+    // Los controles en pantalla (joystick virtual + botones) llaman a estos métodos.
+
+    /** Fija el apuntado táctil (ángulo en rad). Lo usa el joystick virtual al arrastrar. */
+    setTactilApuntado(angulo) { this.tactilApuntando = true; this.tactilAngulo = angulo; }
+
+    /** Suelta el apuntado táctil (la nave conserva el último ángulo). */
+    limpiarTactilApuntado() { this.tactilApuntando = false; }
+
+    /** Activa/desactiva una acción táctil (botón en pantalla). */
+    setTactilAccion(accion, activo) {
+        if (activo) this.tactilAcciones.add(accion);
+        else this.tactilAcciones.delete(accion);
     }
     
     /**
@@ -518,6 +543,8 @@ export class GestorEntrada {
         // teclas.clear() ya libera todo (teclado y botones del mouse van al mismo Map).
         this.teclas.clear();
         this.gamepadAcciones.clear();   // soltar también las acciones del joystick
+        this.tactilAcciones.clear();    // y las táctiles
+        this.tactilApuntando = false;
 
         // Resetear cooldowns de habilidades
         this.enfriamientoCohetes = 0;
@@ -534,6 +561,8 @@ export class GestorEntrada {
         this.teclas.clear();
         this.gamepadAcciones.clear();
         this.gamepadApuntando = false;
+        this.tactilAcciones.clear();
+        this.tactilApuntando = false;
     }
     
     /**

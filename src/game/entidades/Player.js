@@ -302,8 +302,12 @@ this.rotacion = 0;
         // Se calcula el ángulo desde la nave EN PANTALLA (su pos de mundo desplazada
         // por la cámara) hacia el cursor, así el apuntado es exacto con cámara/zoom/shake.
         const rotacionPrevia = this.rotacion;
-        if (!this.enPropulsor && input.gamepadApuntando) {
-            // JOYSTICK: el stick derecho da una DIRECCIÓN analógica directa.
+        if (!this.enPropulsor && input.tactilApuntando) {
+            // TÁCTIL: el joystick virtual da una DIRECCIÓN directa (máxima prioridad).
+            this.rotacion = input.tactilAngulo;
+            this.imagen.rotation = this.rotacion;
+        } else if (!this.enPropulsor && input.gamepadApuntando) {
+            // JOYSTICK: el stick da una DIRECCIÓN analógica directa.
             // Tiene prioridad sobre el mouse mientras se lo esté empujando.
             this.rotacion = input.gamepadAngulo;
             this.imagen.rotation = this.rotacion;

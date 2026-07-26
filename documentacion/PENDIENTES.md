@@ -1,14 +1,28 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.38.1 (ACTUAL)
+**Versión:** v1.39.0 (ACTUAL)
 
 ---
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
+- **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: **bloquear orientación landscape** + aviso "girá el dispositivo", verificar menús/tutorial/Top5/Créditos en táctil (+ bug del menú-por-detrás), y **empaquetar con Capacitor** (Android/AAB). Probar en celular real (targets de dedo, rendimiento).
+- **Táctil — pulir (opcional)**: en dispositivos táctiles, desactivar el apuntado-por-mouse (los toques emulan mousemove y podrían mover el apuntado al tocar el área vacía); ubicación/tamaño de botones según feedback.
+
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.39.0 - Controles táctiles (celular)
+
+- **Nuevo módulo** `systems/TouchControls.js` (`ControlesTactiles`): overlay DOM sobre el canvas con **joystick virtual** (base + perilla, abajo-izq) y **un solo botón: FUEGO** (abajo-der). Maneja touch (multitouch por identifier de dedo) y tiene fallback de mouse para probar en DevTools.
+- **Habilidades desde el HUD** (`PixiHUD._dibujarCuadrante`): en vez de botones táctiles aparte, los **iconos de las habilidades activables** que ya están en el HUD lateral (Ulti, Devorador, Cohetes, Propulsor) se hicieron **interactivos** (`eventMode='static'`): al tocarlos (pointerdown/up) llaman `gestorEntrada.setTactilAccion(accion, …)`. Mapeo por `mejoraSeccion`: 10→ulti, 25→propulsor, 30→devorar, 35→cohetes. Sirve en táctil y también con click en desktop.
+- **Modelo**: el joystick **apunta la nave Y acelera** hacia ahí (un pulgar hace las dos cosas — coincide con el modelo mouse/gamepad de "acelerás hacia donde apuntás"), con zona muerta de 14px. Los botones activan/desactivan su acción mientras se los mantiene.
+- **Cómo encaja (mismo patrón que el gamepad, sin tocar la lógica)**: el joystick llama `input.setTactilApuntado(angulo)` / `limpiarTactilApuntado()`, y los botones `input.setTactilAccion(accion, activo)`. Las acciones van a `tactilAcciones` (Set) que se **OR-ea en `estaPresionada()`** → todos los `debeXxx()` soportan táctil solos. El apuntado expone `tactilApuntando`/`tactilAngulo`, que `Player.update` usa con **prioridad** (táctil > joystick > mouse).
+- **Integración** (`Game`): se crea en `init` (`new ControlesTactiles(document.body, gestorEntrada)`), se muestra solo en dispositivos táctiles (o forzado para debug), visible **solo mientras se juega** (el game loop hace `setVisible(!pausado && !enGameOver)`; `gameOver()` los oculta).
+- Verificado en runtime (con fallback de mouse): overlay renderiza **solo joystick + FUEGO**, arrastrar el joystick apunta (−0.792) **y acelera** y la nave rota ahí, botón FUEGO dispara al presionar/soltar, y **tocar los 4 iconos del HUD** activa su habilidad (ulti→ulti, devorador→devorar, cohetes→cohetes, propulsor→propulsor). Sin errores.
 
 ---
 

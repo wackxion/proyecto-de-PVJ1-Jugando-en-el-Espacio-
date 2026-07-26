@@ -27,6 +27,7 @@ import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
 import { Cohete } from '../mecanicas/Cohete.js';
 import { UIManager } from '../../ui/UIManager.js';
 import { GestorEntrada } from '../../systems/InputManager.js';
+import { ControlesTactiles } from '../../systems/TouchControls.js';
 import { GestorSonido } from '../../systems/SoundManager.js';
 import { CONFIG } from '../../config.js';
 
@@ -266,6 +267,12 @@ export class Game {
 
         // Crear el InputManager para manejar el teclado
         this.gestorEntrada = new GestorEntrada();
+
+        // Controles táctiles (celular): overlay con joystick virtual + botones.
+        // Se crea siempre (barato) pero solo se MUESTRA en dispositivos táctiles.
+        if (!this.controlesTactiles) {
+            this.controlesTactiles = new ControlesTactiles(document.body, this.gestorEntrada);
+        }
 
 
         // Crear el GestorSonido y registrar los sonidos del juego
@@ -1017,6 +1024,9 @@ _crearParticulaBoidFuera() {
         // Marcar el juego como no corriendo y en Game Over
         this.ejecutando = false;
         this.enGameOver = true;
+
+        // Ocultar los controles táctiles (el loop se detiene, no los apagaría solo)
+        if (this.controlesTactiles) this.controlesTactiles.ocultar();
 
         // Ocultar el HUD (escudo curvo, paneles, marcador): está en zIndex 1000,
         // por encima de la ventana de Game Over, y no tiene sentido durante el
@@ -1905,6 +1915,12 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // también con el juego pausado (que es cuando el menú está abierto).
             if (this.pixiHUD) {
                 this.pixiHUD.actualizarDespliegue(!!this.mostrandoVentanaMejoras);
+            }
+
+            // Controles táctiles: visibles solo mientras se juega (no en pausa/mejoras
+            // ni en game over). En no-táctiles setVisible no muestra nada.
+            if (this.controlesTactiles) {
+                this.controlesTactiles.setVisible(!this.pausado && !this.enGameOver);
             }
 
     // Si el juego está pausado, salir del loop (PixiHUD ya refleja el estado)

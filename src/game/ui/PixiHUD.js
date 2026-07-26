@@ -1103,6 +1103,24 @@ export class PixiHUD {
             g.icono.position.set(Q / 2, y + Q / 2);
             g.icono.zIndex = 2;
             contenedor.addChild(g.icono);
+
+            // TÁCTIL/CLICK: si el cuadrante es una habilidad ACTIVABLE, tocar su icono
+            // la usa (durante el juego). Así en celular las habilidades se disparan
+            // desde los iconos que YA están en el HUD, sin botones táctiles aparte.
+            const ACCIONES = { 10: 'ulti', 25: 'propulsor', 30: 'devorar', 35: 'cohetes' };
+            const accion = ACCIONES[g.mejoraSeccion];
+            if (accion) {
+                g.icono.eventMode = 'static';
+                g.icono.cursor = 'pointer';
+                if (!g._iconoTactilWired) {
+                    g._iconoTactilWired = true;
+                    const setAccion = (v) => { if (this.game && this.game.gestorEntrada) this.game.gestorEntrada.setTactilAccion(accion, v); };
+                    g.icono.on('pointerdown', () => setAccion(true));
+                    g.icono.on('pointerup', () => setAccion(false));
+                    g.icono.on('pointerupoutside', () => setAccion(false));
+                    g.icono.on('pointercancel', () => setAccion(false));
+                }
+            }
         }
 
         // Panel de mejoras (chip + pips) dentro del rectángulo del marco.
