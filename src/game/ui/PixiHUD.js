@@ -912,6 +912,13 @@ export class PixiHUD {
                 this._upgradeSprite = new PIXI.Sprite(texUpgrade);
                 this._upgradeSprite.anchor.set(0.5);
                 this._upgradeSprite.zIndex = 1;
+                // TÁCTIL/CLICK: tocar el icono de MEJORAS (arriba) abre/cierra el panel
+                // de mejoras (equivale a la tecla P). Así en celular se entra sin teclado.
+                this._upgradeSprite.eventMode = 'static';
+                this._upgradeSprite.cursor = 'pointer';
+                this._upgradeSprite.on('pointertap', () => {
+                    if (this.game && this.game.alternarMejoras) this.game.alternarMejoras();
+                });
                 this.contenedorTop.addChild(this._upgradeSprite);
             }
             this._upgradeSprite.texture = texUpgrade;
@@ -1107,7 +1114,7 @@ export class PixiHUD {
             // TÁCTIL/CLICK: si el cuadrante es una habilidad ACTIVABLE, tocar su icono
             // la usa (durante el juego). Así en celular las habilidades se disparan
             // desde los iconos que YA están en el HUD, sin botones táctiles aparte.
-            const ACCIONES = { 10: 'ulti', 25: 'propulsor', 30: 'devorar', 35: 'cohetes' };
+            const ACCIONES = { 10: 'ulti', 20: 'avanzar', 25: 'propulsor', 30: 'devorar', 35: 'cohetes' };
             const accion = ACCIONES[g.mejoraSeccion];
             if (accion) {
                 g.icono.eventMode = 'static';

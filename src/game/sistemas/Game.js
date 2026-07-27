@@ -1875,6 +1875,18 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         return { x, y };
     }
 
+    /**
+     * Abre/cierra el panel de MEJORAS (equivale a la tecla P). Lo usa el icono de
+     * mejoras del HUD (arriba) al tocarlo/clickearlo — así en celular se entra sin
+     * teclado. Pausa el juego mientras el panel está abierto.
+     */
+    alternarMejoras() {
+        if (this.enGameOver) return;
+        this.pausado = !this.pausado;
+        this.gestorEntrada.reiniciar();
+        this.mostrandoVentanaMejoras = this.pausado;
+    }
+
     async _gameLoop(ticker) {
         // Si el juego no está corriendo, salir
         if (!this.ejecutando) return;
@@ -1917,10 +1929,11 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
                 this.pixiHUD.actualizarDespliegue(!!this.mostrandoVentanaMejoras);
             }
 
-            // Controles táctiles: visibles solo mientras se juega (no en pausa/mejoras
-            // ni en game over). En no-táctiles setVisible no muestra nada.
+            // Controles táctiles: visibles solo en modo 'touch' y mientras se juega
+            // (no en pausa/mejoras ni en game over).
             if (this.controlesTactiles) {
-                this.controlesTactiles.setVisible(!this.pausado && !this.enGameOver);
+                const modoTouch = this.gestorEntrada && this.gestorEntrada.modoControl === 'touch';
+                this.controlesTactiles.setVisible(modoTouch && !this.pausado && !this.enGameOver);
             }
 
     // Si el juego está pausado, salir del loop (PixiHUD ya refleja el estado)

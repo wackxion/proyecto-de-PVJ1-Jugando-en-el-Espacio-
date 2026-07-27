@@ -221,12 +221,52 @@ export class UIManager {
         container.appendChild(titulo);
 
         const nota = document.createElement('div');
-        nota.textContent = 'El apuntado es con el mouse (fijo). Clic en una acción para reasignarla.';
+        nota.textContent = 'El teclado funciona siempre. Clic en una acción para reasignarla.';
         nota.style.cssText = `
             color: #0044CC; font-family: 'Arial', sans-serif; font-size: 13px;
-            opacity: 0.75; margin-bottom: 18px; text-align: center; max-width: 420px;
+            opacity: 0.75; margin-bottom: 14px; text-align: center; max-width: 440px;
         `;
         container.appendChild(nota);
+
+        // --- Selector de MODO de control (Mouse y teclado / Joystick / Touch) ---
+        const filaModo = document.createElement('div');
+        filaModo.style.cssText = `
+            display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+            gap: 8px; margin-bottom: 16px; color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold;
+        `;
+        const lblModo = document.createElement('span');
+        lblModo.textContent = 'Modo:';
+        lblModo.style.cssText = 'font-size: 18px; margin-right: 4px;';
+        filaModo.appendChild(lblModo);
+
+        const btnsModo = [];
+        const pintarModo = () => {
+            const actual = GestorEntrada.cargarModoControl();
+            for (const b of btnsModo) {
+                const sel = b.dataset.modo === actual;
+                b.style.background = sel ? 'rgba(0,68,204,0.45)' : 'rgba(0,68,204,0.08)';
+                b.style.color = sel ? '#ffffff' : '#0044CC';
+            }
+        };
+        for (const { id, label } of GestorEntrada.MODOS) {
+            const b = document.createElement('div');
+            b.dataset.modo = id;
+            b.textContent = label;
+            b.style.cssText = `
+                cursor: pointer; padding: 6px 14px; font-size: 16px;
+                border: 2px solid #0044CC; border-radius: 8px; transition: background 0.15s ease;
+            `;
+            b.addEventListener('click', () => {
+                this._click();
+                GestorEntrada.guardarModoControl(id);
+                if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.setModoControl(id);
+                pintarModo();
+            });
+            btnsModo.push(b);
+            filaModo.appendChild(b);
+        }
+        pintarModo();
+        container.appendChild(filaModo);
 
         // Área scrolleable con la lista de acciones (por si no entran todas).
         const lista = document.createElement('div');
@@ -1061,7 +1101,7 @@ export class UIManager {
             ['CLICK DER', null, 'Acelerar (avanzar hacia el cursor)'],
             ['W / ESPACIO', null, 'Acelerar / Disparar (teclado, alternativo)'],
             ['JOYSTICK', null, 'Stick izq: apuntar · RT/A: acelerar · LT/X: disparar · B: Ulti · LB: Devorador · RB: Cohetes · Y: Propulsor'],
-            ['CELULAR', null, 'Joystick en pantalla: apuntar + acelerar · Botón FUEGO: disparar · Habilidades: tocá su icono en el HUD'],
+            ['CELULAR', null, 'Joystick: apuntar · Botón FUEGO: disparar · Acelerar y habilidades: tocá su icono en el HUD · Mejoras: icono de arriba'],
             ['Q', 'assets/cohetes.png', 'Cohetes teledirigidos'],
             ['E', 'assets/deborador.png', 'Devorador (atrae partículas)'],
             ['R', 'assets/propulsor.png', 'Propulsor (dash)'],

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.39.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.39.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.39.1 (Actual)
+### v1.40.0 (Actual)
+> **Modo de control (Mouse y teclado / Joystick / Touch) + táctil por iconos del HUD**
+
+- ⚙️ Nuevo **selector de modo** en Opciones → Controles: **Mouse y teclado / Joystick / Touch** (se guarda). El **teclado funciona siempre**, en cualquier modo. El overlay táctil y el apuntado-por-mouse dependen del modo
+- 📱 En táctil: el **joystick solo apunta**; la **aceleración** se activa tocando su icono en el HUD (como las habilidades), y las **mejoras** se abren tocando el **icono de mejoras de arriba**
+
+### v1.39.1
 > **Fix táctil: al soltar el joystick la nave conserva la dirección**
 
 - 🕹️ Con los controles táctiles activos se **desactiva el apuntado por mouse** (en táctil los toques emulan `mousemove` y, al soltar el joystick, le robaban la dirección). Ahora al soltar, la nave **queda apuntando a la última dirección**

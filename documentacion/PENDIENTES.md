@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.39.1 (ACTUAL)
+**Versión:** v1.40.0 (ACTUAL)
 
 ---
 
@@ -12,6 +12,18 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.0 - Modo de control + táctil por iconos del HUD
+
+- **Selector de modo de control** (Opciones → Controles): 3 opciones **Mouse y teclado / Joystick / Touch** (`GestorEntrada.MODOS`, `cargarModoControl`/`guardarModoControl` en `localStorage['modoControlJEE']`, `setModoControl`). Autodetecta: en dispositivo táctil arranca en 'touch', si no 'mouseTeclado'. El **teclado y todos los bindings funcionan SIEMPRE**, en cualquier modo. El modo solo decide: qué apuntado manda y si se ve el overlay táctil.
+  - `Player.update`: el apuntado por mouse ahora se activa solo si `modoControl !== 'touch'` (antes era `controlTactilActivo`, que se eliminó).
+  - `Game._gameLoop`: el overlay táctil se muestra solo si `modoControl === 'touch'` (y jugando, no en pausa/game over).
+  - UI: fila "Modo:" con 3 botones que resaltan el actual y persisten al tocarlos; avisan al juego en curso (`window.game.gestorEntrada.setModoControl`).
+- **Aceleración por icono** (táctil): el joystick virtual **solo apunta** (se quitó la auto-aceleración). La aceleración se activa tocando el **icono de Aceleración** del HUD — se sumó la sección 20 al mapa de iconos activables (`PixiHUD._dibujarCuadrante`): `20 → 'avanzar'`.
+- **Mejoras por el icono de arriba** (táctil/click): el icono de mejoras del marcador superior (`_upgradeSprite`) se hizo interactivo → al tocarlo llama `Game.alternarMejoras()` (nuevo método, mismo efecto que la tecla P: pausa + despliega el panel).
+- Verificado en runtime: modo inicial autodetectado ('touch'), icono Aceleración toca→'avanzar', icono Mejoras toca→abre panel, selector cambia y persiste el modo, overlay solo en 'touch'. Sin errores.
 
 ---
 

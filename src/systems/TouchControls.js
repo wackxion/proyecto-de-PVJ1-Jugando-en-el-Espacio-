@@ -121,17 +121,13 @@ export class ControlesTactiles {
             const mag = Math.hypot(dx, dy);
             if (mag > R) { dx = dx / mag * R; dy = dy / mag * R; }
             this.perilla.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            if (mag > DEADZONE) {
-                this.input.setTactilApuntado(Math.atan2(dy, dx));   // apuntar
-                this.input.setTactilAccion('avanzar', true);         // y acelerar hacia ahí
-            } else {
-                this.input.setTactilAccion('avanzar', false);
-            }
+            // El joystick SOLO apunta. La aceleración se activa aparte, tocando el
+            // icono de "Aceleración" en el HUD (lo engancha PixiHUD).
+            if (mag > DEADZONE) this.input.setTactilApuntado(Math.atan2(dy, dx));
         };
         const soltar = () => {
             this.perilla.style.transform = 'translate(-50%, -50%)';
             this.input.limpiarTactilApuntado();
-            this.input.setTactilAccion('avanzar', false);
         };
 
         // --- Touch (multitouch: seguimos el dedo que empezó en la base) ---
@@ -174,23 +170,17 @@ export class ControlesTactiles {
         ];
     }
 
-    /** Muestra el overlay (solo si es táctil, o si forzar=true). */
-    mostrar(forzar = false) {
-        if (forzar) this.forzado = true;
-        if (!(this.forzado || ControlesTactiles.soportado())) return;
+    /** Muestra el overlay. La decisión de mostrarlo (modo 'touch') la toma el Game. */
+    mostrar() {
         if (this.overlay) this.overlay.style.display = 'block';
-        // Con los controles táctiles activos, el apuntado es SOLO por joystick
-        // (se desactiva el mouse, que en táctil se emula y robaría la dirección).
-        if (this.input) this.input.controlTactilActivo = true;
     }
 
-    /** Oculta el overlay y suelta cualquier acción táctil pegada. */
+    /** Oculta el overlay y suelta cualquier acción/apuntado táctil pegado. */
     ocultar() {
         if (this.overlay) this.overlay.style.display = 'none';
         if (this.input) {
             this.input.limpiarTactilApuntado();
             this.input.tactilAcciones.clear();
-            this.input.controlTactilActivo = false;   // reactivar apuntado por mouse
         }
         this._jsTouchId = null;
         if (this.perilla) this.perilla.style.transform = 'translate(-50%, -50%)';

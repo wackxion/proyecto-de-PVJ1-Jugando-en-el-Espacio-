@@ -114,10 +114,14 @@ export class GestorEntrada {
         this.tactilApuntando = false;
         this.tactilAngulo = 0;
         this.tactilAcciones = new Set();
-        // true mientras los controles táctiles están en pantalla: desactiva el
-        // apuntado-por-mouse (en táctil los toques emulan mousemove y, al soltar el
-        // joystick, robarían el apuntado en vez de conservar la última dirección).
-        this.controlTactilActivo = false;
+
+        // === MODO DE CONTROL (elegido en Opciones → Controles) ===
+        // Determina QUÉ apuntado manda y si se ven los controles táctiles:
+        //   'mouseTeclado' → apunta el mouse; sin overlay táctil
+        //   'joystick'     → apunta el gamepad; sin overlay táctil (mouse de respaldo)
+        //   'touch'        → apunta el joystick virtual; overlay táctil visible; mouse OFF
+        // El TECLADO y TODOS los bindings de acciones funcionan SIEMPRE, en cualquier modo.
+        this.modoControl = GestorEntrada.cargarModoControl();
 
         // Vincular los eventos del teclado
         this._vincularEventos();
@@ -269,6 +273,39 @@ export class GestorEntrada {
     static restaurarControlesConfig() {
         try { localStorage.removeItem(STORAGE_KEY_CONTROLES); } catch (e) { /* ignorar */ }
         return GestorEntrada.defaultControles();
+    }
+
+    /** Los 3 modos de control disponibles (para la UI de Opciones). */
+    static get MODOS() {
+        return [
+            { id: 'mouseTeclado', label: 'Mouse y teclado' },
+            { id: 'joystick',     label: 'Joystick' },
+            { id: 'touch',        label: 'Touch' },
+        ];
+    }
+
+    /**
+     * Carga el modo de control guardado. Si no hay, autodetecta: en dispositivo
+     * táctil arranca en 'touch', si no en 'mouseTeclado'.
+     * @returns {'mouseTeclado'|'joystick'|'touch'}
+     */
+    static cargarModoControl() {
+        let m = null;
+        try { m = localStorage.getItem('modoControlJEE'); } catch (e) { /* ignorar */ }
+        if (m === 'mouseTeclado' || m === 'joystick' || m === 'touch') return m;
+        const esTactil = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+        return esTactil ? 'touch' : 'mouseTeclado';
+    }
+
+    /** Guarda el modo de control en localStorage. */
+    static guardarModoControl(modo) {
+        try { localStorage.setItem('modoControlJEE', modo); } catch (e) { /* ignorar */ }
+    }
+
+    /** Cambia el modo de control de esta instancia y lo persiste. */
+    setModoControl(modo) {
+        this.modoControl = modo;
+        GestorEntrada.guardarModoControl(modo);
     }
 
     // ===================== CONFIG DE CONTROLES (instancia) =====================
