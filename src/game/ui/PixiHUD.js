@@ -1555,6 +1555,11 @@ export class PixiHUD {
     _actualizarPreciosMejora() {
         const juego = this.game;
         const particulas = juego ? (juego.particulasCapturadas || 0) : 0;
+        // Titileo: cuando una mejora está disponible su icono no solo brilla, sino
+        // que PULSA su opacidad para llamar la atención. `pulsoMejora` va de ~0.55
+        // a 1.0 con una onda seno (~1.3 Hz). Los iconos NO disponibles quedan fijos
+        // en 0.4 (sin titilar).
+        const pulsoMejora = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(performance.now() / 1000 * 8));
         let algunaComprable = false;
         for (const g of [this.proyectil, this.escudo, this.ulti, this.tiempo, this.nuevo, this.propul, this.deborador, this.cohetes]) {
             if (!g) continue;
@@ -1564,13 +1569,14 @@ export class PixiHUD {
             if (g.upgradeSprite && g.mejoraSeccion !== undefined) {
                 const precio = this._precioMejora(g.mejoraSeccion);
                 const comprable = (precio !== null) && particulas >= precio;
-                g.upgradeSprite.alpha = comprable ? 1 : 0.4;
+                g.upgradeSprite.alpha = comprable ? pulsoMejora : 0.4;  // titila si está disponible
                 if (comprable) algunaComprable = true;
             }
         }
-        // Icono upgreate del marcador superior (panel de puntos/recursos)
+        // Icono upgreate del marcador superior (panel de puntos/recursos): titila
+        // si hay AL MENOS una mejora comprable.
         if (this._upgradeSprite) {
-            this._upgradeSprite.alpha = algunaComprable ? 1 : 0.4;
+            this._upgradeSprite.alpha = algunaComprable ? pulsoMejora : 0.4;
         }
     }
 

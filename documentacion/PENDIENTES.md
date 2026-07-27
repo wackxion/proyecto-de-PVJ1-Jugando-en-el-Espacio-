@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.2 (ACTUAL)
+**Versión:** v1.41.3 (ACTUAL)
 
 ---
 
@@ -21,9 +21,19 @@
 
 - **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: verificar menús/tutorial/Top5/Créditos en **celular real (Motorola G04)**, y **empaquetar con Capacitor** (Android/AAB, incl. `screenOrientation` landscape nativo). El aviso "girá el dispositivo" (web) y el bug del menú-por-detrás ya están resueltos.
 - **Táctil — pulir en celular real (Motorola G04)**: ubicación/tamaño de joystick, botón de fuego y del área tocable de los iconos del HUD según feedback en el equipo del dev. Verificar SIEMPRE que no rompa el modelo de PC.
+- **Sistema de mejoras — rediseño visual** (pedido 27/07/2026): que el menú/panel de mejoras "se vea mejor". Por ahora solo se sumó el titileo de iconos disponibles (v1.41.3); el rediseño visual queda para más adelante.
+- **Aceleración por intensidad con el joystick** (pedido 27/07/2026): que la aceleración se active con el joystick y que **qué tan fuerte se empuja el stick** determine la potencia de aceleración **y** cuánto se gasta (carga). Hoy el joystick solo apunta y la aceleración se activa por el icono del HUD. NO implementar aún.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.3 - Mejoras: iconos titilan cuando hay una disponible
+
+- **Titileo de iconos de mejora disponible** (`PixiHUD._actualizarPreciosMejora`): además del brillo (`alpha = 1`), cuando una mejora es comprable su `upgradeSprite` ahora **pulsa** con `pulsoMejora = 0.55 + 0.45*(0.5+0.5*sin(now/1000*8))` (~1.3 Hz, rango 0.55–1.0). El icono de mejoras del marcador superior (`_upgradeSprite`) titila igual si hay **al menos una** comprable. Los NO comprables quedan fijos en `alpha = 0.4` (sin titilar).
+- Verificado en runtime: comprable → alpha oscila 0.55↔0.99 (`pulsa: true`, en rango); no comprable → 0.4 fijo; sin errores.
+- **Pendiente a pedido del dev (más adelante)**: (1) rediseño visual del **menú/sistema de mejoras** (que se vea mejor); (2) **aceleración con el joystick por intensidad** — cuánto se empuja el stick define qué tan fuerte acelera y cuánto gasta. Ambos anotados, NO implementar aún.
 
 ---
 
