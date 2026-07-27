@@ -41,6 +41,7 @@ export class ControlesTactiles {
             position: absolute; inset: 0; z-index: 500;
             pointer-events: none;   /* solo los controles reciben toques */
             touch-action: none; user-select: none; -webkit-user-select: none;
+            opacity: 0.75;          /* -25% de opacidad global de los controles tactiles */
         `;
 
         // --- Joystick virtual (base + perilla) ---

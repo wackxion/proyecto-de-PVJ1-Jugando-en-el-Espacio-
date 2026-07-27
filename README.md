@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.2)
 
 ---
 
@@ -361,8 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.1 (Actual)
-> **Mobile: aviso "girá el dispositivo" (orientación horizontal)**
+### v1.40.2 (Actual)
+> **Táctil: controles un poco más sutiles**
+
+- 🎮 Los **controles táctiles** (joystick + botón de fuego) ahora se ven con **−25% de opacidad**, para que estorben menos la vista del juego
+
+### v1.40.1
 
 - 📲 En celular, si está en **vertical** aparece un aviso **"Girá el dispositivo"** (el juego se juega en horizontal). Solo en dispositivos táctiles (no molesta al desktop). CSS puro con `@media (orientation: portrait) and (pointer: coarse)`
 
