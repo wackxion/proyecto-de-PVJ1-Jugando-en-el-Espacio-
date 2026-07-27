@@ -22,6 +22,14 @@ export const CONFIG = {
         OLEADA_OBJETIVO: 10,            // Asteroides a destruir para subir de oleada
     },
 
+    // === HUD ===
+    HUD: {
+        // En celular (dispositivo táctil) el HUD se agranda este factor y, como
+        // todos los offsets internos se multiplican por la escala, sus elementos
+        // quedan un 25% más grandes Y más separados. En PC (sin táctil) = 1 (igual).
+        BOOST_TACTIL: 1.25,
+    },
+
     // === JUGADOR (nave) ===
     JUGADOR: {
         VELOCIDAD_MAX: 300,             // Velocidad máxima de avance (px/s)

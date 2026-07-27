@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.4)
 
 ---
 
@@ -361,8 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.3 (Actual)
-> **Mobile: menú visible en celular + controles táctiles reubicados**
+### v1.40.4 (Actual)
+> **Mobile: HUD 25% más grande en celular**
+
+- 📱 En **celular (dispositivo táctil)** el HUD se muestra **25% más grande** (marcadores, iconos de habilidad, barras) y, como todo se escala junto, sus elementos quedan **más separados** — más fácil de ver y tocar. En **PC no cambia nada** (factor 1). Ajustable desde `CONFIG.HUD.BOOST_TACTIL`
+
+### v1.40.3
 
 - 📱 **Menú principal en celular**: los botones (JUGAR, TUTORIAL, TOP 5, OPCIONES, CRÉDITOS) ahora **se achican según la altura de pantalla** para que **entren los 5** en un celular apaisado (antes JUGAR y CRÉDITOS quedaban cortados fuera de pantalla). En desktop no cambia (siguen a 256px)
 - 🎮 **Joystick y botón de fuego** movidos **más hacia adentro** de la pantalla (de `4%`/`8%` a `7%`/`11%` del borde), para que no queden pegados al filo

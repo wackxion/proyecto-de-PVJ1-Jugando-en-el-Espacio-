@@ -31,6 +31,8 @@
  *   canvas ya tenga dimensiones válidas.
  */
 
+import { CONFIG } from '../../config.js';
+
 export class PixiHUD {
     /**
      * Constructor del HUD
@@ -40,6 +42,12 @@ export class PixiHUD {
     constructor(app, game) {
         this.app = app;
         this.game = game;
+
+        // En celular (dispositivo táctil) el HUD se agranda (y sus elementos
+        // quedan más separados, porque todo se multiplica por la escala). En PC
+        // el factor es 1 → el modelo de compu no cambia.
+        const esTactil = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+        this._hudBoost = esTactil ? ((CONFIG.HUD && CONFIG.HUD.BOOST_TACTIL) || 1) : 1;
 
         // Contenedor principal del HUD
         this.container = new PIXI.Container();
@@ -217,7 +225,9 @@ export class PixiHUD {
     _calcularEscala() {
         const w = this.app.screen.width || window.innerWidth || 1080;
         const h = this.app.screen.height || window.innerHeight || 720;
-        this._escala = Math.min(w / 1080, h / 720);
+        // Escala base por proporción de pantalla × boost táctil (celular): en PC
+        // el boost es 1, así que el HUD queda idéntico al de siempre.
+        this._escala = Math.min(w / 1080, h / 720) * this._hudBoost;
 
         // El contenedor raíz no se escala; cada grupo lleva su propia escala
         // y posición ancladas al borde real.

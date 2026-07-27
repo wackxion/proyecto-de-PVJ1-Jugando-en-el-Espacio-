@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.40.3 (ACTUAL)
+**Versión:** v1.40.4 (ACTUAL)
 
 ---
 
@@ -24,6 +24,15 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.4 - Mobile: HUD 25% más grande en celular
+
+- **HUD más grande en táctil** (`PixiHUD._calcularEscala` + `config.js` → `CONFIG.HUD.BOOST_TACTIL = 1.25`): en dispositivo táctil (celular) la escala del HUD se multiplica por **1.25**. Como cada grupo del HUD se dibuja en la base 1080×720 y **todos** sus offsets internos se multiplican por `_escala`, subir el factor agranda los elementos **y** separa sus contenidos un 25% (lo que pidió el dev: "más grande y con más separación"). No toca el zoom del mundo del juego.
+  - Detección táctil idéntica al `InputManager` (`navigator.maxTouchPoints > 0 || 'ontouchstart' in window`), computada una vez en el constructor (`this._hudBoost`). En **PC el factor es 1** → el HUD queda idéntico (modelo de compu intacto).
+  - Verificado en runtime (el pane reporta táctil): `hudBoost = 1.25`, `escala = base × 1.25` (0.725 → 0.9063); forzando `boost = 1` la escala vuelve a la base 0.725 (regresión PC OK); grupos dentro de pantalla (los rectángulos de mejora recogidos quedan fuera a propósito hasta desplegarse); sin errores de consola.
+  - **Pendiente de afinar en el Motorola G04 real**: en 1600×720 el boost da escala 1.25; el HUD crece hacia el centro (más superposición con el área de juego). Si molesta, bajar `BOOST_TACTIL` (ej. 1.15) — es un solo número.
 
 ---
 
