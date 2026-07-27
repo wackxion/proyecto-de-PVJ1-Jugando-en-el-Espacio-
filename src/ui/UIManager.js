@@ -544,6 +544,13 @@ export class UIManager {
 
         // Botones 20% más chicos que su tamaño natural (320px -> 256px)
         const anchoBoton = 256;
+        // En celular (dispositivo táctil) los botones van un 15% más chicos que en
+        // PC. Se ata a la detección táctil (no a la altura) porque el celular puede
+        // tener el mismo alto que el desktop (ej. G04 = 720px). PC no cambia.
+        const esTactilMenu = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+        const factorCel = esTactilMenu ? 0.85 : 1;
+        const anchoBotonPx = Math.round(anchoBoton * factorCel);
+        const anchoBotonVh = Math.round(46 * factorCel);
 
         // --- Botones en columna a la derecha, JUGAR arriba de todos, más juntos ---
         const colDerecha = document.createElement('div');
@@ -568,7 +575,8 @@ export class UIManager {
             const b = this.crearBotonMenu(txt, acc, img);
             // Ancho fijo en desktop, pero en pantallas bajas (celular apaisado) se
             // achica segun la altura para que ENTREN los 5 botones sin cortarse.
-            b.style.width = `min(${anchoBoton}px, 46vh)`;
+            // En celular, además, un 15% más chico (factorCel).
+            b.style.width = `min(${anchoBotonPx}px, ${anchoBotonVh}vh)`;
             colDerecha.appendChild(b);
         }
         this.mainMenu.appendChild(colDerecha);

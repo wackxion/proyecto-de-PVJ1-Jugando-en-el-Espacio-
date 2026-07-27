@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.41.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.41.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.41.1 (Actual)
+### v1.41.2 (Actual)
+> **Menú: botones 15% más chicos en celular**
+
+- 📱 En **celular (táctil)** los botones del menú principal van un **15% más chicos** (256→218px). Atado a la detección táctil (no a la altura), porque el celular puede tener el mismo alto que el desktop. En **PC no cambia**
+
+### v1.41.1
 > **Android: botón "atrás" = Escape**
 
 - 🔙 En la app Android, el **botón "atrás"** del celular ahora hace lo mismo que **Escape**: con una partida en curso abre (o cierra) la ventana **"¿Volver al menú?"**; en el menú o Game Over, sale de la app. Usa el plugin `@capacitor/app`. En la web de escritorio no cambia nada (Escape sigue por teclado)

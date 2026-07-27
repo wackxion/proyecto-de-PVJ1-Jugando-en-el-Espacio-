@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.1 (ACTUAL)
+**Versión:** v1.41.2 (ACTUAL)
 
 ---
 
@@ -24,6 +24,12 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.2 - Menú: botones 15% más chicos en celular
+
+- **Botones del menú −15% en táctil** (`UIManager.mostrarMenuPrincipal`): se agregó `factorCel = esTactil ? 0.85 : 1` (detección `navigator.maxTouchPoints > 0 || 'ontouchstart'`) y el ancho pasó a `min(anchoBoton*factorCel px, 46*factorCel vh)`. Se ata a **táctil, NO a la altura**, porque el G04 tiene el mismo alto que el desktop (720px) y un cambio por `vh` no los distinguiría. En **PC (factor 1) queda idéntico** (`min(256px, 46vh)`). Verificado en runtime a 1600×720 táctil: botones a **218px** (= 256×0.85), los 5 visibles.
 
 ---
 
