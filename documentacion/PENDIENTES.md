@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.0 (ACTUAL)
+**Versión:** v1.41.1 (ACTUAL)
 
 ---
 
@@ -24,6 +24,14 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.1 - Android: botón "atrás" = Escape
+
+- **Botón atrás de Android = Escape** (`src/main.js` + plugin `@capacitor/app`): se agregó un listener `App.addListener('backButton', …)` que replica el comportamiento de Escape. Con partida en curso (o el modal ya abierto) dispara un `KeyboardEvent('keydown', {key:'Escape'})` sobre `window` → reutiliza el handler existente que abre/cierra la ventana **"¿Volver al menú?"**. En el menú o Game Over llama `App.exitApp()` (comportamiento estándar del botón atrás).
+- Guardado con `if (window.Capacitor && …)` → en la **web de escritorio no se ejecuta** (Capacitor no existe), Escape sigue por teclado. **Modelo de PC intacto** (verificado en runtime: `window.Capacitor` undefined, juego carga, sin errores).
+- Requirió `npm install @capacitor/app` (v8.1.1) + `npm run cap:sync` (registra el plugin nativo) + reinstalar en el G04.
 
 ---
 

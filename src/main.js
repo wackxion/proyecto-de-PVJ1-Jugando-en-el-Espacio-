@@ -185,3 +185,23 @@ window.addEventListener('keydown', (e) => {
         () => cerrarConfirmSalir(false)   // SEGUIR JUGANDO
     );
 });
+
+// Botón "ATRÁS" de Android (app nativa / Capacitor) = mismo comportamiento que
+// Escape: con una partida en curso abre (o cierra, si ya está abierta) la ventana
+// "¿Volver al menú?". En el menú o en Game Over, sale de la app (lo que se espera
+// del botón atrás). En la web de escritorio `window.Capacitor` no existe, así que
+// esto no hace nada y Escape sigue andando por teclado (modelo de PC intacto).
+if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    const appPlugin = window.Capacitor.Plugins.App;
+    appPlugin.addListener('backButton', () => {
+        const partidaEnCurso = game && juegoInicializado && game.ejecutando && !game.enGameOver;
+        if (confirmSalirAbierto || partidaEnCurso) {
+            // Reutiliza el handler de Escape de arriba (abre/cierra el modal).
+            window.dispatchEvent(new KeyboardEvent('keydown', {
+                key: 'Escape', code: 'Escape', bubbles: true, cancelable: true
+            }));
+        } else {
+            appPlugin.exitApp();
+        }
+    });
+}

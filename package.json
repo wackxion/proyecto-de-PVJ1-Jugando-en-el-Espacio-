@@ -1,6 +1,6 @@
 {
   "name": "jugando-en-el-espacio",
-  "version": "1.41.0",
+  "version": "1.41.1",
   "description": "Videojuego 2D arcade espacial hecho con PixiJS - Programación de Videojuegos 1, UNAHUR",
   "main": "src/main.js",
   "scripts": {
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.4.2",
     "@capacitor/core": "^8.4.2"
   }

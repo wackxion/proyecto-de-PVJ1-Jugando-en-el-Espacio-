@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.41.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.41.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.41.0 (Actual)
+### v1.41.1 (Actual)
+> **Android: botón "atrás" = Escape**
+
+- 🔙 En la app Android, el **botón "atrás"** del celular ahora hace lo mismo que **Escape**: con una partida en curso abre (o cierra) la ventana **"¿Volver al menú?"**; en el menú o Game Over, sale de la app. Usa el plugin `@capacitor/app`. En la web de escritorio no cambia nada (Escape sigue por teclado)
+
+### v1.41.0
 > **Empaquetado Android con Capacitor (setup)**
 
 - 🤖 Se sumó **Capacitor** (v8.4.2) para empaquetar el juego como **app Android** (`.apk`/`.aab`) sin reescribir nada. Nuevos scripts: `npm run cap:sync` (arma `www/` + sincroniza) y `npm run cap:open` (abre Android Studio)
