@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.41.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.0)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.6 (Actual)
+### v1.41.0 (Actual)
+> **Empaquetado Android con Capacitor (setup)**
+
+- 🤖 Se sumó **Capacitor** (v8.4.2) para empaquetar el juego como **app Android** (`.apk`/`.aab`) sin reescribir nada. Nuevos scripts: `npm run cap:sync` (arma `www/` + sincroniza) y `npm run cap:open` (abre Android Studio)
+- 🔒 Config nativa: **orientación horizontal bloqueada** + **modo inmersivo** (oculta las barras de Android → libera el borde de la columna de habilidades)
+- 📁 `capacitor.config.json` + `scripts/build-www.mjs` versionados; `www/` y `android/` se generan (ignorados en git). El detalle del proceso queda en un informe interno
+
+### v1.40.6
 > **Menú: título del juego completo (imagen anclada arriba)**
 
 - 🎮 El fondo del menú principal ahora se ancla arriba (`background-position: center top`) → el **título "Jugando en el Espacio" se ve completo** y no se recorta en pantallas anchas (celular apaisado). Mejora también en PC

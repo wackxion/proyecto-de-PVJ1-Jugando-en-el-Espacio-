@@ -1,0 +1,9 @@
+{
+  "appId": "com.wackxion.jugandoenelespacio",
+  "appName": "Jugando en el Espacio",
+  "webDir": "www",
+  "backgroundColor": "#0D0D1AFF",
+  "android": {
+    "backgroundColor": "#0D0D1AFF"
+  }
+}

@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.40.6 (ACTUAL)
+**Versión:** v1.41.0 (ACTUAL)
 
 ---
 
@@ -24,6 +24,20 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.0 - Empaquetado Android con Capacitor (setup, paso 3)
+
+Setup del **paso 3 del roadmap mobile** (`AppBusiness.md`). Detalle completo en `documentacion/appAndroidGDD.md` (informe interno, no versionado).
+
+- **Capacitor 8.4.2** instalado (`@capacitor/core`, `cli`, `android`) → quedan en `dependencies`.
+- **`capacitor.config.json`** (versionado): `appId = com.wackxion.jugandoenelespacio`, `appName = "Jugando en el Espacio"`, `webDir = "www"`, fondo `#0D0D1A`.
+- **`scripts/build-www.mjs`** (versionado): arma `www/` copiando solo `index.html`, `assets/`, `css/`, `libs/`, `src/` (no `node_modules`/docs). Scripts npm: `cap:www`, `cap:sync`, `cap:open`.
+- **`android/`** generado con `npx cap add android` (proyecto nativo). **Ediciones nativas** aplicadas: orientación `sensorLandscape` en `AndroidManifest.xml` y **modo inmersivo** (barras ocultas) en `MainActivity.java` — documentadas en el informe para re-aplicar si se regenera.
+- **git**: `www/` y `android/` **ignorados** (generados); se versionan `capacitor.config.json`, `scripts/`, `package.json`, `package-lock.json`. El informe `appAndroidGDD.md` también ignorado.
+- Verificado: `npx cap sync` copia bien `www → android`; `npx cap doctor` → "Android looking great! 👌".
+- **PENDIENTE (lo hace el dev en Android Studio)**: abrir con `npm run cap:open`, correr en emulador o en el **Motorola G04** real (Run ▶), probar controles táctiles a pantalla completa, y más adelante generar el `.aab` firmado. Íconos/splash propios + AdMob (paso 4) + requisitos Play Store (paso 5) quedan pendientes.
 
 ---
 

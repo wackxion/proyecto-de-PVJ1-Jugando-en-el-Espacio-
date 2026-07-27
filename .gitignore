@@ -17,3 +17,10 @@ obsidian-desarrollo/
 
 # Plan de negocio / publicación (privado, no versionar)
 documentacion/AppBusiness.md
+
+# Informe interno del empaquetado Android (privado, no versionar)
+documentacion/appAndroidGDD.md
+
+# Capacitor / Android (generados; se regeneran con npm run cap:www + npx cap add android)
+www/
+android/
