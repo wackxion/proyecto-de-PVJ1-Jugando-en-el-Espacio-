@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.40.4 (ACTUAL)
+**Versión:** v1.40.5 (ACTUAL)
 
 ---
 
@@ -24,6 +24,17 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.5 - Mobile: ajustes tras probar en el Motorola G04 real
+
+Primera pasada con **captura del G04 real** (1600×720 landscape). Diagnóstico medido en runtime a ese tamaño (con el boost 1.25 activo) y correcciones:
+
+- **Iconos cortados en los bordes** (`PixiHUD._calcularEscala`): las columnas laterales tenían `margenLat = 2` → el cuadrado quedaba a 2px del filo (izq x2–108, der x1492–1598) y se veía "colgando"; la derecha además pisaba la barra de navegación de Android. Fix: en boost táctil `margenLat = max(12, w*0.014)` (~22px en 1600) → cuadrados a **22px de cada borde**. **En PC (boost 1) sigue en 2** (sin cambios).
+- **Joystick y FUEGO chicos y pegados a las columnas** (`TouchControls.js`): estaban a **4px** de las columnas y medían 130/100px. Fix: joystick **130→170px** (perilla 60→78, `R` de la perilla 55→72), botón FUEGO **100→130px**, y ambos movidos de `7%` a **`10%`** del borde → quedan a **~32px** de las columnas (medido). Solo afecta al overlay táctil (no se ve en PC).
+- Verificado en runtime a 1600×720 (táctil, boost activo): columnas a 22px del borde, joystick 170px a x160–330, FUEGO 130px a x1310–1440, gap de 32px a cada columna; forzando `boost = 1` (PC) → escala 1.0 y margenLat 2 (regresión OK); sin errores de consola.
+- **Sigue pendiente para Capacitor**: la **barra de navegación de Android** (□ ○ ◁) en el borde derecho aún queda cerca de la columna der (en 1600 el cuadrado llega a x1578). Se resuelve solo al empaquetar con **modo inmersivo / pantalla completa** (paso 3); en el navegador es inevitable. Si en el G04 el boost 1.25 se ve muy grande, bajar `CONFIG.HUD.BOOST_TACTIL`.
 
 ---
 

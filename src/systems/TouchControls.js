@@ -47,8 +47,8 @@ export class ControlesTactiles {
         // --- Joystick virtual (base + perilla) ---
         const base = document.createElement('div');
         base.style.cssText = `
-            position: absolute; left: 7%; bottom: 11%;
-            width: 130px; height: 130px; border-radius: 50%;
+            position: absolute; left: 10%; bottom: 11%;
+            width: 170px; height: 170px; border-radius: 50%;
             background: rgba(0,68,204,0.10); border: 3px solid rgba(0,68,204,0.55);
             box-shadow: 0 0 12px rgba(0,68,204,0.4);
             pointer-events: auto; touch-action: none;
@@ -56,7 +56,7 @@ export class ControlesTactiles {
         const perilla = document.createElement('div');
         perilla.style.cssText = `
             position: absolute; left: 50%; top: 50%;
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 78px; height: 78px; border-radius: 50%;
             background: rgba(0,68,204,0.35); border: 2px solid rgba(120,180,255,0.9);
             transform: translate(-50%, -50%); will-change: transform;
         `;
@@ -68,9 +68,9 @@ export class ControlesTactiles {
         // Es el ÚNICO botón creado. Las HABILIDADES (Ulti, Devorador, Cohetes,
         // Propulsor) NO tienen botón acá: se usan tocando sus iconos que ya están
         // en el HUD lateral (lo engancha PixiHUD).
-        const botonDisparo = this._crearBoton('FUEGO', 'disparar', 100);
+        const botonDisparo = this._crearBoton('FUEGO', 'disparar', 130);
         botonDisparo.style.position = 'absolute';
-        botonDisparo.style.right = '7%';
+        botonDisparo.style.right = '10%';
         botonDisparo.style.bottom = '11%';
         overlay.appendChild(botonDisparo);
 
@@ -109,7 +109,7 @@ export class ControlesTactiles {
 
     /** Vincula el joystick (touch/mouse). @private */
     _vincular() {
-        const R = 55;              // radio máximo de la perilla (px)
+        const R = 72;              // radio máximo de la perilla (px)
         const DEADZONE = 14;       // zona muerta (px) para no apuntar/acelerar con toques mínimos
 
         const centro = () => {

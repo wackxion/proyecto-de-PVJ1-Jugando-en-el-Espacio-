@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.5)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.4 (Actual)
+### v1.40.5 (Actual)
+> **Mobile: ajustes tras probar en celular real (Motorola G04)**
+
+- 📱 **Iconos de habilidad completos**: en celular las columnas laterales del HUD se separan del borde (margen ~1.4% del ancho) para que los iconos **no se vean cortados** y despeguen de la barra de Android. En PC no cambia (siguen casi al borde)
+- 🕹️ **Joystick y FUEGO más grandes**: joystick 130→170px (perilla 60→78, rango 55→72) y botón FUEGO 100→130px, para tocar más cómodo
+- ↔️ **Más separación**: joystick y FUEGO movidos a 10% del borde → quedan a ~32px de las columnas (antes ~4px), sin toques accidentales
+
+### v1.40.4
 > **Mobile: HUD 25% más grande en celular**
 
 - 📱 En **celular (dispositivo táctil)** el HUD se muestra **25% más grande** (marcadores, iconos de habilidad, barras) y, como todo se escala junto, sus elementos quedan **más separados** — más fácil de ver y tocar. En **PC no cambia nada** (factor 1). Ajustable desde `CONFIG.HUD.BOOST_TACTIL`

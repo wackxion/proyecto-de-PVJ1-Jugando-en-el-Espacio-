@@ -259,7 +259,10 @@ export class PixiHUD {
         // Columnas laterales de habilidades → ancladas a los bordes izq/der y
         // centradas verticalmente. El layout local mide ~482px de alto (5 marcos
         // de 85 con la última fila en y=397).
-        const margenLat = 2;    // los cuadrados quedan casi pegados al borde
+        // En celular (boost táctil) se separan los cuadrados del borde para que
+        // no se vean "cortados" y despeguen un poco de la barra de Android. En PC
+        // (boost 1) se mantiene el valor de siempre (casi pegados al borde).
+        const margenLat = this._hudBoost > 1 ? Math.max(12, Math.round(w * 0.014)) : 2;
         const altoColumna = 482;
         const yColumna = Math.round(h / 2 - (altoColumna / 2) * this._escala);
         // Posición "recogida" (solo el cuadrado en el borde) + offset para
