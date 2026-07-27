@@ -1,17 +1,42 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 20/07/2026  
-**Versión:** v1.40.1 (ACTUAL)
+**Última actualización:** 27/07/2026  
+**Versión:** v1.40.3 (ACTUAL)
+
+---
+
+## 🎯 OBJETIVO EN CURSO: llevar el juego a CELULAR (sin romper la versión de compu)
+
+> **Doble requisito, aplica a TODO cambio mobile de acá en adelante:**
+> 1. Que el juego **funcione y se vea bien en celular** (táctil, apaisado).
+> 2. Que **se mantenga el modelo de PC** (mouse + teclado + joystick) intacto — cada ajuste mobile debe verificarse también en desktop para no romperlo.
+>
+> **Dispositivo de referencia del dev:** **Motorola G04** (Android). El dev pasará los detalles/specs completos más adelante para afinar targets de dedo, resolución y rendimiento sobre ese equipo real. Hasta tener esos datos, se prueba con tamaños de celular apaisado genéricos en DevTools (ej. ~780×360).
+>
+> **Estado del roadmap mobile** (ver `AppBusiness.md`): paso 1 (layout/orientación web) prácticamente cerrado; paso 2 (táctil) hecho y en pulido; falta paso 3 (**Capacitor** → Android/AAB) que ya requiere el entorno del dev.
 
 ---
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-- **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: **bloquear orientación landscape** + aviso "girá el dispositivo", verificar menús/tutorial/Top5/Créditos en táctil (+ bug del menú-por-detrás), y **empaquetar con Capacitor** (Android/AAB). Probar en celular real (targets de dedo, rendimiento).
-- **Táctil — pulir (opcional)**: ubicación/tamaño de botones y del área tocable de los iconos del HUD según feedback en celular real.
+- **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: verificar menús/tutorial/Top5/Créditos en **celular real (Motorola G04)**, y **empaquetar con Capacitor** (Android/AAB, incl. `screenOrientation` landscape nativo). El aviso "girá el dispositivo" (web) y el bug del menú-por-detrás ya están resueltos.
+- **Táctil — pulir en celular real (Motorola G04)**: ubicación/tamaño de joystick, botón de fuego y del área tocable de los iconos del HUD según feedback en el equipo del dev. Verificar SIEMPRE que no rompa el modelo de PC.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.3 - Mobile: menú visible en celular + controles táctiles reubicados
+
+- **Menú principal cortado en celular apaisado** (`UIManager.mostrarMenuPrincipal`): los 5 botones (JUGAR, TUTORIAL, TOP 5, OPCIONES, CRÉDITOS) eran de ancho fijo (256px). En un celular apaisado (ej. 780×360) la columna medía **519px** contra **360px** de alto → centrada, dejaba **JUGAR y CRÉDITOS cortados fuera de pantalla**. Fix: el ancho pasa a `min(256px, 46vh)` y el `gap` a `1.4vh`, así los botones se **achican según la altura** y entran los 5. Verificado en runtime: 780×360 → los 5 visibles (antes 3); desktop 1280×720 → sigue en 256px, sin cambios (mantiene el modelo de PC).
+- **Controles táctiles hacia adentro** (`TouchControls.js`): joystick (abajo-izq) y botón de FUEGO (abajo-der) se movieron del borde de `4%`/`8%` a **`7%`/`11%`**, para que no queden pegados al filo de la pantalla.
+
+---
+
+## ✅ Completado v1.40.2 - Táctil: −25% de opacidad
+
+- **Controles táctiles más sutiles** (`TouchControls.js`): se le puso `opacity: 0.75` al overlay `#controles-tactiles` (envuelve joystick + botón de fuego) → **−25% de opacidad global** parejo (base, perilla, botón y su feedback al presionar), sin tocar cada color por separado. Verificado en runtime (`getComputedStyle` del overlay = `0.75`). Es un solo número, fácil de reajustar con feedback del celular real.
 
 ---
 
