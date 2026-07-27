@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.3)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.2 (Actual)
+### v1.40.3 (Actual)
+> **Mobile: menú visible en celular + controles táctiles reubicados**
+
+- 📱 **Menú principal en celular**: los botones (JUGAR, TUTORIAL, TOP 5, OPCIONES, CRÉDITOS) ahora **se achican según la altura de pantalla** para que **entren los 5** en un celular apaisado (antes JUGAR y CRÉDITOS quedaban cortados fuera de pantalla). En desktop no cambia (siguen a 256px)
+- 🎮 **Joystick y botón de fuego** movidos **más hacia adentro** de la pantalla (de `4%`/`8%` a `7%`/`11%` del borde), para que no queden pegados al filo
+
+### v1.40.2
 > **Táctil: controles un poco más sutiles**
 
 - 🎮 Los **controles táctiles** (joystick + botón de fuego) ahora se ven con **−25% de opacidad**, para que estorben menos la vista del juego

@@ -47,7 +47,7 @@ export class ControlesTactiles {
         // --- Joystick virtual (base + perilla) ---
         const base = document.createElement('div');
         base.style.cssText = `
-            position: absolute; left: 4%; bottom: 8%;
+            position: absolute; left: 7%; bottom: 11%;
             width: 130px; height: 130px; border-radius: 50%;
             background: rgba(0,68,204,0.10); border: 3px solid rgba(0,68,204,0.55);
             box-shadow: 0 0 12px rgba(0,68,204,0.4);
@@ -70,8 +70,8 @@ export class ControlesTactiles {
         // en el HUD lateral (lo engancha PixiHUD).
         const botonDisparo = this._crearBoton('FUEGO', 'disparar', 100);
         botonDisparo.style.position = 'absolute';
-        botonDisparo.style.right = '4%';
-        botonDisparo.style.bottom = '8%';
+        botonDisparo.style.right = '7%';
+        botonDisparo.style.bottom = '11%';
         overlay.appendChild(botonDisparo);
 
         this.contenedor.appendChild(overlay);

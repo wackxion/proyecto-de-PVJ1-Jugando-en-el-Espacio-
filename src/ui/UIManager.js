@@ -555,7 +555,7 @@ export class UIManager {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 1.4vh;
         `;
         const items = [
             ['JUGAR', () => this.onJugar(), 'assets/botonJuegar.png'],
@@ -566,7 +566,9 @@ export class UIManager {
         ];
         for (const [txt, acc, img] of items) {
             const b = this.crearBotonMenu(txt, acc, img);
-            b.style.width = anchoBoton + 'px';
+            // Ancho fijo en desktop, pero en pantallas bajas (celular apaisado) se
+            // achica segun la altura para que ENTREN los 5 botones sin cortarse.
+            b.style.width = `min(${anchoBoton}px, 46vh)`;
             colDerecha.appendChild(b);
         }
         this.mainMenu.appendChild(colDerecha);
