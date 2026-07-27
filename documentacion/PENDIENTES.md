@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.40.5 (ACTUAL)
+**Versión:** v1.40.6 (ACTUAL)
 
 ---
 
@@ -24,6 +24,12 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.6 - Menú: título del juego completo
+
+- **Imagen del menú anclada arriba** (`UIManager.mostrarMenuPrincipal`): el fondo pasa de `background-position: center center` a **`center top`**. Con `background-size: cover` en pantallas muy anchas (celular apaisado 1600×720) el centrado recortaba ~219px de arriba → el título **"Jugando en el Espacio"** quedaba cortado. Al anclar arriba, el título se ve completo (se recorta el borde inferior de la ilustración, que es espacio/asteroides). Verificado en runtime a 1600×720 (título completo) y 1280×720 (título completo + nave bien encuadrada). Mejora pareja en celular y PC.
 
 ---
 

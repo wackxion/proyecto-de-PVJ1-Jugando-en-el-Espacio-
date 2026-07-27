@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.6)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.5 (Actual)
+### v1.40.6 (Actual)
+> **Menú: título del juego completo (imagen anclada arriba)**
+
+- 🎮 El fondo del menú principal ahora se ancla arriba (`background-position: center top`) → el **título "Jugando en el Espacio" se ve completo** y no se recorta en pantallas anchas (celular apaisado). Mejora también en PC
+
+### v1.40.5
 > **Mobile: ajustes tras probar en celular real (Motorola G04)**
 
 - 📱 **Iconos de habilidad completos**: en celular las columnas laterales del HUD se separan del borde (margen ~1.4% del ancho) para que los iconos **no se vean cortados** y despeguen de la barra de Android. En PC no cambia (siguen casi al borde)
