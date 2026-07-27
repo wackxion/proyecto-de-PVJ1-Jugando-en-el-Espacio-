@@ -38,6 +38,57 @@ body {
     height: 100%;
 }
 
+/* -----------------------------------------------------------------------------
+ * AVISO "GIRÁ EL DISPOSITIVO" (orientación bloqueada a horizontal en mobile)
+ * Oculto por defecto; solo se muestra en dispositivos TÁCTILES (pointer: coarse)
+ * cuando están en VERTICAL. El juego está diseñado para landscape.
+ * -----------------------------------------------------------------------------
+ */
+#rotar-dispositivo {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0D0D1A;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    color: #6FA8DC;
+    font-family: 'Segoe Script', 'Lucida Handwriting', cursive;
+}
+
+#rotar-dispositivo .rotar-icono {
+    font-size: 72px;
+    margin-bottom: 18px;
+    animation: rotarAviso 1.8s ease-in-out infinite;
+}
+
+#rotar-dispositivo p {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 0 12px rgba(0, 68, 204, 0.8);
+}
+
+#rotar-dispositivo span {
+    font-size: 16px;
+    opacity: 0.8;
+    font-family: 'Arial', sans-serif;
+    max-width: 320px;
+}
+
+@keyframes rotarAviso {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(90deg); }
+}
+
+/* Solo en celulares (táctil) y en orientación vertical */
+@media (orientation: portrait) and (pointer: coarse) {
+    #rotar-dispositivo { display: flex; }
+}
+
 #game-container canvas {
     display: block;
     width: 100% !important;

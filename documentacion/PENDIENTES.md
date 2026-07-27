@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 20/07/2026  
-**Versión:** v1.40.0 (ACTUAL)
+**Versión:** v1.40.1 (ACTUAL)
 
 ---
 
@@ -12,6 +12,13 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.40.1 - Mobile: aviso de orientación (girá el dispositivo)
+
+- **Overlay "Girá el dispositivo"** (`index.html` + `css/style.css`): `#rotar-dispositivo` (icono 📱 que rota + texto). Oculto por defecto; se muestra **solo en táctil y en vertical** vía `@media (orientation: portrait) and (pointer: coarse)` → no afecta al desktop (aunque se achique la ventana). CSS puro, sin JS. Cubre todo (z-index 99999) y tapa el juego mientras esté en vertical.
+- Verificado en runtime: en 375×812 táctil se muestra (`display: flex`, media matchea); al rotar a horizontal desaparece (`display: none`); en desktop no aparece (pointer: fine). Paso 1 del roadmap mobile: **bloqueo de orientación (web)** hecho — falta el `screenOrientation` nativo al empaquetar con Capacitor.
 
 ---
 

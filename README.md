@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.40.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.40.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.40.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.40.0 (Actual)
+### v1.40.1 (Actual)
+> **Mobile: aviso "girá el dispositivo" (orientación horizontal)**
+
+- 📲 En celular, si está en **vertical** aparece un aviso **"Girá el dispositivo"** (el juego se juega en horizontal). Solo en dispositivos táctiles (no molesta al desktop). CSS puro con `@media (orientation: portrait) and (pointer: coarse)`
+
+### v1.40.0
 > **Modo de control (Mouse y teclado / Joystick / Touch) + táctil por iconos del HUD**
 
 - ⚙️ Nuevo **selector de modo** en Opciones → Controles: **Mouse y teclado / Joystick / Touch** (se guarda). El **teclado funciona siempre**, en cualquier modo. El overlay táctil y el apuntado-por-mouse dependen del modo
