@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.43.0 (ACTUAL)
+**Versión:** v1.43.1 (ACTUAL)
 
 ---
 
@@ -33,6 +33,18 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.43.1 - HUD táctil: ajustes tras probar en el G04
+
+Correcciones pedidas por el dev con capturas anotadas (28/07/2026):
+
+- **Fix columna IZQUIERDA de mejoras** (`PixiHUD._aplicarDespliegue`, rama touch): la columna izq no mostraba los chips (su placa está a la IZQUIERDA del icono y quedaba fuera de pantalla al posicionarla pegada al borde). Se corrigió el desplegado a `margen + (marcoAncho-marcoQ)*esc` (revelar la placa, igual que en PC). Verificado: IZQ 12–227 y DER 545–760, **ambas dentro de pantalla** (antes IZQ salía a x=-139).
+- **Botones de habilidad más separados** (`TouchControls._crearUI`): arco más amplio (offsets nuevos) y tamaño 60px → distancia mínima entre botones ~68px (antes se encimaban). Verificado.
+- **Joystick FLOTANTE** (`TouchControls`, `zonaJoy` + `_vincular` reescrito): la base ya no es fija; hay una **zona táctil transparente en la mitad-izquierda inferior** y el joystick **aparece donde se toca** (base `display:none` por defecto → se muestra centrada en el punto tocado con `mostrarEn`), y desaparece al soltar. Verificado: toque en (200,400) → base aparece exactamente ahí; al soltar → oculta.
+- **Opacidad −25%** (`TouchControls` overlay): `0.75 → 0.56`.
+- Sin errores. Instalado en el G04.
+
+---
 
 ## ✅ Completado v1.43.0 - HUD táctil reacomodado (botones de habilidad + mejoras que se despliegan)
 

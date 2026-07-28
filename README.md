@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.43.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.43.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.1)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.43.0 (Actual)
+### v1.43.1 (Actual)
+> **HUD táctil: ajustes (columna izq de mejoras, botones espaciados, joystick flotante)**
+
+- 🔧 **Fix columna izquierda de mejoras**: en táctil la columna izquierda no mostraba los chips completos (su placa quedaba fuera de pantalla); ahora despliega bien, igual que la derecha
+- ↔️ **Botones de habilidad más separados** (menos encimados) alrededor del FUEGO
+- 🕹️ **Joystick flotante**: aparece **donde tocás** la mitad izquierda de la pantalla y desaparece al soltar (antes era fijo)
+- 🌫️ Opacidad de los controles táctiles **bajada otro 25%** (más transparentes)
+
+### v1.43.0
 > **HUD táctil reacomodado: botones de habilidad junto al FUEGO + mejoras que se despliegan**
 
 - 📱 En **modo Touch**, el HUD lateral (columnas de chips) ahora queda **fuera de pantalla** mientras jugás, y aparecen **5 botones de habilidad agrupados junto al FUEGO** (Acelerar, Ulti, Cohetes, Propulsor, Devorador), cada uno con **su icono**

@@ -309,18 +309,25 @@ export class PixiHUD {
             const w = this.app.screen.width || 1080;
             const h = this.app.screen.height || 720;
             const esc = this._escala * (1 + 0.15 * p);                 // +15% al desplegar
-            const anchoPx = (this._marcoAncho || 285) * esc;           // ancho del chip completo
+            const marcoAncho = this._marcoAncho || 285;
+            const marcoQ = this._marcoQ || 85;
+            const anchoPx = marcoAncho * esc;                          // ancho del chip completo
+            const revelado = (marcoAncho - marcoQ) * esc;             // cuánto entra para mostrar la placa
+            const margen = this._izqXBase;
             const yCol = Math.round(h / 2 - ((this._altoColumna || 482) / 2) * esc);
             if (this.contenedorIzq) {
                 this.contenedorIzq.scale.set(esc);
-                const xIzq = -anchoPx + (this._izqXBase + anchoPx) * p; // p=0 fuera, p=1 dentro
-                this.contenedorIzq.position.set(Math.round(xIzq), yCol);
+                // La placa de la columna IZQ está a la izquierda del icono → hay que
+                // meter la columna `revelado` px para que se vea (igual que en PC).
+                const dep = margen + revelado;                         // desplegado (placa visible)
+                const fuera = -anchoPx;                                // fuera de pantalla (izq)
+                this.contenedorIzq.position.set(Math.round(fuera + (dep - fuera) * p), yCol);
             }
             if (this.contenedorDer) {
                 this.contenedorDer.scale.set(esc);
-                const dispDer = w - this._izqXBase - anchoPx;          // posición dentro (p=1)
-                const xDer = w + (dispDer - w) * p;                     // p=0 fuera, p=1 dentro
-                this.contenedorDer.position.set(Math.round(xDer), yCol);
+                const dep = w - margen - anchoPx;                      // desplegado
+                const fuera = w;                                       // fuera de pantalla (der)
+                this.contenedorDer.position.set(Math.round(fuera + (dep - fuera) * p), yCol);
             }
             return;
         }

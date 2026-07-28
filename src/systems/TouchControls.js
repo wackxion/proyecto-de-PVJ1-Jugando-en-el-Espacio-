@@ -41,17 +41,24 @@ export class ControlesTactiles {
             position: absolute; inset: 0; z-index: 500;
             pointer-events: none;   /* solo los controles reciben toques */
             touch-action: none; user-select: none; -webkit-user-select: none;
-            opacity: 0.75;          /* -25% de opacidad global de los controles tactiles */
+            opacity: 0.56;          /* opacidad global de los controles tactiles (bajada otro 25%) */
         `;
 
-        // --- Joystick virtual (base + perilla) ---
+        // --- Joystick FLOTANTE: aparece DONDE se toca en la zona izquierda ---
+        // Zona táctil (transparente) que cubre la mitad-izquierda inferior; al
+        // tocarla, la base del joystick aparece en ese punto (ver _vincular).
+        const zonaJoy = document.createElement('div');
+        zonaJoy.style.cssText = 'position:absolute; left:0; bottom:0; width:45%; height:88%; pointer-events:auto; touch-action:none;';
+        overlay.appendChild(zonaJoy);
+        this.zonaJoy = zonaJoy;
+
         const base = document.createElement('div');
         base.style.cssText = `
-            position: absolute; left: 10%; bottom: 11%;
+            position: absolute; left: 0; top: 0; display: none;
             width: 170px; height: 170px; border-radius: 50%;
             background: rgba(0,68,204,0.10); border: 3px solid rgba(0,68,204,0.55);
             box-shadow: 0 0 12px rgba(0,68,204,0.4);
-            pointer-events: auto; touch-action: none;
+            pointer-events: none; touch-action: none;
         `;
         const perilla = document.createElement('div');
         perilla.style.cssText = `
@@ -79,14 +86,14 @@ export class ControlesTactiles {
         const clusterHab = document.createElement('div');
         clusterHab.style.cssText = 'position:absolute; right:10%; bottom:11%; width:130px; height:130px; pointer-events:none;';
         const habilidades = [
-            { icon: 'assets/aceleracion.png', accion: 'avanzar',   dx: -112, dy:  20 },
-            { icon: 'assets/ultiicon1.png',   accion: 'ulti',      dx: -100, dy: -48 },
-            { icon: 'assets/cohetes.png',     accion: 'cohetes',   dx:  -62, dy: -98 },
-            { icon: 'assets/propulsor.png',   accion: 'propulsor', dx:   -8, dy:-116 },
-            { icon: 'assets/deborador.png',   accion: 'devorar',   dx:   44, dy:-104 },
+            { icon: 'assets/aceleracion.png', accion: 'avanzar',   dx: -132, dy:   2 },
+            { icon: 'assets/ultiicon1.png',   accion: 'ulti',      dx: -112, dy: -70 },
+            { icon: 'assets/cohetes.png',     accion: 'cohetes',   dx:  -55, dy:-122 },
+            { icon: 'assets/propulsor.png',   accion: 'propulsor', dx:   12, dy:-134 },
+            { icon: 'assets/deborador.png',   accion: 'devorar',   dx:   78, dy:-110 },
         ];
         for (const h of habilidades) {
-            const bh = this._crearBotonIcono(h.icon, h.accion, 62);
+            const bh = this._crearBotonIcono(h.icon, h.accion, 60);
             bh.style.position = 'absolute';
             bh.style.left = '50%';
             bh.style.top = '50%';
@@ -168,27 +175,36 @@ export class ControlesTactiles {
             const r = this.base.getBoundingClientRect();
             return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
         };
+        // Ubica la base del joystick centrada en (px,py) y la muestra (flotante).
+        const mostrarEn = (px, py) => {
+            const o = this.overlay.getBoundingClientRect();
+            const half = 85;   // mitad de la base (170px)
+            this.base.style.left = (px - o.left - half) + 'px';
+            this.base.style.top = (py - o.top - half) + 'px';
+            this.base.style.display = 'block';
+        };
         const mover = (px, py) => {
             const c = centro();
             let dx = px - c.x, dy = py - c.y;
             const mag = Math.hypot(dx, dy);
             if (mag > R) { dx = dx / mag * R; dy = dy / mag * R; }
             this.perilla.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            // El joystick SOLO apunta. La aceleración se activa aparte, tocando el
-            // icono de "Aceleración" en el HUD (lo engancha PixiHUD).
+            // El joystick SOLO apunta. La aceleración se activa con su botón.
             if (mag > DEADZONE) this.input.setTactilApuntado(Math.atan2(dy, dx));
         };
         const soltar = () => {
             this.perilla.style.transform = 'translate(-50%, -50%)';
+            this.base.style.display = 'none';   // el joystick flotante desaparece al soltar
             this.input.limpiarTactilApuntado();
         };
 
-        // --- Touch (multitouch: seguimos el dedo que empezó en la base) ---
+        // --- Touch: el joystick aparece donde se toca la zona izquierda ---
         const onStart = (e) => {
             e.preventDefault();
             if (this._jsTouchId !== null) return;
             const t = e.changedTouches[0];
             this._jsTouchId = t.identifier;
+            mostrarEn(t.clientX, t.clientY);
             mover(t.clientX, t.clientY);
         };
         const onMove = (e) => {
@@ -203,17 +219,17 @@ export class ControlesTactiles {
                 if (t.identifier === this._jsTouchId) { this._jsTouchId = null; soltar(); break; }
             }
         };
-        this.base.addEventListener('touchstart', onStart, { passive: false });
+        this.zonaJoy.addEventListener('touchstart', onStart, { passive: false });
         window.addEventListener('touchmove', onMove, { passive: false });
         window.addEventListener('touchend', onEnd);
         window.addEventListener('touchcancel', onEnd);
 
         // --- Fallback con mouse (para probar en DevTools con el cursor) ---
         let mouseAbajo = false;
-        const mDown = (e) => { mouseAbajo = true; mover(e.clientX, e.clientY); };
+        const mDown = (e) => { mouseAbajo = true; mostrarEn(e.clientX, e.clientY); mover(e.clientX, e.clientY); };
         const mMove = (e) => { if (mouseAbajo) mover(e.clientX, e.clientY); };
         const mUp = () => { if (mouseAbajo) { mouseAbajo = false; soltar(); } };
-        this.base.addEventListener('mousedown', mDown);
+        this.zonaJoy.addEventListener('mousedown', mDown);
         window.addEventListener('mousemove', mMove);
         window.addEventListener('mouseup', mUp);
 
