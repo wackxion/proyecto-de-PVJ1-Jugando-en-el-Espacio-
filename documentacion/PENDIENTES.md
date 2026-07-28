@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.43.1 (ACTUAL)
+**Versión:** v1.43.2 (ACTUAL)
 
 ---
 
@@ -33,6 +33,12 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.43.2 - Táctil: mejoras se agrandan 25% al desplegarse
+
+- **Despliegue de mejoras +25%** (`PixiHUD._aplicarDespliegue`, rama touch): el factor de agrandado pasó de `0.15` a `0.25` (`esc = _escala * (1 + 0.25*p)`). Verificado a 772px de ancho (peor caso): columnas IZQ 12–246 y DER 526–760, **ambas dentro y sin encimarse** (gap 280px); en el G04 (1600) sobra lugar.
+
+---
 
 ## ✅ Completado v1.43.1 - HUD táctil: ajustes tras probar en el G04
 

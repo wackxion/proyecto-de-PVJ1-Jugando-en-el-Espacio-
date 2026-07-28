@@ -308,7 +308,7 @@ export class PixiHUD {
         if (modoTouch) {
             const w = this.app.screen.width || 1080;
             const h = this.app.screen.height || 720;
-            const esc = this._escala * (1 + 0.15 * p);                 // +15% al desplegar
+            const esc = this._escala * (1 + 0.25 * p);                 // +25% al desplegar
             const marcoAncho = this._marcoAncho || 285;
             const marcoQ = this._marcoQ || 85;
             const anchoPx = marcoAncho * esc;                          // ancho del chip completo

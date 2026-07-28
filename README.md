@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.43.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.43.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.43.1 (Actual)
+### v1.43.2 (Actual)
+> **Táctil: el menú de mejoras se agranda 25% al desplegarse (antes 15%)**
+
+- 🔎 En modo Touch, al abrir el menú de mejoras las columnas ahora crecen **25%** (antes 15%). Verificado que siguen entrando sin encimarse
+
+### v1.43.1
 > **HUD táctil: ajustes (columna izq de mejoras, botones espaciados, joystick flotante)**
 
 - 🔧 **Fix columna izquierda de mejoras**: en táctil la columna izquierda no mostraba los chips completos (su placa quedaba fuera de pantalla); ahora despliega bien, igual que la derecha
