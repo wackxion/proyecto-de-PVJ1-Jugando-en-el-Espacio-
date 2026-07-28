@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.45.0 (ACTUAL)
+**Versión:** v1.45.1 (ACTUAL)
 
 ---
 
@@ -33,6 +33,12 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.45.1 - Menú: imagen de portada subida
+
+- **Imagen del menú subida** (`UIManager.mostrarMenuPrincipal`): `background-position` de `center top` → **`center 24%`** (pedido del dev con captura) para que el **título "Jugando en el Espacio" quede pegado al borde superior**. Verificado en runtime a 1600×720: el título "Jugando" queda apenas tocando el borde de arriba, los 5 botones completos.
+
+---
 
 ## ✅ Completado v1.45.0 - Táctil: botones a la esquina + iluminación por disponibilidad
 

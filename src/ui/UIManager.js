@@ -572,7 +572,7 @@ export class UIManager {
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('assets/jugando en el espacio.png') no-repeat center top;
+            background: url('assets/jugando en el espacio.png') no-repeat center 24%;
             background-size: cover;
             z-index: 500;
         `;
