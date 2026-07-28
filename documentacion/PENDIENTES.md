@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.4 (ACTUAL)
+**Versión:** v1.41.5 (ACTUAL)
 
 ---
 
@@ -29,7 +29,15 @@
 
 ---
 
-## ✅ Completado v1.41.4 - Ventanas adaptadas a celular (Opciones, Controles, Créditos, Top 5)
+## ✅ Completado v1.41.5 - Ventanas se achican para entrar en el celular (sin scroll)
+
+- **Cambio de scroll → escala** (`UIManager._hacerModalResponsive`): al dev **no le gustó el scroll** (v1.41.4). Ahora, si la ventana (Opciones/Controles/Créditos/Top 5) es más alta o ancha que la pantalla, el marco se **escala** con `transform: scale(min(1, dispH/h, dispW/w))` y `transform-origin: center` → entra completa, proporciones intactas, sin recortes ni scroll. El modal usa `overflow: hidden` + `justify-content: center`. Se recalcula en `requestAnimationFrame` (tras el layout) y ante `resize` (el listener se auto-remueve cuando el modal se cierra).
+- **PC intacto**: cuando entra, `escala = 1` (`transform: none`). Verificado en runtime: a 1600×540 Top 5 escala 0.866 y entra (título+Volver visibles, sin scroll); a 1600×720 escala 1 (sin cambios).
+- **Nota rAF**: el ajuste se aplica 1 frame después de abrir (rAF); en el dispositivo real (visible) dispara bien. En testing headless con el pane oculto el rAF no corre → se probó disparando `resize` a mano.
+
+---
+
+## ✅ Completado v1.41.4 - Ventanas adaptadas a celular (scroll, REEMPLAZADO por v1.41.5)
 
 - **Modales responsive** (`UIManager._hacerModalResponsive` + llamada en `mostrarOpciones`, `mostrarControles`, `mostrarTop5`, `mostrarCreditos`): en el G04 (1600×720) las ventanas eran más altas que la pantalla y, al estar centradas con `align-items:center`, se **cortaban arriba y abajo** sin poder scrollear (título y botón Volver fuera de vista). El helper cambia el modal a `flex-direction:column; justify-content:flex-start; overflow-y:auto` y le pone al marco `margin: auto 0; flex: 0 0 auto` → **centra cuando entra** (PC igual que antes) y **scrollea cuando no** (celu) sin cortar nada.
 - Verificado en runtime a 1600×720 (táctil): las 4 ventanas entran con título y Volver visibles (Opciones 660px, Controles 662px con lista scrolleable, Créditos 678px, Top 5 673px). PC sin cambios (centrado por `margin:auto`). Sin errores.

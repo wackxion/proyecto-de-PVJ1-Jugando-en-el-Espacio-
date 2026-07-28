@@ -88,29 +88,36 @@ export class UIManager {
      */
     /**
      * Hace usable un modal (Opciones, Controles, Top 5, Créditos) en pantallas
-     * BAJAS (celular apaisado, ~720px de alto): si el contenido es más alto que
-     * la pantalla, el modal SCROLLEA y nada queda cortado arriba/abajo. Cuando
-     * entra (PC, pantallas altas) el marco queda centrado igual que antes gracias
-     * a `margin: auto` → en PC no cambia nada. Se usa `flex-start` + `margin auto`
-     * en vez de `align-items:center` porque este último recorta (y no deja
-     * scrollear) el contenido que se pasa de alto.
+     * BAJAS (celular apaisado, ~720px de alto): si la ventana es más alta o ancha
+     * que la pantalla, se **ACHICA** (escala uniforme) para que entre entera, sin
+     * scroll ni recortes. Cuando ya entra (PC, pantallas altas) la escala es 1 →
+     * queda idéntica a antes. Se re-calcula ante cambios de tamaño de ventana
+     * (el listener se auto-remueve cuando el modal se cierra).
      * @param {HTMLElement} modal    - contenedor a pantalla completa
      * @param {HTMLElement} exterior - el marco (border-image) de la ventana
      */
     _hacerModalResponsive(modal, exterior) {
-        if (modal) {
-            modal.style.flexDirection = 'column';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'flex-start';
-            modal.style.overflowY = 'auto';
-            modal.style.overflowX = 'hidden';
-            modal.style.padding = '10px 0';
-        }
-        if (exterior) {
-            exterior.style.margin = 'auto 0';   // centra si entra, scrollea si no
-            exterior.style.flex = '0 0 auto';   // no se aplasta
-            exterior.style.maxWidth = '96vw';
-        }
+        if (!modal || !exterior) return;
+        modal.style.flexDirection = 'column';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.overflow = 'hidden';               // sin scroll: se achica para entrar
+        exterior.style.flex = '0 0 auto';
+        exterior.style.maxWidth = '96vw';
+        exterior.style.transformOrigin = 'center center';
+
+        const ajustar = () => {
+            // Si el modal ya se cerró, dejar de escuchar el resize.
+            if (!document.body.contains(exterior)) { window.removeEventListener('resize', ajustar); return; }
+            exterior.style.transform = 'none';         // medir tamaño natural
+            const dispH = modal.clientHeight - 14;     // alto disponible (con margen)
+            const dispW = modal.clientWidth - 8;       // ancho disponible
+            const h = exterior.offsetHeight, w = exterior.offsetWidth;
+            const escala = Math.min(1, dispH / h, dispW / w);
+            exterior.style.transform = escala < 1 ? `scale(${escala})` : 'none';
+        };
+        requestAnimationFrame(ajustar);                // medir tras el layout
+        window.addEventListener('resize', ajustar);
     }
 
     mostrarOpciones() {
