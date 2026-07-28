@@ -19,10 +19,11 @@
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-- **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: verificar menús/tutorial/Top5/Créditos en **celular real (Motorola G04)**, y **empaquetar con Capacitor** (Android/AAB, incl. `screenOrientation` landscape nativo). El aviso "girá el dispositivo" (web) y el bug del menú-por-detrás ya están resueltos.
-- **Táctil — pulir en celular real (Motorola G04)**: ubicación/tamaño de joystick, botón de fuego y del área tocable de los iconos del HUD según feedback en el equipo del dev. Verificar SIEMPRE que no rompa el modelo de PC.
-- **HUD — rediseño visual (opcional, para más adelante)**: el **reacomodo táctil** ya se hizo (v1.43.0: botones junto al FUEGO + columnas que se despliegan). Si en algún momento se quiere un **rediseño visual** más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. Recordar: HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
-- **Aceleración por intensidad con el joystick** (pedido 27/07/2026): que la aceleración se active con el joystick y que **qué tan fuerte se empuja el stick** determine la potencia de aceleración **y** cuánto se gasta (carga). Hoy el joystick solo apunta y la aceleración se activa por el icono del HUD. NO implementar aún.
+> **Estado mobile (28/07/2026):** la app **corre en el Motorola G04** (Capacitor, pantalla completa, landscape). Todas las ventanas adaptadas, controles táctiles maduros (joystick flotante analógico, botones de habilidad en la esquina que se iluminan, mejoras que se despliegan +25%), botón atrás = Escape. Instalado y probado en el G04. **Lo que falta del roadmap** (`AppBusiness.md`): ícono/splash propios, **AdMob** (paso 4) y **requisitos de Play Store** (paso 5).
+
+- **Ícono + splash propios de la app** (paso previo a publicar): hoy usa los default de Capacitor. Generar los tamaños Android (ej. con la nave o el arte del título).
+- **AdMob (paso 4)** y **Play Store (paso 5)** — ver `AppBusiness.md`.
+- **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
@@ -55,7 +56,7 @@ Se acopló el movimiento con la aceleración en táctil (pedido del dev): **cuá
 - **TouchControls**: el joystick calcula la intensidad con `(mag - ACCEL_INICIO)/(R - ACCEL_INICIO)` clamp 0..1 (ACCEL_INICIO=28, R=72) → zona muerta de aceleración; la pasa por `setTactilApuntado(ang, intensidad)`. Dentro de la zona muerta de apuntado usa `setTactilIntensidad(0)` (apunta al último ángulo sin acelerar). **Se quitó el botón de Acelerar** (quedan 4 botones de habilidad).
 - **Player** (`update`): `intensidadAcel = input.intensidadAvance()`; el thrust y el llenado de la barra de sobrecalentamiento se **escalan por la intensidad** (`aceleracion * intensidadAcel * delta`, `velocidadCarga * intensidadAcel * delta`).
 - Verificado (llamando `player.update` directo): intensidad 1 → vel +120 / carga +15; 0.5 → +60 / +7.5 (mitad exacta); 0 → no acelera. **PC (mouseTeclado) idéntico a antes** (intensidad 1 → +120/+15). Sin errores.
-- **PENDIENTE**: instalar en el G04 (se desconectó por batería; el APK compila OK). Probar el feel en el celu real.
+- ✅ Instalado en el G04 (junto con v1.45.0/v1.45.1) el 28/07/2026. A probar el feel en el celu real.
 
 ---
 
