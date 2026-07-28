@@ -21,7 +21,10 @@
 
 - **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: verificar menús/tutorial/Top5/Créditos en **celular real (Motorola G04)**, y **empaquetar con Capacitor** (Android/AAB, incl. `screenOrientation` landscape nativo). El aviso "girá el dispositivo" (web) y el bug del menú-por-detrás ya están resueltos.
 - **Táctil — pulir en celular real (Motorola G04)**: ubicación/tamaño de joystick, botón de fuego y del área tocable de los iconos del HUD según feedback en el equipo del dev. Verificar SIEMPRE que no rompa el modelo de PC.
-- **Sistema de mejoras — rediseño visual** (pedido 27/07/2026): que el menú/panel de mejoras "se vea mejor". Por ahora solo se sumó el titileo de iconos disponibles (v1.41.3); el rediseño visual queda para más adelante.
+- 🎯 **PRÓXIMA MEJORA (pedido 28/07/2026): rediseño visual del HUD** — dos partes:
+  1. **HUD de mejoras** (el panel/chips de mejora, `PixiHUD._dibujarChipMejoras` / `_dibujarCuadrante` / tooltip): que se vea mejor. Por ahora solo se sumó el titileo de iconos disponibles (v1.41.3).
+  2. **HUD común** (el HUD in-game: marcadores, barras de escudo/aceleración, iconos laterales, contador de partículas — `PixiHUD`): mejorar su look.
+  - Recordar: el HUD in-game es **100% PixiJS** (`PixiHUD.js`), diseñado en base 1080×720 y escalado por grupo; en celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 - **Aceleración por intensidad con el joystick** (pedido 27/07/2026): que la aceleración se active con el joystick y que **qué tan fuerte se empuja el stick** determine la potencia de aceleración **y** cuánto se gasta (carga). Hoy el joystick solo apunta y la aceleración se activa por el icono del HUD. NO implementar aún.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
@@ -42,6 +45,7 @@ Fix de las ventanas PixiJS de Game Over (vistas rotas en el G04). Causa raíz: e
 - **Botones HTML** (`_crearBotonesGameOverHTML` + nuevo helper `_mapaCanvas`): Reiniciar/TOP 5 se ubican con **conversión coords-juego→pantalla** (`_mapaCanvas` calcula escala + offset de letterbox del canvas con `object-fit:contain`) y ancho proporcional al marco. Antes mezclaban `left` en coords de juego con `top` escalado → se corrían en el celu.
 - **Top 5 de Game Over** (`Game._mostrarTop5`): columnas del encabezado y filas ahora **proporcionales a `imagenAncho`** (`±0.258/0.143/0.072/0.229`) → la columna N° no se sale. El botón **Volver** se centra abajo con `_mapaCanvas` → no se superpone a la tabla.
 - Verificado en runtime a 1600×720 (idéntico a antes, gap wave→botón 32px) y simulando el device a **900×420** (columnas dentro del marco ✓, Volver debajo de las filas y dentro del marco ✓). Sin errores. Instalado en el G04.
+- ✅ **Confirmado por el dev en el G04 real (28/07/2026): "ya se ve bien".** Con esto, todas las ventanas (DOM y PixiJS) quedan adaptadas a celular.
 
 ---
 
