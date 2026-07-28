@@ -244,7 +244,10 @@ this.rotacion = 0;
         }
         
 // INERCIA - Movimiento tipo tanque con inercia
-        const estaPresionandoW = input.debeAvanzar(delta);
+        // Intensidad de aceleración 0..1. En táctil sale de cuánto se empuja el
+        // joystick; en PC/gamepad es 1 (thrust completo) cuando se presiona avanzar.
+        const intensidadAcel = input.intensidadAvance ? input.intensidadAvance() : (input.debeAvanzar(delta) ? 1 : 0);
+        const estaPresionandoW = intensidadAcel > 0;
         const estabaAvanzando = this.velocidad > 0;
         
         // Si está sobrecalentado
@@ -268,9 +271,10 @@ this.rotacion = 0;
             // Actualizar dirección de movimiento continuamente para permitir giro mientras acelera
             this.direccionMovimiento = this.rotacion;
             
-            // Llenar barra
-            this.cargaAceleracion = Math.min(this.cargaAceleracion + this.velocidadCarga * delta, this.cargaMax);
-            this.velocidad = Math.min(this.velocidad + this.aceleracion * delta, this.velocidadMax);
+            // Escaladas por intensidad: empujar más = acelerar más fuerte Y gastar
+            // (llenar la barra de sobrecalentamiento) más rápido. En PC intensidad=1.
+            this.cargaAceleracion = Math.min(this.cargaAceleracion + this.velocidadCarga * intensidadAcel * delta, this.cargaMax);
+            this.velocidad = Math.min(this.velocidad + this.aceleracion * intensidadAcel * delta, this.velocidadMax);
             
             if (this.cargaAceleracion >= this.cargaMax) {
                 // Sonido solo en la transición (no cada frame mientras está lleno)

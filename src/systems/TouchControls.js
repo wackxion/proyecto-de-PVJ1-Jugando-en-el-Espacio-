@@ -85,12 +85,13 @@ export class ControlesTactiles {
         // izquierda/arriba.
         const clusterHab = document.createElement('div');
         clusterHab.style.cssText = 'position:absolute; right:10%; bottom:11%; width:130px; height:130px; pointer-events:none;';
+        // NOTA: NO hay botón de Acelerar: la aceleración la maneja el joystick por
+        // intensidad (cuánto se empuja = cuánto acelera/gasta). Ver _vincular.
         const habilidades = [
-            { icon: 'assets/aceleracion.png', accion: 'avanzar',   dx: -132, dy:   2 },
-            { icon: 'assets/ultiicon1.png',   accion: 'ulti',      dx: -112, dy: -70 },
-            { icon: 'assets/cohetes.png',     accion: 'cohetes',   dx:  -55, dy:-122 },
-            { icon: 'assets/propulsor.png',   accion: 'propulsor', dx:   12, dy:-134 },
-            { icon: 'assets/deborador.png',   accion: 'devorar',   dx:   78, dy:-110 },
+            { icon: 'assets/ultiicon1.png',   accion: 'ulti',      dx: -130, dy: -10 },
+            { icon: 'assets/cohetes.png',     accion: 'cohetes',   dx:  -98, dy: -88 },
+            { icon: 'assets/propulsor.png',   accion: 'propulsor', dx:  -22, dy:-132 },
+            { icon: 'assets/deborador.png',   accion: 'devorar',   dx:   60, dy:-118 },
         ];
         for (const h of habilidades) {
             const bh = this._crearBotonIcono(h.icon, h.accion, 60);
@@ -169,7 +170,8 @@ export class ControlesTactiles {
     /** Vincula el joystick (touch/mouse). @private */
     _vincular() {
         const R = 72;              // radio máximo de la perilla (px)
-        const DEADZONE = 14;       // zona muerta (px) para no apuntar/acelerar con toques mínimos
+        const DEADZONE = 14;       // zona muerta (px) para no apuntar con toques mínimos
+        const ACCEL_INICIO = 28;   // a partir de acá empieza a acelerar (zona muerta de aceleración)
 
         const centro = () => {
             const r = this.base.getBoundingClientRect();
@@ -189,8 +191,15 @@ export class ControlesTactiles {
             const mag = Math.hypot(dx, dy);
             if (mag > R) { dx = dx / mag * R; dy = dy / mag * R; }
             this.perilla.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            // El joystick SOLO apunta. La aceleración se activa con su botón.
-            if (mag > DEADZONE) this.input.setTactilApuntado(Math.atan2(dy, dx));
+            // Intensidad de aceleración: 0 hasta ACCEL_INICIO (empuje leve = solo
+            // apunta), sube a 1 al empujar hasta el máximo (R). Así, cuánto empujás
+            // = cuánto acelerás y cuánto gastás la carga.
+            const intensidad = Math.max(0, Math.min(1, (mag - ACCEL_INICIO) / (R - ACCEL_INICIO)));
+            if (mag > DEADZONE) {
+                this.input.setTactilApuntado(Math.atan2(dy, dx), intensidad);
+            } else {
+                this.input.setTactilIntensidad(0);   // zona muerta: apunta al último ángulo, sin acelerar
+            }
         };
         const soltar = () => {
             this.perilla.style.transform = 'translate(-50%, -50%)';

@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.43.2 (ACTUAL)
+**Versión:** v1.44.0 (ACTUAL)
 
 ---
 
@@ -33,6 +33,18 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.44.0 - Táctil: joystick analógico (aceleración por intensidad)
+
+Se acopló el movimiento con la aceleración en táctil (pedido del dev): **cuánto se empuja el joystick = cuánto se acelera y cuánto se gasta la carga**. Decisiones tomadas con el dev: se **quita el botón Acelerar** y hay **zona muerta chica** (empuje leve solo apunta). Solo Touch; PC/gamepad = thrust completo (on/off) como siempre.
+
+- **InputManager**: nuevo `tactilIntensidad` (0..1). `setTactilApuntado(angulo, intensidad)` + `setTactilIntensidad(v)`. Nuevo `intensidadAvance()` → en táctil devuelve `tactilIntensidad` (si `tactilApuntando`), en PC/gamepad `1` si se presiona 'avanzar' si no `0`. `debeAvanzar` ahora = `intensidadAvance() > 0`. Reset de intensidad en `limpiar/reiniciar/deshabilitar`.
+- **TouchControls**: el joystick calcula la intensidad con `(mag - ACCEL_INICIO)/(R - ACCEL_INICIO)` clamp 0..1 (ACCEL_INICIO=28, R=72) → zona muerta de aceleración; la pasa por `setTactilApuntado(ang, intensidad)`. Dentro de la zona muerta de apuntado usa `setTactilIntensidad(0)` (apunta al último ángulo sin acelerar). **Se quitó el botón de Acelerar** (quedan 4 botones de habilidad).
+- **Player** (`update`): `intensidadAcel = input.intensidadAvance()`; el thrust y el llenado de la barra de sobrecalentamiento se **escalan por la intensidad** (`aceleracion * intensidadAcel * delta`, `velocidadCarga * intensidadAcel * delta`).
+- Verificado (llamando `player.update` directo): intensidad 1 → vel +120 / carga +15; 0.5 → +60 / +7.5 (mitad exacta); 0 → no acelera. **PC (mouseTeclado) idéntico a antes** (intensidad 1 → +120/+15). Sin errores.
+- **PENDIENTE**: instalar en el G04 (se desconectó por batería; el APK compila OK). Probar el feel en el celu real.
+
+---
 
 ## ✅ Completado v1.43.2 - Táctil: mejoras se agrandan 25% al desplegarse
 

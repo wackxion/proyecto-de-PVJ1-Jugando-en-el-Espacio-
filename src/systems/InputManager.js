@@ -113,6 +113,7 @@ export class GestorEntrada {
         // estaPresionada(), y el apuntado como un ángulo con prioridad.
         this.tactilApuntando = false;
         this.tactilAngulo = 0;
+        this.tactilIntensidad = 0;   // 0..1: cuánto se empuja el joystick (para acelerar por intensidad)
         this.tactilAcciones = new Set();
 
         // === MODO DE CONTROL (elegido en Opciones → Controles) ===
@@ -443,11 +444,15 @@ export class GestorEntrada {
     // ============================= TÁCTIL =============================
     // Los controles en pantalla (joystick virtual + botones) llaman a estos métodos.
 
-    /** Fija el apuntado táctil (ángulo en rad). Lo usa el joystick virtual al arrastrar. */
-    setTactilApuntado(angulo) { this.tactilApuntando = true; this.tactilAngulo = angulo; }
+    /** Fija el apuntado táctil (ángulo en rad) y la intensidad (0..1) del empuje.
+     *  Lo usa el joystick virtual al arrastrar. La intensidad escala la aceleración. */
+    setTactilApuntado(angulo, intensidad = 1) { this.tactilApuntando = true; this.tactilAngulo = angulo; this.tactilIntensidad = intensidad; }
 
-    /** Suelta el apuntado táctil (la nave conserva el último ángulo). */
-    limpiarTactilApuntado() { this.tactilApuntando = false; }
+    /** Ajusta solo la intensidad del empuje (sin cambiar el ángulo). */
+    setTactilIntensidad(v) { this.tactilIntensidad = Math.max(0, Math.min(1, v)); }
+
+    /** Suelta el apuntado táctil (la nave conserva el último ángulo; deja de acelerar). */
+    limpiarTactilApuntado() { this.tactilApuntando = false; this.tactilIntensidad = 0; }
 
     /** Activa/desactiva una acción táctil (botón en pantalla). */
     setTactilAccion(accion, activo) {
@@ -507,8 +512,23 @@ export class GestorEntrada {
      * @returns {boolean} - true si debe avanzar
      */
     debeAvanzar(delta) {
-        // Avanza con cualquier binding de 'avanzar' (W/Flecha arriba o click der).
-        return this.estaPresionada('avanzar');
+        // Avanza con cualquier binding de 'avanzar' (W/Flecha arriba o click der)
+        // o, en táctil, empujando el joystick más allá de la zona muerta.
+        return this.intensidadAvance() > 0;
+    }
+
+    /**
+     * Intensidad de aceleración 0..1.
+     *  - En TÁCTIL: proporcional a cuánto se empuja el joystick (la fija el
+     *    joystick vía `setTactilApuntado`/`setTactilIntensidad`).
+     *  - En PC (mouse/teclado) y gamepad: 1 si se presiona 'avanzar', 0 si no
+     *    (thrust completo, como siempre).
+     */
+    intensidadAvance() {
+        if (this.modoControl === 'touch' && this.tactilApuntando) {
+            return this.tactilIntensidad || 0;
+        }
+        return this.estaPresionada('avanzar') ? 1 : 0;
     }
     
     /**
@@ -586,6 +606,7 @@ export class GestorEntrada {
         this.gamepadAcciones.clear();   // soltar también las acciones del joystick
         this.tactilAcciones.clear();    // y las táctiles
         this.tactilApuntando = false;
+        this.tactilIntensidad = 0;
 
         // Resetear cooldowns de habilidades
         this.enfriamientoCohetes = 0;
@@ -604,6 +625,7 @@ export class GestorEntrada {
         this.gamepadApuntando = false;
         this.tactilAcciones.clear();
         this.tactilApuntando = false;
+        this.tactilIntensidad = 0;
     }
     
     /**

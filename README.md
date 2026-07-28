@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.43.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.44.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.44.0)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.43.2 (Actual)
+### v1.44.0 (Actual)
+> **Táctil: joystick analógico — la aceleración depende de cuánto empujás**
+
+- 🕹️ En modo Touch, el **joystick ahora acelera por intensidad**: cuánto lo empujás define **qué tan fuerte acelerás** y **cuánto gastás** la carga de sobrecalentamiento (empuje suave = suave y dura más; a fondo = fuerte y se calienta antes). Zona muerta chica: un toque leve solo apunta
+- ➖ Se **quitó el botón de Acelerar** (ya no hace falta): quedan 4 botones de habilidad (Ulti, Cohetes, Propulsor, Devorador)
+- 🖥️ En **Mouse-teclado y Joystick físico** la aceleración sigue completa (on/off), como siempre
+
+### v1.43.2
 > **Táctil: el menú de mejoras se agranda 25% al desplegarse (antes 15%)**
 
 - 🔎 En modo Touch, al abrir el menú de mejoras las columnas ahora crecen **25%** (antes 15%). Verificado que siguen entrando sin encimarse
