@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.5 (ACTUAL)
+**Versión:** v1.41.6 (ACTUAL)
 
 ---
 
@@ -26,6 +26,18 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.6 - Fix Controles: el botón Volver ya no queda abajo
+
+- **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
+- **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+### ⚠️ PENDIENTE (visto en el G04, v1.41.6): ventanas de GAME OVER (PixiJS)
+- La **ventana de Game Over** (`Game.gameOver`, PixiJS): el texto "Oleada Alcanzada" (`waveText`) se **superpone** con los botones Reiniciar/TOP 5 (HTML, `_crearBotonesGameOverHTML`) en la pantalla ancha del celu.
+- El **Top 5 de Game Over** (`Game._mostrarTop5`, PixiJS): layout roto — la columna "N°" queda **fuera del marco** y el botón Volver se **superpone** a la tabla.
+- Son PixiJS con posiciones fijas (offsets absolutos) pensadas para 3:2; en 1600×720 (más ancho) el marco se achica por alto y las posiciones colisionan. Arreglo aparte, más grande que los modales DOM.
 
 ---
 

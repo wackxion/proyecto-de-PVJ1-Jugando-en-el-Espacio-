@@ -236,14 +236,13 @@ export class UIManager {
             border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
             box-sizing: border-box;
             width: ${Math.min(600, this.width * 0.92)}px;
-            max-height: ${Math.min(680, this.height * 0.92)}px;
             display: flex; justify-content: center; align-items: center;
         `;
 
         const container = document.createElement('div');
         container.style.cssText = `
             display: flex; flex-direction: column; align-items: center;
-            width: 100%; padding: 40px 44px; box-sizing: border-box; overflow: hidden;
+            width: 100%; padding: 40px 44px; box-sizing: border-box;
         `;
 
         const titulo = document.createElement('div');
@@ -307,7 +306,7 @@ export class UIManager {
         const lista = document.createElement('div');
         lista.style.cssText = `
             display: flex; flex-direction: column; width: 100%; max-width: 440px;
-            gap: 8px; overflow-y: auto; min-height: 0; padding-right: 4px;
+            gap: 8px; padding-right: 4px;
         `;
         container.appendChild(lista);
 

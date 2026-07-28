@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.41.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.41.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.6)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.41.5 (Actual)
+### v1.41.6 (Actual)
+> **Fix: Controles ahora se achica bien (el botón Volver ya no queda abajo)**
+
+- 🔧 La ventana de **Controles** tenía un `max-height` interno que engañaba al cálculo de escala → el botón **Volver quedaba fuera de pantalla** y no se podía volver. Ahora usa altura natural + escala como las demás y entra completa
+
+### v1.41.5
 > **Ventanas que se achican para entrar en el celular (sin scroll)**
 
 - 📱 Las ventanas de **Opciones, Controles, Créditos y Top 5** ahora **se achican (escalan) para entrar completas** en la pantalla del celular, en vez de scrollear. Mantienen sus proporciones y no se corta nada. En pantallas altas (PC) la escala es 1 → quedan igual que antes
