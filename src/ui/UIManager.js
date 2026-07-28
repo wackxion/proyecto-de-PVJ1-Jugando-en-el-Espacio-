@@ -86,6 +86,33 @@ export class UIManager {
      * GestorSonido (0..100%), que se aplican a ambos gestores (juego y menú) y
      * se guardan en localStorage. Mismo estilo que las demás ventanas.
      */
+    /**
+     * Hace usable un modal (Opciones, Controles, Top 5, Créditos) en pantallas
+     * BAJAS (celular apaisado, ~720px de alto): si el contenido es más alto que
+     * la pantalla, el modal SCROLLEA y nada queda cortado arriba/abajo. Cuando
+     * entra (PC, pantallas altas) el marco queda centrado igual que antes gracias
+     * a `margin: auto` → en PC no cambia nada. Se usa `flex-start` + `margin auto`
+     * en vez de `align-items:center` porque este último recorta (y no deja
+     * scrollear) el contenido que se pasa de alto.
+     * @param {HTMLElement} modal    - contenedor a pantalla completa
+     * @param {HTMLElement} exterior - el marco (border-image) de la ventana
+     */
+    _hacerModalResponsive(modal, exterior) {
+        if (modal) {
+            modal.style.flexDirection = 'column';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'flex-start';
+            modal.style.overflowY = 'auto';
+            modal.style.overflowX = 'hidden';
+            modal.style.padding = '10px 0';
+        }
+        if (exterior) {
+            exterior.style.margin = 'auto 0';   // centra si entra, scrollea si no
+            exterior.style.flex = '0 0 auto';   // no se aplasta
+            exterior.style.maxWidth = '96vw';
+        }
+    }
+
     mostrarOpciones() {
         const previo = document.getElementById('opciones-modal');
         if (previo) previo.remove();
@@ -171,6 +198,7 @@ export class UIManager {
         container.appendChild(this.crearBotonVolver(() => modal.remove()));
 
         exterior.appendChild(container);
+        this._hacerModalResponsive(modal, exterior);
         modal.appendChild(exterior);
         this.container.appendChild(modal);
     }
@@ -384,6 +412,7 @@ export class UIManager {
         container.appendChild(botones);
 
         exterior.appendChild(container);
+        this._hacerModalResponsive(modal, exterior);
         modal.appendChild(exterior);
         this.container.appendChild(modal);
     }
@@ -1484,6 +1513,7 @@ export class UIManager {
         btnVolver.style.display = 'none';
         container.appendChild(btnVolver);
         exterior.appendChild(container);
+        this._hacerModalResponsive(modal, exterior);
         modal.appendChild(exterior);
         this.mainMenu.appendChild(modal);
         
@@ -1614,6 +1644,7 @@ export class UIManager {
         container.appendChild(contenido);
         container.appendChild(this.crearBotonVolver(() => modal.remove()));
         exterior.appendChild(container);
+        this._hacerModalResponsive(modal, exterior);
         modal.appendChild(exterior);
         this.mainMenu.appendChild(modal);
     }

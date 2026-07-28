@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 27/07/2026  
-**Versión:** v1.41.3 (ACTUAL)
+**Versión:** v1.41.4 (ACTUAL)
 
 ---
 
@@ -26,6 +26,14 @@
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
+
+---
+
+## ✅ Completado v1.41.4 - Ventanas adaptadas a celular (Opciones, Controles, Créditos, Top 5)
+
+- **Modales responsive** (`UIManager._hacerModalResponsive` + llamada en `mostrarOpciones`, `mostrarControles`, `mostrarTop5`, `mostrarCreditos`): en el G04 (1600×720) las ventanas eran más altas que la pantalla y, al estar centradas con `align-items:center`, se **cortaban arriba y abajo** sin poder scrollear (título y botón Volver fuera de vista). El helper cambia el modal a `flex-direction:column; justify-content:flex-start; overflow-y:auto` y le pone al marco `margin: auto 0; flex: 0 0 auto` → **centra cuando entra** (PC igual que antes) y **scrollea cuando no** (celu) sin cortar nada.
+- Verificado en runtime a 1600×720 (táctil): las 4 ventanas entran con título y Volver visibles (Opciones 660px, Controles 662px con lista scrolleable, Créditos 678px, Top 5 673px). PC sin cambios (centrado por `margin:auto`). Sin errores.
+- **Nota**: en el celu real el contenido puede ser un poco más alto (fuente de fallback distinta a la de PC), pero el `overflow-y:auto` garantiza que todo sea alcanzable con scroll. **Pendiente instalar en el G04** (se desconectó por batería baja durante la prueba; el APK compila OK).
 
 ---
 

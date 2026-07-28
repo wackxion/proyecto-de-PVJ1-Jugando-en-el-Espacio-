@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.41.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.41.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.4)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.41.3 (Actual)
+### v1.41.4 (Actual)
+> **Ventanas adaptadas a celular (Opciones, Controles, Créditos, Top 5)**
+
+- 📱 Las ventanas de **Opciones, Controles, Créditos y Top 5** ahora se **adaptan a pantallas bajas** (celular apaisado): si el contenido no entra, la ventana **scrollea** y nada queda cortado arriba/abajo (antes se cortaban el título y el botón Volver). En pantallas altas (PC) siguen centradas igual que antes
+
+### v1.41.3
 > **Mejoras: los iconos titilan cuando hay una mejora disponible**
 
 - ✨ Cuando una mejora se puede comprar, su icono ahora **titila** (pulsa la opacidad) además de brillar, y el **icono de mejoras** de arriba también titila si hay al menos una disponible. Los que no alcanzan quedan atenuados fijos. Ayuda a notar cuándo comprar
