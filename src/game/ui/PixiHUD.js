@@ -264,6 +264,7 @@ export class PixiHUD {
         // (boost 1) se mantiene el valor de siempre (casi pegados al borde).
         const margenLat = this._hudBoost > 1 ? Math.max(12, Math.round(w * 0.014)) : 2;
         const altoColumna = 482;
+        this._altoColumna = altoColumna;   // usado por _aplicarDespliegue en modo touch
         const yColumna = Math.round(h / 2 - (altoColumna / 2) * this._escala);
         // Posición "recogida" (solo el cuadrado en el borde) + offset para
         // desplegar hacia el centro (revela el rectángulo, ancho = marco - cuadrado).
@@ -298,6 +299,33 @@ export class PixiHUD {
      */
     _aplicarDespliegue() {
         const p = this._despliegueProgreso || 0;
+
+        // === MODO TOUCH (celular) ===
+        // Las columnas quedan FUERA de pantalla durante el juego (p=0) y solo
+        // ENTRAN al abrir el menú de mejoras (p=1), creciendo un 15% extra
+        // (marcos + chips). El marcador superior NO se toca (se agranda aparte).
+        const modoTouch = this.game && this.game.gestorEntrada && this.game.gestorEntrada.modoControl === 'touch';
+        if (modoTouch) {
+            const w = this.app.screen.width || 1080;
+            const h = this.app.screen.height || 720;
+            const esc = this._escala * (1 + 0.15 * p);                 // +15% al desplegar
+            const anchoPx = (this._marcoAncho || 285) * esc;           // ancho del chip completo
+            const yCol = Math.round(h / 2 - ((this._altoColumna || 482) / 2) * esc);
+            if (this.contenedorIzq) {
+                this.contenedorIzq.scale.set(esc);
+                const xIzq = -anchoPx + (this._izqXBase + anchoPx) * p; // p=0 fuera, p=1 dentro
+                this.contenedorIzq.position.set(Math.round(xIzq), yCol);
+            }
+            if (this.contenedorDer) {
+                this.contenedorDer.scale.set(esc);
+                const dispDer = w - this._izqXBase - anchoPx;          // posición dentro (p=1)
+                const xDer = w + (dispDer - w) * p;                     // p=0 fuera, p=1 dentro
+                this.contenedorDer.position.set(Math.round(xDer), yCol);
+            }
+            return;
+        }
+
+        // === MODO PC (mouse/teclado, joystick) — comportamiento de siempre ===
         const off = this._despliegueOffset || 0;
         if (this.contenedorIzq) {
             this.contenedorIzq.scale.set(this._escala);

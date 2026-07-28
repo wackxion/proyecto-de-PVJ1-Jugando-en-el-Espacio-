@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.42.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.42.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.43.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.43.0)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.42.0 (Actual)
+### v1.43.0 (Actual)
+> **HUD táctil reacomodado: botones de habilidad junto al FUEGO + mejoras que se despliegan**
+
+- 📱 En **modo Touch**, el HUD lateral (columnas de chips) ahora queda **fuera de pantalla** mientras jugás, y aparecen **5 botones de habilidad agrupados junto al FUEGO** (Acelerar, Ulti, Cohetes, Propulsor, Devorador), cada uno con **su icono**
+- ✨ Al **abrir el menú de mejoras**, las columnas **se deslizan hacia adentro y crecen 15%**; el marcador de puntos/partículas de arriba **no se agranda**
+- 🖥️ En **Mouse-teclado y Joystick el HUD queda igual que siempre** (todo gateado por el modo de control)
+
+### v1.42.0
 > **Game Over y Top 5 de Game Over adaptados a celular**
 
 - 📱 Las ventanas **Game Over** y **Top 5 de Game Over** (dibujadas en PixiJS) ahora se ven bien en el celular: el texto y las columnas se posicionan **proporcionales al marco** (antes "Oleada Alcanzada" pisaba los botones y la columna N° se salía), y los botones HTML (Reiniciar / TOP 5 / Volver) se ubican con la **conversión correcta de coordenadas** del canvas (antes se corrían y el Volver se superponía a la tabla)

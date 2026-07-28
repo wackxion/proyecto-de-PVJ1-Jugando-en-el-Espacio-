@@ -65,17 +65,69 @@ export class ControlesTactiles {
         this.base = base; this.perilla = perilla;
 
         // --- Botón de DISPARO (abajo-derecha) ---
-        // Es el ÚNICO botón creado. Las HABILIDADES (Ulti, Devorador, Cohetes,
-        // Propulsor) NO tienen botón acá: se usan tocando sus iconos que ya están
-        // en el HUD lateral (lo engancha PixiHUD).
         const botonDisparo = this._crearBoton('FUEGO', 'disparar', 130);
         botonDisparo.style.position = 'absolute';
         botonDisparo.style.right = '10%';
         botonDisparo.style.bottom = '11%';
         overlay.appendChild(botonDisparo);
 
+        // --- Botones de HABILIDAD, agrupados alrededor del FUEGO, cada uno con
+        // el icono de su habilidad. Reemplazan el tocar-los-iconos-del-HUD (que
+        // ahora quedan fuera de pantalla durante el juego). El wrapper se ancla
+        // al mismo punto que el FUEGO y cada botón se ubica en un arco a su
+        // izquierda/arriba.
+        const clusterHab = document.createElement('div');
+        clusterHab.style.cssText = 'position:absolute; right:10%; bottom:11%; width:130px; height:130px; pointer-events:none;';
+        const habilidades = [
+            { icon: 'assets/aceleracion.png', accion: 'avanzar',   dx: -112, dy:  20 },
+            { icon: 'assets/ultiicon1.png',   accion: 'ulti',      dx: -100, dy: -48 },
+            { icon: 'assets/cohetes.png',     accion: 'cohetes',   dx:  -62, dy: -98 },
+            { icon: 'assets/propulsor.png',   accion: 'propulsor', dx:   -8, dy:-116 },
+            { icon: 'assets/deborador.png',   accion: 'devorar',   dx:   44, dy:-104 },
+        ];
+        for (const h of habilidades) {
+            const bh = this._crearBotonIcono(h.icon, h.accion, 62);
+            bh.style.position = 'absolute';
+            bh.style.left = '50%';
+            bh.style.top = '50%';
+            bh.style.transform = `translate(calc(-50% + ${h.dx}px), calc(-50% + ${h.dy}px))`;
+            clusterHab.appendChild(bh);
+        }
+        overlay.appendChild(clusterHab);
+
         this.contenedor.appendChild(overlay);
         this.overlay = overlay;
+    }
+
+    /**
+     * Crea un botón redondo de HABILIDAD con el icono correspondiente adentro.
+     * Igual que `_crearBoton` pero con imagen en vez de texto.
+     * @private
+     */
+    _crearBotonIcono(iconSrc, accion, tam) {
+        const b = document.createElement('div');
+        b.style.cssText = `
+            width: ${tam}px; height: ${tam}px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,68,204,0.14); border: 3px solid rgba(0,68,204,0.6);
+            box-shadow: 0 0 8px rgba(0,68,204,0.3);
+            pointer-events: auto; touch-action: none;
+        `;
+        const img = document.createElement('img');
+        img.src = iconSrc;
+        img.draggable = false;
+        img.style.cssText = `width: ${Math.round(tam * 0.62)}px; height: ${Math.round(tam * 0.62)}px; object-fit: contain; pointer-events: none;`;
+        b.appendChild(img);
+        const presionar = (e) => { e.preventDefault(); this.input.setTactilAccion(accion, true);  b.style.background = 'rgba(0,68,204,0.45)'; };
+        const soltar    = (e) => { if (e) e.preventDefault(); this.input.setTactilAccion(accion, false); b.style.background = 'rgba(0,68,204,0.14)'; };
+        b.addEventListener('touchstart', presionar, { passive: false });
+        b.addEventListener('touchend', soltar, { passive: false });
+        b.addEventListener('touchcancel', soltar, { passive: false });
+        b.addEventListener('mousedown', presionar);
+        b.addEventListener('mouseup', soltar);
+        b.addEventListener('mouseleave', soltar);
+        this._listeners.push({ el: b, presionar, soltar });
+        return b;
     }
 
     /**

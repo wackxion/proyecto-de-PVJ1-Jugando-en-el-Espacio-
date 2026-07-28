@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.42.0 (ACTUAL)
+**Versión:** v1.43.0 (ACTUAL)
 
 ---
 
@@ -21,10 +21,7 @@
 
 - **Mobile — seguir el roadmap** (`AppBusiness.md`): con los controles táctiles (v1.39.0) ya hecho el paso 2, faltan: verificar menús/tutorial/Top5/Créditos en **celular real (Motorola G04)**, y **empaquetar con Capacitor** (Android/AAB, incl. `screenOrientation` landscape nativo). El aviso "girá el dispositivo" (web) y el bug del menú-por-detrás ya están resueltos.
 - **Táctil — pulir en celular real (Motorola G04)**: ubicación/tamaño de joystick, botón de fuego y del área tocable de los iconos del HUD según feedback en el equipo del dev. Verificar SIEMPRE que no rompa el modelo de PC.
-- 🎯 **PRÓXIMA MEJORA (pedido 28/07/2026): rediseño visual del HUD** — dos partes:
-  1. **HUD de mejoras** (el panel/chips de mejora, `PixiHUD._dibujarChipMejoras` / `_dibujarCuadrante` / tooltip): que se vea mejor. Por ahora solo se sumó el titileo de iconos disponibles (v1.41.3).
-  2. **HUD común** (el HUD in-game: marcadores, barras de escudo/aceleración, iconos laterales, contador de partículas — `PixiHUD`): mejorar su look.
-  - Recordar: el HUD in-game es **100% PixiJS** (`PixiHUD.js`), diseñado en base 1080×720 y escalado por grupo; en celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
+- **HUD — rediseño visual (opcional, para más adelante)**: el **reacomodo táctil** ya se hizo (v1.43.0: botones junto al FUEGO + columnas que se despliegan). Si en algún momento se quiere un **rediseño visual** más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. Recordar: HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 - **Aceleración por intensidad con el joystick** (pedido 27/07/2026): que la aceleración se active con el joystick y que **qué tan fuerte se empuja el stick** determine la potencia de aceleración **y** cuánto se gasta (carga). Hoy el joystick solo apunta y la aceleración se activa por el icono del HUD. NO implementar aún.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
@@ -36,6 +33,25 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.43.0 - HUD táctil reacomodado (botones de habilidad + mejoras que se despliegan)
+
+Reacomodo del HUD **solo para modo Touch** (pedido 28/07/2026, con mockup aprobado por el dev). En Mouse-teclado y Joystick el HUD queda **idéntico** (todo gateado por `modoControl === 'touch'`).
+
+### Proceso / decisiones
+1. Se mostró un **mockup interactivo** (dos estados: jugando ↔ mejoras) para confirmar el concepto antes de tocar código. El dev lo corrigió con dibujos: botones agrupados junto al FUEGO con su icono, y el marcador de arriba (puntos/partículas) que **NO** se agranda.
+
+### Qué se implementó
+- **Botones de habilidad táctiles** (`TouchControls._crearUI` + nuevo `_crearBotonIcono`): 5 botones redondos **agrupados en arco alrededor del FUEGO**, cada uno con el **icono de su habilidad** (`aceleracion.png`→`avanzar`, `ultiicon1.png`→`ulti`, `cohetes.png`→`cohetes`, `propulsor.png`→`propulsor`, `deborador.png`→`devorar`). Llaman a `setTactilAccion(accion, …)` igual que FUEGO. Reemplazan el tocar-los-iconos-del-HUD (que ahora quedan fuera de pantalla en juego).
+- **Columnas del HUD fuera de pantalla en juego + despliegue con +15%** (`PixiHUD._aplicarDespliegue`, rama nueva para touch): durante el juego (`_despliegueProgreso = 0`) las columnas quedan **fuera de pantalla** (izq a `-anchoChip`, der a `w`); al abrir mejoras (`p → 1`) **entran** y la escala pasa de `_escala` a `_escala × 1.15` (interpolado con `p`). El **marcador superior (`contenedorTop`) no se toca** → no se agranda. Se guardó `this._altoColumna` en `_calcularEscala` para recentrar verticalmente al escalar.
+- El **icono de mejoras de arriba** (`_upgradeSprite`) sigue abriendo/cerrando el panel (ya andaba).
+
+### Verificado en runtime (modo touch autodetectado)
+- Jugando: columnas fuera (izq x<0, der x≥w), 5 botones con icono presentes, marcador top en escala base.
+- Mejoras abierto: columnas **dentro de pantalla**, escala `_escala×1.15` (`columnasX1_15: true`), marcador top **sin agrandar** (misma escala base).
+- **PC (mouseTeclado)**: el cuadrado queda en el borde (x≈margen) y escala normal → comportamiento de siempre. Sin errores de consola. Instalado en el G04.
+
+---
 
 ## ✅ Completado v1.42.0 - Game Over y Top 5 de Game Over adaptados a celular
 
