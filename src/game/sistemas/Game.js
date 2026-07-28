@@ -1953,6 +1953,8 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             if (this.controlesTactiles) {
                 const modoTouch = this.gestorEntrada && this.gestorEntrada.modoControl === 'touch';
                 this.controlesTactiles.setVisible(modoTouch && !this.pausado && !this.enGameOver);
+                // Iluminar/apagar los botones de habilidad según disponibilidad.
+                if (modoTouch) this.controlesTactiles.actualizarDisponibilidad(this);
             }
 
     // Si el juego está pausado, salir del loop (PixiHUD ya refleja el estado)

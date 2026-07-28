@@ -74,8 +74,8 @@ export class ControlesTactiles {
         // --- Botón de DISPARO (abajo-derecha) ---
         const botonDisparo = this._crearBoton('FUEGO', 'disparar', 130);
         botonDisparo.style.position = 'absolute';
-        botonDisparo.style.right = '10%';
-        botonDisparo.style.bottom = '11%';
+        botonDisparo.style.right = '5%';
+        botonDisparo.style.bottom = '7%';
         overlay.appendChild(botonDisparo);
 
         // --- Botones de HABILIDAD, agrupados alrededor del FUEGO, cada uno con
@@ -84,7 +84,8 @@ export class ControlesTactiles {
         // al mismo punto que el FUEGO y cada botón se ubica en un arco a su
         // izquierda/arriba.
         const clusterHab = document.createElement('div');
-        clusterHab.style.cssText = 'position:absolute; right:10%; bottom:11%; width:130px; height:130px; pointer-events:none;';
+        clusterHab.style.cssText = 'position:absolute; right:5%; bottom:7%; width:130px; height:130px; pointer-events:none;';
+        this._botonesHab = [];   // {el, accion} para iluminar/apagar según disponibilidad
         // NOTA: NO hay botón de Acelerar: la aceleración la maneja el joystick por
         // intensidad (cuánto se empuja = cuánto acelera/gasta). Ver _vincular.
         const habilidades = [
@@ -99,7 +100,9 @@ export class ControlesTactiles {
             bh.style.left = '50%';
             bh.style.top = '50%';
             bh.style.transform = `translate(calc(-50% + ${h.dx}px), calc(-50% + ${h.dy}px))`;
+            bh.style.transition = 'opacity 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease';
             clusterHab.appendChild(bh);
+            this._botonesHab.push({ el: bh, accion: h.accion });
         }
         overlay.appendChild(clusterHab);
 
@@ -246,6 +249,32 @@ export class ControlesTactiles {
             ['touchmove', onMove], ['touchend', onEnd], ['touchcancel', onEnd],
             ['mousemove', mMove], ['mouseup', mUp],
         ];
+    }
+
+    /**
+     * Ilumina los botones de habilidad DISPONIBLES y apaga (atenúa) los que están
+     * en cooldown o sin carga. Lo llama el game loop cada frame en modo touch.
+     * Misma disponibilidad que el HUD: cohetes/propulsor/devorador con cooldown en
+     * 0, ulti cuando está cargado (jugador.ultiListo).
+     * @param {Game} game
+     */
+    actualizarDisponibilidad(game) {
+        if (!this._botonesHab || !game) return;
+        const ge = game.gestorEntrada, j = game.jugador;
+        const disp = {
+            ulti:      !!(j && j.ultiListo),
+            cohetes:   !!(ge && (ge.enfriamientoCohetes  || 0) <= 0),
+            propulsor: !!(ge && (ge.enfriamientoPropulsor || 0) <= 0),
+            devorar:   !!(ge && (ge.enfriamientoDevorar   || 0) <= 0),
+        };
+        for (const b of this._botonesHab) {
+            const ok = disp[b.accion];
+            if (b._ok === ok) continue;   // solo actualizar si cambió
+            b._ok = ok;
+            b.el.style.opacity = ok ? '1' : '0.33';
+            b.el.style.filter = ok ? 'none' : 'grayscale(0.55)';
+            b.el.style.boxShadow = ok ? '0 0 12px rgba(120,180,255,0.85)' : '0 0 6px rgba(0,68,204,0.25)';
+        }
     }
 
     /** Muestra el overlay. La decisión de mostrarlo (modo 'touch') la toma el Game. */

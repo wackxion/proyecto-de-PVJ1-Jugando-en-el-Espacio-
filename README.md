@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.44.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.44.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.45.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.45.0)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.44.0 (Actual)
+### v1.45.0 (Actual)
+> **Táctil: botones de habilidad en la esquina + se iluminan según disponibilidad**
+
+- 📍 Los botones de habilidad (y FUEGO) se movieron **más a la esquina** abajo-derecha, dejando más área de juego libre
+- 💡 Los botones ahora se **iluminan cuando la habilidad está disponible** y se **apagan (atenúan)** cuando están en cooldown o sin carga — igual que los iconos del HUD
+
+### v1.44.0
 > **Táctil: joystick analógico — la aceleración depende de cuánto empujás**
 
 - 🕹️ En modo Touch, el **joystick ahora acelera por intensidad**: cuánto lo empujás define **qué tan fuerte acelerás** y **cuánto gastás** la carga de sobrecalentamiento (empuje suave = suave y dura más; a fondo = fuerte y se calienta antes). Zona muerta chica: un toque leve solo apunta
