@@ -1091,8 +1091,10 @@ _crearParticulaBoidFuera() {
         });
         titleText.anchor.set(0.5);
         titleText.x = this.anchoJuego / 2;
-        // gameOverSprite.height ya está escalado: ubicar el título cerca del borde superior del papel
-        titleText.y = this.altoJuego / 2 - gameOverSprite.height / 2 + 70;
+        // Posiciones PROPORCIONALES a la altura del marco (no px fijos): así al
+        // achicarse el marco en pantallas anchas (celular) el texto no se pega a
+        // los botones ni se sale del papel.
+        titleText.y = this.altoJuego / 2 - gameOverSprite.height * 0.30;
         this.aplicacion.stage.addChild(titleText);
         this.elementosFinJuego.push(titleText);
         
@@ -1107,7 +1109,7 @@ _crearParticulaBoidFuera() {
         });
         scoreText.anchor.set(0.5);
         scoreText.x = this.anchoJuego / 2;
-        scoreText.y = this.altoJuego / 2 + 10;
+        scoreText.y = this.altoJuego / 2 + gameOverSprite.height * 0.03;
         this.aplicacion.stage.addChild(scoreText);
         this.elementosFinJuego.push(scoreText);
         
@@ -1121,7 +1123,7 @@ _crearParticulaBoidFuera() {
         });
         waveText.anchor.set(0.5);
         waveText.x = this.anchoJuego / 2;
-        waveText.y = this.altoJuego / 2 + 60;
+        waveText.y = this.altoJuego / 2 + gameOverSprite.height * 0.15;
         this.aplicacion.stage.addChild(waveText);
         this.elementosFinJuego.push(waveText);
 
@@ -1437,6 +1439,24 @@ _crearParticulaBoidFuera() {
  * Crea botones HTML nativos para Game Over
  * Se posicionan a la derecha de la imagen de Game Over
  */
+/**
+ * Convierte coordenadas del "mundo de juego" (anchoJuego×altoJuego = resolución
+ * del canvas) a píxeles de PANTALLA, contemplando cómo el canvas se muestra con
+ * `object-fit: contain` (escala + barras de letterbox). Sirve para ubicar botones
+ * HTML alineados con lo dibujado en PixiJS en cualquier pantalla (en el celu la
+ * resolución del canvas suele diferir del tamaño mostrado).
+ * @returns {{escala:number, offX:number, offY:number}}
+ */
+_mapaCanvas() {
+    const rect = this.aplicacion.canvas.getBoundingClientRect();
+    const escala = Math.min(rect.width / this.anchoJuego, rect.height / this.altoJuego);
+    return {
+        escala,
+        offX: rect.left + (rect.width - this.anchoJuego * escala) / 2,
+        offY: rect.top + (rect.height - this.altoJuego * escala) / 2,
+    };
+}
+
 _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     // Guardar posición SIEMPRE (antes del return para que funcione después de guardar nombre)
     this.posicionBotonesGameOver = { x: xCentro, y: yCentro, ancho: ancho };
@@ -1447,14 +1467,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         return;
     }
     
-    const canvas = this.aplicacion.canvas;
-    const rect = canvas.getBoundingClientRect();
-    const scaleY = rect.height / this.altoJuego;
-    
-    // 'ancho' = altura real del papel (ya escalada). Ubicar los botones en la
-    // parte baja del papel PERO dentro del blanco (0.32, no 0.42, para que no
-    // queden sobre el borde inferior del marco).
-    const btnY = yCentro + (ancho * 0.32);
+    // Coords de juego → pantalla (contempla escala/letterbox del canvas).
+    const { escala, offX, offY } = this._mapaCanvas();
+    const frameW = this.gameOverSprite ? this.gameOverSprite.width : ancho;
+    // Ubicar los botones en la parte baja del papel, dentro del blanco.
+    const btnY = yCentro + (ancho * 0.32);        // Y en coords de juego
+    const dx = frameW * 0.17;                      // separación horizontal (coords juego)
+    const btnW = Math.max(90, Math.round(frameW * 0.26 * escala));  // ancho proporcional
     
     // Botón Reiniciar - centrado debajo de la imagen
     const btnReiniciar = document.createElement('img');
@@ -1462,10 +1481,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     btnReiniciar.id = 'btn-reiniciar';
     btnReiniciar.style.cssText = `
         position: absolute;
-        left: ${this.anchoJuego / 2 - 90}px;
-        top: ${btnY * scaleY}px;
+        left: ${offX + (xCentro - dx) * escala}px;
+        top: ${offY + btnY * escala}px;
         transform: translate(-50%, -50%);
-        width: 145px;
+        width: ${btnW}px;
         height: auto;
         cursor: pointer;
         z-index: 1000;
@@ -1499,10 +1518,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     btnTop5.src = 'assets/botonTOP5.png';
     btnTop5.style.cssText = `
         position: absolute;
-        left: ${this.anchoJuego / 2 + 90}px;
-        top: ${btnY * scaleY}px;
+        left: ${offX + (xCentro + dx) * escala}px;
+        top: ${offY + btnY * escala}px;
         transform: translate(-50%, -50%);
-        width: 145px;
+        width: ${btnW}px;
         height: auto;
         cursor: pointer;
         z-index: 1000;
@@ -2119,16 +2138,18 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         const headerPuntos = new PIXI.Text({ text: 'PUNTOS', style: this.estilos.encabezado });
         const headerOleada = new PIXI.Text({ text: 'OLEADAS', style: this.estilos.encabezado });
         
-        // Posicionar cada columna (separados más entre sí)
-        headerNum.x = -180;       // N° más a la izquierda
-        headerNombre.x = -100;   // NOMBRE 
-        headerPuntos.x = 50;     // PUNTOS
-        headerOleada.x = 160;    // OLEADAS más a la derecha
-        
+        // Posicionar cada columna PROPORCIONAL al ancho del marco (imagenAncho),
+        // no en px fijos: así al achicarse el marco en el celular las columnas no
+        // se salen del papel.
+        headerNum.x = -imagenAncho * 0.258;     // N° más a la izquierda
+        headerNombre.x = -imagenAncho * 0.143;  // NOMBRE
+        headerPuntos.x = imagenAncho * 0.072;   // PUNTOS
+        headerOleada.x = imagenAncho * 0.229;   // OLEADAS más a la derecha
+
         headerContainer.addChild(headerNum, headerNombre, headerPuntos, headerOleada);
-        
-        // Centrar el encabezado dentro de la imagen
-        headerContainer.x = this.anchoJuego / 2 - 50;
+
+        // Centrar el encabezado dentro de la imagen (proporcional)
+        headerContainer.x = this.anchoJuego / 2 - imagenAncho * 0.072;
         // El encabezado se posiciona PROPORCIONAL a la altura del marco (no en px
         // absolutos): así al maximizar la ventana el marco crece y el encabezado
         // baja con él, sin quedar pegado arriba.
@@ -2158,14 +2179,14 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             const textPuntos = new PIXI.Text({ text: puntos, style: this.estilos.filaTabla });
             const textOleada = new PIXI.Text({ text: oleada, style: this.estilos.filaTabla });
             
-// Posicionar cada columna en la fila (mismo spacing que el encabezado)
-            textNum.x = -180;      // N° más a la izquierda
-            textNombre.x = -100;   // NOMBRE
-            textPuntos.x = 50;     // PUNTOS
-            textOleada.x = 160;    // OLEADAS más a la derecha
-            
+// Posicionar cada columna en la fila (mismo spacing PROPORCIONAL que el encabezado)
+            textNum.x = -imagenAncho * 0.258;     // N° más a la izquierda
+            textNombre.x = -imagenAncho * 0.143;  // NOMBRE
+            textPuntos.x = imagenAncho * 0.072;   // PUNTOS
+            textOleada.x = imagenAncho * 0.229;   // OLEADAS más a la derecha
+
             rowContainer.addChild(textNum, textNombre, textPuntos, textOleada);
-            rowContainer.x = this.anchoJuego / 2 - 30;
+            rowContainer.x = this.anchoJuego / 2 - imagenAncho * 0.072;
             // Las filas van una debajo de la otra, centradas en la imagen.
             // Espaciado proporcional a la altura del marco (igual que el encabezado)
             // para que escale bien al maximizar la ventana.
@@ -2177,32 +2198,35 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         }
         
         // === BOTÓN VOLVER (HTML nativo) ===
-        // Calcular posicion
-        const margenSeparacion = 40;
-        const bordeIzq = (this.anchoJuego / 2) - (puntuacionSprite.width / 2) + margenSeparacion;
-        const bordeInf = (this.altoJuego / 2) + (puntuacionSprite.height / 2) - margenSeparacion;
-        
+        // Posición PROPORCIONAL al marco, centrado abajo, con la conversión
+        // coords-juego → pantalla (para que quede alineado con el marco en el
+        // celular y NO se superponga a las filas).
+        const { escala: escVolver, offX: offXVolver, offY: offYVolver } = this._mapaCanvas();
+        const gxVolver = this.anchoJuego / 2;                          // centro horizontal
+        const gyVolver = (this.altoJuego / 2) + imagenAlto * 0.34;     // cerca del fondo del marco
+        const anchoVolver = Math.max(110, Math.round(imagenAncho * 0.25 * escVolver));
+
         const btnVolver = document.createElement('img');
         btnVolver.src = 'assets/botonVolver.png';
         btnVolver.id = 'btn-volver';
         btnVolver.style.position = 'absolute';
-        btnVolver.style.left = (bordeIzq + 80) + 'px';
-        btnVolver.style.top = (bordeInf - 40) + 'px';
-        btnVolver.style.transform = 'translateY(-50%)';
-        btnVolver.style.width = '175px';
+        btnVolver.style.left = (offXVolver + gxVolver * escVolver) + 'px';
+        btnVolver.style.top = (offYVolver + gyVolver * escVolver) + 'px';
+        btnVolver.style.transform = 'translate(-50%, -50%)';
+        btnVolver.style.width = anchoVolver + 'px';
         btnVolver.style.height = 'auto';
         btnVolver.style.cursor = 'pointer';
         btnVolver.style.zIndex = '1000';
         btnVolver.style.transition = 'all 0.2s ease';
-        
+
         // Efecto hover para VOLVER
         btnVolver.addEventListener('mouseenter', () => {
-            btnVolver.style.transform = 'translateY(-50%) scale(1.1)';
+            btnVolver.style.transform = 'translate(-50%, -50%) scale(1.1)';
             btnVolver.style.filter = 'brightness(1.3) drop-shadow(0 0 10px #0044CC)';
         });
         
         btnVolver.addEventListener('mouseleave', () => {
-            btnVolver.style.transform = 'translateY(-50%) scale(1)';
+            btnVolver.style.transform = 'translate(-50%, -50%) scale(1)';
             btnVolver.style.filter = 'brightness(1) drop-shadow(0 0 0 transparent)';
         });
         

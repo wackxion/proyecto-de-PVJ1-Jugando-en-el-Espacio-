@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 27/07/2026  
-**Versión:** v1.41.6 (ACTUAL)
+**Última actualización:** 28/07/2026  
+**Versión:** v1.42.0 (ACTUAL)
 
 ---
 
@@ -34,10 +34,14 @@
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
 
-### ⚠️ PENDIENTE (visto en el G04, v1.41.6): ventanas de GAME OVER (PixiJS)
-- La **ventana de Game Over** (`Game.gameOver`, PixiJS): el texto "Oleada Alcanzada" (`waveText`) se **superpone** con los botones Reiniciar/TOP 5 (HTML, `_crearBotonesGameOverHTML`) en la pantalla ancha del celu.
-- El **Top 5 de Game Over** (`Game._mostrarTop5`, PixiJS): layout roto — la columna "N°" queda **fuera del marco** y el botón Volver se **superpone** a la tabla.
-- Son PixiJS con posiciones fijas (offsets absolutos) pensadas para 3:2; en 1600×720 (más ancho) el marco se achica por alto y las posiciones colisionan. Arreglo aparte, más grande que los modales DOM.
+## ✅ Completado v1.42.0 - Game Over y Top 5 de Game Over adaptados a celular
+
+Fix de las ventanas PixiJS de Game Over (vistas rotas en el G04). Causa raíz: en el celu la **resolución del canvas** (`anchoJuego×altoJuego`, que sigue al viewport CSS) es más chica que en PC → el marco (`gameOver.png`) se achica pero las posiciones fijas en px no → todo se salía/superponía.
+
+- **Texto de Game Over** (`Game.gameOver`): `titleText`/`scoreText`/`waveText` ahora usan Y **proporcional a la altura del marco** (`gameOverSprite.height * 0.30/0.03/0.15`) en vez de offsets fijos (+70/+10/+60) → "Oleada Alcanzada" ya no pisa los botones.
+- **Botones HTML** (`_crearBotonesGameOverHTML` + nuevo helper `_mapaCanvas`): Reiniciar/TOP 5 se ubican con **conversión coords-juego→pantalla** (`_mapaCanvas` calcula escala + offset de letterbox del canvas con `object-fit:contain`) y ancho proporcional al marco. Antes mezclaban `left` en coords de juego con `top` escalado → se corrían en el celu.
+- **Top 5 de Game Over** (`Game._mostrarTop5`): columnas del encabezado y filas ahora **proporcionales a `imagenAncho`** (`±0.258/0.143/0.072/0.229`) → la columna N° no se sale. El botón **Volver** se centra abajo con `_mapaCanvas` → no se superpone a la tabla.
+- Verificado en runtime a 1600×720 (idéntico a antes, gap wave→botón 32px) y simulando el device a **900×420** (columnas dentro del marco ✓, Volver debajo de las filas y dentro del marco ✓). Sin errores. Instalado en el G04.
 
 ---
 

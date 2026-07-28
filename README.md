@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.41.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.41.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.42.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.42.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.41.6 (Actual)
+### v1.42.0 (Actual)
+> **Game Over y Top 5 de Game Over adaptados a celular**
+
+- 📱 Las ventanas **Game Over** y **Top 5 de Game Over** (dibujadas en PixiJS) ahora se ven bien en el celular: el texto y las columnas se posicionan **proporcionales al marco** (antes "Oleada Alcanzada" pisaba los botones y la columna N° se salía), y los botones HTML (Reiniciar / TOP 5 / Volver) se ubican con la **conversión correcta de coordenadas** del canvas (antes se corrían y el Volver se superponía a la tabla)
+
+### v1.41.6
 > **Fix: Controles ahora se achica bien (el botón Volver ya no queda abajo)**
 
 - 🔧 La ventana de **Controles** tenía un `max-height` interno que engañaba al cálculo de escala → el botón **Volver quedaba fuera de pantalla** y no se podía volver. Ahora usa altura natural + escala como las demás y entra completa
