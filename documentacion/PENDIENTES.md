@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 28/07/2026  
-**Versión:** v1.45.1 (ACTUAL)
+**Versión:** v1.46.0 (ACTUAL)
 
 ---
 
@@ -34,6 +34,14 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.46.0 - Android: ícono y splash propios
+
+- **Ícono + splash de la app** (aprobado por el dev): la nave (`assets/Nave322.png`) centrada sobre un fondo espacial (degradado radial azul→oscuro). Fuentes en **`recursos-app/`** (versionadas): `icon-only.png` (legacy), `icon-foreground.png` (nave sola, para el adaptativo) + `icon-background.png` (fondo), `splash.png`/`splash-dark.png`. Script `recursos-app/hacer-icono.mjs` (usa `sharp`) las genera desde la nave.
+- **Generación Android**: `npx @capacitor/assets generate --android --assetPath recursos-app` → 74 recursos (mipmaps por densidad + ícono adaptativo `anydpi-v26` + splash) escritos en `android/…/res/` (ignorado en git; **regenerar** con ese comando si se recrea `android/`). Verificado que la edición nativa `screenOrientation="sensorLandscape"` del manifest sobrevivió.
+- `sharp` y `@capacitor/assets` quedan en `devDependencies`. Instalado en el G04 (ícono nuevo en el cajón de apps). Con esto, del roadmap para publicar quedan **AdMob** (paso 4) y **Play Store** (paso 5).
+
+---
 
 ## ✅ Completado v1.45.1 - Menú: imagen de portada subida
 

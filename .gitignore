@@ -24,3 +24,6 @@ documentacion/appAndroidGDD.md
 # Capacitor / Android (generados; se regeneran con npm run cap:www + npx cap add android)
 www/
 android/
+
+# Preview descartable del icono
+recursos-app/_preview.png

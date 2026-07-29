@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.45.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.45.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.46.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.46.0)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.45.1 (Actual)
+### v1.46.0 (Actual)
+> **Android: ícono y splash propios de la app**
+
+- 🚀 La app Android ahora tiene **ícono propio** (la nave sobre fondo espacial, con ícono adaptativo) y **splash** (pantalla de carga), en vez de los default de Capacitor. Generados con `@capacitor/assets` desde las fuentes en `recursos-app/` (script `hacer-icono.mjs`)
+
+### v1.45.1
 > **Menú: imagen de portada subida (el título toca el borde superior)**
 
 - 🎮 La imagen del menú se **subió** (`background-position: center 24%`) para que el **título "Jugando en el Espacio" apenas toque el borde superior**
