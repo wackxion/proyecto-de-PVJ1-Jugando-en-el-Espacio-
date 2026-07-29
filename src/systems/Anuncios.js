@@ -11,8 +11,11 @@
  * botón "Revivir" solo aparece en la app.
  */
 
-// IDs de PRUEBA oficiales de Google (seguros para desarrollo).
-const TEST_REWARDED_ANDROID = 'ca-app-pub-3940256099942544/5224354917';
+// Ad unit REAL del rewarded (revivir), de la cuenta de AdMob del dev.
+// ⚠️ Mientras `isTesting` (abajo) sea true, AdMob muestra anuncios de PRUEBA de
+// Google igual → seguro para probar SIN riesgo de ban. Pasar isTesting a false
+// (y initializeForTesting a false) recién al PUBLICAR.
+const REWARDED_ANDROID = 'ca-app-pub-8065871181264852/9966477167';
 
 const EV_REWARD  = 'onRewardedVideoAdReward';     // el usuario completó y obtuvo la recompensa
 const EV_DISMISS = 'onRewardedVideoAdDismissed';  // el anuncio se cerró (con o sin recompensa)
@@ -38,7 +41,7 @@ export class Anuncios {
     async _precargarRewarded() {
         if (!this.plugin) return;
         try {
-            await this.plugin.prepareRewardVideoAd({ adId: TEST_REWARDED_ANDROID, isTesting: true });
+            await this.plugin.prepareRewardVideoAd({ adId: REWARDED_ANDROID, isTesting: true });
             this.rewardedListo = true;
         } catch (e) { this.rewardedListo = false; }
     }

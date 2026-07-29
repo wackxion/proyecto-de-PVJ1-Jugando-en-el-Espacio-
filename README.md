@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.1)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.0 (Actual)
+### v1.47.1 (Actual)
+> **AdMob: IDs reales de la cuenta del dev (en modo prueba)**
+
+- 🔑 Se pusieron el **App ID** y el **ad unit** reales de la cuenta de AdMob. Siguen mostrándose **anuncios de prueba** (`isTesting` activo) hasta publicar, para no arriesgar la cuenta
+
+### v1.47.0
 > **Android: revivir mirando un anuncio (AdMob rewarded)**
 
 - 🎬 En la app, al perder aparece un botón **"Revivir (ver anuncio)"**: mirás un anuncio recompensado y tu nave **vuelve a la vida en la misma partida** (escudo lleno, 2s de invulnerabilidad, limpia enemigos cerca). **Ilimitado** por partida. Por ahora con **anuncios de prueba** de Google (cambiar por los reales al publicar)

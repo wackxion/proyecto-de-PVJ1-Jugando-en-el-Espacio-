@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 29/07/2026  
-**Versión:** v1.47.0 (ACTUAL)
+**Versión:** v1.47.1 (ACTUAL)
 
 ---
 
@@ -44,7 +44,8 @@ Primer paso de monetización (`AppBusiness.md` paso 4). Decisiones del dev: **re
 - **Game**: `revivir()` (limpia UI de Game Over sin resetear, restaura jugador con escudo lleno + 2s invuln, `_limpiarCercaAlRevivir(340)` que quita proyectiles enemigos + enemigos cercanos, reanuda `ejecutando`). `this.anuncios` creado en `init`. Botón **"Revivir (ver anuncio)"** en `_crearBotonesGameOverHTML` (solo si `anuncios.disponible()`; layout de 3 botones con AdMob, 2 sin) → `mostrarRewarded(() => revivir())`.
 - **AndroidManifest**: App ID de prueba de AdMob (ver `appAndroidGDD.md`). **Fix proguard del plugin** (`node_modules/.../admob/android/build.gradle` → `proguard-android-optimize.txt`, AGP 9; se pierde con `npm install`).
 - Verificado en runtime (web): revivir restaura escudo/invuln/HUD y reanuda; botón NO aparece en web; invulnerabilidad bloquea daño y se apaga a los 2s. Sin errores. Compila e **instalado en el G04** (con anuncios de prueba).
-- **PENDIENTE**: probar el flujo del anuncio en el G04; crear cuenta AdMob real + ad unit + App ID reales; política de privacidad (obligatoria). Falta **Play Store** (paso 5).
+- ✅ **v1.47.1**: el dev creó la cuenta de AdMob y se pusieron los **IDs reales** (App ID `ca-app-pub-8065871181264852~9559851274` en el manifest; ad unit `…/9966477167` en `Anuncios.js`). Siguen en **modo prueba** (`isTesting=true`) → anuncios de test hasta publicar. Al PUBLICAR: poner `isTesting`/`initializeForTesting` en false.
+- **PENDIENTE**: probar el flujo del anuncio real en el G04; **política de privacidad** publicada (obligatoria por AdMob); **Play Store** (paso 5: cuenta dev $25, ficha, build firmado `.aab`).
 
 ---
 
