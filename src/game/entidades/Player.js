@@ -64,7 +64,12 @@ this.rotacion = 0;
         // Cuando llega a 0, es game over
         this.escudos = CONFIG.ESCUDOS.MAXIMO;
         this.escudosMax = CONFIG.ESCUDOS.MAXIMO;
-        
+
+        // Invulnerabilidad temporal (se usa al REVIVIR con anuncio): mientras dura,
+        // recibirDano() se ignora y la nave titila. Ver activarInvulnerabilidad().
+        this.invulnerable = false;
+        this.temporizadorInvulnerable = 0;
+
         // SISTEMA DE DISPARO
         // enfriamientoDisparoMax: Tiempo mínimo entre cada disparo (en segundos)
         // Este valor baja cuando agarras power-ups (dispara más rápido)
@@ -223,7 +228,18 @@ this.rotacion = 0;
     update(delta, input) {
         // Si el jugador no está activo, salir inmediatamente
         if (!this.active) return;
-        
+
+        // Invulnerabilidad temporal (revivir): descontar y titilar la nave.
+        if (this.invulnerable) {
+            this.temporizadorInvulnerable -= delta;
+            if (this.temporizadorInvulnerable <= 0) {
+                this.invulnerable = false;
+                if (this.imagen) this.imagen.alpha = 1;
+            } else if (this.imagen) {
+                this.imagen.alpha = 0.35 + 0.4 * (0.5 + 0.5 * Math.sin(performance.now() / 1000 * 18));
+            }
+        }
+
 // PROPULSOR (DASH) - 300px en 1 segundo
         if (this.enPropulsor) {
             // Reducir temporizador
@@ -544,7 +560,19 @@ this.rotacion = 0;
      * 
      * @param {number} dano - Porcentaje de escudos a perder
      */
+    /**
+     * Activa invulnerabilidad temporal (segundos). Mientras dura, `recibirDano`
+     * se ignora y la nave titila. Se usa al REVIVIR.
+     * @param {number} segundos
+     */
+    activarInvulnerabilidad(segundos) {
+        this.invulnerable = true;
+        this.temporizadorInvulnerable = segundos;
+    }
+
     recibirDano(dano) {
+        // Invulnerable (ej. recién revivido): ignorar el daño.
+        if (this.invulnerable) return;
         // Si no está en sobrecalentamiento
         if (!this.sobrecalentado) {
             // Reducir escudos

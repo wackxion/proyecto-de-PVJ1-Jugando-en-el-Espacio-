@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 28/07/2026  
-**Versión:** v1.46.0 (ACTUAL)
+**Última actualización:** 29/07/2026  
+**Versión:** v1.47.0 (ACTUAL)
 
 ---
 
@@ -34,6 +34,19 @@
 
 - **Bug en el celu real**: en Controles no se podía volver — el botón Volver quedaba fuera de pantalla abajo. Causa: el marco tenía `max-height: min(680, height*0.92)` + la lista `overflow-y:auto` + container `overflow:hidden`. El `max-height` clampeaba `exterior.offsetHeight`, así el helper de escala creía que "entraba" (escala 1) pero el contenido real desbordaba el marco y el Volver quedaba abajo, oculto.
 - **Fix** (`mostrarControles`): se quitaron `max-height` del exterior, `overflow:hidden` del container y `overflow-y:auto; min-height:0` de la lista → Controles ahora tiene altura natural y el helper `_hacerModalResponsive` lo **escala entero** (Volver incluido) para que entre. Verificado a 1600×600: escala 0.745, marco 586px entra (7–593), Volver visible dentro.
+
+## ✅ Completado v1.47.0 - Android: revivir con anuncio recompensado (AdMob, paso 4)
+
+Primer paso de monetización (`AppBusiness.md` paso 4). Decisiones del dev: **rewarded para revivir**, **ilimitado** por partida, al revivir **escudo lleno + 2s invulnerable + limpia enemigos cerca**. Construido con **IDs de PRUEBA de Google** (cambiar por reales al publicar).
+
+- **`src/systems/Anuncios.js`** (nuevo): wrapper de `@capacitor-community/admob` v8. `disponible()` (false en web), `inicializar()`, `mostrarRewarded(onReward)` (escucha `onRewardedVideoAdReward`/`onRewardedVideoAdDismissed`, precarga el próximo). Ad unit de prueba `ca-app-pub-3940256099942544/5224354917`. Accede al plugin vía `window.Capacitor.Plugins.AdMob` (proyecto sin bundler).
+- **Player**: `invulnerable` + `temporizadorInvulnerable`, `activarInvulnerabilidad(seg)`, `recibirDano` ignora daño si invulnerable, `update` descuenta y hace titilar la nave.
+- **Game**: `revivir()` (limpia UI de Game Over sin resetear, restaura jugador con escudo lleno + 2s invuln, `_limpiarCercaAlRevivir(340)` que quita proyectiles enemigos + enemigos cercanos, reanuda `ejecutando`). `this.anuncios` creado en `init`. Botón **"Revivir (ver anuncio)"** en `_crearBotonesGameOverHTML` (solo si `anuncios.disponible()`; layout de 3 botones con AdMob, 2 sin) → `mostrarRewarded(() => revivir())`.
+- **AndroidManifest**: App ID de prueba de AdMob (ver `appAndroidGDD.md`). **Fix proguard del plugin** (`node_modules/.../admob/android/build.gradle` → `proguard-android-optimize.txt`, AGP 9; se pierde con `npm install`).
+- Verificado en runtime (web): revivir restaura escudo/invuln/HUD y reanuda; botón NO aparece en web; invulnerabilidad bloquea daño y se apaga a los 2s. Sin errores. Compila e **instalado en el G04** (con anuncios de prueba).
+- **PENDIENTE**: probar el flujo del anuncio en el G04; crear cuenta AdMob real + ad unit + App ID reales; política de privacidad (obligatoria). Falta **Play Store** (paso 5).
+
+---
 
 ## ✅ Completado v1.46.0 - Android: ícono y splash propios
 

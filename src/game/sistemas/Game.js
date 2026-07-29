@@ -28,6 +28,7 @@ import { Cohete } from '../mecanicas/Cohete.js';
 import { UIManager } from '../../ui/UIManager.js';
 import { GestorEntrada } from '../../systems/InputManager.js';
 import { ControlesTactiles } from '../../systems/TouchControls.js';
+import { Anuncios } from '../../systems/Anuncios.js';
 import { GestorSonido } from '../../systems/SoundManager.js';
 import { CONFIG } from '../../config.js';
 
@@ -272,6 +273,12 @@ export class Game {
         // Se crea siempre (barato) pero solo se MUESTRA en dispositivos táctiles.
         if (!this.controlesTactiles) {
             this.controlesTactiles = new ControlesTactiles(document.body, this.gestorEntrada);
+        }
+
+        // AdMob (anuncio recompensado para revivir). En la web queda inactivo.
+        if (!this.anuncios) {
+            this.anuncios = new Anuncios();
+            this.anuncios.inicializar();
         }
 
 
@@ -1397,8 +1404,10 @@ _crearParticulaBoidFuera() {
         // Remover botones HTML por ID
         const btnReiniciar = document.getElementById('btn-reiniciar');
         const btnTop5 = document.getElementById('btn-top5');
+        const btnRevivir = document.getElementById('btn-revivir');
         if (btnReiniciar) btnReiniciar.remove();
         if (btnTop5) btnTop5.remove();
+        if (btnRevivir) btnRevivir.remove();
         
         // Limpiar array de botones
         if (this.botonesHTML) {
@@ -1433,6 +1442,61 @@ _crearParticulaBoidFuera() {
         setTimeout(() => {
             this.limpiezaEnProgreso = false;
         }, 100);
+    }
+
+    /**
+     * REVIVE al jugador tras un Game Over (lo llama el botón "Revivir" cuando el
+     * anuncio recompensado se completó). Conserva puntos/oleada. Restaura escudo
+     * lleno, 2s de invulnerabilidad, limpia enemigos cerca y reanuda la partida.
+     */
+    revivir() {
+        if (!this.enGameOver) return;
+        // 1. Limpiar la UI de Game Over (botones + visuales Pixi) SIN resetear.
+        this._limpiarFinJuego();
+        // 2. Restaurar el HUD (se ocultó en gameOver).
+        if (this.pixiHUD && this.pixiHUD.container) this.pixiHUD.container.visible = true;
+        // 3. Restaurar el jugador.
+        const j = this.jugador;
+        if (j) {
+            j.escudos = j.escudosMax;
+            j.sobrecalentado = false;
+            j.sobrecalentadoAceleracion = false;
+            j.cargaAceleracion = 0;
+            j.velocidad = 0;
+            j.active = true;
+            if (j.imagen) j.imagen.visible = true;
+            if (this.gestorSonido && j._loopRotura) { this.gestorSonido.detener(j._loopRotura); j._loopRotura = null; }
+            if (j.activarInvulnerabilidad) j.activarInvulnerabilidad(2);
+        }
+        // 4. Limpiar proyectiles enemigos + enemigos cercanos (gracia).
+        this._limpiarCercaAlRevivir(340);
+        // 5. Reanudar la partida.
+        this.enGameOver = false;
+        this.pausado = false;
+        this.ejecutando = true;
+        if (this.aplicacion && this.aplicacion.stage) this.aplicacion.stage.eventMode = 'static';
+        if (this.gestorEntrada) this.gestorEntrada.reiniciar();
+    }
+
+    /** Quita TODOS los proyectiles enemigos y los enemigos dentro de `radio` del jugador. @private */
+    _limpiarCercaAlRevivir(radio) {
+        const j = this.jugador; if (!j) return;
+        const dist = (e) => this.distanciaToroidal ? this.distanciaToroidal(j.x, j.y, e.x, e.y) : Math.hypot(j.x - e.x, j.y - e.y);
+        const quitarSprite = (e) => {
+            try {
+                const sp = e && (e.imagen || e.sprite);
+                if (sp && sp.parent) sp.parent.removeChild(sp);
+                if (sp && sp.destroy) sp.destroy();
+            } catch (err) { /* ignorar */ }
+        };
+        if (this.proyectilesEnemigos) { this.proyectilesEnemigos.forEach(quitarSprite); this.proyectilesEnemigos = []; }
+        for (const campo of ['enemigos', 'enemigosNaves', 'enemigosSpeciales']) {
+            const arr = this[campo]; if (!arr) continue;
+            this[campo] = arr.filter(e => {
+                if (e && dist(e) <= radio) { quitarSprite(e); return false; }
+                return true;
+            });
+        }
     }
     
 /**
@@ -1472,16 +1536,22 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     const frameW = this.gameOverSprite ? this.gameOverSprite.width : ancho;
     // Ubicar los botones en la parte baja del papel, dentro del blanco.
     const btnY = yCentro + (ancho * 0.32);        // Y en coords de juego
-    const dx = frameW * 0.17;                      // separación horizontal (coords juego)
-    const btnW = Math.max(90, Math.round(frameW * 0.26 * escala));  // ancho proporcional
-    
-    // Botón Reiniciar - centrado debajo de la imagen
+    // Si AdMob está disponible, hay 3 botones: [Revivir | Reiniciar | Top 5].
+    // Si no (web), 2: [Reiniciar | Top 5].
+    const hayRevivir = !!(this.anuncios && this.anuncios.disponible());
+    const dx = frameW * (hayRevivir ? 0.29 : 0.17);
+    const btnW = Math.max(84, Math.round(frameW * (hayRevivir ? 0.235 : 0.26) * escala));
+    const xReiniciar = hayRevivir ? xCentro : (xCentro - dx);
+    const xTop5 = xCentro + dx;
+    const xRevivir = xCentro - dx;
+
+    // Botón Reiniciar
     const btnReiniciar = document.createElement('img');
     btnReiniciar.src = 'assets/botonReiniciar.png';
     btnReiniciar.id = 'btn-reiniciar';
     btnReiniciar.style.cssText = `
         position: absolute;
-        left: ${offX + (xCentro - dx) * escala}px;
+        left: ${offX + xReiniciar * escala}px;
         top: ${offY + btnY * escala}px;
         transform: translate(-50%, -50%);
         width: ${btnW}px;
@@ -1549,9 +1619,41 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         await this._mostrarTop5();
     };
     document.body.appendChild(btnTop5);
-    
+
+    // Botón REVIVIR (solo si AdMob está disponible): muestra un anuncio
+    // recompensado y, al completarlo, revive al jugador (misma partida).
+    let btnRevivir = null;
+    if (hayRevivir) {
+        btnRevivir = document.createElement('div');
+        btnRevivir.id = 'btn-revivir';
+        btnRevivir.innerHTML = '<div style="font-size:1em; font-weight:bold; line-height:1;">REVIVIR</div><div style="font-size:0.5em; opacity:0.8; margin-top:3px;">ver anuncio</div>';
+        btnRevivir.style.cssText = `
+            position: absolute;
+            left: ${offX + xRevivir * escala}px;
+            top: ${offY + btnY * escala}px;
+            transform: translate(-50%, -50%);
+            width: ${btnW}px; box-sizing: border-box;
+            padding: ${Math.round(10 * escala)}px 6px;
+            text-align: center; color: #0044CC;
+            font-family: 'Segoe Script', 'Lucida Handwriting', cursive;
+            font-size: ${Math.max(13, Math.round(frameW * 0.045 * escala))}px;
+            background: #FBF7EC; border: 3px solid #0044CC; border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,68,204,0.5);
+            cursor: pointer; z-index: 1000; transition: all 0.2s ease;
+        `;
+        let revivirEnCurso = false;
+        btnRevivir.onclick = async () => {
+            if (revivirEnCurso) return;
+            revivirEnCurso = true;
+            const ok = await this.anuncios.mostrarRewarded(() => this.revivir());
+            revivirEnCurso = false;
+            // Si no se recompensó (cerró el anuncio antes), el botón sigue disponible.
+        };
+        document.body.appendChild(btnRevivir);
+    }
+
     // Guardar referencias para limpiar despues
-    this.botonesHTML = [btnReiniciar, btnTop5];
+    this.botonesHTML = [btnReiniciar, btnTop5, btnRevivir].filter(Boolean);
 }
     
     /**
