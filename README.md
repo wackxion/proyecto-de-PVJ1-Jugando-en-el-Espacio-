@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.2)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.1 (Actual)
+### v1.47.2 (Actual)
+> **Game Over: el botón "Revivir" quedó fuera del marco, abajo**
+
+- 🔁 El botón **"Revivir (ver anuncio)"** se movió **fuera del marco, centrado y debajo** de Reiniciar / TOP 5 (antes iba en la fila de adentro)
+
+### v1.47.1
 > **AdMob: IDs reales de la cuenta del dev (en modo prueba)**
 
 - 🔑 Se pusieron el **App ID** y el **ad unit** reales de la cuenta de AdMob. Siguen mostrándose **anuncios de prueba** (`isTesting` activo) hasta publicar, para no arriesgar la cuenta

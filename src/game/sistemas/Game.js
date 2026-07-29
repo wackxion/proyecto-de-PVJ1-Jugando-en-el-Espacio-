@@ -1536,14 +1536,11 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     const frameW = this.gameOverSprite ? this.gameOverSprite.width : ancho;
     // Ubicar los botones en la parte baja del papel, dentro del blanco.
     const btnY = yCentro + (ancho * 0.32);        // Y en coords de juego
-    // Si AdMob está disponible, hay 3 botones: [Revivir | Reiniciar | Top 5].
-    // Si no (web), 2: [Reiniciar | Top 5].
+    // Reiniciar y Top 5 dentro del marco (2 botones). El botón Revivir (si hay
+    // AdMob) va FUERA del marco, más abajo (ver más adelante).
     const hayRevivir = !!(this.anuncios && this.anuncios.disponible());
-    const dx = frameW * (hayRevivir ? 0.29 : 0.17);
-    const btnW = Math.max(84, Math.round(frameW * (hayRevivir ? 0.235 : 0.26) * escala));
-    const xReiniciar = hayRevivir ? xCentro : (xCentro - dx);
-    const xTop5 = xCentro + dx;
-    const xRevivir = xCentro - dx;
+    const dx = frameW * 0.17;
+    const btnW = Math.max(90, Math.round(frameW * 0.26 * escala));
 
     // Botón Reiniciar
     const btnReiniciar = document.createElement('img');
@@ -1551,7 +1548,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     btnReiniciar.id = 'btn-reiniciar';
     btnReiniciar.style.cssText = `
         position: absolute;
-        left: ${offX + xReiniciar * escala}px;
+        left: ${offX + (xCentro - dx) * escala}px;
         top: ${offY + btnY * escala}px;
         transform: translate(-50%, -50%);
         width: ${btnW}px;
@@ -1626,19 +1623,20 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     if (hayRevivir) {
         btnRevivir = document.createElement('div');
         btnRevivir.id = 'btn-revivir';
-        btnRevivir.innerHTML = '<div style="font-size:1em; font-weight:bold; line-height:1;">REVIVIR</div><div style="font-size:0.5em; opacity:0.8; margin-top:3px;">ver anuncio</div>';
+        btnRevivir.innerHTML = '<span style="font-weight:bold;">▶ Revivir</span> <span style="font-size:0.7em; opacity:0.85;">(ver anuncio)</span>';
+        // FUERA del marco, centrado y más abajo que Reiniciar/Top 5.
+        const yRevivir = yCentro + (ancho * 0.62);   // debajo del borde inferior del marco
         btnRevivir.style.cssText = `
             position: absolute;
-            left: ${offX + xRevivir * escala}px;
-            top: ${offY + btnY * escala}px;
+            left: ${offX + xCentro * escala}px;
+            top: ${offY + yRevivir * escala}px;
             transform: translate(-50%, -50%);
-            width: ${btnW}px; box-sizing: border-box;
-            padding: ${Math.round(10 * escala)}px 6px;
-            text-align: center; color: #0044CC;
+            padding: ${Math.round(9 * escala)}px ${Math.round(20 * escala)}px;
+            white-space: nowrap; text-align: center; color: #cfe0ff;
             font-family: 'Segoe Script', 'Lucida Handwriting', cursive;
-            font-size: ${Math.max(13, Math.round(frameW * 0.045 * escala))}px;
-            background: #FBF7EC; border: 3px solid #0044CC; border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,68,204,0.5);
+            font-size: ${Math.max(14, Math.round(frameW * 0.05 * escala))}px;
+            background: rgba(0,68,204,0.85); border: 2px solid #7fb0ff; border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,68,204,0.6);
             cursor: pointer; z-index: 1000; transition: all 0.2s ease;
         `;
         let revivirEnCurso = false;
