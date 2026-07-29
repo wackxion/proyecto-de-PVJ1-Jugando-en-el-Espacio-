@@ -17,6 +17,11 @@
 // (y initializeForTesting a false) recién al PUBLICAR.
 const REWARDED_ANDROID = 'ca-app-pub-8065871181264852/9966477167';
 
+// MODO_PRUEBA: true = anuncios de PRUEBA de Google (seguro, para desarrollar).
+//              false = anuncios REALES (para publicar en Play Store).
+// ⚠️ Con false, NO toques tus propios anuncios (Google banea la cuenta).
+const MODO_PRUEBA = false;
+
 const EV_REWARD  = 'onRewardedVideoAdReward';     // el usuario completó y obtuvo la recompensa
 const EV_DISMISS = 'onRewardedVideoAdDismissed';  // el anuncio se cerró (con o sin recompensa)
 
@@ -33,7 +38,7 @@ export class Anuncios {
     async inicializar() {
         if (!this.plugin) return;
         try {
-            await this.plugin.initialize({ initializeForTesting: true });
+            await this.plugin.initialize({ initializeForTesting: MODO_PRUEBA });
             this._precargarRewarded();
         } catch (e) { /* sin AdMob / error: se ignora, el juego sigue */ }
     }
@@ -41,7 +46,7 @@ export class Anuncios {
     async _precargarRewarded() {
         if (!this.plugin) return;
         try {
-            await this.plugin.prepareRewardVideoAd({ adId: REWARDED_ANDROID, isTesting: true });
+            await this.plugin.prepareRewardVideoAd({ adId: REWARDED_ANDROID, isTesting: MODO_PRUEBA });
             this.rewardedListo = true;
         } catch (e) { this.rewardedListo = false; }
     }
