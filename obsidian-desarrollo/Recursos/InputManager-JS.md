@@ -1,38 +1,67 @@
-# InputManager.js - Gestión de Teclado
+# InputManager.js
 
-## Descripción
+## Ubicacion
 
-Clase que gestiona la entrada del teclado, detectando qué teclas están presionadas.
+`src/systems/InputManager.js`
 
-## Métodos
+## Clase
 
-| Método | Descripción |
-|--------|-------------|
-| `_actualizar()` | Lee el estado actual del teclado |
-| `estaPresionada(tecla)` | Verifica si una tecla está presionada |
-| `debePausar()` | Retorna true si se presionó P |
-| `debeMostrarTop5()` | Retorna true si se presionó T |
-| `reiniciar()` | Limpia el estado de teclas especiales |
+`GestorEntrada`
 
-## Teclas del Sistema
+## Rol
 
-| Tecla | Función |
-|-------|---------|
-| P | Pausar / Reanudar juego |
-| T | Mostrar Top 5 (solo si está pausado) |
+Unifica teclado, mouse, joystick/gamepad y touch en acciones logicas del juego.
 
-## Controles del Jugador
+## Acciones logicas
 
-| Tecla | Función |
-|-------|---------|
-| W / ↑ | Avanzar (con inercia) |
-| Espacio | Disparar proyectil |
-| S / ↓ | Activar ULTi |
-| A / ← | Rotar nave a la izquierda |
-| D / → | Rotar nave a la derecha |
-| ENTER | Reiniciar (en Game Over) |
+- `avanzar`
+- `disparar`
+- `ulti`
+- `devorar`
+- `cohetes`
+- `propulsor`
+- `pausa`
+- `mostrarTop5`
 
-## Conexiones
+## Caracteristicas actuales
 
-- **→ [[Game-JS]]** - Pasa el gestor al jugador y usa para pausa/Top 5
-- **→ [[Player-JS]]** - Usa para controles del jugador
+- Lee bindings desde `CONFIG.CONTROLES`.
+- Permite reasignar controles.
+- Guarda controles en `localStorage` (`controlesJEE`).
+- Guarda modo de control en `localStorage` (`modoControlJEE`).
+- Soporta modos:
+  - `mouseTeclado`
+  - `joystick`
+  - `touch`
+- Mouse:
+  - Apuntado al cursor.
+  - `MouseLeft` y `MouseRight` como bindings.
+- Gamepad:
+  - Polling con Gamepad API.
+  - Stick izquierdo principal, derecho como alternativa.
+- Touch:
+  - Acciones recibidas desde [[Controles-y-Teclas]] / `TouchControls.js`.
+  - Intensidad analogica para acelerar.
+
+## Metodos importantes
+
+| Metodo | Uso |
+|---|---|
+| `estaPresionada(accion)` | Consulta accion combinando teclado/mouse/gamepad/touch |
+| `debeDisparar(delta)` | Disparo con cooldown |
+| `debeAvanzar(delta)` | Avance/aceleracion |
+| `intensidadAvance()` | Intensidad 0..1 |
+| `debeUsarUlti(delta)` | ULTi |
+| `debeUsarDevorar(delta)` | Devorador |
+| `debeUsarCohetes(delta)` | Cohetes |
+| `debeUsarPropulsor(delta)` | Propulsor |
+| `debePausar()` | Pausa/mejoras |
+| `debeMostrarTop5()` | Top 5 |
+| `actualizarGamepad()` | Lee Gamepad API |
+| `reiniciar()` | Limpia acciones y cooldowns |
+
+## Notas relacionadas
+
+- [[Controles-y-Teclas]]
+- [[Player-JS]]
+- [[Game-JS]]

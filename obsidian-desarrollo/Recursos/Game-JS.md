@@ -1,91 +1,84 @@
-# Game.js - Clase Principal
+# Game.js
 
-## Descripción
+## Ubicacion
 
-Clase principal del juego que coordina todas las demás clases y sistemas.
+`src/game/sistemas/Game.js`
 
-## Responsabilidades (v1.3)
+## Rol
 
-- Cargar assets (texturas)
-- Crear fondo (incluye fondo infinito con mosaicos)
-- Crear jugador
-- Gestionar enemigos (asteroides)
-- Gestionar naves enemigas (EnemyShip)
-- Gestionar enemigos especiales (SpecialEnemy)
-- Gestionar proyectiles aliados y enemigos
-- Procesar colisiones (todas las nuevas en v1.3)
-- Actualizar UI
-- Controlar estados (jugando, pausado, game over, top 5)
+Clase principal del juego. Coordina PixiJS, mundo, camara, jugador, entidades, sistemas, HUD, sonido, Top 5, controles tactiles y anuncios.
 
-## Métodos Principales
+## Responsabilidades
 
-| Método | Descripción |
-|--------|-------------|
-| `_cargarAssets()` | Carga texturas de nave, asteroide, fondo, enemigos |
-| `_crearFondo()` | Crea fondo infinito con mosaicos |
-| `_crearJugador()` | Instancia el jugador |
-| `_generarEnemigo()` | Crea asteroides aleatorios (5% special) |
-| `_crearNaveEnemiga()` | Crea nave enemiga cada 10 segundos |
-| `_crearProyectilEnemigo()` | Crea proyectil teledirigido |
-| `_procesarColisionesProyectiles()` | Proyectil vs Enemigo + Proyectil vs Proyectil |
-| `_procesarColisionesJugador()` | Jugador vs Enemigo + Special + MiniAsteroide |
-| `_procesarColisionesEnemigos() | MiniAsteroide vs Asteroides |
-| `_actualizarUI()` | Actualiza puntuación, oleadas, ULTi, aceleración |
-| `_mostrarTop5()` | Muestra la pantalla de Top 5 |
-| `_actualizar()` | Bucle principal (tick) |
-| `activarUlti()` | Activa el ataque especial con animaciones |
+- Crear la app PixiJS.
+- Crear `this.mundo`, contenedor donde viven los objetos de gameplay.
+- Inicializar `GestorEntrada`, `ControlesTactiles`, `Anuncios` y `GestorSonido`.
+- Cargar recursos visuales y fallback textures.
+- Crear fondo, estrellas y jugador.
+- Inicializar `PixiHUD`.
+- Ejecutar el game loop.
+- Delegar actualizaciones a modulos de sistemas.
+- Manejar pausa, Game Over, Top 5 y revive.
+- Mantener camara y mundo toroidal.
 
-## Variables Importantes
+## Modulos importados
 
-- `this.jugador` - Instancia de [[Player-JS]]
-- `this.enemigos[]` - Array de [[Enemy-JS]]
-- `this.enemigosNaves[]` - Array de [[EnemyShip-JS]] (NUEVO v1.3)
-- `this.enemigosSpeciales[]` - Array de [[SpecialEnemy-JS]] (NUEVO v1.3)
-- `this.proyectiles[]` - Array de [[Projectile-JS]]
-- `this.proyectilesEnemigos[]` - Array de [[EnemyProjectile-JS]] (NUEVO v1.3)
-- `this.top5` - Instancia de [[Top5-JS]]
-- `this.gestorEntrada` - Instancia de [[InputManager-JS]]
-- `this.contenedorFondo` - Contenedor del fondo infinito
-- `this.mosaicosFondo[]` - Array de sprites del fondo
+| Modulo | Uso |
+|---|---|
+| `GameProjectiles.js` | Crear/actualizar proyectiles y procesar colisiones |
+| `GameEnemies.js` | Generar enemigos/naves y procesar colisiones |
+| `GameSkills.js` | Cohetes, Devorador y Propulsor |
+| `GameEffects.js` | ULTi y efectos |
+| `GameBoids.js` | Particulas Boid |
+| `GameMejoras.js` | Inicializar mejoras/costos |
+| `PixiHUD.js` | HUD in-game |
 
-## Sistema de Colisiones (v1.3)
+## Variables clave
 
-### Nuevas colisiones implementadas:
-1. **Proyectil aliado ↔ Proyectil enemigo** → Ambos se destruyen
-2. **Proyectil aliado ↔ Mini Asteroide en órbita** → Traspasa (no recibe daño)
-3. **Proyectil enemigo ↔ Mini Asteroide en órbita** → -25 HP
-4. **Jugador ↔ Mini Asteroide en órbita** → -25 HP
-5. **Mini Asteroide ↔ Asteroide** → -25 HP al mini, asteroide se destruye
+| Variable | Uso |
+|---|---|
+| `jugador` | Instancia de [[Player-JS]] |
+| `gestorEntrada` | Instancia de [[InputManager-JS]] |
+| `gestorSonido` | Audio/SFX |
+| `anuncios` | AdMob rewarded |
+| `mundo` | Contenedor de gameplay |
+| `pixiHUD` | HUD Pixi |
+| `top5` | Sistema de puntuaciones |
+| `enemigos` | Asteroides |
+| `enemigosNaves` | Naves enemigas |
+| `enemigosSpeciales` | SpecialEnemy |
+| `proyectiles` | Disparos del jugador |
+| `proyectilesEnemigos` | Disparos enemigos |
+| `particulasBoid` | Recursos recolectables |
+| `mejoras` | 40 mejoras comprables |
 
-## Estados del Juego
+## Estados
 
-```javascript
-this.pausado        // true/false - juego pausado con P
-this.mostrandoTop5EnPausa  // true/false - top 5 desde pausa
-this.enGameOver    // true/false - juego terminado
-```
+- `ejecutando`
+- `pausado`
+- `mostrandoVentanaMejoras`
+- `mostrandoTop5EnPausa`
+- `enGameOver`
+- `esperandoNombreTop5`
 
-## Conexiones
+## Funciones propias importantes
 
-- **→ [[Player-JS]]** - Jugador
-- **→ [[Enemy-JS]]** - Asteroides
-- **→ [[EnemyShip-JS]]** - Naves enemigas (NUEVO v1.3)
-- **→ [[SpecialEnemy-JS]]** - Asteroide especial (NUEVO v1.3)
-- **→ [[Projectile-JS]]** - Proyectiles aliados
-- **→ [[EnemyProjectile-JS]]** - Proyectiles enemigos (NUEVO v1.3)
-- **→ [[UltiEffect.js]]** - Ataque especial con animaciones
-- **→ [[Top5-JS]]** - Sistema de puntuación
-- **→ [[InputManager-JS]]** - Gestión de teclado
-- **→ [[Jugando-en-el-Espacio]]** - Proyecto principal
-- **→ [[Arquitectura-y-Conexiones]]** - Arquitectura completa
+- `init(container)`
+- `_cargarRecursos()`
+- `_crearFondo()`
+- `_crearJugador()`
+- `_gameLoop(ticker)`
+- `_actualizarCamara(delta)`
+- `_actualizarToroide()`
+- `_puntoSpawnFueraDeVista(margen)`
+- `alternarMejoras()`
+- `gameOver()`
+- `revivir()`
+- `_limpiarCercaAlRevivir(radio)`
+- `_mostrarTop5()`
 
-## Líneas de Código Clave
+## Notas
 
-- **Línea ~250:** Carga `fondoEspacio3.png` para mosaico infinito
-- **Línea ~290:** `_crearFondo()` crea sistema de mosaicos
-- **Línea ~570:** `activarUlti()` con animaciones de destrucción
-- **Línea ~960:** `_procesarColisionesProyectiles()` incluye colisión proyectil-proyectil
-- **Línea ~1264:** `_procesarColisionesJugador()` incluye SpecialEnemy y transformaciones
-- **Línea ~1317:** Colisiones de mini asteroide en órbita
-- **Línea ~1450:** Control de pausa con tecla P
-- **Línea ~1359:** Top 5 durante pausa con tecla T
+- El HUD del juego no se actualiza por DOM; lo hace [[HUD-y-Mejoras]].
+- La ventana vieja de mejoras esta deshabilitada; la compra vive en los paneles laterales del HUD.
+- El boton Revivir se crea solo si `Anuncios.disponible()` devuelve true.

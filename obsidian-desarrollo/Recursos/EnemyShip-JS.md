@@ -1,54 +1,50 @@
 # EnemyShip.js
 
-## Descripción
+## Ubicacion
 
-Clase que representa las naves enemigas controladas por IA. Aparecen cada 10 segundos, orbitan alrededor del jugador y disparan proyectiles teledirigidos.
+`src/game/entidades/EnemyShip.js`
 
-## Características
+## Clase
 
-- **HP:** 25
-- **Velocidad:** 225 px/s
-- **Daño al jugador:** 25% escudos
-- **Frecuencia de aparición:** Cada 10 segundos
-- **Disparo:** Cada 3 segundos (cuando está en pantalla)
-- **Movimiento:** Orbita al jugador con inercia
-- **Proyectiles:** Teledirigidos con evasión de asteroides
+`EnemyShip extends GameObject`
 
-## Funcionalidades
+## Rol
 
-### Movimiento de Órbita
-- La nave orbita alrededor del jugador con movimiento curvado
-- Mantiene inercia al cambiar de dirección
-- Esquiva asteroides automáticamente
-- Radio de órbita: 250-400px (aleatorio)
+Nave enemiga con IA. Orbita al jugador, esquiva asteroides y dispara proyectiles teledirigidos.
 
-### Sistema de Disparo
-- Dispara proyectiles teledirigidos cada 3 segundos
-- Los proyectiles siguen al jugador
-- Evasión de asteroides integrada
-- Daño: 25 HP
+## Stats actuales
 
-### Colisiones
-- Con jugador: -25 HP al jugador, nave se destruye
-- Con proyectil aliado: 1 disparo la destruye
-- Con mini asteroide en órbita: -25 HP (se destruye), mini asteroide también recibe -25 HP
-- Con Ulti: se destruye (animación verde)
+Valores base desde `CONFIG.NAVE_ENEMIGA`:
 
-### Destrucción
-- Se destruye con 1 disparo del jugador
-- Se destruye al chocar con mini asteroide en órbita
-- Explosión de color verde al destruirse
-- El ULTi también la destruye
-- Puntos: 500
+| Campo | Valor |
+|---|---:|
+| Salud | 25 |
+| Dano | 25 |
+| Carga ULTi al destruir | 30 |
+| Velocidad | 225 |
+| Radio colision | 15 |
+| Intervalo disparo | 3 s |
 
-## Ubicación
+## Comportamiento
 
-`src/game/EnemyShip.js`
+- Busca una orbita alrededor del jugador.
+- Usa inercia para suavizar movimiento.
+- Calcula la posicion mas cercana del jugador en modo toroidal.
+- Esquiva asteroides cercanos con fuerza de repulsion.
+- Dispara cada 3 segundos cuando corresponde.
+- Tiene variantes visuales elegidas al generarse.
+
+## Colisiones
+
+- Proyectil aliado: recibe dano.
+- ULTi: se destruye.
+- Mini SpecialEnemy en orbita: colisiona y puede destruirse.
+- Jugador: hace dano al jugador.
 
 ## Conexiones
 
-- [[Game-JS]] - Controla su creación y actualización
-- [[EnemyProjectile-JS]] - Proyectiles que dispara
-- [[Player-JS]] - Objetivo a seguir y atacar
-- [[Enemy-JS]] - Asteroides que debe esquivar
-- [[SpecialEnemy-JS]] - Mini asteroides en órbita con los que colisiona
+- [[Game-JS]]
+- [[EnemyProjectile-JS]]
+- [[Player-JS]]
+- [[Enemy-JS]]
+- [[SpecialEnemy-JS]]

@@ -1,107 +1,132 @@
-# Desarrollo - Conexiones entre Archivos
+# Arquitectura y Conexiones
 
-## Arquitectura General
+## Arquitectura general actual
 
-```
+```text
 src/
-├── main.js              → Punto de entrada
-├── game/
-│   ├── Game.js          → Clase principal (coordina todo)
-│   ├── Player.js        → Jugador (nave)
-│   ├── Enemy.js         → Asteroides
-│   ├── Projectile.js    → Proyectiles
-│   ├── UltiEffect.js   → Efecto especial
-│   ├── BurstEffect.js  → Explosión special
-│   ├── HitEffect.js     → Impacto
-│   ├── Top5.js          → Sistema de puntuación
-│   └── GameObject.js    → Clase base
-└── systems/
-    └── InputManager.js  → Gestión de teclado
+|-- main.js
+|-- config.js
+|-- ui/
+|   `-- UIManager.js
+|-- systems/
+|   |-- InputManager.js
+|   |-- TouchControls.js
+|   |-- SoundManager.js
+|   `-- Anuncios.js
+`-- game/
+    |-- sistemas/
+    |   |-- Game.js
+    |   |-- GameBoids.js
+    |   |-- GameEffects.js
+    |   |-- GameEnemies.js
+    |   |-- GameMejoras.js
+    |   |-- GameProjectiles.js
+    |   `-- GameSkills.js
+    |-- entidades/
+    |   |-- GameObject.js
+    |   |-- Player.js
+    |   |-- Enemy.js
+    |   |-- EnemyShip.js
+    |   |-- EnemyProjectile.js
+    |   |-- Projectile.js
+    |   `-- SpecialEnemy.js
+    |-- mecanicas/
+    |   |-- Cohete.js
+    |   `-- Top5.js
+    |-- efectosVisuales/
+    |   |-- AsteroidExplosion.js
+    |   |-- BoidParticle.js
+    |   |-- BurstEffect.js
+    |   |-- HitEffect.js
+    |   |-- ProyectilExplosion.js
+    |   |-- SuccionEffect.js
+    |   `-- UltiEffect.js
+    `-- ui/
+        `-- PixiHUD.js
 ```
 
-## Flujo de Inicialización
+## Flujo de inicializacion
 
-1. **[[Main-JS]]** - Crea la aplicación PixiJS y el objeto `Game`
-2. **[[Game-JS]]** - `_cargarAssets()` carga texturas
-3. **[[Game-JS]]** - `_crearFondo()` crea fondo infinito
-4. **[[Game-JS]]** - `_crearJugador()` instancia [[Player-JS]]
-5. **[[Game-JS]]** - `_iniciarBucle()` configura el ticker
+1. [[Main-JS]] espera `DOMContentLoaded`.
+2. Crea `UIManager` y muestra menu principal.
+3. Precarga Top 5 en segundo plano.
+4. Al tocar JUGAR llama a `inicializarJuego()`.
+5. `Game.init()` crea la app PixiJS, el contenedor `mundo`, input, touch, anuncios y sonido.
+6. `Game._cargarRecursos()` carga texturas.
+7. `Game._crearFondo()` crea fondo/estrellas.
+8. `Game._crearJugador()` crea `Jugador`.
+9. Se inicializa [[HUD-y-Mejoras]] con `PixiHUD`.
+10. Arranca el ticker con `_gameLoop()`.
 
-## Conexiones Principales
+## Game loop actual
 
-### Game.js → Jugador
-- **Línea 367:** `this.jugador = new Jugador(...)`
-- **Línea 1370:** `this.jugador.update(delta, this.gestorEntrada)`
-- Pasa el gestor de entrada para controles
-
-### Game.js → Enemigos
-- **Línea 1446:** `this._generarEnemigo()` crea [[Enemy-JS]]
-- **Línea 1389:** Actualiza cada enemigo
-- Gestiona el array `this.enemigos[]`
-
-### Game.js → Proyectiles
-- **Línea 1213:** Crea nuevo [[Projectile-JS]]
-- **Línea 1376:** Actualiza proyectiles
-- Gestiona el array `this.proyectiles[]`
-
-### Game.js → InputManager
-- **Línea 218:** `this.gestorEntrada = new InputManager()`
-- Pasa a jugador para controls W/A/S/D
-- Lee teclas: W, S, A, D, ENTER, P, T
-
-### Game.js → Top5.js
-- **Línea 230:** `this.top5 = new Top5()`
-- **Línea 1583:** `await this.top5.obtenerLista()`
-- **Línea 1271:** `await this.top5.guardarPuntuacion(...)`
-
-## Sistema de Colisiones
-
-```
-Game.js._procesarColisionesProyectiles()
-    └── Verifica: Projectile vs Enemy
-        └── Si colisión: enemy.recibirDaño() → Projectile.active = false
-
-Game.js._procesarColisionesJugador()
-    └── Verifica: Jugador vs Enemy
-        └── Si colisión: jugador.recibirDaño() → Enemy.active = false
-
-Game.js._procesarColisionesEnemigos()
-    └── Verifica: Enemy vs Enemy
-        └── Si colisión: enemy1.alterDirection(), enemy2.alterDirection()
+```text
+Game._gameLoop()
+|-- gestorEntrada.actualizarGamepad()
+|-- alternar pausa/mejoras con P
+|-- PixiHUD.actualizarDespliegue()
+|-- TouchControls visible segun modo
+|-- jugador.update()
+|-- _actualizarCamara()
+|-- actualizarHabilidadDevorador()
+|-- actualizarHabilidadCohetes()
+|-- actualizarHabilidadPropulsor()
+|-- actualizarSistemaBoid()
+|-- actualizarProyectilesJugador()
+|-- actualizarProyectilesEnemigos()
+|-- actualizarEnemigos()
+|-- actualizarNavesEnemigasCompleto()
+|-- limpiarEnemigosLejanos()
+|-- actualizarUlti()
+|-- actualizarEfectosImpacto()
+|-- procesarColisionesProyectiles()
+|-- procesarColisionesJugador()
+|-- procesarColisionesEnemigos()
+|-- actualizarGeneracion()
+|-- _actualizarToroide()
+`-- PixiHUD.actualizar()
 ```
 
-## Sistema de Oleadas
+## Separacion de responsabilidades
 
-- **Contador:** `this.asteroidesDestruidos`
-- **Avance:** Cada 10 asteroides → siguiente oleada
-- **Dificultad:** `this._calcularVelocidad()` aumenta velocidad un 10% cada 5 oleadas
+| Archivo | Rol |
+|---|---|
+| `src/main.js` | Menu inicial, arranque del juego y Escape/Android back |
+| `src/config.js` | Balance central, controles, costos, audio |
+| `src/game/sistemas/Game.js` | Orquestador principal del juego |
+| [[GameProjectiles]] | Proyectiles y colisiones asociadas |
+| [[GameEnemies]] | Generacion, IA y colisiones de enemigos |
+| [[GameSkills]] | Cohetes, Devorador y Propulsor |
+| [[GameEffects]] | ULTi y efectos de impacto/destruccion |
+| [[GameBoids]] | Particulas Boid |
+| [[GameMejoras]] | Inicializacion de mejoras y costos |
+| `PixiHUD.js` | HUD in-game y compra de mejoras |
+| `UIManager.js` | UI DOM fuera del juego |
+| `InputManager.js` | Teclado, mouse, gamepad y bindings |
+| `TouchControls.js` | Overlay tactil |
+| `SoundManager.js` | Audio HTML5 |
+| `Anuncios.js` | AdMob rewarded para revivir |
 
-## Fondo Infinito
+## Conexiones principales
 
-1. **Carga:** `PIXI.Assets.load('assets/fondoEspacio3.png')`
-2. **Creación:** `_crearFondo()` crea mosaicos
-3. **Movimiento:** En `_actualizar()` mueve mosaicos hacia la izquierda
-4. **Loop:** Mosaicos que salen reaparecen por la derecha
+- [[Game-JS]] importa entidades, sistemas, mecanicas, HUD, input, audio y anuncios.
+- [[Player-JS]] recibe input y llama a `game.crearProyectil()` y `game.activarUlti()`.
+- [[InputManager-JS]] lee `CONFIG.CONTROLES` y expone acciones (`disparar`, `avanzar`, etc.).
+- [[HUD-y-Mejoras]] lee estado de `Game`, compra mejoras y actualiza iconos.
+- [[Top5-JS]] guarda/lee puntuaciones desde Firebase y localStorage.
+- [[Audio-y-AdMob]] se conecta desde `Game.js` y `Anuncios.js`.
 
-## Top 5 con Firebase
+## Estados importantes
 
-1. **Inicialización:** `new Top5()` carga config de Firebase
-2. **Guardado:** `top5.guardarPuntuacion(nombre, puntos, oleada)` → Firestore
-3. **Obtención:** `top5.obtenerLista()` → ordena por puntuación ↓
-4. **Filtrado:** Elimina elementos vacíos/inválidos
+- `ejecutando`: el ticker esta activo.
+- `pausado`: pausa general y panel de mejoras.
+- `mostrandoVentanaMejoras`: despliega columnas del HUD.
+- `mostrandoTop5EnPausa`: Top 5 abierto desde partida.
+- `enGameOver`: partida terminada.
+- `esperandoNombreTop5`: bloquea botones mientras se ingresa nombre.
 
-## Estados del Juego
+## Mundo y camara
 
-```
-Estados posibles:
-- Jugando (normal)
-- Pausado (tecla P)
-- Game Over (escudos = 0)
-- Top 5 (tecla T durante juego pausado)
-```
+La partida vive dentro de `this.mundo`, un `PIXI.Container`. El HUD y overlays quedan fuera, directamente en `stage`, para que no se muevan con la camara.
 
-## Notas Relacionadas
-
-- [[Tareas-Cumplidas-v1.2]] - Lista completa de implementaciones
-- [[Assets-del-Proyecto]] - Imágenes y recursos
-- [[Controles-y-Teclas]] - Lista de teclas del juego
+La nave se mueve en coordenadas de mundo. La camara desplaza `this.mundo` para seguirla y `_actualizarToroide()` permite que la nave y entidades envuelvan bordes cuando `CONFIG.MUNDO.TOROIDAL` esta activo.

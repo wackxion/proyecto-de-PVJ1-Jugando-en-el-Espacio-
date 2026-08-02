@@ -1,59 +1,63 @@
-# Enemy.js - Asteroides
+# Enemy.js
 
-## Descripción
+## Ubicacion
 
-Clase que representa los asteroides del juego. Existen 4 tipos principales + rezagados.
+`src/game/entidades/Enemy.js`
 
-## Tipos de Asteroides
+## Clase
 
-| Tipo | Radio | Salud | Daño | Comportamiento | Puntos |
-|------|-------|-------|------|----------------|--------|
-| **SMALL** | 16px | 25 HP | 10% | Va hacia la nave | 30 |
-| **MEDIUM** | 32px | 50 HP | 25% | Va hacia la nave | 20 |
-| **LARGE** | 64px | 75 HP | 50% | Orbita alrededor de la nave | 10 |
-| **SPECIAL** | 64px | 200 HP | 0% (power-up) | Va hacia la nave (rápido) | 100 |
+`Enemigo extends GameObject`
 
-## Distribución de Spawn
+## Rol
 
-| Tipo | Probabilidad |
-|------|-------------|
-| SPECIAL | 5% |
-| Rezagado 1 | 13% |
-| Rezagado 2 | 13% |
-| Rezagado 3 | 13% |
-| LARGE | 22% |
-| MEDIUM | 17% |
-| SMALL | 17% |
+Representa asteroides normales y rezagados. Los especiales actuales tienen clase propia: [[SpecialEnemy-JS]].
 
-## Propiedades
+## Tipos
 
-| Propiedad | Descripción |
-|-----------|-------------|
-| `tipo` | Tipo de asteroide (SMALL, MEDIUM, LARGE, SPECIAL) |
-| `salud` | Puntos de vida actuales |
-| `radio` | Radio de colisión |
-| `orbitando` | true/false - si orbita alrededor de la nave |
-| `enfriamientoColision` | Timer para evitar colisiones múltiples |
-| `factorVelocidad` | Multiplicador de velocidad (dificultad) |
+Definidos en `TamanioAsteroide`:
 
-## Comportamientos
+- `small`
+- `medium`
+- `large`
+- `special`
+- `large_rezagado`
+- `medium_rezagado`
+- `small_rezagado`
 
-- **Normal:** Va directamente hacia la posición de la nave
-- **Orbita:** LARGE orbita alrededor de la nave (radio fijo)
-- **Rezagado:** Pasa de largo sin apuntar a la nave
-- **Special:** Otorga power-up de velocidad de disparo al destruir
+Los stats viven en `CONFIG.ASTEROIDES`.
 
-## Sistema de Ruptura
+## Stats actuales desde config
 
-```
-LARGE → 2 MEDIUM (heredan órbita del padre)
-MEDIUM → 2 SMALL (heredan órbita solo si el padre orbitaba)
-SPECIAL → No suelta fragmentos, otorga power-up
+| Tipo | Radio | Velocidad | Salud | Puntos | Dano | Carga ULTi |
+|---|---:|---:|---:|---:|---:|---:|
+| small | 16 | 150 | 25 | 30 | 10 | 15 |
+| medium | 32 | 100 | 50 | 20 | 25 | 15 |
+| large | 64 | 50 | 75 | 10 | 50 | 15 |
+| special | 48 | 120 | 200 | 100 | 0 | 0 |
+| large_rezagado | 64 | 60 | 75 | 10 | 50 | 15 |
+| medium_rezagado | 32 | 80 | 50 | 20 | 25 | 15 |
+| small_rezagado | 16 | 120 | 25 | 30 | 10 | 15 |
+
+## Comportamiento
+
+- `large` orbita al jugador.
+- `small` y `medium` van hacia el jugador, salvo que hereden orbita.
+- Los rezagados cruzan la pantalla en linea recta.
+- Si reciben dano y sobreviven, se ralentizan durante 1 segundo.
+- Si estan cerca de la nave, el campo gravitatorio los atrae.
+
+## Fragmentacion
+
+```text
+large -> 2 medium
+medium -> 2 small
+large_rezagado -> 2 medium_rezagado
+medium_rezagado -> 2 small_rezagado
 ```
 
 ## Conexiones
 
-- **← [[Game-JS]]** - Crea y gestiona asteroides
-- **← [[Player-JS]]** - Objetivo de los asteroides (para órbita)
-- **→ [[BurstEffect-JS]]** - Efecto al destruir SPECIAL
-- **→ [[HitEffect-JS]]** - Efecto de impacto al recibir daño
+- [[Game-JS]]
+- [[Player-JS]]
+- [[GameProjectiles]] en codigo
+- [[GameEnemies]] en codigo

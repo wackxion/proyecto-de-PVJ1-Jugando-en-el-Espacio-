@@ -1,85 +1,77 @@
-# Recursos del Proyecto
+# Assets del Proyecto
 
-## Imágenes (Assets)
+## Carpetas principales
 
-| Archivo | Ubicación | Uso |
-|---------|-----------|-----|
-| nave.png | assets/ | Sprite de la nave (versión antigua) |
-| Nave322.png | assets/ | Sprite de la nave (versión actual) |
-| asteroide.png | assets/ | Sprite del asteroide (versión antigua) |
-| asteroide250.png | assets/ | Sprite del asteroide (versión actual) |
-| puntuacion2.png | assets/ | Imagen decorativa UI y fondo Top 5 |
-| tutorial.png | assets/ | Imagen de tutorial |
-| gameOver.jpg | assets/ | Imagen de Game Over |
-| guardarPuuntos.png | assets/ | Imagen de formulario Top 5 |
-| fondoEspacio.png | assets/ | Fondo estático (versión 1) |
-| fondoEspacio2.png | assets/ | Fondo estático (versión 2) |
-| fondoEspacio3.png | assets/ | **Fondo mosaico** (versión actual, infinito) |
+| Carpeta | Uso |
+|---|---|
+| `assets/` | Imagenes, sprites, fondos, botones y audio |
+| `assets/audio/` | SFX y musica |
+| `libs/` | PixiJS local |
+| `recursos-app/` | Fuentes para icono y splash Android |
+| `www/` | Salida preparada para Capacitor |
 
-## Estructura de Carpetas
+## Assets de gameplay
 
-```
-proyecto-de-PVJ1-sin-nombre-/
-├── index.html              # Página principal
-├── SPEC.md                 # Especificaciones
-├── README.md               # Documentación
-├── package.json            # npm
-├── css/
-│   └── style.css          # Estilos
-├── assets/                 # Imágenes y recursos
-│   ├── nave.png
-│   ├── Nave322.png
-│   ├── asteroide.png
-│   ├── asteroide250.png
-│   ├── puntuacion2.png
-│   ├── tutorial.png
-│   ├── gameOver.jpg
-│   ├── guardarPuuntos.png
-│   ├── fondoEspacio.png
-│   ├── fondoEspacio2.png
-│   └── fondoEspacio3.png  ← Fondo infinito actual
-├── src/
-│   └── ...
-└── obsidian-desarrollo/   # Documentación Obsidian
-    ├── Proyectos/
-    │   ├── Jugando-en-el-Espacio.md
-    │   └── Tareas-Cumplidas-v1.2.md
-    └── Desarrollo/
-        └── Arquitectura-y-Conexiones.md
-```
+| Archivo | Uso |
+|---|---|
+| `Nave322.png` | Nave del jugador |
+| `asteroide250.png` | Asteroides normales |
+| `asteroideESP.png` | Asteroide especial |
+| `proyectil1.png` | Proyectil del jugador |
+| `cohetes -habilidad.png` | Sprite del cohete |
+| `Pboids2.png` | Particulas Boid |
+| `enimigo1.png` a `enimigo4.png` | Variantes de nave enemiga |
+| `enemigo5.png` | Variante extra de nave enemiga |
 
-## Paleta de Colores (Estilo Birome)
+## Fondos y pantallas
 
-| Color | Hex | Uso |
-|-------|-----|-----|
-| Negro Espacial | `#0D0D1A` | Fondo del juego |
-| Birome Azul | `#0044CC` | Nave, proyectiles, UI, efecto de daño |
-| Birome Rojo | `#CC0000` | Asteroides |
-| Blanco Estelar | `#FFFFFF` | Estrellas |
+| Archivo | Uso |
+|---|---|
+| `fondoEspacio3.png` | Fondo del juego |
+| `fondoEspacio2.png` / `fondoEspacio2.1.png` | Fondos de menu |
+| `jugando en el espacio.png` | Portada/menu principal |
+| `gameOver.png` | Marco/ventanas |
+| `gameOver.jpg` | Fondo historico de Game Over |
+| `tutorial.png` | Tutorial |
 
-## Fuentes
+## UI y mejoras
 
-- **UI del juego:** Estilo manuscrito
-  - Segoe Script
-  - Lucida Handwriting
-  - Bradley Hand
-  - Cursive
+| Archivo | Uso |
+|---|---|
+| `puntacion-recursos.png` | Marcador superior de puntos/recursos |
+| `uxExperimental.png`, `uxExperimental2.png` | UI/HUD experimental |
+| `marcos1mejora.png` a `marcos5mejora.png` | Marcos por tier de mejora |
+| `chipDeMejora.png` | Panel de chips/pips de mejoras |
+| `upgreate.png` | Icono para comprar mejora |
+| `escudo1.png` a `escudo5.png` | Iconos/estados de escudo |
+| `ultiicon1.png` a `ultiicon5.png` | Iconos/estados de ULTi |
+| `aceleracion.png` y `aceleracion1.png` a `aceleracion9.png` | Aceleracion |
+| `cohetes.png` | Icono habilidad Cohetes |
+| `deborador.png` | Icono habilidad Devorador |
+| `propulsor.png` | Icono habilidad Propulsor |
+| `relog1.png` a `relog6.png` | Tiempo Fuera |
 
-## Tecnologías
+## Botones
 
-- **Motor:** PixiJS v8
-- **Lenguaje:** JavaScript ES6+
-- **Backend:** Firebase Firestore (Top 5)
-- **Hosting:** GitHub Pages
+| Archivo | Uso |
+|---|---|
+| `botonJuegar.png` | Jugar |
+| `botonTutorial.png` | Tutorial |
+| `botonTOP5.png` | Top 5 |
+| `botonOpciones.png` | Opciones |
+| `botonCreditos.png` | Creditos |
+| `botonVolver.png` | Volver |
+| `botonReiniciar.png` | Reiniciar |
+| `botonSeguirJugando.png` | Seguir jugando |
+| `botonVolverAlMenu.png` | Volver al menu |
+| `botonAnterior.png`, `botonSiguiente.png` | Tutorial |
+| `guardadoBoton.png` | Guardar record |
 
-## Links Útiles
+## Audio
 
-- [PixiJS Documentación](https://pixijs.com/8.x/guides/components)
-- [Universal LPC Spritesheet Generator](https://liberatedpixelcup.github.io/Universal-LPC-Spritesheet-Character-Generator/)
-- [Free Texture Packer](https://free-tex-packer.com/app/)
+Ver [[Audio-y-AdMob]].
 
-## Notas Relacionadas
+## Notas
 
-- [[Jugando-en-el-Espacio]] - Proyecto principal
-- [[Tareas-Cumplidas-v1.2]] - Lista de implementaciones
-- [[Arquitectura-y-Conexiones]] - Conexiones entre archivos
+- El README todavia lista algunos nombres historicos que no existen como archivos actuales (`nave.png`, `asteroide.png`, etc.).
+- Para nuevas notas o docs, preferir nombres de archivo reales de `assets/`.

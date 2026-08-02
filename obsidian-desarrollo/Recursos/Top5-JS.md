@@ -1,41 +1,59 @@
-# Top5.js - Sistema de Puntuación
+# Top5.js
 
-## Descripción
+## Ubicacion
 
-Sistema de puntuación Top 5 que guarda las mejores puntuaciones en Firebase Firestore.
+`src/game/mecanicas/Top5.js`
 
-## Características
+## Clase
 
-- **Almacenamiento:** Firebase Firestore (colección: top5, documento: puntuaciones)
-- **Persistencia:** Entre sesiones y dispositivos
-- **Campos:** nombre, puntuación, oleada
+`Top5`
 
-## Métodos
+## Rol
 
-| Método | Descripción |
-|--------|-------------|
-| `obtenerLista()` | Obtiene las 5 mejores puntuaciones ordenadas |
-| `guardarPuntuacion(nombre, puntuacion, oleada)` | Guarda una nueva puntuación |
-| `_obtenerPuntuacionMinima()` | Obtiene la puntuación más baja del Top 5 |
+Sistema de puntuaciones. Guarda y recupera las mejores 5 entradas.
 
-## Integridad de Datos
+## Backend
 
-- **Filtrado:** Elimina elementos vacíos, nulos o con strings vacíos
-- **Validación:** Solo acepta letras (A-Z) y números (0-9), máximo 8 caracteres
+- Principal: Firebase Firestore.
+- Coleccion: `top5`.
+- Documento: `puntuaciones`.
+- Respaldo: `localStorage`.
+- Respaldo final: memoria.
+
+## Datos
+
+Cada entrada tiene:
+
+```js
+{
+  nombre: "BRAIAN",
+  puntuacion: 1234,
+  oleada: 7
+}
+```
+
+## Validacion
+
+- Nombre en mayusculas.
+- Maximo 8 caracteres.
+- Solo letras y numeros.
+- Puntuacion 0 o menor no califica.
+- Evita duplicados exactos: mismo nombre, puntuacion y oleada.
+
+## Metodos importantes
+
+| Metodo | Uso |
+|---|---|
+| `obtenerLista()` | Lee Firebase/localStorage/memoria |
+| `obtenerListaSync()` | Devuelve memoria sin await |
+| `guardarLista(lista)` | Guarda en Firebase y localStorage |
+| `califica(puntuacion)` | Determina si entra al Top 5 |
+| `validarNombre(nombre)` | Limpia y valida nombre |
+| `agregarEntrada(nombre, puntuacion, oleada)` | Inserta, ordena y recorta a 5 |
+| `limpiar()` | Borra lista |
 
 ## Conexiones
 
-- **← [[Game-JS]]** - Usa el sistema para mostrar/guardar puntuaciones
-  - Línea 230: `this.top5 = new Top5()`
-  - Línea 1271: `await this.top5.guardarPuntuacion(...)`
-  - Línea 1583: `await this.top5.obtenerLista()`
-
-## Pantalla Top 5
-
-- **Acceso:** 
-  - Botón TOP 5 en Game Over
-  - Tecla T durante el juego (si está pausado)
-- **Visualización:**
-  - Imagen de fondo (puntuacion2.png)
-  - Tabla: N° | NOMBRE | PUNTOS | OLEADAS
-  - Botón VOLVER en esquina inferior izquierda
+- [[Main-JS]] precarga Top 5 para el menu.
+- [[Game-JS]] consulta y guarda puntuaciones en Game Over.
+- `UIManager.js` muestra Top 5 del menu.

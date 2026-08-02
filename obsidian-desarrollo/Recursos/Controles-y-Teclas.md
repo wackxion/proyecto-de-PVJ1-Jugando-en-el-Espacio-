@@ -1,97 +1,58 @@
-# Controles y Teclas del Juego
+# Controles y Teclas
 
-## ⚠️ IMPORTANTE - v1.3
+## Fuente de verdad
 
-> Los controles han cambiado para el movimiento tipo tanque
+Los controles por defecto estan en `src/config.js`, seccion `CONFIG.CONTROLES`.
 
----
+El gestor vive en `src/systems/InputManager.js` y permite reasignar controles desde Opciones. Los cambios se guardan en `localStorage` con la clave `controlesJEE`.
 
-## Controles del Jugador (v1.3)
+## Modos de control
 
-| Tecla | Acción | Archivo |
-|-------|--------|---------|
-| **Barra espaciadora** | Disparar proyectil | [[Player-JS]] |
-| W | Moverse hacia adelante (con inercia) | [[Player-JS]] |
-| S / Flecha ↓ | Activar ataque especial (Ulti) | [[Player-JS]] |
-| A / Flecha ← | Rotar nave a la izquierda | [[Player-JS]] |
-| D / Flecha → | Rotar nave a la derecha | [[Player-JS]] |
+| Modo | Apuntado | Uso |
+|---|---|---|
+| Mouse y teclado | Mouse | PC |
+| Joystick | Stick izquierdo o derecho | Gamepad |
+| Touch | Joystick virtual flotante | Celular |
 
----
+El modo se guarda en `localStorage` con la clave `modoControlJEE`.
 
-## Controles del Sistema
+## Controles por defecto
 
-| Tecla | Acción | Archivo |
-|-------|--------|---------|
-| ENTER | Reiniciar (en Game Over) | [[Game-JS]] |
-| P | Pausar/Reanudar juego | [[InputManager-JS]] |
-| T | Ver Top 5 durante el juego | [[InputManager-JS]] |
+| Accion | Mouse/teclado | Gamepad | Touch |
+|---|---|---|---|
+| Apuntar | Mouse | Stick izquierdo o derecho | Joystick virtual |
+| Acelerar | Click derecho, W, Flecha Arriba | RT o A | Intensidad del joystick |
+| Disparar | Click izquierdo, Espacio | LT o X | Boton FUEGO |
+| ULTi | S, Flecha Abajo | B | Boton ULTi |
+| Devorador | E | LB | Boton Devorador |
+| Cohetes | Q | RB | Boton Cohetes |
+| Propulsor | R | Y | Boton Propulsor |
+| Pausa / Mejoras | P | - | Icono de mejora / P si hay teclado |
+| Top 5 | T | - | Desde UI/contexto |
+| Volver al menu | ESC | - | Boton atras Android / modal |
 
-## Click del Mouse
+## Flujo de input
 
-| Acción | Contexto |
-|--------|----------|
-| Click en REINICIAR | Reiniciar juego en Game Over |
-| Click en TOP 5 | Ver tabla de puntuaciones |
-| Click en VOLVER | Volver de Top 5 a Game Over/Pausa |
-
----
-
-## Explicación del Movimiento Tipo Tanque
-
-### Movimiento con Inercia
-- **W (avanzar):** La nave acelera hacia adelante
-- **Al soltar W:** La nave sigue moviéndose por la inercia
-- **Fricción:** La velocidad disminuye gradualmente
-- **A/D (girar):** Rota la nave a izquierda/derecha
-
-### Disparo
-- El proyectil sale hacia donde apunta la nave (la punta)
-- No depende de la última dirección de movimiento
-
----
-
-## Flujo de Lectura de Teclas
-
-```
-InputManager.js._actualizar()
-    └── Lee eventos del teclado
-    └── Actualiza estado de teclas
-
-Game.js._actualizar()
-    └── InputManager.debePausar() → P
-    └── InputManager.debeMostrarTop5() → T
-    └── jugador.update() → W, A, S, D, ESPACIO
+```text
+InputManager
+|-- teclado y mouse -> this.teclas
+|-- gamepad -> this.gamepadAcciones + gamepadAngulo
+|-- touch -> this.tactilAcciones + tactilAngulo + tactilIntensidad
+`-- estaPresionada(accion) combina las 3 fuentes
 ```
 
----
+## Detalles importantes
 
-## Estados según Teclas (v1.3)
+- El apuntado con mouse es fijo y no se reasigna.
+- Los botones del mouse si son bindings reasignables (`MouseLeft`, `MouseRight`).
+- En touch, empujar poco el joystick apunta sin acelerar fuerte; empujar mas aumenta aceleracion y consumo de carga.
+- En modo touch no existe boton separado de acelerar.
+- `P` alterna pausa/mejoras; durante pausa el game loop corta despues de actualizar despliegue del HUD.
+- `ESC` abre confirmacion para volver al menu solo si hay partida activa y no esta pausada ni en Game Over.
 
-- **Durante el juego:**
-  - ESPACIO: Dispara proyectil
-  - W: Avanza (con inercia)
-  - A/D: Rota nave
-  - S: Activa ULTi
-  - P: Pausa el juego
-  - T: Muestra Top 5 (solo si está pausado)
+## Notas relacionadas
 
-- **En Game Over:**
-  - ENTER: Reinicia el juego
-  - Click en REINICIAR: Reinicia el juego
-  - Click en TOP 5: Muestra puntuaciones
-
-- **En pausa:**
-  - P: Reanuda el juego
-  - T: Muestra Top 5
-
-- **En Top 5:**
-  - Click en VOLVER: Vuelve al estado anterior (Game Over o Pausa)
-
----
-
-## Notas Relacionadas
-
-- [[Jugando-en-el-Espacio]] - Proyecto principal
-- [[Arquitectura-y-Conexiones]] - Arquitectura del código
-- [[Assets-del-Proyecto]] - Recursos del juego
-- [[Tareas-Planificadas-v1.3]] - Cambios para v1.3
+- [[InputManager-JS]]
+- [[Player-JS]]
+- [[HUD-y-Mejoras]]
+- [[Game-JS]]

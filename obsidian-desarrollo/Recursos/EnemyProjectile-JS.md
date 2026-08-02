@@ -1,48 +1,39 @@
 # EnemyProjectile.js
 
-## Descripción
+## Ubicacion
 
-Clase que representa los proyectiles disparados por las naves enemigas. Son teledirigidos y esquivan asteroides automáticamente.
+`src/game/entidades/EnemyProjectile.js`
 
-## Características
+## Rol
 
-- **Velocidad:** 400 px/s
-- **Daño al jugador:** 25 HP
-- **Tiempo de vida:** 3 segundos
-- **Hitbox:** Radio 8px (aumentado para mejor colisión)
+Proyectil de las naves enemigas. Persigue al jugador y puede esquivar asteroides.
 
-## Funcionalidades
+## Stats
 
-### Sistema Teledirigido
-- El proyectil sigue continuamente al jugador
-- Usa interpolación suave para girar hacia el jugador
-- Mezcla: 70% hacia el jugador + 30% evasión de asteroides
+Valores principales desde `CONFIG.PROYECTIL_ENEMIGO`:
 
-### Evasión de Asteroides
-- Detecta asteroides a menos de 80px
-- Aplica fuerza de repulsión para esquivarlos
-- Evita colisiones con asteroides mientras persigue al jugador
+| Campo | Valor |
+|---|---:|
+| Velocidad | 400 px/s |
+| Dano | 25 |
+| Tiempo de vida | 3 s |
 
-### Colisiones
-- Con jugador: -25 HP al jugador, proyectil se destruye
-- Con proyectil aliado: ambos se destruyen (animación de proyectil)
-- Con mini asteroide en órbita: -25 HP al mini asteroide
-- Con asteroide: proyectil se destruye, asteroide se destruye (sin puntos para el jugador)
+## Comportamiento
 
-## Destrucción
+- Se orienta hacia el jugador.
+- Puede mezclar persecucion con evasion de asteroides.
+- Se destruye por tiempo de vida o colision.
 
-- Se destruye al hitting al jugador
-- Se destruye al chocar con proyectil aliado
-- Se destruye al salir de la pantalla (+50px de margen)
-- Se destruye después de 3 segundos de vida
+## Colisiones relevantes
 
-## Ubicación
-
-`src/game/EnemyProjectile.js`
+- Jugador: resta escudos.
+- Proyectil aliado: ambos se destruyen.
+- Mini SpecialEnemy en orbita: le suma dano/colision.
+- Asteroides: puede destruirse segun logica de `GameProjectiles.js`.
 
 ## Conexiones
 
-- [[EnemyShip-JS]] - Naves que disparan estos proyectiles
-- [[Player-JS]] - Objetivo del proyectil teledirigido
-- [[Enemy-JS]] - Asteroides que debe esquivar
-- [[Game-JS]] - Controla su actualización y colisiones
+- [[EnemyShip-JS]]
+- [[Player-JS]]
+- [[Projectile-JS]]
+- [[Game-JS]]

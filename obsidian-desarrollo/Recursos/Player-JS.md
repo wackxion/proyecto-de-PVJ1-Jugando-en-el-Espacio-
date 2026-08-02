@@ -1,46 +1,58 @@
-# Player.js - Nave del Jugador
+# Player.js
 
-## Descripción
+## Ubicacion
 
-Clase que representa la nave espacial del jugador. Maneja rotación, disparar, ULTi y escudos.
+`src/game/entidades/Player.js`
 
-## Propiedades
+## Clase
 
-| Propiedad | Tipo | Descripción |
-|-----------|------|-------------|
-| `x` | number | Posición X |
-| `y` | number | Posición Y |
-| `escudos` | number | Porcentaje de escudos (0-100) |
-| `angulo` | number | Ángulo de rotación en radianes |
-| `cargaUlti` | number | Carga del ataque especial (0-100) |
-| `velocidadDisparo` | number | Multiplicador de velocidad de disparo |
+`Jugador extends GameObject`
 
-## Métodos
+## Rol
 
-| Método | Descripción |
-|--------|-------------|
-| `update(delta, entrada)` | Actualiza estado según entrada |
-| `disparar()` | Crea un nuevo proyectil |
-| `activarUlti()` | Activa el ataque especial |
-| `recibirDaño(cantidad)` | Reduce escudos, activa efecto visual |
-| `rotar(direccion)` | Rota la nave (-1 izq, 1 der) |
+Representa la nave del jugador: movimiento, apuntado, disparo, ULTi, escudos, sobrecalentamiento, propulsor e invulnerabilidad temporal.
 
-## Controles
+## Propiedades importantes
 
-- **W / ↑**: Avanzar (con inercia)
-- **Espacio**: Disparar proyectil
-- **S / ↓**: Activar ULTi
-- **A / ←**: Rotar a la izquierda
-- **D / →**: Rotar a la derecha
+| Propiedad | Uso |
+|---|---|
+| `x`, `y` | Posicion de mundo |
+| `rotacion` | Direccion hacia donde apunta |
+| `velocidad` | Velocidad actual con inercia |
+| `cargaAceleracion` | Barra de aceleracion |
+| `sobrecalentadoAceleracion` | Cooldown por acelerar de mas |
+| `escudos`, `escudosMax` | Vida actual y maxima |
+| `sobrecalentado` | Estado vulnerable tras llegar a 0 escudos |
+| `cargaUlti`, `cargaMaxUlti`, `ultiListo` | ULTi |
+| `enPropulsor` | Dash activo |
+| `invulnerable` | Proteccion temporal al revivir |
+
+## Movimiento actual
+
+- La nave apunta al mouse, joystick o joystick touch.
+- Acelera en la direccion actual.
+- Tiene inercia y friccion.
+- En touch la intensidad del joystick escala aceleracion y consumo.
+- Con mundo toroidal, al salir por un borde entra por el opuesto.
+
+## Escudos
+
+- `recibirDano(dano)` resta escudos.
+- Si llega a 0, entra en `sobrecalentado`.
+- Si recibe otro golpe estando sobrecalentado, llama a `gameOver()`.
+- `agregarEscudos(cantidad)` puede sacar al jugador del sobrecalentamiento.
+- Al revivir, `activarInvulnerabilidad(segundos)` evita dano temporalmente.
+
+## Disparo y habilidades
+
+- `_disparar()` llama a `game.crearProyectil()`.
+- `_usarUlti()` llama a `game.activarUlti()` y reinicia la carga.
+- `activarPropulsor()` inicia dash.
 
 ## Conexiones
 
-- **← [[Game-JS]]** - Crea y actualiza el jugador
-- **→ [[Projectile-JS]]** - Crea proyectiles
-- **→ [[UltiEffect-JS]]** - Crea efecto especial
-- **→ [[HitEffect-JS]]** - Crea efecto de daño (esfera azul)
-
-## Efectos
-
-- **Esfera azul:** Aparece al recibir daño, окружает la nave por 1 segundo
-- **Power-up:** Destruir SPECIAL aumenta `velocidadDisparo` en 20%
+- [[InputManager-JS]]
+- [[Game-JS]]
+- [[Projectile-JS]]
+- [[HUD-y-Mejoras]]
+- [[Configuracion-y-Balance]]

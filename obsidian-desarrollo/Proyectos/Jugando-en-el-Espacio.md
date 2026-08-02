@@ -1,83 +1,60 @@
-# 🎮 Jugando en el Espacio
+# Jugando en el Espacio
 
-## Información del Proyecto
+## Informacion del proyecto
 
-- **Nombre:** Jugando en el Espacio
-- **Versión:** [[v1.3.5]] (EN DESARROLLO) - Completado ✅
-- **Curso:** Programación de Videojuegos 1 - UNAHUR
-- **Profesor:** Facundo Saiegh
-- **Integrantes:** Braian Zapater
-- **URL:** https://wackxion.github.io/proyecto-de-PVJ1-sin-nombre-/
+- Nombre: Jugando en el Espacio
+- Version actual del package: v1.47.3
+- Curso: Programacion de Videojuegos 1 - UNAHUR
+- Profesor: Facundo Saiegh
+- Integrante: Braian Zapater
+- URL: https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/
+- Repositorio: https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-
 
-## Descripción
+## Descripcion
 
-Juego de nave espacial en vista superior (top-down) donde el jugador controla una nave que debe destruir asteroides, naves enemigas y evitar ser alcanzado.
+Juego arcade espacial 2D top-down hecho con PixiJS. El jugador controla una nave, destruye asteroides y naves enemigas, recolecta particulas Boid y mejora sus habilidades durante la partida.
 
-## Estado del Proyecto
+## Estado actual
 
-- ✅ **Completado** - Todas las mecánicas implementadas (v1.3.4)
-- ⏳ **EN DESARROLLO** - Nueva UI con UX Experimental (v1.3.5)
-- ✅ **Publicación** - Desplegado en GitHub Pages
-- ✅ **Top 5** - Sistema persistente con Firebase
-- ✅ **Fondo Infinito** - Movimiento de mosaicos
-- ✅ **Naves Enemigas** - IA con órbita y disparo teledirigido
-- ✅ **Sistema de Colisiones** - Proyectiles aliados vs enemigos
-- ✅ **Iconos UI** - Imágenes para escudos, ULTi y aceleración
-- ✅ **Menú Principal** - INICIO, TOP 5, CRÉDITOS (v1.3.5)
+El proyecto esta jugable y sigue en desarrollo activo. La arquitectura actual ya no es monolitica: `Game.js` coordina el juego y delega en modulos de sistemas, entidades, mecanicas, HUD, audio, tactil y anuncios.
 
-## Características Principales (v1.3.5)
+Ver detalle en [[Estado-Actual-v1.47.3]].
 
-### Movimiento y Controles
-- Movimiento tipo tanque (W = avanzar con inercia)
-- Rotación (A/D)
-- Disparar (Espacio)
-- Sistema de aceleración con sobrecalentamiento (1s cargar, 3s enfriar)
+## Caracteristicas principales
 
-### Enemigos
-- **Asteroides:** 4 tipos (SMALL, MEDIUM, LARGE, SPECIAL)
-- **Naves Enemigas:** HP 25, velocidad 225 px/s, órbita y dispara cada 3s
-- **Special Enemy:** 200 HP, 2% probabilidad, power-up al destruir
-- **Mini Asteroide en Órbita:** Aparece al colisionar Special con jugador
+- Movimiento por apuntado: mouse, joystick o touch.
+- Avance/aceleracion con inercia y sobrecalentamiento.
+- Disparo principal con proyectiles.
+- ULTi como pulso expansivo.
+- Habilidades activas: Cohetes, Devorador y Propulsor.
+- Habilidad pasiva: Tiempo Fuera.
+- Sistema de escudos con estado vulnerable al llegar a 0.
+- Mundo con camara, contenedor de mundo y modo toroidal.
+- Asteroides normales, rezagados y especiales.
+- Naves enemigas con orbita, disparo y variantes visuales.
+- Particulas Boid recolectables.
+- Sistema de 40 mejoras comprables con particulas.
+- HUD en PixiJS con paneles laterales desplegables.
+- Menu principal, tutorial, opciones, creditos y Top 5 en DOM.
+- Top 5 persistente con Firebase Firestore y respaldo local.
+- Audio centralizado.
+- Android con Capacitor y revive por AdMob rewarded.
 
-### Naves Enemigas (v1.3.2) - CAMBIADO
-- Apacen desde el **inicio del juego** (oleada 0)
-- Intervalo: 20s → 5s (reduce 3s por oleada)
-- **Cada 5 oleadas**: 4 naves (1 normal + 3 extra)
-- Explosión **VERDE** al destruir
-
-### Sistema de Escudos (v1.3.2) - CAMBIADO
-- Rango: 0% a 100%
-- Sobrecalentamiento al llegar a 0% (barra roja)
-- **NO se apaga automáticamente** - solo al recibir escudos
-- Special Enemies dan +20% escudos
-
-### Sistema de Oleadas (v1.3.2)
-- Oleada 0-4: 1 nave cada 20s→8s
-- Oleada 5: 4 naves (1 + 3 extra)
-- Oleada 6-9: 1 nave cada 5s
-- Oleada 10: 4 naves
-
-## Novedades v1.3.2
-
-- Naves enemigas aparecen desde el inicio (oleada 0)
-- Cada 5 oleadas: grupo de 3 naves adicionales
-- Intervalo progresivo: 20s → 5s
-- Explosión verde en naves enemigas
-- Escudos: sobrecalentamiento NO se apaga automáticamente
-- Escudos: solo se apaga al recibir escudos
-- Top 5: puntuación 0 no califica
-- Top 5: sin duplicados
-
-## Tareas Completadas
-
-Ver [[Tareas-Cumplidas-v1.2]] (incluye v1.3)
-
-## Recursos
-
-- [[README-MD]]
-- [[SPEC-MD]]
-
-## Código Fuente
+## Codigo fuente relacionado
 
 - [[Main-JS]]
 - [[Game-JS]]
+- [[InputManager-JS]]
+- [[Player-JS]]
+- [[HUD-y-Mejoras]]
+- [[Audio-y-AdMob]]
+- [[Top5-JS]]
+
+## Notas relacionadas
+
+- [[Arquitectura-y-Conexiones]]
+- [[Controles-y-Teclas]]
+- [[Assets-del-Proyecto]]
+- [[Configuracion-y-Balance]]
+- [[Tareas-Planificadas-v1.3]]
+- [[Tareas-Cumplidas-v1.2]]

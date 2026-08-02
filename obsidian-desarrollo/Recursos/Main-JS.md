@@ -1,32 +1,44 @@
-# Main.js - Punto de Entrada
+# Main.js
 
-## Descripción
+## Ubicacion
 
-Punto de entrada del juego. Crea la aplicación PixiJS y el objeto `Game`.
+`src/main.js`
 
-## Contenido
+## Rol
 
-```javascript
-// Crea la aplicación PixiJS
-const app = new PIXI.Application();
+Punto de entrada del juego. No crea el juego inmediatamente: primero muestra el menu principal con `UIManager` y crea `Game` al tocar JUGAR.
 
-// Ajusta el tamaño al de la ventana
-app.renderer.resize(window.innerWidth, window.innerHeight);
+## Flujo
 
-// Añade el canvas al DOM
-document.body.appendChild(app.canvas);
-
-// Crea el juego
-const juego = new Game(app);
+```text
+DOMContentLoaded
+|-- verificar PIXI
+|-- preloadTop5()
+|-- new UIManager(...)
+|-- mostrarMenuPrincipal()
+|-- primer pointerdown -> iniciar musica del menu
+`-- JUGAR -> inicializarJuego()
 ```
+
+## Responsabilidades
+
+- Verificar que PixiJS este disponible.
+- Precargar Top 5 en segundo plano.
+- Crear `UIManager` con callbacks.
+- Manejar JUGAR, TUTORIAL, TOP 5 y CREDITOS.
+- Inicializar `Game` bajo demanda.
+- Exponer `window.game` para debug.
+- Manejar ESC para confirmar volver al menu.
+- Manejar boton atras de Android via Capacitor.
 
 ## Conexiones
 
-- **→ [[Game-JS]]** - Clase principal del juego
-- **→ [[Jugando-en-el-Espacio]]** - Proyecto principal
+- Importa [[Game-JS]].
+- Importa `UIManager.js`.
+- Importa [[Top5-JS]].
+- Usa Capacitor App si existe en Android.
 
 ## Notas
 
-- Archivo de entrada del proyecto
-- Configura el canvas de PixiJS
-- Inicializa el objeto Game
+- Si el jugador vuelve al menu con ESC, JUGAR reinicia la partida usando `game.reiniciarDesdeMenu()`.
+- El Top 5 del menu usa datos precargados cuando estan disponibles.

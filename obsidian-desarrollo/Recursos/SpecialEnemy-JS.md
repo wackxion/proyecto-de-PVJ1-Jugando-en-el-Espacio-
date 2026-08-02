@@ -1,63 +1,58 @@
 # SpecialEnemy.js
 
-## Descripción
+## Ubicacion
 
-Clase que representa el asteroide especial con comportamiento propio. Appears 5% of the time con características únicas.
+`src/game/entidades/SpecialEnemy.js`
 
-## Características
+## Clase
 
-- **Probabilidad:** 5%
-- **HP:** 200
-- **Velocidad:** 100 px/s
-- **Puntos:** 100
-- **Movimiento:** Hacia la última posición conocida del jugador
+`SpecialEnemy extends GameObject`
 
-## Power-up al Destruir
+## Rol
 
-Al ser destruido por un proyectil (o por ULTi):
-- +20% velocidad de disparo
-- +20% escudos (si está por debajo de 100%, máximo 100%)
+Asteroide especial con comportamiento propio. Puede viajar hacia la posicion del jugador y convertirse en mini asteroide orbitante.
 
-## Transformación en Mini Asteroide
+## Stats actuales de la clase
 
-Cuando colisiona con el jugador (sin ser destruido por proyectil):
-1. Hace animación de destrucción AZUL
-2. Se transforma en mini asteroide (mitad de tamaño)
-3. Pasa a orbitar alrededor de la nave azul
+| Campo | Valor |
+|---|---:|
+| Salud | 100 |
+| Puntos | 100 |
+| Carga ULTi | 0 |
+| Radio normal | 40 |
+| Radio mini | 20 |
+| Velocidad normal | 80 |
+| Radio orbita mini | 130 |
+| Velocidad orbita | 1.5 rad/s base |
+| Max colisiones mini | 6 |
 
-### Mini Asteroide en Órbita
-- **HP:** 200 (mantiene la misma vida)
-- **Radio de colisión:** 20px (reducido de 40px)
-- **Radio de órbita:** 100px
-- **Velocidad de órbita:** 1.5 rad/s
+## Comportamiento normal
 
-### Comportamiento en Órbita
-- ✅ Proyectiles aliados **TRASPASAN** (no recibe daño)
-- ✅ Proyectiles enemigos **SÍ** le hacen daño (-25 HP)
-- ✅ Al colisionar con el jugador: -25 HP al mini asteroide
-- ✅ Al colisionar con asteroides: -25 HP al mini asteroide (el asteroide se destruye)
-- ✅ Al colisionar con naves enemigas: -25 HP a la nave (se destruye) + -25 HP al mini asteroide
+- Guarda la direccion hacia el jugador al crearse.
+- Avanza en esa direccion y sigue de largo.
+- Si sale mucho de la pantalla, se recicla desde un borde.
+- Al reciclar, apunta hacia el centro.
 
-## Funcionalidades
+## Modo mini / orbita
 
-### Modo Normal
-- Se mueve hacia la última posición conocida del jugador
-- Actualiza su objetivo cada 0.5 segundos
-- Si sale mucho de la pantalla, vuelve gradualmente al centro
+- `convertirEnOrbita()` lo vuelve mini.
+- Orbita alrededor del jugador.
+- Reduce radio y escala visual.
+- Tiene contador de colisiones.
+- `registrarColision()` lo destruye al llegar al maximo.
 
-### Modo Órbita
-- Orbita constantemente alrededor del jugador
-- Mantiene radio de órbita de 100px
-- Velocidad de órbita: 1.5 radianes/segundo
-- Sistema de índice para evitar superposición cuando hay múltiples mini asteroides
+## Importante
 
-## Ubicación
+Hay diferencias historicas entre notas viejas y codigo actual:
 
-`src/game/SpecialEnemy.js`
+- La nota vieja decia 200 HP; la clase actual usa 100 HP.
+- La nota vieja decia power-up directo al destruir; el flujo actual usa mini/orbita y particulas/mejoras como economia principal.
+- La documentacion actual debe priorizar `SpecialEnemy.js`, `GameProjectiles.js`, `GameEnemies.js` y `GameSkills.js`.
 
 ## Conexiones
 
-- [[Game-JS]] - Controla su creación, actualización y colisiones
-- [[Player-JS]] - Jugador al que sigue y con el que orbita
-- [[Enemy-JS]] - Asteroides con los que puede colisionar en órbita
-- [[EnemyShip-JS]] - Naves enemigas con las que colisiona en órbita
+- [[Game-JS]]
+- [[Player-JS]]
+- [[Enemy-JS]]
+- [[EnemyShip-JS]]
+- [[Projectile-JS]]
