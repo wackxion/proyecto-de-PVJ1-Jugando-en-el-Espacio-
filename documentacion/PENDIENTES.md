@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 02/08/2026  
-**Versión:** v1.47.6 (ACTUAL)
+**Versión:** v1.47.7 (ACTUAL)
 
 ---
 
@@ -29,6 +29,16 @@
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
 
 ---
+
+## ✅ Completado v1.47.7 - La música del menú suena apenas abre la app
+
+El dev quería que la música sonara **apenas entra**, sin pedir un click. Se descartó la idea previa de un overlay "TOCÁ PARA EMPEZAR".
+
+- **Realidad técnica**: los navegadores (y el WebView de Android por defecto) bloquean el autoplay de audio hasta un gesto del usuario. En **web pura no se puede** evitar; en la **app nativa sí**.
+- **`android/app/src/main/java/.../MainActivity.java`** (⚠️ `android/` está gitignored → re-aplicar si se regenera): se agregó `permitirAutoplayAudio()` con `getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false)` en `onCreate`. Con eso la música suena al instante al abrir la app.
+- **`src/main.js`**: intenta `iniciarMusicaMenu()` apenas carga (funciona en Android) + fallback SILENCIOSO (sin overlay) que la arranca en la primera interacción para la web, y se auto-remueve al empezar a sonar. Se expuso `window.uiManager` (igual que `window.game`).
+- **`src/ui/UIManager.js`**: `iniciarMusicaMenu()` ahora se auto-recupera (si el navegador bloqueó el primer intento, el loop queda pausado → lo descarta y reintenta en el gesto). Nuevo helper `musicaMenuSonando()`.
+- Verificado en runtime: sin overlay, la música arranca sola (en este navegador el autoplay está permitido) y avanza en loop.
 
 ## ✅ Completado v1.47.6 - Sonidos del asteroide especial
 

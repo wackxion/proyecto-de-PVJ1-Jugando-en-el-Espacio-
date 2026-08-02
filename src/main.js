@@ -98,19 +98,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
+    // Handle de depuración (igual que window.game).
+    window.uiManager = uiManager;
+
     // Mostrar menú principal
     uiManager.mostrarMenuPrincipal();
 
-    // Música del menú inicial: los navegadores bloquean el audio hasta la primera
-    // interacción del usuario, así que la arrancamos en el primer gesto sobre la
-    // página (una sola vez), y solo si seguimos en el menú.
+    // Música del menú. Intentamos arrancarla de una: en la app Android el WebView
+    // permite autoplay (MainActivity: setMediaPlaybackRequiresUserGesture(false)),
+    // así que suena apenas abre, sin pedir nada. En web el navegador bloquea el
+    // autoplay hasta un gesto, así que dejamos un fallback SILENCIOSO (sin overlay
+    // ni prompt) que la arranca en la primera interacción y luego se auto-remueve.
+    uiManager.iniciarMusicaMenu();
     const arrancarMusicaMenu = () => {
-        document.removeEventListener('pointerdown', arrancarMusicaMenu);
         if (uiManager && document.getElementById('main-menu')) {
             uiManager.iniciarMusicaMenu();
         }
+        if (!uiManager || uiManager.musicaMenuSonando()) {
+            document.removeEventListener('pointerdown', arrancarMusicaMenu);
+            window.removeEventListener('keydown', arrancarMusicaMenu);
+        }
     };
     document.addEventListener('pointerdown', arrancarMusicaMenu);
+    window.addEventListener('keydown', arrancarMusicaMenu);
 });
 
 // =============================================================================

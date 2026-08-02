@@ -63,13 +63,29 @@ export class UIManager {
 
     /**
      * Arranca la música del MENÚ INICIAL en bucle (si no está sonando ya).
-     * El navegador bloquea el audio hasta la primera interacción del usuario,
-     * por eso main.js la dispara en el primer click/gesto sobre la página.
-     * (Al volver al menú con Escape, la música la maneja el propio juego.)
+     *
+     * Se llama de dos formas (ver main.js): una vez apenas carga la app y otra
+     * en la primera interacción. En la app Android el WebView permite autoplay
+     * (MainActivity: setMediaPlaybackRequiresUserGesture(false)) → suena de una.
+     * En web el navegador bloquea el autoplay: el primer intento queda "pausado",
+     * así que este método se auto-recupera (descarta el intento bloqueado y
+     * reintenta) cuando lo vuelve a llamar el primer gesto del usuario.
      */
     iniciarMusicaMenu() {
-        if (!this.gestorSonido || this._musicaMenuLoop) return;
+        if (!this.gestorSonido) return;
+        // Ya está sonando de verdad: no duplicar.
+        if (this._musicaMenuLoop && !this._musicaMenuLoop.paused) return;
+        // Intento anterior bloqueado por autoplay (quedó pausado): descartarlo.
+        if (this._musicaMenuLoop) {
+            this.gestorSonido.detener(this._musicaMenuLoop);
+            this._musicaMenuLoop = null;
+        }
         this._musicaMenuLoop = this.gestorSonido.reproducirLoop('musicaMenu');
+    }
+
+    /** ¿La música del menú está sonando ahora mismo (no pausada)? */
+    musicaMenuSonando() {
+        return !!(this._musicaMenuLoop && !this._musicaMenuLoop.paused);
     }
 
     /** Detiene la música del menú inicial (al entrar al juego). */

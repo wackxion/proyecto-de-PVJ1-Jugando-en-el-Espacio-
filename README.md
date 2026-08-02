@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.7)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.6 (Actual)
+### v1.47.7 (Actual)
+> **La música del menú suena apenas abre la app (sin pedir un toque)**
+
+- 🎵 En la **app Android** la música del menú ahora arranca **al instante** al abrir, sin ningún click previo. Se logró habilitando el autoplay del WebView en `MainActivity.java` (`setMediaPlaybackRequiresUserGesture(false)`)
+- 🌐 En **web** el navegador bloquea el autoplay con sonido (política del navegador, no se puede evitar): la música arranca **en la primera interacción**, pero **sin ningún prompt** — `iniciarMusicaMenu()` se auto-recupera si el primer intento quedó bloqueado
+- 🧹 Se descartó la idea del overlay "tocá para empezar" (no hacía falta pedir el toque)
+
+### v1.47.6
 > **Sonidos del asteroide especial (colisión y destrucción)**
 
 - 🔊 **Colisión del asteroide especial**: cuando choca con un asteroide sin destruirse suena el mismo audio de rebote (`revoteEntreMeteoritos.mp3`), compartiendo el throttle de 70 ms
