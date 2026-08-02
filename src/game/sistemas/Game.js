@@ -193,14 +193,14 @@ export class Game {
             // Estilo para encabezado de tabla (Top 5)
             encabezado: {
                 fontFamily: 'Segoe Script, cursive',
-                fontSize: 20,
+                fontSize: 16,
                 fill: 0x0044CC,
                 fontWeight: 'bold'
             },
             // Estilo para filas de tabla (Top 5)
             filaTabla: {
                 fontFamily: 'Segoe Script, cursive',
-                fontSize: 22,
+                fontSize: 17,
                 fill: 0x0044CC
             }
         };
@@ -300,9 +300,19 @@ export class Game {
         // Cargar textura Pboids2
         const texturasPboids = [];
         try {
-            const textura = await PIXI.Assets.load('assets/Pboids2.png');
-            texturasPboids.push(textura);
+            const rutasPboids = ['assets/Pboids1.png', 'assets/Pboids2.png'];
+            for (const ruta of rutasPboids) {
+                try {
+                    texturasPboids.push(await PIXI.Assets.load(ruta));
+                } catch (e) {
+                    // Si falta un frame, seguimos con los que cargaron.
+                }
+            }
         } catch (e) {
+            // Fallback final abajo.
+        }
+
+        if (texturasPboids.length === 0) {
             texturasPboids.push(PIXI.Texture.WHITE);
         }
 
@@ -2243,15 +2253,15 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Posicionar cada columna PROPORCIONAL al ancho del marco (imagenAncho),
         // no en px fijos: así al achicarse el marco en el celular las columnas no
         // se salen del papel.
-        headerNum.x = -imagenAncho * 0.258;     // N° más a la izquierda
-        headerNombre.x = -imagenAncho * 0.143;  // NOMBRE
-        headerPuntos.x = imagenAncho * 0.072;   // PUNTOS
-        headerOleada.x = imagenAncho * 0.229;   // OLEADAS más a la derecha
+        headerNum.x = -imagenAncho * 0.36;     // N° más a la izquierda
+        headerNombre.x = -imagenAncho * 0.27;  // NOMBRE
+        headerPuntos.x = imagenAncho * 0.06;   // PUNTOS
+        headerOleada.x = imagenAncho * 0.28;   // OLEADAS más a la derecha
 
         headerContainer.addChild(headerNum, headerNombre, headerPuntos, headerOleada);
 
         // Centrar el encabezado dentro de la imagen (proporcional)
-        headerContainer.x = this.anchoJuego / 2 - imagenAncho * 0.072;
+        headerContainer.x = this.anchoJuego / 2 - imagenAncho * 0.025;
         // El encabezado se posiciona PROPORCIONAL a la altura del marco (no en px
         // absolutos): así al maximizar la ventana el marco crece y el encabezado
         // baja con él, sin quedar pegado arriba.
@@ -2282,13 +2292,13 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             const textOleada = new PIXI.Text({ text: oleada, style: this.estilos.filaTabla });
             
 // Posicionar cada columna en la fila (mismo spacing PROPORCIONAL que el encabezado)
-            textNum.x = -imagenAncho * 0.258;     // N° más a la izquierda
-            textNombre.x = -imagenAncho * 0.143;  // NOMBRE
-            textPuntos.x = imagenAncho * 0.072;   // PUNTOS
-            textOleada.x = imagenAncho * 0.229;   // OLEADAS más a la derecha
+            textNum.x = -imagenAncho * 0.36;     // N° más a la izquierda
+            textNombre.x = -imagenAncho * 0.27;  // NOMBRE
+            textPuntos.x = imagenAncho * 0.06;   // PUNTOS
+            textOleada.x = imagenAncho * 0.28;   // OLEADAS más a la derecha
 
             rowContainer.addChild(textNum, textNombre, textPuntos, textOleada);
-            rowContainer.x = this.anchoJuego / 2 - imagenAncho * 0.072;
+            rowContainer.x = this.anchoJuego / 2 - imagenAncho * 0.025;
             // Las filas van una debajo de la otra, centradas en la imagen.
             // Espaciado proporcional a la altura del marco (igual que el encabezado)
             // para que escale bien al maximizar la ventana.

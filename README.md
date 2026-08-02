@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.4)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.2 (Actual)
+### v1.47.4 (Actual)
+> **Top 5 de Game Over: columnas mejor distribuidas (ya no se enciman)**
+
+- 📊 En el Top 5 del Game Over las columnas (N° / NOMBRE / PUNTOS / OLEADAS) se **separaron** y la fuente se achicó un poco → ya no se superponen los nombres con los puntajes, y "OLEADAS" entra completo en el marco. Verificado en resolución de celular
+
+### v1.47.3
+> **AdMob: anuncios en modo real (MODO_PRUEBA=false) para publicar**
+
+### v1.47.2
 > **Game Over: el botón "Revivir" quedó fuera del marco, abajo**
 
 - 🔁 El botón **"Revivir (ver anuncio)"** se movió **fuera del marco, centrado y debajo** de Reiniciar / TOP 5 (antes iba en la fila de adentro)
