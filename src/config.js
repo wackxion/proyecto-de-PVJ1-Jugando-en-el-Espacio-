@@ -207,6 +207,7 @@ export const CONFIG = {
             // --- Combate ---
             destruccionMeteorito: 0.5,  // destruir asteroide
             destruccionNave: 0.35,      // destruir nave enemiga
+            reboteMeteoritos: 0.4,      // dos asteroides chocan y rebotan (sin destruirse)
 
             // --- Otros SFX ---
             particulaBoid: 0.45,        // capturar partícula (suena en cada una, con throttle)

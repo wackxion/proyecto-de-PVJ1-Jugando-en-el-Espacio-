@@ -844,6 +844,7 @@ _crearParticulaBoidFuera() {
         // --- Combate / impactos ---
         this.gestorSonido.cargar('destruccionMeteorito', 'assets/audio/destruccion_meteorito.mp3', V.destruccionMeteorito);
         this.gestorSonido.cargar('destruccionNave', 'assets/audio/destruccion_nave.mp3', V.destruccionNave);
+        this.gestorSonido.cargar('reboteMeteoritos', 'assets/audio/revoteEntreMeteoritos.mp3', V.reboteMeteoritos); // dos asteroides chocan (sin destruirse)
         this.gestorSonido.cargar('recibirImpacto', 'assets/audio/recibir impacto.mp3', V.recibirImpacto);
         this.gestorSonido.cargar('particulaBoid', 'assets/audio/particula_boid.mp3', V.particulaBoid); // suena en cada captura (con throttle)
         this.gestorSonido.cargar('mejora', 'assets/audio/mejora.mp3', V.mejora); // comprar una mejora

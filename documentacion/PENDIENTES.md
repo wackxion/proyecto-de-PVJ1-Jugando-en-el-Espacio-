@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 29/07/2026  
-**Versión:** v1.47.1 (ACTUAL)
+**Última actualización:** 02/08/2026  
+**Versión:** v1.47.5 (ACTUAL)
 
 ---
 
@@ -29,6 +29,18 @@
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
 
 ---
+
+## ✅ Completado v1.47.5 - Sonidos de colisión y de destrucción por cohete
+
+Se completó el audio de las colisiones que faltaban. El dev sumó un audio nuevo para el rebote entre asteroides (`assets/audio/revoteEntreMeteoritos.mp3`).
+
+- **`config.js`**: nuevo volumen `reboteMeteoritos: 0.4` en `CONFIG.AUDIO.VOLUMENES`.
+- **`Game.js`**: carga del sonido `reboteMeteoritos` en el `gestorSonido`.
+- **`GameEnemies.js`**:
+  - `procesarColisionesEnemigos`: cuando dos asteroides **rebotan sin destruirse** suena `reboteMeteoritos`, con **throttle de 70 ms** (`game._ultimoReboteSonido`) para no saturar con muchos choques simultáneos.
+  - `procesarColisionesJugador`: al chocar el jugador contra un **asteroide** suena `destruccionMeteorito`; contra una **nave** suena `destruccionNave` (además del `recibirImpacto` del jugador).
+- **`GameSkills.js`** (`actualizarCohetes`): cuando un **cohete** impacta, suena `destruccionNave` si el objetivo era una nave, o `destruccionMeteorito` si era asteroide/especial.
+- Verificado en runtime (navegador, import dinámico + spy sobre `gestorSonido.reproducir`): los 4 casos disparan el sonido correcto; el rebote respeta el throttle y no suena la destrucción.
 
 ## ✅ Completado v1.41.6 - Fix Controles: el botón Volver ya no queda abajo
 

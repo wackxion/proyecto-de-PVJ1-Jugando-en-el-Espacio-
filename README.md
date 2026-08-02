@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.5)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.4 (Actual)
+### v1.47.5 (Actual)
+> **Sonidos de colisión y de destrucción por cohete**
+
+- 🔊 **Rebote entre asteroides**: cuando dos asteroides chocan sin destruirse suena el nuevo audio de rebote (`revoteEntreMeteoritos.mp3`), con un throttle de 70 ms para que no se sature al haber muchos choques
+- 💥 **Choque del jugador**: al chocar contra un asteroide suena la destrucción de meteorito; al chocar contra una nave enemiga suena la explosión de nave
+- 🚀 **Cohetes**: cuando un cohete destruye un meteorito suena la destrucción de meteorito, y cuando destruye una nave suena la explosión de nave
+- Verificado en runtime (navegador) para los cuatro casos
+
+### v1.47.4
 > **Top 5 de Game Over: columnas mejor distribuidas (ya no se enciman)**
 
 - 📊 En el Top 5 del Game Over las columnas (N° / NOMBRE / PUNTOS / OLEADAS) se **separaron** y la fuente se achicó un poco → ya no se superponen los nombres con los puntajes, y "OLEADAS" entra completo en el marco. Verificado en resolución de celular

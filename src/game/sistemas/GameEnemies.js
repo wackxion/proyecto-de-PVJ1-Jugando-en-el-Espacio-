@@ -579,18 +579,31 @@ export function procesarColisionesEnemigos(game) {
                 
                 const esGrande1 = enemy1.tamanio === 'large' || enemy1.tamanio === 'large_rezagado';
                 const esGrande2 = enemy2.tamanio === 'large' || enemy2.tamanio === 'large_rezagado';
-                
+
+                let huboDestruccion = false;
                 if (esGrande1 && esGrande2) {
                     const danoColision = CONFIG.GENERACION.COLISION_DANO_LARGE;
                     enemy1.salud -= danoColision;
                     enemy2.salud -= danoColision;
-                    
+
                     if (enemy1.salud <= 0) {
-                        _destruirYFragmentar(game, enemy1, i);
+                        _destruirYFragmentar(game, enemy1, i);   // suena su explosión
+                        huboDestruccion = true;
                     }
-                    
+
                     if (enemy2.salud <= 0) {
-                        _destruirYFragmentar(game, enemy2, j);
+                        _destruirYFragmentar(game, enemy2, j);   // suena su explosión
+                        huboDestruccion = true;
+                    }
+                }
+
+                // Sonido de REBOTE: solo si chocaron sin destruirse (si se destruyó,
+                // ya suena la explosión). Con throttle para no saturar con muchos choques.
+                if (!huboDestruccion && game.gestorSonido) {
+                    const ahora = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+                    if (!game._ultimoReboteSonido || ahora - game._ultimoReboteSonido > 70) {
+                        game.gestorSonido.reproducir('reboteMeteoritos');
+                        game._ultimoReboteSonido = ahora;
                     }
                 }
             }
@@ -716,7 +729,10 @@ export function procesarColisionesJugador(game) {
             const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
             astroExplosion.render(game.mundo);
             game.efectosExplosion.push(astroExplosion);
-            
+
+            // Sonido de explosión del asteroide (el jugador lo destruyó al chocar).
+            if (game.gestorSonido) game.gestorSonido.reproducir('destruccionMeteorito');
+
             enemy.destroy();
             game.enemigos.splice(i, 1);
             
@@ -738,7 +754,10 @@ export function procesarColisionesJugador(game) {
             const explosion = new AsteroidExplosion(nave.x, nave.y, game.texturaExplosionNave, 0.5);
             explosion.render(game.mundo);
             game.efectosExplosion.push(explosion);
-            
+
+            // Sonido de explosión de la nave (el jugador la destruyó al chocar).
+            if (game.gestorSonido) game.gestorSonido.reproducir('destruccionNave');
+
             nave.destroy();
             game.enemigosNaves.splice(i, 1);
             
