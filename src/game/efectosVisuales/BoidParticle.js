@@ -24,6 +24,10 @@ export class BoidParticle extends GameObject {
         
         // Texturas de animación
         this.texturasAnimacion = texturasAnimacion;
+        this.timerAnimacion = 0;
+        this.intervaloAnimacion = 0.12;
+        this.frameActual = 0;
+        this.secuenciaAnimacion = this._crearSecuenciaAnimacion(texturasAnimacion.length);
         
         // Tamaño de la partícula (10px x 10px)
         this.width = 10;
@@ -40,7 +44,7 @@ export class BoidParticle extends GameObject {
         this.velocidadMax = CONFIG.BOIDS.VELOCIDAD_MAX;
 
         // Crear sprite
-        this.imagen = new PIXI.Sprite(textura);
+        this.imagen = new PIXI.Sprite(textura || this.texturasAnimacion[0] || PIXI.Texture.WHITE);
         this.imagen.width = this.width;
         this.imagen.height = this.height;
         this.imagen.anchor.set(0.5);
@@ -91,7 +95,7 @@ export class BoidParticle extends GameObject {
                 }
                 
                 // Obtener el índice de la textura
-                const indiceTextura = this.secuenciaAnimacion[this.frameActual];
+                const indiceTextura = this.secuenciaAnimacion[this.frameActual] || 0;
                 this.imagen.texture = this.texturasAnimacion[indiceTextura];
             }
         }
@@ -102,11 +106,7 @@ export class BoidParticle extends GameObject {
             this.x += this.velX * delta;
             this.y += this.velY * delta;
             
-            // Actualizar sprite
-            if (this.imagen) {
-                this.imagen.x = this.x;
-                this.imagen.y = this.y;
-            }
+            this._actualizarVisualMovimiento();
             
             // Mantener dentro de los límites
             this.mantenerEnPantalla(anchoJuego, altoJuego);
@@ -172,17 +172,33 @@ export class BoidParticle extends GameObject {
         // Verificar colisiones con otras partículas Boid
         this.verificarColisionParticulas(vecinos);
         
-        // Actualizar sprite
-        if (this.imagen) {
-            this.imagen.x = this.x;
-            this.imagen.y = this.y;
-            
-            // Sin brillo - mantener color original
-            // this.imagen.tint = 0xFFFFFF; // Por defecto ya es blanco
-        }
+        this._actualizarVisualMovimiento();
         
         // Mantener dentro de los límites del juego (dinámico)
         this.mantenerEnPantalla(anchoJuego, altoJuego);
+    }
+
+    _crearSecuenciaAnimacion(cantidadFrames) {
+        if (cantidadFrames <= 1) return [0];
+
+        const ida = Array.from({ length: cantidadFrames }, (_, i) => i);
+        const vuelta = Array.from({ length: Math.max(cantidadFrames - 2, 0) }, (_, i) => cantidadFrames - 2 - i);
+        return ida.concat(vuelta);
+    }
+
+    _actualizarVisualMovimiento() {
+        if (!this.imagen) return;
+
+        this.imagen.x = this.x;
+        this.imagen.y = this.y;
+
+        const velocidad = Math.hypot(this.velX, this.velY);
+        if (velocidad > 1) {
+            this.imagen.rotation = Math.atan2(this.velY, this.velX);
+        }
+
+        // Sin brillo - mantener color original.
+        // this.imagen.tint = 0xFFFFFF; // Por defecto ya es blanco.
     }
     
     /**

@@ -194,19 +194,19 @@ export const CONFIG = {
         VOLUMENES: {
             // --- Habilidades del jugador ---
             disparo: 0.5,               // disparar (barra espaciadora)
-            ulti: 0.7,                  // ataque especial (S)
+            ulti: 0.9,                  // ataque especial (S)
             propulsor: 0.6,             // dash (R)
             cohetes: 0.6,               // lanzar cohetes (Q)
             devorador: 0.6,             // atraer partículas (E)
 
             // --- Estados del jugador ---
-            roturaEscudos: 0.7,         // en bucle mientras dura el sobrecalentamiento
+            roturaEscudos: 0.5,         // en bucle mientras dura el sobrecalentamiento
             sobrecalentamientoW: 0.5,   // barra W al tope
             recibirImpacto: 0.5,        // te pegan
 
             // --- Combate ---
             destruccionMeteorito: 0.5,  // destruir asteroide
-            destruccionNave: 0.35,      // destruir nave enemiga (y el asteroide especial)
+            destruccionNave: 0.2,      // destruir nave enemiga (y el asteroide especial)
             reboteMeteoritos: 0.4,      // dos asteroides chocan y rebotan (sin destruirse)
 
             // --- Otros SFX ---
@@ -217,7 +217,7 @@ export const CONFIG = {
 
             // --- Música de fondo (en bucle) ---
             musicaMenu: 0.5,            // menú principal
-            musicaJuego: 0.12,          // durante la partida
+            musicaJuego: 0.3,          // durante la partida
         },
     },
 };
