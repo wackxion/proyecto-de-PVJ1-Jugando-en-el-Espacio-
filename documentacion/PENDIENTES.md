@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 02/08/2026  
-**Versión:** v1.47.5 (ACTUAL)
+**Versión:** v1.47.6 (ACTUAL)
 
 ---
 
@@ -29,6 +29,19 @@
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
 
 ---
+
+## ✅ Completado v1.47.6 - Sonidos del asteroide especial
+
+El dev pidió que el asteroide especial también tuviera audio de colisión y destrucción. Para la destrucción se decidió **reutilizar la explosión de las naves** (`destruccion_nave.mp3`) en vez de sumar un audio nuevo.
+
+- **Colisión** especial↔asteroide (sin destruirse): suena `reboteMeteoritos` (el mismo del rebote entre asteroides). Se refactorizó el throttle de 70 ms en un helper `_sonarRebote(game)` en `GameEnemies.js`, reutilizado por asteroides normales y el especial.
+- **Destrucción** del especial → `destruccionNave` en los 4 caminos:
+  - `GameProjectiles.js`: especial grande destruido por proyectil.
+  - `GameEnemies.js` (`limpiarEnemigosLejanos`): mini especial destruido por asteroide. *(Ojo: la colisión mini-especial↔asteroide vive en `limpiarEnemigosLejanos`, no en `procesarColisionesEnemigos`.)*
+  - `GameEnemies.js` (`procesarColisionesJugador`): mini especial destruido por nave.
+  - `GameSkills.js` (`actualizarCohetes`): especial destruido por cohete (nave y especial comparten `destruccionNave`).
+- No hizo falta archivo de audio nuevo ni volumen nuevo en `config.js`.
+- Verificado en runtime (navegador, import dinámico + spy) los 4 casos.
 
 ## ✅ Completado v1.47.5 - Sonidos de colisión y de destrucción por cohete
 

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.47.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.6)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.5 (Actual)
+### v1.47.6 (Actual)
+> **Sonidos del asteroide especial (colisión y destrucción)**
+
+- 🔊 **Colisión del asteroide especial**: cuando choca con un asteroide sin destruirse suena el mismo audio de rebote (`revoteEntreMeteoritos.mp3`), compartiendo el throttle de 70 ms
+- 💥 **Destrucción del asteroide especial**: usa la **explosión de las naves** (`destruccion_nave.mp3`) en todos los casos — destruido por proyectil, por cohete, por otro asteroide o por una nave
+- ♻️ Se refactorizó el sonido de rebote en un helper `_sonarRebote()` reutilizado por asteroides normales y el especial
+- Verificado en runtime (navegador) para los cuatro casos
+
+### v1.47.5
 > **Sonidos de colisión y de destrucción por cohete**
 
 - 🔊 **Rebote entre asteroides**: cuando dos asteroides chocan sin destruirse suena el nuevo audio de rebote (`revoteEntreMeteoritos.mp3`), con un throttle de 70 ms para que no se sature al haber muchos choques

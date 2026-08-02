@@ -216,11 +216,12 @@ export function actualizarCohetes(game, delta) {
             explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
 
-            // Sonido de destrucción por cohete: nave → sonido de nave; asteroide
-            // (o especial) → sonido de meteorito.
+            // Sonido de destrucción por cohete: nave y especial → explosión de nave;
+            // asteroide común → sonido de meteorito.
             if (game.gestorSonido) {
                 const esNave = game.enemigosNaves.includes(objetivo);
-                game.gestorSonido.reproducir(esNave ? 'destruccionNave' : 'destruccionMeteorito');
+                const usaSonidoNave = esNave || esObjetivoEspecial;
+                game.gestorSonido.reproducir(usaSonidoNave ? 'destruccionNave' : 'destruccionMeteorito');
             }
 
             // Agregar puntos, carga Ulti y actualizar contador de oleada

@@ -599,13 +599,7 @@ export function procesarColisionesEnemigos(game) {
 
                 // Sonido de REBOTE: solo si chocaron sin destruirse (si se destruyó,
                 // ya suena la explosión). Con throttle para no saturar con muchos choques.
-                if (!huboDestruccion && game.gestorSonido) {
-                    const ahora = (typeof performance !== 'undefined') ? performance.now() : Date.now();
-                    if (!game._ultimoReboteSonido || ahora - game._ultimoReboteSonido > 70) {
-                        game.gestorSonido.reproducir('reboteMeteoritos');
-                        game._ultimoReboteSonido = ahora;
-                    }
-                }
+                if (!huboDestruccion) _sonarRebote(game);
             }
         }
     }
@@ -673,13 +667,32 @@ export function limpiarEnemigosLejanos(game) {
                         especial.imagen.parent.removeChild(especial.imagen);
                     }
                     game.enemigosSpeciales.splice(k, 1);
+                    // Destrucción del asteroide especial: usa la explosión de las naves
+                    if (game.gestorSonido) game.gestorSonido.reproducir('destruccionNave');
+                } else {
+                    // Colisión sin destruir: mismo sonido que el rebote entre asteroides
+                    _sonarRebote(game);
                 }
-                
+
                 if (enemy.salud <= 0) {
                     _destruirYFragmentar(game, enemy, i);
                 }
             }
         }
+    }
+}
+
+/**
+ * Reproduce el sonido de rebote entre asteroides, con throttle de 70 ms para no
+ * saturar cuando hay muchos choques simultáneos. Lo comparten los asteroides
+ * normales y el asteroide especial (misma colisión de rebote).
+ */
+function _sonarRebote(game) {
+    if (!game.gestorSonido) return;
+    const ahora = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+    if (!game._ultimoReboteSonido || ahora - game._ultimoReboteSonido > 70) {
+        game.gestorSonido.reproducir('reboteMeteoritos');
+        game._ultimoReboteSonido = ahora;
     }
 }
 
@@ -862,9 +875,11 @@ export function procesarColisionesJugador(game) {
                         );
                         astroExplosion.render(game.mundo);
                         game.efectosExplosion.push(astroExplosion);
-                        
+
                         especial.destroy();
                         game.enemigosSpeciales.splice(i, 1);
+                        // Destrucción del asteroide especial: usa la explosión de las naves
+                        if (game.gestorSonido) game.gestorSonido.reproducir('destruccionNave');
                         break;
                     }
                 }

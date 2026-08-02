@@ -238,6 +238,8 @@ export function procesarColisionesProyectiles(game) {
 
                     especial.destroy();
                     game.enemigosSpeciales.splice(j, 1);
+                    // Destrucción del asteroide especial: usa la explosión de las naves
+                    if (game.gestorSonido) game.gestorSonido.reproducir('destruccionNave');
                 }
 
                 projectile.destroy();
