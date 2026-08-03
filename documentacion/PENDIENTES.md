@@ -41,6 +41,19 @@
 
 - **Rehacer el tutorial (anotado el 03/08/2026, definir alcance)**. El tutorial actual (`UIManager.mostrarTutorial`, `src/ui/UIManager.js:1139`) es un modal DOM paso-a-paso con dos tablas: filas de controles (mouse/teclado/joystick/celular) + las 8 mejoras con sus íconos. Funciona pero está algo denso/desactualizado. **A definir** cuándo lo encaremos: qué se quiere (¿más visual/interactivo?, ¿pasos con imágenes o gifs?, ¿mencionar lo nuevo: zoom de cámara y auto-apuntado en touch/joystick?, ¿separar PC vs celular?). Respetar paleta tinta-birome y mantener el modelo de PC.
 
+- **AdMob `app-ads.txt` (NO URGENTE — anotado el 03/08/2026)**.
+  - **Qué es y para qué:** archivo de texto estándar (IAB) que declara **qué redes de anuncios están autorizadas a vender el inventario publicitario de la app**. Es **anti-fraude**: evita que un tercero se haga pasar por la app y "revenda" tu inventario. Protege los **ingresos por anuncios** cuando la app tiene tráfico real.
+  - **Por qué NO es urgente:** NO es obligatorio — los anuncios (rewarded de revivir) funcionan igual sin esto. AdMob mismo avisa que con pocas solicitudes de anuncios (como en prueba cerrada) el estado ni aparece. Conviene recién cuando la app esté publicada de verdad y genere ingresos.
+  - **Contenido del archivo** (una sola línea; el publisher ID sale de `ca-app-pub-8065871181264852`):
+    `google.com, pub-8065871181264852, DIRECT, f08c47fec0942fa0`
+    (`f08c47fec0942fa0` = ID de certificación de Google, fijo).
+  - **Proceso para configurarlo:**
+    1. AdMob busca el archivo en la **RAÍZ del dominio** del "sitio web de desarrollador" declarado en la ficha de Play. El del proyecto es GitHub Pages: el juego vive en `wackxion.github.io/proyecto-de-PVJ1-.../`, pero AdMob lo buscaría en `wackxion.github.io/app-ads.txt` (raíz, NO la subcarpeta del repo).
+    2. Como es un "project site", para hostear en la raíz hay que crear un repo especial llamado **`wackxion.github.io`** (user/organization Pages) y poner ahí el `app-ads.txt`. Alternativa: usar un dominio propio.
+    3. Verificar en Play Console que el campo "Sitio web" de la ficha apunte a ese dominio.
+    4. En AdMob → app-ads.txt → "Configurar" → esperar a que AdMob rastree y valide (puede tardar días).
+  - Confirmar el `pub-ID` real antes de subirlo. Ver también `documentacion/appAndroidGDD.md` (local) para IDs de AdMob.
+
 ---
 
 ## ✅ Completado v1.48.0 - Zoom de cámara + auto-apuntado + fix HUD
