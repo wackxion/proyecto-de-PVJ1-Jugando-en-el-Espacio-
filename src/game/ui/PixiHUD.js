@@ -283,9 +283,10 @@ export class PixiHUD {
             );
         }
 
-        // El contenedor del escudo curvo NO se ancla a un borde: sigue a la nave
-        // (escala 1 = mundo/pantalla), su posición se fija cada frame en
-        // _actualizarEscudoCurvo. Solo aseguramos que no herede escala del HUD.
+        // El contenedor del escudo curvo NO se ancla a un borde: sigue a la nave.
+        // Su posición Y escala se fijan cada frame en _actualizarEscudoCurvo (la
+        // escala = zoom de cámara, para quedar pegado a la nave). Acá solo lo
+        // dejamos en 1 para que no herede la escala del HUD.
         if (this.contenedorEscudo) {
             this.contenedorEscudo.scale.set(1);
         }
@@ -1982,11 +1983,16 @@ export class PixiHUD {
         }
         cont.visible = true;
         // El escudo curvo vive en el stage (pantalla), pero la nave está en el
-        // MUNDO (que la cámara desplaza). La posición REAL en pantalla de la nave
-        // es mundo.x + jugador.x → así el escudo sigue a la nave incluyendo el
-        // look-ahead y el screen shake de la cámara.
+        // MUNDO (que la cámara desplaza y ESCALA por el zoom). La posición REAL en
+        // pantalla de la nave es mundo.x + jugador.x*zoom → así el escudo sigue a la
+        // nave incluyendo look-ahead, screen shake y el zoom de cámara. Además se
+        // escala por el zoom para quedar pegado a la nave (que se ve más chica).
         const m = this.game.mundo;
-        if (m) cont.position.set(m.x + jugador.x, m.y + jugador.y);
+        if (m) {
+            const z = m.scale.x || 1;
+            cont.scale.set(z);
+            cont.position.set(m.x + jugador.x * z, m.y + jugador.y * z);
+        }
 
         for (const barra of this.escudoCurvo.barras) {
             this._dibujarBarraEscudo(barra, jugador);

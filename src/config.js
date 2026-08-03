@@ -22,6 +22,27 @@ export const CONFIG = {
         OLEADA_OBJETIVO: 10,            // Asteroides a destruir para subir de oleada
     },
 
+    // === CÁMARA ===
+    CAMARA: {
+        // Zoom de la cámara sobre el mundo (escala del contenedor `mundo`).
+        // 1 = 1:1 (la nave se ve grande). <1 = ALEJA: se ve más área alrededor y
+        // todo el mundo (nave, asteroides, enemigos) se achica proporcional. El
+        // HUD, el fondo y las estrellas NO se afectan (son capas aparte del mundo).
+        // 0.70 ≈ 43% más de área visible.
+        ZOOM: 0.70,
+    },
+
+    // === AUTO-APUNTADO (ayuda de puntería en TOUCH y JOYSTICK) ===
+    // Imán sutil: cuando ya estás apuntando CERCA de un enemigo (dentro del cono),
+    // corrige un poco el ángulo hacia él. SOLO en touch/joystick; con mouse el
+    // apuntado queda 100% preciso (no se toca). Subir FUERZA/CONO = más ayuda.
+    AUTOAPUNTADO: {
+        ACTIVO: true,
+        CONO_GRADOS: 20,   // semiángulo: ayuda si el enemigo está a <=20° de tu mira
+        FUERZA: 0.6,       // cuánto corrige hacia el enemigo (0 = nada · 1 = apunta exacto)
+        RANGO: 600,        // alcance en px (≈ rango de tiro); ignora enemigos más lejos
+    },
+
     // === HUD ===
     HUD: {
         // En celular (dispositivo táctil) el HUD se agranda este factor y, como

@@ -257,6 +257,7 @@ export class Game {
         this.mundoAlto = height * 3;
         this.mundo = new PIXI.Container();
         this.mundo.sortableChildren = true;
+        this.mundo.scale.set(CONFIG.CAMARA.ZOOM);   // zoom de cámara (aleja/acerca)
         this.aplicacion.stage.addChild(this.mundo);
         this._camaraX = 0;
         this._camaraY = 0;
@@ -1692,6 +1693,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // que queda por encima del mundo.
         this.mundo = new PIXI.Container();
         this.mundo.sortableChildren = true;
+        this.mundo.scale.set(CONFIG.CAMARA.ZOOM);   // zoom de cámara (aleja/acerca)
         this.aplicacion.stage.addChild(this.mundo);
         this._camaraX = 0;
         this._camaraY = 0;
@@ -1877,11 +1879,16 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         // Cámara centrada en la nave + look-ahead. En modo clásico se clampea al
         // mundo; en TOROIDAL no se clampea (la cámara sigue a la nave aunque cruce
         // el borde, así la nave queda siempre centrada al envolver).
-        let camX = j.x + this._lookX - sw / 2;
-        let camY = j.y + this._lookY - sh / 2;
+        // Con ZOOM: el mundo se escala por Z, así que la vista abarca sw/Z × sh/Z
+        // en coords de mundo (con Z<1 se ve MÁS área). _camaraX/Y = esquina
+        // superior-izquierda de la vista en el mundo (lo usa el culling/spawn).
+        const Z = CONFIG.CAMARA.ZOOM;
+        const vw = sw / Z, vh = sh / Z;
+        let camX = j.x + this._lookX - vw / 2;
+        let camY = j.y + this._lookY - vh / 2;
         if (!toroidal) {
-            const maxX = Math.max(0, this.mundoAncho - sw);
-            const maxY = Math.max(0, this.mundoAlto - sh);
+            const maxX = Math.max(0, this.mundoAncho - vw);
+            const maxY = Math.max(0, this.mundoAlto - vh);
             camX = Math.max(0, Math.min(maxX, camX));
             camY = Math.max(0, Math.min(maxY, camY));
         }
@@ -1909,8 +1916,10 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             shy = (Math.random() - 0.5) * 2 * mag;
         }
 
-        this.mundo.x = Math.round(-camX + shx);
-        this.mundo.y = Math.round(-camY + shy);
+        // El mundo está escalado por Z, así que la traslación también va por Z
+        // (deja la nave centrada: -camX*Z + sw/2 con camX = j.x+look - sw/(2Z)).
+        this.mundo.x = Math.round(-camX * Z + shx);
+        this.mundo.y = Math.round(-camY * Z + shy);
     }
 
     /**
@@ -1986,7 +1995,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
      */
     _puntoSpawnFueraDeVista(margen = 80) {
         const cx = this._camaraX, cy = this._camaraY; // esquina sup-izq de la vista en el mundo
-        const sw = this.anchoJuego, sh = this.altoJuego;
+        // Con zoom, la vista abarca sw/Z × sh/Z en coords de mundo.
+        const Z = CONFIG.CAMARA.ZOOM;
+        const sw = this.anchoJuego / Z, sh = this.altoJuego / Z;
         const borde = Math.floor(Math.random() * 4);
         let x, y;
         switch (borde) {

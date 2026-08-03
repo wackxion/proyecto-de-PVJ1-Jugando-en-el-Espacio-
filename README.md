@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.47.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.47.7)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.0)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.47.7 (Actual)
+### v1.48.0 (Actual)
+> **Zoom de cámara + auto-apuntado (touch/joystick) + fix del HUD de aceleración**
+
+- 🔭 **Zoom de cámara**: la cámara se alejó (`CONFIG.CAMARA.ZOOM = 0.70`) → se ve ~43% más de área alrededor de la nave. Todo el mundo (nave, asteroides, enemigos) se escala proporcional; el HUD, el fondo y las estrellas quedan igual (son capas aparte). Se ajustaron cámara, apuntado con mouse y culling para contemplar el zoom
+- 🎯 **Auto-apuntado (ayuda de puntería sutil)**: en **touch y joystick**, cuando apuntás cerca de un enemigo (dentro de un cono) la mira se corrige un poco hacia él. Configurable en `CONFIG.AUTOAPUNTADO` (cono, fuerza, rango, on/off). El mouse queda 100% preciso
+- 🛠️ **Fix**: la barra curva de aceleración volvió a su lugar **alrededor de la nave** (con el zoom había quedado desplazada a la esquina); ahora contempla posición y escala del zoom
+- Verificado en runtime (navegador) y probado en el Motorola G04
+
+### v1.47.7
 > **La música del menú suena apenas abre la app (sin pedir un toque)**
 
 - 🎵 En la **app Android** la música del menú ahora arranca **al instante** al abrir, sin ningún click previo. Se logró habilitando el autoplay del WebView en `MainActivity.java` (`setMediaPlaybackRequiresUserGesture(false)`)

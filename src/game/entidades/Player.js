@@ -324,18 +324,22 @@ this.rotacion = 0;
         const rotacionPrevia = this.rotacion;
         if (!this.enPropulsor && input.tactilApuntando) {
             // TÁCTIL: el joystick virtual da una DIRECCIÓN directa (máxima prioridad).
-            this.rotacion = input.tactilAngulo;
+            // Con una ayuda de auto-apuntado sutil (imán hacia el enemigo del cono).
+            this.rotacion = this._aplicarAutoApuntado(input.tactilAngulo);
             this.imagen.rotation = this.rotacion;
         } else if (!this.enPropulsor && input.gamepadApuntando) {
-            // JOYSTICK: el stick da una DIRECCIÓN analógica directa.
+            // JOYSTICK: el stick da una DIRECCIÓN analógica directa (con auto-apuntado).
             // Tiene prioridad sobre el mouse mientras se lo esté empujando.
-            this.rotacion = input.gamepadAngulo;
+            this.rotacion = this._aplicarAutoApuntado(input.gamepadAngulo);
             this.imagen.rotation = this.rotacion;
         } else if (!this.enPropulsor && input.mouseMovido && input.modoControl !== 'touch' && this.juego && this.juego.mundo) {
             // Apuntado con el mouse (NO en modo 'touch': ahí manda el joystick virtual
             // y al soltarlo la nave conserva su ángulo, sin que el mouse se lo robe).
-            const sx = this.x + this.juego.mundo.x;   // pos de la nave en pantalla (X)
-            const sy = this.y + this.juego.mundo.y;   // pos de la nave en pantalla (Y)
+            // Pos de la nave en pantalla: coords de mundo escaladas por el zoom
+            // (mundo.scale) + la traslación de la cámara (mundo.x/y).
+            const z = this.juego.mundo.scale.x || 1;
+            const sx = this.x * z + this.juego.mundo.x;   // pos de la nave en pantalla (X)
+            const sy = this.y * z + this.juego.mundo.y;   // pos de la nave en pantalla (Y)
             this.rotacion = Math.atan2(input.mouseY - sy, input.mouseX - sx);
             this.imagen.rotation = this.rotacion;
         }
@@ -733,6 +737,55 @@ this.rotacion = 0;
             x: Math.cos(this.rotacion),
             y: Math.sin(this.rotacion)
         };
+    }
+
+    /**
+     * Auto-apuntado (ayuda de puntería, SOLO touch/joystick). Devuelve el ángulo
+     * corregido: si hay un enemigo dentro del CONO alrededor de `anguloBase` y a
+     * RANGO, mezcla el ángulo un poco hacia él (FUERZA). Si no, devuelve el crudo.
+     * Usa distancia en línea recta (lo que ves en pantalla) y elige el enemigo
+     * MÁS ALINEADO con tu mira (menor diferencia angular). @private
+     * @param {number} anguloBase - ángulo crudo del stick/joystick (rad)
+     * @returns {number} ángulo corregido (rad)
+     */
+    _aplicarAutoApuntado(anguloBase) {
+        const cfg = CONFIG.AUTOAPUNTADO;
+        if (!cfg || !cfg.ACTIVO || !this.juego) return anguloBase;
+
+        const conoRad = (cfg.CONO_GRADOS * Math.PI) / 180;
+        const rango2 = cfg.RANGO * cfg.RANGO;
+
+        let mejorAng = null;
+        let mejorDif = conoRad;   // solo enemigos dentro del cono
+
+        const considerar = (lista) => {
+            if (!lista) return;
+            for (const e of lista) {
+                // Ignorar inactivos y los mini-especiales en órbita (no se les dispara).
+                if (!e || !e.active || e.enOrbita) continue;
+                const dx = e.x - this.x;
+                const dy = e.y - this.y;
+                const dist2 = dx * dx + dy * dy;
+                if (dist2 > rango2 || dist2 < 1) continue;
+                const ang = Math.atan2(dy, dx);
+                // Diferencia angular por el camino corto → [-PI, PI].
+                const dif = Math.abs(Math.atan2(Math.sin(ang - anguloBase), Math.cos(ang - anguloBase)));
+                if (dif < mejorDif) {
+                    mejorDif = dif;
+                    mejorAng = ang;
+                }
+            }
+        };
+        considerar(this.juego.enemigos);
+        considerar(this.juego.enemigosNaves);
+        considerar(this.juego.enemigosSpeciales);
+
+        if (mejorAng === null) return anguloBase;
+
+        // Corrección PARCIAL hacia el objetivo. Como `anguloBase` es el crudo del
+        // stick cada frame, esto es una mezcla ESTABLE (no un lock-on que converge).
+        const dif = Math.atan2(Math.sin(mejorAng - anguloBase), Math.cos(mejorAng - anguloBase));
+        return anguloBase + dif * cfg.FUERZA;
     }
     
     /**

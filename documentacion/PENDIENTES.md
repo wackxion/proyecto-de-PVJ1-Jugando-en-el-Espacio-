@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 02/08/2026  
-**Versión:** v1.47.7 (ACTUAL)
+**Última actualización:** 03/08/2026  
+**Versión:** v1.48.0 (ACTUAL)
 
 ---
 
@@ -28,7 +28,27 @@
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
 
+- **Destrucciones "sin animación" fuera de vista + costura del toroide (NO aplicar aún, decisión del dev el 02/08/2026)**. Síntoma reportado: asteroides/naves que "se destruyen sin la animación de explosión", sobre todo **disparando cerca del borde** y **cuando hay muchos juntos**. Diagnóstico (verificado en runtime): **NO es que falte crear la animación** — se probó ULTI con 25 asteroides pegados → 26 destruidos = 26 explosiones creadas, y las explosiones tienen `cullable=false` (siempre se renderizan). Lo que pasa: la explosión se dibuja **donde estaba el enemigo**; si el enemigo muere **fuera de la vista** (proyectil que sale de cuadro, asteroides que chocan entre sí off-screen, o al otro lado de la **costura del toroide** que no tiene render "fantasma"), la explosión también ocurre off-screen y no se ve. El zoom 0.70 (aplicado en v1.48.0) no lo causó, solo lo hizo más notorio (se ve más área). 
+  - **Opción A (elegida para más adelante, rápida):** agrandar el mundo en `Game.js:256-257` (`width*3`/`height*3` → `*5` o `*6`). Aleja la costura y hace que los enemigos mueran más adentro de la vista. La densidad de asteroides NO cambia (spawean alrededor de la nave vía `_puntoSpawnFueraDeVista`). Bajo riesgo, ~1 línea. Ataca los casos "muchos juntos" y "costura".
+  - **Opción B (mejora futura, más trabajo):** renderizado "fantasma" en la costura — dibujar copias de las entidades cerca de los bordes del mundo para que la costura sea invisible y todo (incluidas explosiones) se vea donde corresponde. Es lo "correcto" para un toroide pero toca el render de cada entidad.
+  - Nota extra detectada: el **radio de la ULTI** (`UltiEffect.maxRadius = hypot(anchoJuego,altoJuego)*0.18`) y el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`) NO contemplan el zoom → con el alejamiento la ULTI cubre menos fracción de la vista. Si el zoom queda, conviene multiplicarlos por `1/CONFIG.CAMARA.ZOOM`.
+
+- **Menú de Controles: edición por MODO (confirmado por el dev el 02/08/2026, no aplicar aún)**. Hoy (`UIManager.mostrarControles`, `src/ui/UIManager.js:236`) hay un selector de **Modo** (Mouse y teclado / Joystick / Touch, desde `GestorEntrada.MODOS`), pero la lista reasignable de abajo **siempre muestra las teclas de mouse+teclado**, elijas el modo que elijas → solo se puede editar mouse+teclado. Se quiere que la lista **cambie según el modo elegido**:
+  - **Mouse y teclado**: como hoy — clic en una acción → reasignar tecla/botón.
+  - **Joystick**: mostrar cada acción con el **nombre del botón del gamepad y para qué sirve** (mapeo fijo hoy en `InputManager.gamepadBotones`: RT=Acelerar, LT=Disparar, RB=Cohetes, LB=Devorador, B=Ulti, Y=Propulsor, stick derecho=Apuntar). **Decisión pendiente:** ¿solo mostrar (referencia) o también reasignable? Asumido: **solo mostrar** por ahora (reasignar gamepad es más laburo).
+  - **Touch**: NO mostrar lista de teclas, sino solo **(1)** editar la **posición de los botones de habilidad** (Ulti/Cohetes/Propulsor/Devorador/Fuego — hoy fijos en `TouchControls._botonesHab`) y **(2)** el **lado del joystick** (izquierda/derecha — hoy fijo a la izquierda, `zonaJoy`). **Decisión pendiente:** posiciones ¿arrastrables en pantalla o presets predefinidos (esquinas)?
+  - Mantener el modelo de PC intacto y respetar la paleta tinta-birome del proyecto.
+
 ---
+
+## ✅ Completado v1.48.0 - Zoom de cámara + auto-apuntado + fix HUD
+
+Tanda de ajuste del "feel" mobile (probada en el G04). El dev confirmó los valores.
+
+- **Zoom de cámara** (`CONFIG.CAMARA.ZOOM = 0.70`): se escala el contenedor `mundo` en `Game.js` (2 puntos de creación). Se ajustaron: matemática de cámara (centrado `-camX*Z`, vista `sw/Z × sh/Z`), apuntado con mouse (`Player.js`: `x*Z + mundo.x`) y culling (`_puntoSpawnFueraDeVista`). Fondo/estrellas/HUD son capas aparte → no se afectan. **Pendiente si se quiere afinar:** el radio de la ULTI y el límite de culling aún usan `anchoJuego` sin `/Z` (ver backlog del toroide).
+- **Fix HUD de aceleración**: la barra curva (`contenedorEscudo`, `PixiHUD._actualizarEscudoCurvo`) seguía a la nave con `mundo.x + jugador.x` (1:1) → con el zoom quedó en la esquina. Ahora usa `mundo.x + jugador.x*Z` y `cont.scale = Z` → vuelve a estar pegada a la nave.
+- **Auto-apuntado** (`CONFIG.AUTOAPUNTADO`, `Player._aplicarAutoApuntado`): imán sutil SOLO en touch/joystick. Busca el enemigo más alineado con tu mira dentro de un cono (`CONO_GRADOS`) y a `RANGO`, y corrige el ángulo `FUERZA` hacia él (mezcla estable, no lock-on). Ignora especiales en órbita. Mouse no se toca. Valores confirmados por el dev: cono 20°, fuerza 0.6 ("casi no se nota, se siente bien"). Verificado en runtime.
+- **`window.uiManager`** expuesto (como `window.game`) para debug.
 
 ## ✅ Completado v1.47.7 - La música del menú suena apenas abre la app
 
