@@ -6,7 +6,7 @@
 
 | Campo | Valor |
 |---|---|
-| Version del package | v1.47.3 |
+| Version del package | v1.48.0 |
 | Estado | Jugable / en desarrollo activo |
 | Motor | PixiJS v8 local en `libs/pixi.min.js` |
 | Plataforma web | GitHub Pages |

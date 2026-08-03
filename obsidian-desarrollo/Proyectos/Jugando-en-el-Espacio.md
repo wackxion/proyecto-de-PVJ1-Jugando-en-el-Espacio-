@@ -3,7 +3,7 @@
 ## Informacion del proyecto
 
 - Nombre: Jugando en el Espacio
-- Version actual del package: v1.47.3
+- Version actual del package: v1.48.0
 - Curso: Programacion de Videojuegos 1 - UNAHUR
 - Profesor: Facundo Saiegh
 - Integrante: Braian Zapater

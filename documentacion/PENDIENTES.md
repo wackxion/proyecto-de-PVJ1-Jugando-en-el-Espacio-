@@ -39,6 +39,8 @@
   - **Touch**: NO mostrar lista de teclas, sino solo **(1)** editar la **posición de los botones de habilidad** (Ulti/Cohetes/Propulsor/Devorador/Fuego — hoy fijos en `TouchControls._botonesHab`) y **(2)** el **lado del joystick** (izquierda/derecha — hoy fijo a la izquierda, `zonaJoy`). **Decisión pendiente:** posiciones ¿arrastrables en pantalla o presets predefinidos (esquinas)?
   - Mantener el modelo de PC intacto y respetar la paleta tinta-birome del proyecto.
 
+- **Rehacer el tutorial (anotado el 03/08/2026, definir alcance)**. El tutorial actual (`UIManager.mostrarTutorial`, `src/ui/UIManager.js:1139`) es un modal DOM paso-a-paso con dos tablas: filas de controles (mouse/teclado/joystick/celular) + las 8 mejoras con sus íconos. Funciona pero está algo denso/desactualizado. **A definir** cuándo lo encaremos: qué se quiere (¿más visual/interactivo?, ¿pasos con imágenes o gifs?, ¿mencionar lo nuevo: zoom de cámara y auto-apuntado en touch/joystick?, ¿separar PC vs celular?). Respetar paleta tinta-birome y mantener el modelo de PC.
+
 ---
 
 ## ✅ Completado v1.48.0 - Zoom de cámara + auto-apuntado + fix HUD
