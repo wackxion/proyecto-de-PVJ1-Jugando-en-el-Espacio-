@@ -894,7 +894,7 @@ export class UIManager {
     /**
      * Muestra un modal de confirmación para volver al menú principal.
      * Se invoca al presionar Escape durante la partida. Usa el mismo estilo que
-     * las demás ventanas (Créditos / Top 5): caja con fondo gameOver.jpg, texto
+     * las demás ventanas (Créditos / Top 5): caja con fondo gameOver.png, texto
      * en tinta azul y tipografía Segoe Script.
      *
      * Se cuelga de `this.container` (NO de `this.mainMenu`, que es null mientras

@@ -1049,21 +1049,23 @@ main.js
 |---------|-----|
 | `escudo1.png` / `escudo2.png` / `escudo3.png` | Iconos de escudo (según %) |
 | `ultiicon1.png` - `ultiicon5.png` | Iconos de ULTi (según %) |
-| `aceleracion1.png` | Icono de aceleración |
+| `aceleracion.png` | Icono de aceleración |
 | `cohetes.png` | Icono de habilidad Cohetes |
 | `propulsor.png` | Icono de habilidad Propulsor |
 | `relog1.png` - `relog6.png` | Animación de Tiempo Fuera |
 | `puntuacion2.png` | Decoración UI inferior |
-| `top5Boton.png` | Botón Top 5 |
+| `botonJuegar.png` / `botonTutorial.png` / `botonTOP5.png` / `botonOpciones.png` / `botonCreditos.png` | Botones del menú principal |
+| `botonVolver.png` | Botón Volver (pantallas) |
 | `guardadoBoton.png` | Botón guardar record |
 
 ### Fondos y Pantallas
 | Archivo | Uso |
 |---------|-----|
-| `fondoEspacio2.png` | Menú principal |
-| `gameOver.jpg` | Pantalla de Game Over |
+| `jugando en el espacio.png` | Portada/fondo del menú principal |
+| `gameOver.png` | Fondo de ventanas (Game Over, Controles, Top 5, Créditos) |
 | `guardarPuuntos.png` | Formulario Top 5 |
-| `tutorial.png` | Imagen de tutorial |
+
+> **Assets retirados:** los sprites e imágenes viejos que ya no usa el juego se movieron a `assets-no-usados/` (no afectan al build; quedan como referencia).
 
 ---
 

@@ -2226,7 +2226,7 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // Los elementos de Game Over ya estan en elementosFinJuego
         }
         
-        // Cargar imagen de puntuación (usando gameOver.jpg como fondo)
+        // Cargar imagen de puntuación (usando gameOver.png como fondo)
         const puntuacionTexture = await PIXI.Assets.load('assets/gameOver.png');
         
         // Crear sprite con la imagen
