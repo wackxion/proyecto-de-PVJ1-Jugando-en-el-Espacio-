@@ -1557,7 +1557,9 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
     const btnY = yCentro + (ancho * 0.32);        // Y en coords de juego
     // Reiniciar y Top 5 dentro del marco (2 botones). El botón Revivir (si hay
     // AdMob) va FUERA del marco, más abajo (ver más adelante).
-    const hayRevivir = !!(this.anuncios && this.anuncios.disponible());
+    // NO se muestra Revivir si ya se guardó un récord nuevo (`nombreIngresado`):
+    // guardado el puntaje, la partida quedó cerrada y revivir no corresponde.
+    const hayRevivir = !!(this.anuncios && this.anuncios.disponible()) && !this.nombreIngresado;
     const dx = frameW * 0.17;
     const btnW = Math.max(90, Math.round(frameW * 0.26 * escala));
 

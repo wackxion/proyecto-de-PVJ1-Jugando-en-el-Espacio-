@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.2)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.1 (Actual)
+### v1.48.2 (Actual)
+> **Fix: revivir tras guardar récord + área/animación de la ULTI con el zoom**
+
+- 🏆 **Revivir bloqueado tras guardar un récord**: si moriste con puntuación nueva y guardaste tu nombre en el Top 5, ya **no aparece** el botón "Revivir" (la partida quedó cerrada). Si no guardaste, sigue disponible
+- 🎯 **ULTI ajustada al zoom**: el radio de la onda (animación + área de destrucción) ahora contempla el zoom de cámara (`maxRadius / ZOOM`) → cubre la misma proporción de la vista que antes del zoom (se veía y afectaba más chica)
+
+### v1.48.1
 > **Rendimiento (caps + grilla de boids), controles por modo y varios fixes**
 
 - ⚡ **Rendimiento**: límite de asteroides (30) y **naves enemigas (6)** activos, para acotar las colisiones O(n²) en partidas largas. Grupo de partículas Boid clampeado a su máximo

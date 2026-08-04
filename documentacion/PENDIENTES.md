@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.1 (ACTUAL)
+**Versión:** v1.48.2 (ACTUAL)
 
 ---
 
@@ -48,15 +48,14 @@
     4. En AdMob → app-ads.txt → "Configurar" → esperar a que AdMob rastree y valide (puede tardar días).
   - Confirmar el `pub-ID` real antes de subirlo. Ver también `documentacion/appAndroidGDD.md` (local) para IDs de AdMob.
 
-- **BUG: revivir después de guardar un récord nuevo (anotado el 03/08/2026)**. Flujo: hacés una **puntuación alta**, morís, y como califica al Top 5 te pide el **nombre** (récord nuevo). Hasta ahí bien. El problema: **después de GUARDAR el nombre del récord, todavía te deja Revivir** — y no debería. (Que tras revivir ya no te deje volver a guardar puntaje está bien; lo que falta es que, una vez guardado el récord, **desaparezca el botón Revivir**.)
-  - Dónde: el récord se guarda en `Game.js` con `this.top5.agregarEntrada(nombre, ...)` (líneas ~1312 y ~1346), que setea `esperandoNombreTop5 = false`. El botón de revivir es `#btn-revivir` (`Game.js:1426`, creado en `_crearBotonesGameOverHTML`); el flag de nombre ya ingresado es `this.nombreIngresado`.
-  - **Fix propuesto:** al confirmar el guardado del récord (en el bloque de éxito de `agregarEntrada`), **remover/ocultar `#btn-revivir`** (y/o que `revivir()` haga `return` si `this.nombreIngresado === true`). Así, guardado el récord, no se puede revivir.
-
-- **BUG: ULTI — animación y área de efecto con el zoom (anotado el 03/08/2026, ya mencionado en la nota del toroide)**. Con el zoom 0.70 (v1.48.0), la ULTI se ve/afecta **más chica de lo que debería**. Causa: `UltiEffect.maxRadius = Math.sqrt(gameWidth² + gameHeight²) * 0.18` usa `anchoJuego`/`altoJuego` **sin** contemplar el zoom. El aro se dibuja en `game.mundo` (escalado ×0.70), así que tanto la **animación** (radio del aro) como el **área de efecto** (radio de destrucción) cubren menos fracción de la vista que antes del zoom.
-  - Dónde: `src/game/efectosVisuales/UltiEffect.js` (constructor, cálculo de `maxRadius`).
-  - **Fix propuesto:** multiplicar `maxRadius` por `1 / CONFIG.CAMARA.ZOOM` para que cubra la misma proporción de la vista visible. Revisar también que el `expansionSpeed` (800 px/s) se sienta bien con el radio nuevo. (Además la ULTI usa distancia euclidiana, no toroidal — menor, ver nota del toroide.)
-
 ---
+
+## ✅ Completado v1.48.2 - Fix revivir tras récord + ULTI con el zoom
+
+Dos bugs reportados por el dev el 03/08/2026 (rendimiento ya OK en el G04).
+
+- **Revivir bloqueado tras guardar un récord** (`Game._crearBotonesGameOverHTML`, `Game.js:1560`): `hayRevivir` ahora también exige `!this.nombreIngresado`. Al guardar el nombre del récord (`agregarEntrada` → `nombreIngresado = true`), la pantalla de Game Over se recrea SIN el botón Revivir. El flag se resetea al reiniciar partida (`Game.js:1743`), así que en la próxima partida vuelve a estar disponible. Verificado: sin récord → aparece; con récord → no aparece.
+- **ULTI ajustada al zoom** (`UltiEffect.js`, constructor): `maxRadius` ahora se divide por `CONFIG.CAMARA.ZOOM`. El aro se dibuja en `game.mundo` (escalado ×0.70), así que sin esto la animación y el área de destrucción cubrían menos vista. Verificado: `maxRadius` pasó de 176 → 252 (×1.43). Pendiente menor: la ULTI usa distancia euclidiana, no toroidal (ver backlog del toroide).
 
 ## ✅ Completado v1.48.1 - Rendimiento, controles por modo y varios fixes
 

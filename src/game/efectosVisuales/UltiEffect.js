@@ -14,6 +14,7 @@
 import { GameObject } from '../entidades/GameObject.js';
 import { AsteroidExplosion } from './AsteroidExplosion.js';
 import { ProyectilExplosion } from './ProyectilExplosion.js';
+import { CONFIG } from '../../config.js';
 
 export class UltiEffect extends GameObject {
     /**
@@ -57,10 +58,12 @@ export class UltiEffect extends GameObject {
         // Radius (radio): радиус actual del aro (comienza en 0)
         this.radius = 0;
         
-        // MaxRadius: El radio máximo que puede alcanzar (esquina de la pantalla)
-        // Se calcula usando Pitágoras para obtener la diagonal de la pantalla
-        // Se reduce un 40% (era 30%, ahora es 18%)
-        this.maxRadius = Math.sqrt(gameWidth * gameWidth + gameHeight * gameHeight) * 0.18;
+        // MaxRadius: El radio máximo que puede alcanzar (fracción de la diagonal).
+        // El aro se dibuja en `game.mundo`, que está escalado por el ZOOM de cámara.
+        // Se divide por el zoom para que la ULTI cubra la MISMA proporción de la vista
+        // visible que antes del zoom (si no, con zoom 0.70 se veía y afectaba más chica).
+        const zoom = (CONFIG.CAMARA && CONFIG.CAMARA.ZOOM) ? CONFIG.CAMARA.ZOOM : 1;
+        this.maxRadius = Math.sqrt(gameWidth * gameWidth + gameHeight * gameHeight) * 0.18 / zoom;
         
         // ExpansionSpeed: Qué tan rápido se expande el aro (800 píxeles por segundo)
         this.expansionSpeed = 800;
