@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.4)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.3 (Actual)
+### v1.48.4 (Actual)
+> **Imágenes comprimidas: assets de ~25 MB → ~5 MB (−80%)**
+
+- 🗜️ **Compresión de las 75 imágenes** con cuantización de paleta + dithering (y redimensionado de las 12 que superaban 1280 px). Ejemplos: portada 3,7 MB → 782 KB, `fondoEspacio3.png` 2 MB → 144 KB, marcos de mejora ~1,7 MB → ~250 KB c/u. **Sin pérdida visual** (verificado en runtime: menú, HUD, ventanas, gameplay) y **mismos nombres de archivo** (cero cambios de código)
+- 📉 Menos tiempo de carga, menos RAM y menos memoria de GPU en el celu. Falta el audio (`musica_menu.mp3` 4,9 MB) — pendiente, requiere ffmpeg (ver `documentacion/prompt-optimizar-assets.md`)
+
+### v1.48.3
 > **Menos estrellas de fondo + plan de optimización de assets documentado**
 
 - ⭐ **Menos estrellas de fondo** (90 → 40): menos sprites que actualizar/renderizar en el celu
