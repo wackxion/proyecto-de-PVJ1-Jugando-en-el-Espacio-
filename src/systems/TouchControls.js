@@ -77,6 +77,9 @@ export class ControlesTactiles {
         botonDisparo.style.right = '5%';
         botonDisparo.style.bottom = '7%';
         overlay.appendChild(botonDisparo);
+        // Guardamos la referencia para poder moverlo cuando el jugador cambie el
+        // layout tactil desde Opciones -> Controles.
+        this.botonDisparo = botonDisparo;
 
         // --- Botones de HABILIDAD, agrupados alrededor del FUEGO, cada uno con
         // el icono de su habilidad. Reemplazan el tocar-los-iconos-del-HUD (que
@@ -96,6 +99,11 @@ export class ControlesTactiles {
         ];
         for (const h of habilidades) {
             const bh = this._crearBotonIcono(h.icon, h.accion, 60);
+            // dx/dy son la posicion relativa de cada icono dentro del arco de
+            // habilidades. Se guardan en data-* para poder espejarlos en modo
+            // invertido sin recrear los botones.
+            bh.dataset.dx = String(h.dx);
+            bh.dataset.dy = String(h.dy);
             bh.style.position = 'absolute';
             bh.style.left = '50%';
             bh.style.top = '50%';
@@ -105,9 +113,49 @@ export class ControlesTactiles {
             this._botonesHab.push({ el: bh, accion: h.accion });
         }
         overlay.appendChild(clusterHab);
+        // El cluster completo se mueve junto con FUEGO al cambiar de lado.
+        this.clusterHab = clusterHab;
 
         this.contenedor.appendChild(overlay);
         this.overlay = overlay;
+        this.aplicarPreferencias();
+    }
+
+    /**
+     * Aplica el layout guardado desde Opciones -> Controles -> Touch.
+     *
+     * "clasico": joystick a la izquierda y botones a la derecha.
+     * "invertido": joystick a la derecha y botones a la izquierda.
+     */
+    aplicarPreferencias() {
+        const layout = (() => {
+            try { return localStorage.getItem('touchLayoutJEE') || 'clasico'; } catch (e) { return 'clasico'; }
+        })();
+        const invertido = layout === 'invertido';
+
+        // La zona invisible del joystick es la que recibe el primer toque. Cambiar
+        // left/right mueve esa zona sensible de un lado de la pantalla al otro.
+        if (this.zonaJoy) {
+            this.zonaJoy.style.left = invertido ? 'auto' : '0';
+            this.zonaJoy.style.right = invertido ? '0' : 'auto';
+        }
+
+        // FUEGO y el grupo de habilidades viajan juntos: derecha en clasico,
+        // izquierda en invertido.
+        for (const el of [this.botonDisparo, this.clusterHab]) {
+            if (!el) continue;
+            el.style.left = invertido ? '5%' : 'auto';
+            el.style.right = invertido ? 'auto' : '5%';
+        }
+
+        // Al invertir el lado tambien se espeja el arco de habilidades. Si no,
+        // los iconos quedarian apuntando hacia afuera de la pantalla.
+        for (const b of (this._botonesHab || [])) {
+            const dxBase = Number(b.el.dataset.dx || 0);
+            const dy = Number(b.el.dataset.dy || 0);
+            const dx = invertido ? -dxBase : dxBase;
+            b.el.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        }
     }
 
     /**

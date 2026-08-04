@@ -112,9 +112,45 @@ export function soltarParticulasEn(game, x, y, cantidad = 1) {
 }
 
 /**
+ * Construye una grilla espacial (Map "cx,cy" -> array de partículas activas).
+ * El tamaño de celda es el rango de visión, así que todos los vecinos de un boid
+ * dentro de ese rango quedan en su celda o en una adyacente. @private
+ */
+function _construirGrillaBoids(particulas, cellSize) {
+    const grilla = new Map();
+    for (const p of particulas) {
+        if (!p || !p.active) continue;
+        const key = Math.floor(p.x / cellSize) + ',' + Math.floor(p.y / cellSize);
+        let arr = grilla.get(key);
+        if (!arr) { arr = []; grilla.set(key, arr); }
+        arr.push(p);
+    }
+    return grilla;
+}
+
+/**
+ * Devuelve las partículas de la celda de `particula` + las 8 adyacentes (3×3).
+ * Cubre todo lo que esté dentro del rango de visión sin recorrer las 100. @private
+ */
+function _vecinosCercanosBoids(grilla, particula, cellSize) {
+    const cx = Math.floor(particula.x / cellSize);
+    const cy = Math.floor(particula.y / cellSize);
+    const vecinos = [];
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+            const arr = grilla.get((cx + dx) + ',' + (cy + dy));
+            if (arr) {
+                for (let k = 0; k < arr.length; k++) vecinos.push(arr[k]);
+            }
+        }
+    }
+    return vecinos;
+}
+
+/**
  * Actualiza todas las partículas Boid en pantalla
  * Función auxiliar para Game.js - líneas 2955-3030
- * 
+ *
  * @param {Game} game - Referencia al objeto Game principal
  * @param {number} delta - Tiempo transcurrido desde el último frame
  */
@@ -125,7 +161,14 @@ export function actualizarParticulasBoid(game, delta) {
     }
     
     const maxParticulas = CONFIG.BOIDS.MAX_PARTICULAS;
-    
+
+    // OPTIMIZACIÓN — GRILLA ESPACIAL: en vez de que cada boid compare contra TODAS las
+    // partículas (O(n²)), se agrupan en celdas del tamaño del rango de visión. Cada boid
+    // solo mira su celda + las 8 adyacentes → ~O(n). Comportamiento idéntico: todos los
+    // vecinos dentro del rango caen en esas 9 celdas (las fuerzas ya filtran por distancia).
+    const _cellSize = CONFIG.BOIDS.RANGO_VISION || 100;
+    const _grilla = _construirGrillaBoids(game.particulasBoid, _cellSize);
+
     for (let i = game.particulasBoid.length - 1; i >= 0; i--) {
         const particula = game.particulasBoid[i];
         
@@ -144,11 +187,13 @@ export function actualizarParticulasBoid(game, delta) {
             }
         }
         
-        // Actualizar comportamiento Boid (fuga de nave y asteroides)
+        // Actualizar comportamiento Boid (fuga de nave y asteroides).
+        // Vecinos = solo los de la celda + 8 adyacentes (no las 100 partículas).
+        const vecinos = _vecinosCercanosBoids(_grilla, particula, _cellSize);
         particula.actualizar(
-            delta, 
-            game.particulasBoid, 
-            game.jugador, 
+            delta,
+            vecinos,
+            game.jugador,
             game.enemigosNaves,
             game.enemigos,
             game.mundoAncho,
@@ -249,7 +294,9 @@ export function actualizarSistemaBoid(game, delta) {
     if (game.timerParticulasBoid >= CONFIG.BOIDS.SPAWN_INTERVALO && game.particulasBoid.length < CONFIG.BOIDS.MAX_PARTICULAS) {
         game.timerParticulasBoid = 0;
         // Crear grupo de 10 partículas
-        for (let i = 0; i < CONFIG.BOIDS.SPAWN_BATCH; i++) {
+        const disponibles = CONFIG.BOIDS.MAX_PARTICULAS - game.particulasBoid.length;
+        const cantidad = Math.min(CONFIG.BOIDS.SPAWN_BATCH, disponibles);
+        for (let i = 0; i < cantidad; i++) {
             const nuevaParticula = crearParticulaFuera(game);
             game.particulasBoid.push(nuevaParticula);
             nuevaParticula.render(game.mundo);

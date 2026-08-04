@@ -18,6 +18,15 @@ import { HitEffect } from '../efectosVisuales/HitEffect.js';
 import { BoidParticle } from '../efectosVisuales/BoidParticle.js';
 import { soltarParticulasEn } from './GameBoids.js';
 
+function contarAsteroidesActivos(game) {
+    return (game.enemigos || []).reduce((total, item) => total + (item && item.active ? 1 : 0), 0);
+}
+
+function hayLugarParaAsteroide(game) {
+    const max = game.maximoEnemigos || 30;
+    return contarAsteroidesActivos(game) < max;
+}
+
 /**
  * Crea un nuevo proyectil desde la posición del jugador
  * Función auxiliar paraGame.js - líneas 895-904
@@ -277,6 +286,7 @@ export function procesarColisionesProyectiles(game) {
                 }
 
                 for (const nuevoEnemigo of newAsteroids) {
+                    if (!hayLugarParaAsteroide(game)) break;
                     nuevoEnemigo.render(game.mundo);
                     game.enemigos.push(nuevoEnemigo);
                 }
@@ -293,9 +303,9 @@ export function procesarColisionesProyectiles(game) {
                         let escalaAnim = 0.24;
                         if (enemy.tamanio === 'medium') escalaAnim = 0.42;
                         else if (enemy.tamanio === 'large') escalaAnim = 0.84;
-                        else if (enemy.tamanio === 'rezagado1') escalaAnim = 0.84;
-                        else if (enemy.tamanio === 'rezagado2') escalaAnim = 0.42;
-                        else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
+                        else if (enemy.tamanio === 'large_rezagado') escalaAnim = 0.84;
+                        else if (enemy.tamanio === 'medium_rezagado') escalaAnim = 0.42;
+                        else if (enemy.tamanio === 'small_rezagado') escalaAnim = 0.24;
 
                         const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
                         astroExplosion.render(game.mundo);
@@ -303,14 +313,14 @@ export function procesarColisionesProyectiles(game) {
 
                         // Soltar partículas Boid donde se destruyó el asteroide
                         // (más cuanto más grande). El jugador las recolecta con el Devorador (E).
-                        const cantParticulas = (enemy.tamanio === 'large' || enemy.tamanio === 'rezagado1') ? 3
-                            : (enemy.tamanio === 'medium' || enemy.tamanio === 'rezagado2') ? 2 : 1;
+                        const cantParticulas = (enemy.tamanio === 'large' || enemy.tamanio === 'large_rezagado') ? 3
+                            : (enemy.tamanio === 'medium' || enemy.tamanio === 'medium_rezagado') ? 2 : 1;
                         soltarParticulasEn(game, enemy.x, enemy.y, cantParticulas);
                     }
 
                     // Manejar SpecialEnemy
                     if (enemy.tamanio === 'special') {
-                        for (let k = 0; k < 5; k++) {
+                        for (let k = 0; k < 5 && hayLugarParaAsteroide(game); k++) {
                             const angulo = Math.random() * Math.PI * 2;
                             const velocidad = 50 + Math.random() * 100;
                             const xMini = enemy.x + Math.cos(angulo) * 20;

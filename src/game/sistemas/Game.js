@@ -212,9 +212,11 @@ export class Game {
      * 
      * @param {HTMLDivElement} container - Elemento HTML donde se va a dibujar el juego
      */
-    async init(container) {
+    async init(container, onProgress = null, uiManager = null) {
         // Guardar referencia al contenedor
         this.contenedorJuego = container;
+        if (uiManager) this.uiManager = uiManager;
+        if (onProgress) onProgress(5, 'PREPARANDO...');
         
         
         
@@ -237,6 +239,7 @@ export class Game {
             resolution: 1,
             autoDensity: true
         });
+        if (onProgress) onProgress(20, 'INICIANDO PIXI...');
 
         
         // Agregar el canvas (elemento visual del juego) al contenedor HTML
@@ -288,7 +291,9 @@ export class Game {
         this._registrarSonidos();
 
         // Cargar los assets (imágenes) del juego
+        if (onProgress) onProgress(35, 'CARGANDO ASSETS...');
         await this._cargarRecursos();
+        if (onProgress) onProgress(70, 'CREANDO MUNDO...');
         
         
         // Crear el fondo con estrellas
@@ -340,6 +345,7 @@ export class Game {
         
         // Configurar la interfaz de usuario (UI)
         this._configurarUI();
+        if (onProgress) onProgress(85, 'PREPARANDO HUD...');
 
         // === INICIALIZAR PIXI HUD (migración desde HTML) ===
         // Crea todos los elementos del HUD usando PixiJS en lugar de HTML
@@ -352,6 +358,7 @@ export class Game {
 
         // Arrancar la música de la partida (el clic en JUGAR desbloqueó el audio)
         this._iniciarMusicaJuego();
+        if (onProgress) onProgress(95, 'ARRANCANDO...');
     }
     
     /**

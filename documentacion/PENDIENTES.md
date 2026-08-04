@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.0 (ACTUAL)
+**Versión:** v1.48.1 (ACTUAL)
 
 ---
 
@@ -33,12 +33,6 @@
   - **Opción B (mejora futura, más trabajo):** renderizado "fantasma" en la costura — dibujar copias de las entidades cerca de los bordes del mundo para que la costura sea invisible y todo (incluidas explosiones) se vea donde corresponde. Es lo "correcto" para un toroide pero toca el render de cada entidad.
   - Nota extra detectada: el **radio de la ULTI** (`UltiEffect.maxRadius = hypot(anchoJuego,altoJuego)*0.18`) y el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`) NO contemplan el zoom → con el alejamiento la ULTI cubre menos fracción de la vista. Si el zoom queda, conviene multiplicarlos por `1/CONFIG.CAMARA.ZOOM`.
 
-- **Menú de Controles: edición por MODO (confirmado por el dev el 02/08/2026, no aplicar aún)**. Hoy (`UIManager.mostrarControles`, `src/ui/UIManager.js:236`) hay un selector de **Modo** (Mouse y teclado / Joystick / Touch, desde `GestorEntrada.MODOS`), pero la lista reasignable de abajo **siempre muestra las teclas de mouse+teclado**, elijas el modo que elijas → solo se puede editar mouse+teclado. Se quiere que la lista **cambie según el modo elegido**:
-  - **Mouse y teclado**: como hoy — clic en una acción → reasignar tecla/botón.
-  - **Joystick**: mostrar cada acción con el **nombre del botón del gamepad y para qué sirve** (mapeo fijo hoy en `InputManager.gamepadBotones`: RT=Acelerar, LT=Disparar, RB=Cohetes, LB=Devorador, B=Ulti, Y=Propulsor, stick derecho=Apuntar). **Decisión pendiente:** ¿solo mostrar (referencia) o también reasignable? Asumido: **solo mostrar** por ahora (reasignar gamepad es más laburo).
-  - **Touch**: NO mostrar lista de teclas, sino solo **(1)** editar la **posición de los botones de habilidad** (Ulti/Cohetes/Propulsor/Devorador/Fuego — hoy fijos en `TouchControls._botonesHab`) y **(2)** el **lado del joystick** (izquierda/derecha — hoy fijo a la izquierda, `zonaJoy`). **Decisión pendiente:** posiciones ¿arrastrables en pantalla o presets predefinidos (esquinas)?
-  - Mantener el modelo de PC intacto y respetar la paleta tinta-birome del proyecto.
-
 - **Rehacer el tutorial (anotado el 03/08/2026, definir alcance)**. El tutorial actual (`UIManager.mostrarTutorial`, `src/ui/UIManager.js:1139`) es un modal DOM paso-a-paso con dos tablas: filas de controles (mouse/teclado/joystick/celular) + las 8 mejoras con sus íconos. Funciona pero está algo denso/desactualizado. **A definir** cuándo lo encaremos: qué se quiere (¿más visual/interactivo?, ¿pasos con imágenes o gifs?, ¿mencionar lo nuevo: zoom de cámara y auto-apuntado en touch/joystick?, ¿separar PC vs celular?). Respetar paleta tinta-birome y mantener el modelo de PC.
 
 - **AdMob `app-ads.txt` (NO URGENTE — anotado el 03/08/2026)**.
@@ -53,6 +47,33 @@
     3. Verificar en Play Console que el campo "Sitio web" de la ficha apunte a ese dominio.
     4. En AdMob → app-ads.txt → "Configurar" → esperar a que AdMob rastree y valide (puede tardar días).
   - Confirmar el `pub-ID` real antes de subirlo. Ver también `documentacion/appAndroidGDD.md` (local) para IDs de AdMob.
+
+- **BUG: revivir después de guardar un récord nuevo (anotado el 03/08/2026)**. Flujo: hacés una **puntuación alta**, morís, y como califica al Top 5 te pide el **nombre** (récord nuevo). Hasta ahí bien. El problema: **después de GUARDAR el nombre del récord, todavía te deja Revivir** — y no debería. (Que tras revivir ya no te deje volver a guardar puntaje está bien; lo que falta es que, una vez guardado el récord, **desaparezca el botón Revivir**.)
+  - Dónde: el récord se guarda en `Game.js` con `this.top5.agregarEntrada(nombre, ...)` (líneas ~1312 y ~1346), que setea `esperandoNombreTop5 = false`. El botón de revivir es `#btn-revivir` (`Game.js:1426`, creado en `_crearBotonesGameOverHTML`); el flag de nombre ya ingresado es `this.nombreIngresado`.
+  - **Fix propuesto:** al confirmar el guardado del récord (en el bloque de éxito de `agregarEntrada`), **remover/ocultar `#btn-revivir`** (y/o que `revivir()` haga `return` si `this.nombreIngresado === true`). Así, guardado el récord, no se puede revivir.
+
+- **BUG: ULTI — animación y área de efecto con el zoom (anotado el 03/08/2026, ya mencionado en la nota del toroide)**. Con el zoom 0.70 (v1.48.0), la ULTI se ve/afecta **más chica de lo que debería**. Causa: `UltiEffect.maxRadius = Math.sqrt(gameWidth² + gameHeight²) * 0.18` usa `anchoJuego`/`altoJuego` **sin** contemplar el zoom. El aro se dibuja en `game.mundo` (escalado ×0.70), así que tanto la **animación** (radio del aro) como el **área de efecto** (radio de destrucción) cubren menos fracción de la vista que antes del zoom.
+  - Dónde: `src/game/efectosVisuales/UltiEffect.js` (constructor, cálculo de `maxRadius`).
+  - **Fix propuesto:** multiplicar `maxRadius` por `1 / CONFIG.CAMARA.ZOOM` para que cubra la misma proporción de la vista visible. Revisar también que el `expansionSpeed` (800 px/s) se sienta bien con el radio nuevo. (Además la ULTI usa distancia euclidiana, no toroidal — menor, ver nota del toroide.)
+
+---
+
+## ✅ Completado v1.48.1 - Rendimiento, controles por modo y varios fixes
+
+Tanda de rendimiento + varios (rendimiento confirmado bien en el G04 el 03/08/2026).
+
+- **Rendimiento — caps de entidades**: `generarEnemigo` respeta `CONFIG.MUNDO.MAX_ASTEROIDES` (30) y `generarNaveEnemiga` un nuevo `MAX_NAVES_ENEMIGAS` (6); fragmentos y mini-especiales también respetan el tope. Acota las colisiones O(n²) en partidas largas. Boids: el grupo de spawn se clampea a `MAX_PARTICULAS`.
+- **Rendimiento — grilla espacial de Boids** (`GameBoids.actualizarParticulasBoid`): se agrupan las partículas en celdas del tamaño del rango de visión y cada boid solo mira su celda + las 8 adyacentes (en vez de las 100) → O(n²) a ~O(n), ~2,5× más rápido, comportamiento idéntico. Helpers `_construirGrillaBoids` / `_vecinosCercanosBoids`.
+- **Detección de modo táctil mejorada** (`GestorEntrada.cargarModoControl`): usa `matchMedia('(pointer: coarse)')` + `(any-pointer: fine)` para no meter en modo touch a una laptop táctil con mouse.
+- **Config de generación editable**: `MAX_ESPECIALES`, `PROB_ESPECIAL` / `_OLEADA_ALTA`, `OLEADA_PROB_ESPECIAL_ALTA` y `UMBRALES_TIPO` migrados de hardcode a `CONFIG.GENERACION`.
+- **Pantalla de carga** (`UIManager.mostrarPantallaCarga`): espera 2 s en el 100% y **congela el juego** durante la carga para que arranque fresco.
+- **Sin partículas al girar** (`Player.js`): se desactivó la creación del efecto de rotación azul al girar la nave.
+- **Fix explosión de asteroides "rezagado"**: usaban `rezagado1/2/3` (nombres inexistentes) → explotaban chicos y soltaban 1 partícula. Corregido a `large/medium/small_rezagado` en `GameProjectiles`, `GameEffects` y `GameEnemies`.
+- **Barra de carga real + fix duplicación uiManager** (`Game.init` acepta `onProgress`/`uiManager`).
+- **Controles por modo** (`UIManager.mostrarControles`): la ventana ahora cambia el contenido según el modo elegido. Mouse y teclado mantiene la reasignación actual; Joystick muestra una referencia fija del mapeo del gamepad; Touch muestra presets de layout táctil.
+- **Preset táctil clásico/invertido** (`TouchControls.aplicarPreferencias`): el menú permite elegir joystick a la izquierda con botones a la derecha, o joystick a la derecha con botones a la izquierda. La preferencia queda guardada en `localStorage` (`touchLayoutJEE`) y se aplica al empezar una partida.
+- **Comentarios agregados en español**: se documentó la lógica nueva para que sea más fácil retomar después.
+- **Verificado**: `node --check src/ui/UIManager.js`, `node --check src/systems/TouchControls.js`, `npm run build` y prueba en navegador local. Sin errores; el cambio de modo funciona y el layout táctil invertido se aplica en partida.
 
 ---
 

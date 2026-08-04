@@ -21,6 +21,20 @@ import { EnemyProjectile } from '../entidades/EnemyProjectile.js';
 import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
 import { HitEffect } from '../efectosVisuales/HitEffect.js';
 
+function contarActivos(lista) {
+    return (lista || []).reduce((total, item) => total + (item && item.active ? 1 : 0), 0);
+}
+
+function hayLugarParaAsteroide(game) {
+    const max = game.maximoEnemigos || CONFIG.MUNDO.MAX_ASTEROIDES || 30;
+    return contarActivos(game.enemigos) < max;
+}
+
+function hayLugarParaNave(game) {
+    const max = CONFIG.MUNDO.MAX_NAVES_ENEMIGAS || 6;
+    return contarActivos(game.enemigosNaves) < max;
+}
+
 /**
  * Genera un nuevo enemigo (asteroide)
  * Función auxiliar para Game.js - líneas 968-1188
@@ -28,31 +42,41 @@ import { HitEffect } from '../efectosVisuales/HitEffect.js';
  * @param {Game} game - Referencia al objeto Game principal
  */
 export function generarEnemigo(game) {
-    // Sin límite en pantalla - siempre spawnea nuevos asteroides
+    if (!hayLugarParaAsteroide(game)) {
+        return;
+    }
+
+    // Respeta el limite configurado para evitar que las colisiones O(n^2)
+    // degraden los FPS en partidas largas.
     
     // Elegir un tamaño aleatorio
     const rand = Math.random();
     let size;
     
-    // Calcular probabilidad de special: 2% normal, 4% desde oleada 10
-    const probabilidadSpecial = (game.contadorOleadas >= 10) ? 0.04 : 0.02;
-    
-    // Distribución de tipos de asteroides:
-    // special: 2% (4% desde oleada 10), rezagados: 39% (13% cada uno), large: 22%, medium: 17%, small: 20%
+    // Distribución de tipos de asteroide (todo configurable en CONFIG.GENERACION).
+    const GEN = CONFIG.GENERACION;
+    const U = GEN.UMBRALES_TIPO;
+
+    // Probabilidad del especial: sube desde la oleada configurada.
+    const probabilidadSpecial = (game.contadorOleadas >= GEN.OLEADA_PROB_ESPECIAL_ALTA)
+        ? GEN.PROB_ESPECIAL_OLEADA_ALTA
+        : GEN.PROB_ESPECIAL;
+
+    // Cortes acumulativos sobre rand (ver CONFIG.GENERACION.UMBRALES_TIPO).
     if (rand < probabilidadSpecial) {
-        size = 'special';          // 2% (4% desde oleada 10)
-    } else if (rand < 0.18) {
-        size = 'large_rezagado';  // 13%
-    } else if (rand < 0.31) {
-        size = 'medium_rezagado'; // 13%
-    } else if (rand < 0.44) {
-        size = 'small_rezagado';  // 13%
-    } else if (rand < 0.66) {
-        size = 'large';           // 22%
-    } else if (rand < 0.83) {
-        size = 'medium';          // 17%
+        size = 'special';
+    } else if (rand < U.largeRezagado) {
+        size = 'large_rezagado';
+    } else if (rand < U.mediumRezagado) {
+        size = 'medium_rezagado';
+    } else if (rand < U.smallRezagado) {
+        size = 'small_rezagado';
+    } else if (rand < U.large) {
+        size = 'large';
+    } else if (rand < U.medium) {
+        size = 'medium';
     } else {
-        size = 'small';           // 20%
+        size = 'small';
     }
     
     // Determinar posición de spawn (los asteroides aparecen desde los bordes)
@@ -66,8 +90,8 @@ export function generarEnemigo(game) {
                       size === 'small_rezagado';
     
     if (size === 'special') {
-        // Verificar límite de especiales (máximo 3 en pantalla)
-        if (game.enemigosSpeciales.length >= 3) {
+        // Verificar límite de especiales en pantalla (CONFIG.GENERACION.MAX_ESPECIALES)
+        if (game.enemigosSpeciales.length >= CONFIG.GENERACION.MAX_ESPECIALES) {
             size = 'large'; // Si llegó al límite, crear uno normal
         } else {
             // Aparece justo afuera de la vista de la cámara (alrededor de la nave)
@@ -324,6 +348,10 @@ export function actualizarEnemigos(game, delta) {
  * @param {Game} game - Referencia al objeto Game principal
  */
 export function generarNaveEnemiga(game) {
+    if (!hayLugarParaNave(game)) {
+        return;
+    }
+
     // Aparece justo afuera de la vista de la cámara (alrededor de la nave)
     const p = game._puntoSpawnFueraDeVista(50);
     const x = p.x, y = p.y;
@@ -704,6 +732,7 @@ function _destruirYFragmentar(game, enemy, indice) {
     
     const fragmentos = enemy.recibirDano(1000);
     for (const frag of fragmentos) {
+        if (!hayLugarParaAsteroide(game)) break;
         frag.render(game.mundo);
         game.enemigos.push(frag);
     }
@@ -735,9 +764,9 @@ export function procesarColisionesJugador(game) {
             let escalaAnim = 0.24;
             if (enemy.tamanio === 'medium') escalaAnim = 0.42;
             else if (enemy.tamanio === 'large') escalaAnim = 0.84;
-            else if (enemy.tamanio === 'rezagado1') escalaAnim = 0.84;
-            else if (enemy.tamanio === 'rezagado2') escalaAnim = 0.42;
-            else if (enemy.tamanio === 'rezagado3') escalaAnim = 0.24;
+            else if (enemy.tamanio === 'large_rezagado') escalaAnim = 0.84;
+            else if (enemy.tamanio === 'medium_rezagado') escalaAnim = 0.42;
+            else if (enemy.tamanio === 'small_rezagado') escalaAnim = 0.24;
             
             const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
             astroExplosion.render(game.mundo);

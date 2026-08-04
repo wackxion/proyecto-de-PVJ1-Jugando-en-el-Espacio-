@@ -344,22 +344,12 @@ this.rotacion = 0;
             this.imagen.rotation = this.rotacion;
         }
 
-        // EFECTO DE ROTACIÓN - efecto azul cuando la nave cambia de orientación.
-        // Con el apuntado al mouse, "girar" = que el ángulo cambie de un frame a otro.
-        let difRot = this.rotacion - rotacionPrevia;
-        while (difRot > Math.PI) difRot -= 2 * Math.PI;    // normalizar a [-PI, PI]
-        while (difRot < -Math.PI) difRot += 2 * Math.PI;
-        const estaGirando = !this.enPropulsor && Math.abs(difRot) > 0.05;
-        if (estaGirando) {
-            this.rotationEffectTimer -= delta;
-            if (this.rotationEffectTimer <= 0) {
-                this._crearEfectoRotacion(difRot > 0 ? 1 : -1);
-                this.rotationEffectTimer = this.rotationEffectCooldown;
-            }
-        } else {
-            this._destruirEfectoRotacion();
-            this.rotationEffectTimer = 0;
-        }
+        // EFECTO DE ROTACIÓN al girar: DESACTIVADO (a pedido del dev). Antes creaba
+        // un efecto azul cada vez que la nave cambiaba de orientación. Se conservan
+        // los métodos (_crearEfectoRotacion / _actualizarEfectoRotacion) por si se
+        // quiere reactivar, pero ya no se genera ninguna partícula al girar.
+        this._destruirEfectoRotacion();
+        this.rotationEffectTimer = 0;
         
         // DISPARO
         // Verificar si se debe disparar (tecla presionada + enfriamiento cumplido)

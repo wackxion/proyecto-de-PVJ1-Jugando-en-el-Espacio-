@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.1)
 
 ---
 
@@ -361,7 +361,19 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.0 (Actual)
+### v1.48.1 (Actual)
+> **Rendimiento (caps + grilla de boids), controles por modo y varios fixes**
+
+- ⚡ **Rendimiento**: límite de asteroides (30) y **naves enemigas (6)** activos, para acotar las colisiones O(n²) en partidas largas. Grupo de partículas Boid clampeado a su máximo
+- 🐝 **Grilla espacial de Boids**: el sistema de partículas pasó de O(n²) a ~O(n) (cada boid solo mira su celda + las 8 adyacentes en vez de las 100) → ~2,5× más rápido, mismo comportamiento y cantidad
+- 🎛️ **Controles por modo**: la ventana de Controles cambia según el modo (mouse/teclado reasignable · joystick muestra el mapeo · touch permite elegir el layout izquierda/derecha)
+- ⚙️ **Config de generación editable**: el máximo de especiales, la probabilidad del especial y la distribución de tipos se movieron a `CONFIG.GENERACION`
+- 🎯 **Detección de modo táctil mejorada**: usa el tipo de puntero (una laptop táctil ya no cae en modo touch por error)
+- ⏳ **Pantalla de carga**: espera 2 s en el 100% y el juego arranca fresco (congelado durante la carga)
+- ✨ Se quitó la animación de partículas al girar la nave
+- 💥 **Fix**: los asteroides "rezagado" ahora explotan del tamaño correcto (antes usaban un nombre inexistente y salían chicos)
+
+### v1.48.0
 > **Zoom de cámara + auto-apuntado (touch/joystick) + fix del HUD de aceleración**
 
 - 🔭 **Zoom de cámara**: la cámara se alejó (`CONFIG.CAMARA.ZOOM = 0.70`) → se ve ~43% más de área alrededor de la nave. Todo el mundo (nave, asteroides, enemigos) se escala proporcional; el HUD, el fondo y las estrellas quedan igual (son capas aparte). Se ajustaron cámara, apuntado con mouse y culling para contemplar el zoom

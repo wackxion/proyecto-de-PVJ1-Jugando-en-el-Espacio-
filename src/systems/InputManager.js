@@ -294,7 +294,10 @@ export class GestorEntrada {
         let m = null;
         try { m = localStorage.getItem('modoControlJEE'); } catch (e) { /* ignorar */ }
         if (m === 'mouseTeclado' || m === 'joystick' || m === 'touch') return m;
-        const esTactil = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+        const tieneTouch = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+        const punteroPrincipalTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        const tieneMouseOFine = window.matchMedia && window.matchMedia('(any-pointer: fine)').matches;
+        const esTactil = tieneTouch && punteroPrincipalTouch && !tieneMouseOFine;
         return esTactil ? 'touch' : 'mouseTeclado';
     }
 

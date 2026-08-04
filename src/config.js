@@ -15,6 +15,7 @@ export const CONFIG = {
         ALTO: 720,                      // Alto del área de juego (px)
         TOROIDAL: true,                 // Mundo toroidal: la nave sale por un borde y entra por el opuesto (paso 1: solo nave + cámara)
         MAX_ASTEROIDES: 30,             // Máximo de asteroides en pantalla
+        MAX_NAVES_ENEMIGAS: 6,          // Limite de naves enemigas activas para sostener FPS estable
         SPAWN_INTERVALO: 1.5,           // Segundos entre oleadas de asteroides
         SPAWN_INTERVALO_MINIMO: 0.3,    // Intervalo mínimo (dificultad máxima)
         SPAWN_TASA_DISMINUCION: 0.10,   // Cuánto baja el intervalo por oleada
@@ -174,6 +175,25 @@ export const CONFIG = {
         NAVE_INTERVALO_MINIMO: 5,             // Mínimo tras escalar con oleadas
         COLISION_DANO_LARGE: 50,              // Daño mutuo entre asteroides large al chocar
         COLISION_ENFRIAMIENTO: 0.5,           // Segundos sin volver a colisionar tras impacto
+
+        // --- Asteroide ESPECIAL ---
+        MAX_ESPECIALES: 3,                    // Máximo de asteroides especiales en pantalla
+        PROB_ESPECIAL: 0.02,                  // Prob. de que un spawn sea especial (2%)
+        PROB_ESPECIAL_OLEADA_ALTA: 0.04,      // Sube a 4% desde la oleada de abajo
+        OLEADA_PROB_ESPECIAL_ALTA: 10,        // Oleada desde la que el especial sube a 4%
+
+        // --- Distribución de tipos de asteroide ---
+        // Cortes ACUMULATIVOS sobre Math.random() (tras descontar el especial):
+        // rand < corte → ese tipo, en este orden. El resto (rand >= UMBRAL_MEDIUM)
+        // es small. Cambiar acá ajusta la mezcla de tipos que aparecen.
+        UMBRALES_TIPO: {
+            largeRezagado:  0.18,             // ~16% (rezagados = variantes más lentas)
+            mediumRezagado: 0.31,             // ~13%
+            smallRezagado:  0.44,             // ~13%
+            large:          0.66,             // ~22%
+            medium:         0.83,             // ~17%
+            // resto → small                  // ~17%
+        },
     },
 
     // === PARTÍCULAS BOID (enjambre) ===

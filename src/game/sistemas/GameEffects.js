@@ -168,11 +168,11 @@ export function crearExplosionAsteroide(game, enemy) {
             escalaAnim = 0.42;
         } else if (enemy.tamanio === 'large') {
             escalaAnim = 0.84;
-        } else if (enemy.tamanio === 'rezagado1') {
+        } else if (enemy.tamanio === 'large_rezagado') {
             escalaAnim = 0.84;
-        } else if (enemy.tamanio === 'rezagado2') {
+        } else if (enemy.tamanio === 'medium_rezagado') {
             escalaAnim = 0.42;
-        } else if (enemy.tamanio === 'rezagado3') {
+        } else if (enemy.tamanio === 'small_rezagado') {
             escalaAnim = 0.24;
         }
         

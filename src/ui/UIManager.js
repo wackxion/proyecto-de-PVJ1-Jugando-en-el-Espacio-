@@ -308,9 +308,16 @@ export class UIManager {
             `;
             b.addEventListener('click', () => {
                 this._click();
+                // Si cambia de modo durante una reasignacion, cancelamos la captura
+                // para evitar que la proxima tecla termine guardada por accidente.
+                capturando = null;
+                // El modo queda guardado para proximas sesiones.
                 GestorEntrada.guardarModoControl(id);
+                // Si ya existe una partida, tambien actualizamos el input activo.
                 if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.setModoControl(id);
                 pintarModo();
+                // La lista inferior depende del modo: bindings, referencia o touch.
+                render();
             });
             btnsModo.push(b);
             filaModo.appendChild(b);
@@ -331,9 +338,56 @@ export class UIManager {
         let tragarClick = false; // tras capturar un botón del mouse, se traga el 'click' que le sigue
 
         const nombre = (c) => GestorEntrada.nombreCodigo(c);
+        // Preferencia propia de controles tactiles. El modo de control dice
+        // "uso touch"; este valor define como se acomoda el overlay tactil.
+        const touchLayoutKey = 'touchLayoutJEE';
+        const touchLayouts = [
+            { id: 'clasico', label: 'Clásico', desc: 'Joystick izquierda, botones derecha.' },
+            { id: 'invertido', label: 'Invertido', desc: 'Joystick derecha, botones izquierda.' },
+        ];
+        // Lee el layout guardado. Si localStorage falla o trae un valor viejo,
+        // vuelve a "clasico" para mantener una configuracion segura.
+        const cargarTouchLayout = () => {
+            try {
+                const v = localStorage.getItem(touchLayoutKey);
+                if (touchLayouts.some(l => l.id === v)) return v;
+            } catch (e) {}
+            return 'clasico';
+        };
+        // Guarda el preset tactil y lo aplica al instante si el overlay ya existe.
+        const guardarTouchLayout = (id) => {
+            try { localStorage.setItem(touchLayoutKey, id); } catch (e) {}
+            if (window.game && window.game.controlesTactiles && window.game.controlesTactiles.aplicarPreferencias) {
+                window.game.controlesTactiles.aplicarPreferencias();
+            }
+        };
+
+        // Crea una fila de lectura simple: titulo a la izquierda y detalle a la
+        // derecha. Se reutiliza en Joystick y Touch para no duplicar estilos.
+        const crearFilaInfo = (titulo, detalle, extra = '') => {
+            const fila = document.createElement('div');
+            fila.style.cssText = `
+                display: flex; align-items: center; justify-content: space-between;
+                gap: 12px; padding: 7px 12px; border: 2px solid #0044CC; border-radius: 8px;
+                background: rgba(0,68,204,0.06); color: #0044CC;
+                font-family: 'Segoe Script', cursive; font-weight: bold; font-size: 18px;
+            `;
+            const lbl = document.createElement('span');
+            lbl.textContent = titulo;
+            const valor = document.createElement('span');
+            valor.style.cssText = `font-family: 'Arial', sans-serif; font-size: 14px; text-align: right; min-width: 150px;`;
+            valor.textContent = detalle;
+            fila.appendChild(lbl);
+            fila.appendChild(valor);
+            if (extra) fila.title = extra;
+            return fila;
+        };
 
         // Redibuja la lista según los controles guardados.
-        const render = () => {
+        // Modo Mouse y teclado:
+        // muestra los bindings configurables y permite reasignar cada accion con
+        // la proxima tecla o boton del mouse que presione el jugador.
+        const renderMouseTeclado = () => {
             const controles = GestorEntrada.cargarControlesConfig();
             lista.innerHTML = '';
             for (const [accion, cfg] of Object.entries(controles)) {
@@ -365,7 +419,62 @@ export class UIManager {
                 lista.appendChild(fila);
             }
         };
-        render();
+        let btnRestaurar = null;
+
+        // Modo Joystick:
+        // por ahora es una referencia fija del mapeo estandar tipo Xbox. No se
+        // reasigna desde aca porque el gamepad se lee por indices de botones.
+        const renderJoystick = () => {
+            const filas = [
+                ['Apuntar', 'Stick izq / der', 'El stick izquierdo apunta; el derecho sirve de respaldo.'],
+                ['Acelerar', 'RT / A', 'Gatillo derecho o boton A.'],
+                ['Disparar', 'LT / X', 'Gatillo izquierdo o boton X.'],
+                ['Ulti', 'B', 'Usa la carga especial cuando esta lista.'],
+                ['Devorador', 'LB', 'Atrae particulas Boid cercanas.'],
+                ['Cohetes', 'RB', 'Lanza cohetes teledirigidos.'],
+                ['Propulsor', 'Y', 'Dash hacia la direccion de la nave.'],
+            ];
+            for (const [titulo, detalle, extra] of filas) lista.appendChild(crearFilaInfo(titulo, detalle, extra));
+        };
+
+        // Modo Touch:
+        // muestra presets rapidos de distribucion. Elegir uno lo guarda y mueve
+        // los controles tactiles reales si ya hay una partida abierta.
+        const renderTouch = () => {
+            const actual = cargarTouchLayout();
+            for (const layout of touchLayouts) {
+                const fila = crearFilaInfo(layout.label, layout.desc);
+                fila.style.cursor = 'pointer';
+                fila.style.background = layout.id === actual ? 'rgba(0,68,204,0.28)' : 'rgba(0,68,204,0.06)';
+                fila.addEventListener('click', () => {
+                    this._click();
+                    guardarTouchLayout(layout.id);
+                    render();
+                });
+                lista.appendChild(fila);
+            }
+        };
+
+        // Render central de esta pantalla. Decide que contenido mostrar abajo
+        // segun el modo seleccionado y ajusta el boton inferior para ese contexto.
+        const render = () => {
+            lista.innerHTML = '';
+            const modo = GestorEntrada.cargarModoControl();
+            nota.textContent = modo === 'mouseTeclado'
+                ? 'El teclado funciona siempre. Clic en una accion para reasignarla.'
+                : modo === 'joystick'
+                    ? 'Referencia del joystick. El mapeo es fijo por ahora.'
+                    : 'Elegi el layout tactil. El teclado sigue funcionando como respaldo.';
+
+            if (modo === 'mouseTeclado') renderMouseTeclado();
+            else if (modo === 'joystick') renderJoystick();
+            else renderTouch();
+
+            if (btnRestaurar) {
+                btnRestaurar.style.display = modo === 'joystick' ? 'none' : 'block';
+                btnRestaurar.textContent = modo === 'touch' ? 'Restaurar touch' : 'Restaurar por defecto';
+            }
+        };
 
         // Captura de la próxima tecla o botón del mouse para la acción elegida.
         const onKey = (e) => {
@@ -412,7 +521,7 @@ export class UIManager {
         const botones = document.createElement('div');
         botones.style.cssText = `display: flex; gap: 14px; align-items: center; margin-top: 20px; flex-wrap: wrap; justify-content: center;`;
 
-        const btnRestaurar = document.createElement('div');
+        btnRestaurar = document.createElement('div');
         btnRestaurar.textContent = 'Restaurar por defecto';
         btnRestaurar.style.cssText = `
             color: #0044CC; font-family: 'Segoe Script', cursive; font-weight: bold; font-size: 17px;
@@ -424,14 +533,20 @@ export class UIManager {
         btnRestaurar.addEventListener('click', () => {
             this._click();
             capturando = null;
-            GestorEntrada.restaurarControlesConfig();
-            if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.recargarControles();
+            if (GestorEntrada.cargarModoControl() === 'touch') {
+                guardarTouchLayout('clasico');
+            } else {
+                GestorEntrada.restaurarControlesConfig();
+                if (window.game && window.game.gestorEntrada) window.game.gestorEntrada.recargarControles();
+            }
             render();
         });
         botones.appendChild(btnRestaurar);
 
         botones.appendChild(this.crearBotonVolver(cerrar));
         container.appendChild(botones);
+
+        render();
 
         exterior.appendChild(container);
         this._hacerModalResponsive(modal, exterior);
@@ -1119,14 +1234,23 @@ export class UIManager {
                     onProgress(updateProgress);
                 } else {
                     // Simular progreso si no hay callback
-                    updateProgress(50, 'CARGANDO...');
+                    updateProgress(10, 'CARGANDO...');
                 }
                 
-                await callback();
+                await callback(updateProgress);
                 updateProgress(100, 'LISTO!');
+                // Congelar el juego mientras se muestra el 100%, para que arranque
+                // FRESCO tras la espera (si no, corre 2 s escondido detrás de la carga).
+                const juego = (typeof window !== 'undefined') ? window.game : null;
+                if (juego) juego.ejecutando = false;
+                // Mantener el 100% ("LISTO!") visible 2 s antes de dar inicio al juego.
+                await new Promise((resolve) => setTimeout(resolve, 2000));
                 loadingScreen.style.transition = 'opacity 0.5s ease';
                 loadingScreen.style.opacity = '0';
-                setTimeout(() => loadingScreen.remove(), 500);
+                setTimeout(() => {
+                    loadingScreen.remove();
+                    if (juego) juego.ejecutando = true;   // dar inicio al juego (fresco)
+                }, 500);
             } catch (error) {
                 loadingScreen.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Error: ${error.message}</p>`;
             }
