@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.5)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.4 (Actual)
+### v1.48.5 (Actual)
+> **Fix: el marcador superior (puntos/recursos) volvió a su tamaño**
+
+- 🩹 `puntacion-recursos.png` se había achicado en v1.48.4 al redimensionarlo: el HUD lo dimensiona con coordenadas de su resolución nativa (2172×431). Se restauró a su resolución original y se comprimió **sin redimensionar** (1745 KB → 571 KB). El resto de las imágenes (marcos, chips, íconos, cohete) usan escala adaptativa, así que no se vieron afectadas
+
+### v1.48.4
 > **Imágenes comprimidas: assets de ~25 MB → ~5 MB (−80%)**
 
 - 🗜️ **Compresión de las 75 imágenes** con cuantización de paleta + dithering (y redimensionado de las 12 que superaban 1280 px). Ejemplos: portada 3,7 MB → 782 KB, `fondoEspacio3.png` 2 MB → 144 KB, marcos de mejora ~1,7 MB → ~250 KB c/u. **Sin pérdida visual** (verificado en runtime: menú, HUD, ventanas, gameplay) y **mismos nombres de archivo** (cero cambios de código)
