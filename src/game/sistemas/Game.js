@@ -503,7 +503,7 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         this.estrellasData = [];
         this._estT = 0;
         const tex = this._crearTexturaPuntoEstrella();
-        const N = 90;
+        const N = 40;   // menos estrellas de fondo = menos sprites que actualizar/renderizar en el celu (antes 90)
         for (let i = 0; i < N; i++) {
             const sp = new PIXI.Sprite(tex);
             sp.anchor.set(0.5);

@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.2 (ACTUAL)
+**Versión:** v1.48.3 (ACTUAL)
 
 ---
 
@@ -47,6 +47,13 @@
     3. Verificar en Play Console que el campo "Sitio web" de la ficha apunte a ese dominio.
     4. En AdMob → app-ads.txt → "Configurar" → esperar a que AdMob rastree y valide (puede tardar días).
   - Confirmar el `pub-ID` real antes de subirlo. Ver también `documentacion/appAndroidGDD.md` (local) para IDs de AdMob.
+
+- **Optimización de carga / memoria en el celu (anotado el 03/08/2026)**. El juego carga **~25 MB** de assets, la mayoría **muy sobredimensionados** — golpea tiempo de carga, RAM y memoria de GPU en el G04. (Aclaración: agrandar el mundo toroidal NO agrega carga — las entidades están capadas independientemente del tamaño del mundo.)
+  1. **Comprimir/redimensionar imágenes (mayor impacto, sin riesgo)**: ejemplos actuales — `jugando en el espacio.png` 3,7 MB, `fondoEspacio3.png` 2 MB, `marcos2/3/4/5mejora.png` ~1,7 MB c/u (~7 MB juntos), `puntacion-recursos.png` 1,7 MB, `cohetes.png` 1,9 MB. Pasar por pngquant/TinyPNG + redimensionar al tamaño real de display. Se puede bajar de ~20 MB de imágenes a ~2-3 MB sin pérdida visible. Mismos nombres de archivo → cero cambios de código.
+  2. **Re-encodear audio**: `musica_menu.mp3` pesa 4,9 MB; `musica_juego(Cold_Horizon).mp3` 727 KB. Re-encodear a ~96-128 kbps mono → la de menú baja a ~1 MB. Mismos nombres.
+  3. **`antialias: false` en celular**: hoy `Game.js:238` tiene `antialias: true`. El AA cuesta fill-rate en la GPU del G04. Dejarlo `true` en PC y `false` en modo touch (o directamente false). `resolution: 1` ya está bien.
+  4. **Texture atlas / spritesheet (esfuerzo ALTO, evaluar después de #1)**: juntar los ~40 sprites individuales en un atlas para reducir "draw calls" (cambiar de textura es caro en GPU móvil). Requiere empaquetar (TexturePacker o script), generar el JSON, y **cambiar toda la carga en `Game._cargarRecursos`** + verificar que cada sprite renderice (varios son animaciones: explosiones, relog, ultiicon, escudo, pboids). Riesgo medio-alto (si se rompe un frame, el sprite desaparece). **Nota:** con `resolution: 1` y ~340 sprites, el G04 probablemente está más limitado por fill-rate/RAM (imágenes pesadas) que por draw calls → el atlas rinde MENOS que comprimir imágenes (#1). Hacerlo solo si después de #1/#2/#3 sigue haciendo falta.
+  5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
 

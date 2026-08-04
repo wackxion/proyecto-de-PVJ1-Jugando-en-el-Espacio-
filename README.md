@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.3)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.2 (Actual)
+### v1.48.3 (Actual)
+> **Menos estrellas de fondo + plan de optimización de assets documentado**
+
+- ⭐ **Menos estrellas de fondo** (90 → 40): menos sprites que actualizar/renderizar en el celu
+- 📄 **Plan de optimización de assets** documentado (`documentacion/prompt-optimizar-assets.md`): guía completa para comprimir imágenes (~25 MB → ~3-5 MB), re-encodear audio y ajustar antialias en móvil. Anotado también en `PENDIENTES.md` (backlog) el texture atlas y el object pooling como pasos posteriores
+
+### v1.48.2
 > **Fix: revivir tras guardar récord + área/animación de la ULTI con el zoom**
 
 - 🏆 **Revivir bloqueado tras guardar un récord**: si moriste con puntuación nueva y guardaste tu nombre en el Top 5, ya **no aparece** el botón "Revivir" (la partida quedó cerrada). Si no guardaste, sigue disponible
