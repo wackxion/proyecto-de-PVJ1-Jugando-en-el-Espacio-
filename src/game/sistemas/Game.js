@@ -230,12 +230,17 @@ export class Game {
         // PIXI.Application es la clase principal de PixiJS que maneja el canvas
         this.aplicacion = new PIXI.Application();
         
+        // Antialias: ON en PC (bordes de vectores suaves), OFF en celular (touch)
+        // para ahorrar fill-rate en la GPU del G04. Casi todo el arte son sprites
+        // (PNG, ya suaves), así que en móvil el impacto visual es mínimo.
+        const _modoTouch = GestorEntrada.cargarModoControl() === 'touch';
+
         // Inicializar la aplicación con configuración
         await this.aplicacion.init({
-            width: width,           
-            height: height,         
+            width: width,
+            height: height,
             backgroundColor: 0x0D0D1A,
-            antialias: true,
+            antialias: !_modoTouch,
             resolution: 1,
             autoDensity: true
         });

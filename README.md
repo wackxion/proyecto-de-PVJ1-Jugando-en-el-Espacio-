@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.6)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.5 (Actual)
+### v1.48.6 (Actual)
+> **Antialias off en celular (ahorra GPU) + limpieza del backlog**
+
+- 🎨 **Antialias condicional**: `Game.init` ahora usa `antialias: !modoTouch` → ON en PC (bordes de vectores suaves), **OFF en celular** para ahorrar fill-rate en la GPU del G04. Impacto visual mínimo (casi todo son sprites)
+- 🧹 Limpieza del backlog en `PENDIENTES.md` (entradas ya hechas: ícono/splash, AdMob revive; y la nota del radio de ULTI ya resuelta)
+
+### v1.48.5
 > **Fix: el marcador superior (puntos/recursos) volvió a su tamaño**
 
 - 🩹 `puntacion-recursos.png` se había achicado en v1.48.4 al redimensionarlo: el HUD lo dimensiona con coordenadas de su resolución nativa (2172×431). Se restauró a su resolución original y se comprimió **sin redimensionar** (1745 KB → 571 KB). El resto de las imágenes (marcos, chips, íconos, cohete) usan escala adaptativa, así que no se vieron afectadas

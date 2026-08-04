@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.4 (ACTUAL)
+**Versión:** v1.48.6 (ACTUAL)
 
 ---
 
@@ -19,10 +19,8 @@
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-> **Estado mobile (28/07/2026):** la app **corre en el Motorola G04** (Capacitor, pantalla completa, landscape). Todas las ventanas adaptadas, controles táctiles maduros (joystick flotante analógico, botones de habilidad en la esquina que se iluminan, mejoras que se despliegan +25%), botón atrás = Escape. Instalado y probado en el G04. **Lo que falta del roadmap** (`AppBusiness.md`): ícono/splash propios, **AdMob** (paso 4) y **requisitos de Play Store** (paso 5).
+> **Estado mobile (03/08/2026):** la app está **publicada en prueba cerrada "Alpha"** de Google Play (iterando; última subida versionCode 5, se prepara la 6). ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **Falta para producción:** ≥12 testers que acepten × 14 días de prueba activa. Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
-- **Ícono + splash propios de la app** (paso previo a publicar): hoy usa los default de Capacitor. Generar los tamaños Android (ej. con la nave o el arte del título).
-- **AdMob (paso 4)** y **Play Store (paso 5)** — ver `AppBusiness.md`.
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
@@ -31,7 +29,7 @@
 - **Destrucciones "sin animación" fuera de vista + costura del toroide (NO aplicar aún, decisión del dev el 02/08/2026)**. Síntoma reportado: asteroides/naves que "se destruyen sin la animación de explosión", sobre todo **disparando cerca del borde** y **cuando hay muchos juntos**. Diagnóstico (verificado en runtime): **NO es que falte crear la animación** — se probó ULTI con 25 asteroides pegados → 26 destruidos = 26 explosiones creadas, y las explosiones tienen `cullable=false` (siempre se renderizan). Lo que pasa: la explosión se dibuja **donde estaba el enemigo**; si el enemigo muere **fuera de la vista** (proyectil que sale de cuadro, asteroides que chocan entre sí off-screen, o al otro lado de la **costura del toroide** que no tiene render "fantasma"), la explosión también ocurre off-screen y no se ve. El zoom 0.70 (aplicado en v1.48.0) no lo causó, solo lo hizo más notorio (se ve más área). 
   - **Opción A (elegida para más adelante, rápida):** agrandar el mundo en `Game.js:256-257` (`width*3`/`height*3` → `*5` o `*6`). Aleja la costura y hace que los enemigos mueran más adentro de la vista. La densidad de asteroides NO cambia (spawean alrededor de la nave vía `_puntoSpawnFueraDeVista`). Bajo riesgo, ~1 línea. Ataca los casos "muchos juntos" y "costura".
   - **Opción B (mejora futura, más trabajo):** renderizado "fantasma" en la costura — dibujar copias de las entidades cerca de los bordes del mundo para que la costura sea invisible y todo (incluidas explosiones) se vea donde corresponde. Es lo "correcto" para un toroide pero toca el render de cada entidad.
-  - Nota extra detectada: el **radio de la ULTI** (`UltiEffect.maxRadius = hypot(anchoJuego,altoJuego)*0.18`) y el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`) NO contemplan el zoom → con el alejamiento la ULTI cubre menos fracción de la vista. Si el zoom queda, conviene multiplicarlos por `1/CONFIG.CAMARA.ZOOM`.
+  - Nota extra: el **radio de la ULTI** ya se ajustó al zoom (`/CONFIG.CAMARA.ZOOM`) en v1.48.2. **Falta** el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`), que tampoco contempla el zoom — de todos modos hoy queda por encima de la vista visible, así que es menor. Si se quiere afinar, multiplicarlo por `1/CONFIG.CAMARA.ZOOM`.
 
 - **Rehacer el tutorial (anotado el 03/08/2026, definir alcance)**. El tutorial actual (`UIManager.mostrarTutorial`, `src/ui/UIManager.js:1139`) es un modal DOM paso-a-paso con dos tablas: filas de controles (mouse/teclado/joystick/celular) + las 8 mejoras con sus íconos. Funciona pero está algo denso/desactualizado. **A definir** cuándo lo encaremos: qué se quiere (¿más visual/interactivo?, ¿pasos con imágenes o gifs?, ¿mencionar lo nuevo: zoom de cámara y auto-apuntado en touch/joystick?, ¿separar PC vs celular?). Respetar paleta tinta-birome y mantener el modelo de PC.
 
@@ -51,11 +49,20 @@
 - **Optimización de carga / memoria en el celu (anotado el 03/08/2026)**. El juego carga **~25 MB** de assets, la mayoría **muy sobredimensionados** — golpea tiempo de carga, RAM y memoria de GPU en el G04. (Aclaración: agrandar el mundo toroidal NO agrega carga — las entidades están capadas independientemente del tamaño del mundo.)
   1. ✅ **HECHO (v1.48.4) — Comprimir/redimensionar imágenes**: las 75 PNG se comprimieron con `sharp` (cuantización de paleta + dithering; redimensionadas las 12 que superaban 1280 px). Resultado: **25 MB → 4,9 MB (−80%)**, sin pérdida visual (verificado en runtime), mismos nombres. Si se agregan imágenes nuevas, volver a correr una compresión equivalente antes de publicar.
   2. **Re-encodear audio**: `musica_menu.mp3` pesa 4,9 MB; `musica_juego(Cold_Horizon).mp3` 727 KB. Re-encodear a ~96-128 kbps mono → la de menú baja a ~1 MB. Mismos nombres.
-  3. **`antialias: false` en celular**: hoy `Game.js:238` tiene `antialias: true`. El AA cuesta fill-rate en la GPU del G04. Dejarlo `true` en PC y `false` en modo touch (o directamente false). `resolution: 1` ya está bien.
+  3. ✅ **HECHO (v1.48.6) — `antialias: false` en celular**: en `Game.init` el AA ahora es `!modoTouch` → ON en PC (bordes de vectores suaves), OFF en touch (ahorra fill-rate en la GPU del G04). Casi todo el arte son sprites, así que el impacto visual en móvil es mínimo.
   4. **Texture atlas / spritesheet (esfuerzo ALTO, evaluar después de #1)**: juntar los ~40 sprites individuales en un atlas para reducir "draw calls" (cambiar de textura es caro en GPU móvil). Requiere empaquetar (TexturePacker o script), generar el JSON, y **cambiar toda la carga en `Game._cargarRecursos`** + verificar que cada sprite renderice (varios son animaciones: explosiones, relog, ultiicon, escudo, pboids). Riesgo medio-alto (si se rompe un frame, el sprite desaparece). **Nota:** con `resolution: 1` y ~340 sprites, el G04 probablemente está más limitado por fill-rate/RAM (imágenes pesadas) que por draw calls → el atlas rinde MENOS que comprimir imágenes (#1). Hacerlo solo si después de #1/#2/#3 sigue haciendo falta.
   5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
+
+## ✅ Completado v1.48.6 - Antialias off en celular + limpieza backlog
+
+- `Game.init`: `antialias: !modoTouch` (ON en PC, OFF en touch → ahorra fill-rate en el G04; impacto visual mínimo porque casi todo son sprites).
+- Limpieza del backlog: sacadas las entradas ya hechas (ícono/splash, AdMob revive) y actualizada la nota del radio de ULTI (resuelto en v1.48.2). Estado mobile del backlog puesto al día (prueba cerrada Alpha).
+
+## ✅ Completado v1.48.5 - Fix marcador de puntos
+
+- `puntacion-recursos.png` se había achicado en v1.48.4 al redimensionarlo (el HUD lo posiciona con coords de su resolución nativa 2172×431). Restaurado + comprimido SIN resize (1745 KB → 571 KB). El resto de assets usa escala adaptativa, así que no se vieron afectados.
 
 ## ✅ Completado v1.48.4 - Imágenes comprimidas (25 MB → 5 MB)
 
