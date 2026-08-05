@@ -19,7 +19,7 @@
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-> **Estado mobile (03/08/2026):** la app está **publicada en prueba cerrada "Alpha"** de Google Play (iterando; última subida versionCode 5, se prepara la 6). ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **Falta para producción:** ≥12 testers que acepten × 14 días de prueba activa. Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
+> **Estado mobile (03/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). Se está subiendo el `.aab` **versionCode 6** (v1.48.6: todo lo de rendimiento + fixes + assets comprimidos). **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 
