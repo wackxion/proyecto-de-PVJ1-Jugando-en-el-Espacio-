@@ -235,7 +235,7 @@ export const CONFIG = {
         VOLUMENES: {
             // --- Habilidades del jugador ---
             disparo: 0.5,               // disparar (barra espaciadora)
-            ulti: 0.9,                  // ataque especial (S)
+            ulti: 1.0,                  // ataque especial (S) — al máximo (el mp3 se amplificó +15dB, estaba muy bajo)
             propulsor: 0.6,             // dash (R)
             cohetes: 0.6,               // lanzar cohetes (Q)
             devorador: 0.6,             // atraer partículas (E)
