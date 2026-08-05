@@ -261,8 +261,12 @@ export class Game {
         // nave, enemigos, partículas, proyectiles, efectos) viven dentro de
         // this.mundo. El HUD y los overlays (Game Over, Top 5) quedan FUERA,
         // directamente en el stage, así no se mueven con la cámara.
-        this.mundoAncho = width * 3;
-        this.mundoAlto = height * 3;
+        // Mundo toroidal 5× la pantalla (antes 3×): aleja la "costura" del toroide,
+        // así los enemigos mueren más adentro de la vista y se ven sus explosiones
+        // (antes, cerca del borde del mundo, morían off-screen). NO agrega carga:
+        // las entidades están capadas y spawnean relativas a la nave, no al mundo.
+        this.mundoAncho = width * 5;
+        this.mundoAlto = height * 5;
         this.mundo = new PIXI.Container();
         this.mundo.sortableChildren = true;
         this.mundo.scale.set(CONFIG.CAMARA.ZOOM);   // zoom de cámara (aleja/acerca)

@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.8 (ACTUAL)
+**Versión:** v1.48.9 (ACTUAL)
 
 ---
 
@@ -26,8 +26,8 @@
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
 
-- **Destrucciones "sin animación" fuera de vista + costura del toroide (NO aplicar aún, decisión del dev el 02/08/2026)**. Síntoma reportado: asteroides/naves que "se destruyen sin la animación de explosión", sobre todo **disparando cerca del borde** y **cuando hay muchos juntos**. Diagnóstico (verificado en runtime): **NO es que falte crear la animación** — se probó ULTI con 25 asteroides pegados → 26 destruidos = 26 explosiones creadas, y las explosiones tienen `cullable=false` (siempre se renderizan). Lo que pasa: la explosión se dibuja **donde estaba el enemigo**; si el enemigo muere **fuera de la vista** (proyectil que sale de cuadro, asteroides que chocan entre sí off-screen, o al otro lado de la **costura del toroide** que no tiene render "fantasma"), la explosión también ocurre off-screen y no se ve. El zoom 0.70 (aplicado en v1.48.0) no lo causó, solo lo hizo más notorio (se ve más área). 
-  - **Opción A (elegida para más adelante, rápida):** agrandar el mundo en `Game.js:256-257` (`width*3`/`height*3` → `*5` o `*6`). Aleja la costura y hace que los enemigos mueran más adentro de la vista. La densidad de asteroides NO cambia (spawean alrededor de la nave vía `_puntoSpawnFueraDeVista`). Bajo riesgo, ~1 línea. Ataca los casos "muchos juntos" y "costura".
+- **Destrucciones "sin animación" fuera de vista + costura del toroide (Opción A HECHA en v1.48.9; queda opcional la Opción B)**. Síntoma reportado: asteroides/naves que "se destruyen sin la animación de explosión", sobre todo **disparando cerca del borde** y **cuando hay muchos juntos**. Diagnóstico (verificado en runtime): **NO es que falte crear la animación** — se probó ULTI con 25 asteroides pegados → 26 destruidos = 26 explosiones creadas, y las explosiones tienen `cullable=false` (siempre se renderizan). Lo que pasa: la explosión se dibuja **donde estaba el enemigo**; si el enemigo muere **fuera de la vista** (proyectil que sale de cuadro, asteroides que chocan entre sí off-screen, o al otro lado de la **costura del toroide** que no tiene render "fantasma"), la explosión también ocurre off-screen y no se ve. El zoom 0.70 (aplicado en v1.48.0) no lo causó, solo lo hizo más notorio (se ve más área). 
+  - ✅ **Opción A — HECHA (v1.48.9):** el mundo se agrandó de **3× a 5×** la pantalla (`Game.js`). Aleja la costura y los enemigos mueren más adentro de la vista → se ven sus explosiones. Verificado: FPS estable (no agrega carga). Si aún se ve algún caso raro cerca del borde, se puede subir a 6× o encarar la Opción B.
   - **Opción B (mejora futura, más trabajo):** renderizado "fantasma" en la costura — dibujar copias de las entidades cerca de los bordes del mundo para que la costura sea invisible y todo (incluidas explosiones) se vea donde corresponde. Es lo "correcto" para un toroide pero toca el render de cada entidad.
   - Nota extra: el **radio de la ULTI** ya se ajustó al zoom (`/CONFIG.CAMARA.ZOOM`) en v1.48.2. **Falta** el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`), que tampoco contempla el zoom — de todos modos hoy queda por encima de la vista visible, así que es menor. Si se quiere afinar, multiplicarlo por `1/CONFIG.CAMARA.ZOOM`.
 
@@ -54,6 +54,14 @@
   5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
+
+## ✅ Completado v1.48.9 - Mundo toroidal 3× → 5×
+
+- `Game.js`: `mundoAncho/Alto = width/height * 5` (antes `* 3`). Aleja la costura del toroide → los enemigos mueren más adentro de la vista y se ven sus explosiones (arregla el grueso de las "destrucciones sin animación" cerca de los bordes). Verificado: FPS estable (no agrega carga; entidades capadas y spawn relativo a la nave). Queda opcional la Opción B (render "fantasma").
+
+## ✅ Completado v1.48.8 - Sonido de la ULTI amplificado
+
+- `ulti.mp3` estaba a −17,9 dB de pico (casi inaudible) → amplificado +15 dB con ffmpeg (pico −3,3 dB, sin clipear) + volumen en `config.js` 0.9 → 1.0. Verificado: suena al activar la ULTI.
 
 ## ✅ Completado v1.48.7 - Audio comprimido (música de menú 4,9 → 1,8 MB)
 

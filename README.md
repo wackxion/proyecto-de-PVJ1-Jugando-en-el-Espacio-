@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.8-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.8)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.9-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.9)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.8 (Actual)
+### v1.48.9 (Actual)
+> **Mundo toroidal más grande (3× → 5×): explosiones que se veían "sin animación"**
+
+- 🌐 El mundo pasó de **3× a 5×** la pantalla (`Game.js`). Aleja la "costura" del toroide, así los enemigos mueren más adentro de la vista y **se ven sus explosiones** (antes, cerca del borde del mundo, morían off-screen y la explosión no se veía). Verificado: FPS estable (no agrega carga — las entidades están capadas y spawnean relativas a la nave)
+
+### v1.48.8
 > **Fix: el sonido de la ULTI se escucha (estaba muy bajo)**
 
 - 🔊 El `ulti.mp3` estaba grabado muy bajo (pico −17,9 dB, casi inaudible). Se **amplificó +15 dB** con ffmpeg (pico −3,3 dB, sin clipear) y su volumen en `config.js` pasó a **1.0**. Ahora la ULTI se escucha clara
