@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 03/08/2026  
-**Versión:** v1.48.6 (ACTUAL)
+**Versión:** v1.48.7 (ACTUAL)
 
 ---
 
@@ -48,12 +48,17 @@
 
 - **Optimización de carga / memoria en el celu (anotado el 03/08/2026)**. El juego carga **~25 MB** de assets, la mayoría **muy sobredimensionados** — golpea tiempo de carga, RAM y memoria de GPU en el G04. (Aclaración: agrandar el mundo toroidal NO agrega carga — las entidades están capadas independientemente del tamaño del mundo.)
   1. ✅ **HECHO (v1.48.4) — Comprimir/redimensionar imágenes**: las 75 PNG se comprimieron con `sharp` (cuantización de paleta + dithering; redimensionadas las 12 que superaban 1280 px). Resultado: **25 MB → 4,9 MB (−80%)**, sin pérdida visual (verificado en runtime), mismos nombres. Si se agregan imágenes nuevas, volver a correr una compresión equivalente antes de publicar.
-  2. **Re-encodear audio**: `musica_menu.mp3` pesa 4,9 MB; `musica_juego(Cold_Horizon).mp3` 727 KB. Re-encodear a ~96-128 kbps mono → la de menú baja a ~1 MB. Mismos nombres.
+  2. ✅ **HECHO (v1.48.7) — Re-encodear audio**: `musica_menu.mp3` estaba a 256 kbps (2:36) → re-encodeada a **96 kbps estéreo** con ffmpeg (`ffmpeg-static`, instalado `--no-save`): 4,9 MB → **1,8 MB** (−62%). `musica_juego` 728 → 364 KB. Verificado: cargan y reproducen bien. Total `assets/`: ~31 MB → **8 MB**. Si el dev quiere aún más liviano, se puede bajar a 64 kbps o mono (probar calidad).
   3. ✅ **HECHO (v1.48.6) — `antialias: false` en celular**: en `Game.init` el AA ahora es `!modoTouch` → ON en PC (bordes de vectores suaves), OFF en touch (ahorra fill-rate en la GPU del G04). Casi todo el arte son sprites, así que el impacto visual en móvil es mínimo.
   4. **Texture atlas / spritesheet (esfuerzo ALTO, evaluar después de #1)**: juntar los ~40 sprites individuales en un atlas para reducir "draw calls" (cambiar de textura es caro en GPU móvil). Requiere empaquetar (TexturePacker o script), generar el JSON, y **cambiar toda la carga en `Game._cargarRecursos`** + verificar que cada sprite renderice (varios son animaciones: explosiones, relog, ultiicon, escudo, pboids). Riesgo medio-alto (si se rompe un frame, el sprite desaparece). **Nota:** con `resolution: 1` y ~340 sprites, el G04 probablemente está más limitado por fill-rate/RAM (imágenes pesadas) que por draw calls → el atlas rinde MENOS que comprimir imágenes (#1). Hacerlo solo si después de #1/#2/#3 sigue haciendo falta.
   5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
+
+## ✅ Completado v1.48.7 - Audio comprimido (música de menú 4,9 → 1,8 MB)
+
+- `musica_menu.mp3` (256 kbps, 2:36) y `musica_juego` re-encodeadas a **96 kbps estéreo** con ffmpeg (`ffmpeg-static`, instalado con `--no-save` → no toca `package.json`). Menú: 4,9 MB → 1,8 MB (−62%); juego: 728 → 364 KB. Mismos nombres, `-map_metadata -1`. Verificado en runtime: cargan (readyState≥2), reproducen y avanzan bien, duración correcta (156 s).
+- Con esto + las imágenes (v1.48.4/.5), `assets/` pasó de **~31 MB → 8 MB**.
 
 ## ✅ Completado v1.48.6 - Antialias off en celular + limpieza backlog
 

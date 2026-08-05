@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.48.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.7)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.6 (Actual)
+### v1.48.7 (Actual)
+> **Audio comprimido: música de menú 4,9 MB → 1,8 MB**
+
+- 🎵 **Música re-encodeada** de 256 kbps a **96 kbps estéreo** con ffmpeg: `musica_menu.mp3` 4,9 MB → **1,8 MB** (−62%), `musica_juego` 728 KB → 364 KB. Verificado en runtime: cargan y reproducen bien
+- 📉 Con esto, `assets/` completo pasó de **~31 MB → 8 MB** (imágenes + audio)
+
+### v1.48.6
 > **Antialias off en celular (ahorra GPU) + limpieza del backlog**
 
 - 🎨 **Antialias condicional**: `Game.init` ahora usa `antialias: !modoTouch` → ON en PC (bordes de vectores suaves), **OFF en celular** para ahorrar fill-rate en la GPU del G04. Impacto visual mínimo (casi todo son sprites)
