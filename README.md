@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.48.9-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.48.9)
+[![Versión](https://img.shields.io/badge/Versión-v1.49.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.0)
 
 ---
 
@@ -361,7 +361,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.48.9 (Actual)
+### v1.49.0 (Actual)
+> **Tutorial móvil, avisos de ganancias y optimizaciones de juego**
+
+- 📱 Tutorial de 5 páginas ajustado para celular apaisado, con controles adaptados al modo seleccionado y botón real de mejoras
+- ✨ Indicadores bajo la nave para puntos y partículas recolectadas, con el nuevo `pboids_Icon.png` y apilado sin superposiciones
+- ⚡ Menos asignaciones por frame en Boids, fuerzas calculadas en una pasada y limpieza duplicada de enemigos eliminada
+- 🔊 Sonido al destruir naves enemigas contra asteroides y un único efecto de explosión PNG, con fallback procedural si falta la textura
+- 🤖 Android preparado como `versionCode 8` / `versionName 1.49.0` para regenerar el AAB
+
+### v1.48.9
 > **Mundo toroidal más grande (3× → 5×): explosiones que se veían "sin animación"**
 
 - 🌐 El mundo pasó de **3× a 5×** la pantalla (`Game.js`). Aleja la "costura" del toroide, así los enemigos mueren más adentro de la vista y **se ven sus explosiones** (antes, cerca del borde del mundo, morían off-screen y la explosión no se veía). Verificado: FPS estable (no agrega carga — las entidades están capadas y spawnean relativas a la nave)

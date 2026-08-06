@@ -1,7 +1,7 @@
 # 📋 GDD - Historial de Versiones
 
 **Proyecto:** Jugando en el Espacio  
-**Versión actual:** v1.12.0 (ACTUAL)
+**Versión actual:** v1.49.0 (ACTUAL)
 **Curso:** Programación de Videojuegos 1 - UNAHUR  
 **Profesor:** Facundo Saiegh  
 **Desarrollador:** Braian Zapater
@@ -10,7 +10,18 @@
 
 ## 📜 Registro de Commits por Versión
 
-### v1.12.0 (ACTUAL) - Botones con imágenes PNG
+### v1.49.0 (ACTUAL) - Tutorial móvil, indicadores y rendimiento
+> **Tutorial adaptable · controles contextuales · avisos de ganancias · menos asignaciones por frame**
+
+| Commit | Descripción |
+|--------|-------------|
+| - | Tutorial de 5 pasos adaptado a celular y al modo de control seleccionado |
+| - | Indicadores flotantes de puntos y partículas con icono dedicado |
+| - | Optimización de Boids y limpieza de enemigos duplicada eliminada |
+| - | Sonido de destrucción de naves y fallback correcto para explosiones |
+| - | Firma de créditos y paquete Android actualizados a v1.49.0 / versionCode 8 |
+
+### v1.12.0 - Botones con imágenes PNG
 > **Todos los botones migrados de CSS a imágenes PNG · 11 assets nuevos · proporción unificada**
 
 | Commit | Descripción |

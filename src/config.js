@@ -9,6 +9,11 @@
  */
 export const CONFIG = {
 
+    // === APLICACIÓN ===
+    APP: {
+        VERSION: '1.49.0',               // Versión visible en la pantalla de créditos
+    },
+
     // === MUNDO / ESCENARIO ===
     MUNDO: {
         ANCHO: 1080,                    // Ancho del área de juego (px)
@@ -50,6 +55,19 @@ export const CONFIG = {
         // todos los offsets internos se multiplican por la escala, sus elementos
         // quedan un 25% más grandes Y más separados. En PC (sin táctil) = 1 (igual).
         BOOST_TACTIL: 1.25,
+
+        // Avisos flotantes que aparecen debajo de la nave al ganar recursos.
+        INDICADORES_GANANCIA: {
+            FUENTE: 'Comic Sans MS, Comic Sans, cursive',
+            TAM_TEXTO: 12,                  // Tamaño compacto para celular y escritorio
+            DURACION: 1.2,                  // Segundos hasta desaparecer
+            AGRUPAR_PARTICULAS: 0.16,       // Junta capturas cercanas en un solo +N
+            MAX_VISIBLES: 6,                // Evita acumular demasiados textos
+            OFFSET_PARTICULAS: 58,          // Distancia bajo la nave (fuera del escudo)
+            OFFSET_PUNTOS: 88,              // Segunda linea, debajo de las particulas
+            SEPARACION_VERTICAL: 28,         // Espacio mínimo entre avisos simultáneos
+            DESPLAZAMIENTO: 24,             // Recorrido hacia abajo durante el fundido
+        },
     },
 
     // === JUGADOR (nave) ===

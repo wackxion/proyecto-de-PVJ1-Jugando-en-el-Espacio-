@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
-**Última actualización:** 03/08/2026  
-**Versión:** v1.48.9 (ACTUAL)
+**Última actualización:** 05/08/2026<br>
+**Versión:** v1.49.0 (ACTUAL)
 
 ---
 
@@ -19,9 +19,13 @@
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-> **Estado mobile (03/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). Se está subiendo el `.aab` **versionCode 6** (v1.48.6: todo lo de rendimiento + fixes + assets comprimidos). **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
+> **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 8 / versionName 1.49.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
+
+- **Rendimiento del HUD PixiJS (pendiente, prioridad MEDIA)**: evitar recrear funciones, textos y geometría en cada frame cuando los valores no cambiaron. Cachear `infoAdicional`, actualizar los diagnósticos a menor frecuencia y redibujar barras, precios, niveles e iconos solamente cuando cambie su estado. Mantener por separado las animaciones que sí necesitan avanzar cada frame.
+
+- **Pool de canales para efectos de sonido (pendiente, prioridad MEDIA)**: `SoundManager` clona actualmente un `HTMLAudioElement` en cada reproducción. Evaluar un pool fijo de 4–8 canales por efecto frecuente (especialmente disparo, impacto y destrucción), o Web Audio con buffers decodificados, para reducir asignaciones y pausas de memoria en Android.
 
 - **Joystick — Opción B (twin-stick, alternativa al modelo actual)**: stick izq **mueve** la nave / stick der **apunta y dispara**. Se siente muy bien con mando, pero **cambia el modelo de movimiento** (la nave se movería hacia el stick izq, no hacia donde apunta) → más trabajo e inconsistente con teclado/mouse. La Opción A ya está hecha (v1.38.0); esto es solo si se quiere el feel puro twin-stick.
 - **Pausa con el joystick**: hoy la pausa quedó fuera del mapeo del mando porque es un *toggle* y al mantener el botón se dispararía en cada frame. Se puede sumar con **detección de flanco** (solo al presionar, no al mantener).
@@ -29,9 +33,7 @@
 - **Destrucciones "sin animación" fuera de vista + costura del toroide (Opción A HECHA en v1.48.9; queda opcional la Opción B)**. Síntoma reportado: asteroides/naves que "se destruyen sin la animación de explosión", sobre todo **disparando cerca del borde** y **cuando hay muchos juntos**. Diagnóstico (verificado en runtime): **NO es que falte crear la animación** — se probó ULTI con 25 asteroides pegados → 26 destruidos = 26 explosiones creadas, y las explosiones tienen `cullable=false` (siempre se renderizan). Lo que pasa: la explosión se dibuja **donde estaba el enemigo**; si el enemigo muere **fuera de la vista** (proyectil que sale de cuadro, asteroides que chocan entre sí off-screen, o al otro lado de la **costura del toroide** que no tiene render "fantasma"), la explosión también ocurre off-screen y no se ve. El zoom 0.70 (aplicado en v1.48.0) no lo causó, solo lo hizo más notorio (se ve más área). 
   - ✅ **Opción A — HECHA (v1.48.9):** el mundo se agrandó de **3× a 5×** la pantalla (`Game.js`). Aleja la costura y los enemigos mueren más adentro de la vista → se ven sus explosiones. Verificado: FPS estable (no agrega carga). Si aún se ve algún caso raro cerca del borde, se puede subir a 6× o encarar la Opción B.
   - **Opción B (mejora futura, más trabajo):** renderizado "fantasma" en la costura — dibujar copias de las entidades cerca de los bordes del mundo para que la costura sea invisible y todo (incluidas explosiones) se vea donde corresponde. Es lo "correcto" para un toroide pero toca el render de cada entidad.
-  - Nota extra: el **radio de la ULTI** ya se ajustó al zoom (`/CONFIG.CAMARA.ZOOM`) en v1.48.2. **Falta** el **límite de culling** (`actualizarEnemigos`/`limpiarEnemigosLejanos`, `hypot(anchoJuego,altoJuego)*1.4`), que tampoco contempla el zoom — de todos modos hoy queda por encima de la vista visible, así que es menor. Si se quiere afinar, multiplicarlo por `1/CONFIG.CAMARA.ZOOM`.
-
-- **Rehacer el tutorial (anotado el 03/08/2026, definir alcance)**. El tutorial actual (`UIManager.mostrarTutorial`, `src/ui/UIManager.js:1139`) es un modal DOM paso-a-paso con dos tablas: filas de controles (mouse/teclado/joystick/celular) + las 8 mejoras con sus íconos. Funciona pero está algo denso/desactualizado. **A definir** cuándo lo encaremos: qué se quiere (¿más visual/interactivo?, ¿pasos con imágenes o gifs?, ¿mencionar lo nuevo: zoom de cámara y auto-apuntado en touch/joystick?, ¿separar PC vs celular?). Respetar paleta tinta-birome y mantener el modelo de PC.
+  - Nota extra: el **radio de la ULTI** ya se ajustó al zoom (`/CONFIG.CAMARA.ZOOM`) en v1.48.2. **Falta** afinar el **límite de culling** de `actualizarEnemigos` (`hypot(anchoJuego,altoJuego)*1.4`), que todavía no contempla el zoom. El cálculo duplicado de limpieza se eliminó en v1.49.0 y hoy el límite queda por encima de la vista visible, así que es una mejora menor.
 
 - **AdMob `app-ads.txt` (NO URGENTE — anotado el 03/08/2026)**.
   - **Qué es y para qué:** archivo de texto estándar (IAB) que declara **qué redes de anuncios están autorizadas a vender el inventario publicitario de la app**. Es **anti-fraude**: evita que un tercero se haga pasar por la app y "revenda" tu inventario. Protege los **ingresos por anuncios** cuando la app tiene tráfico real.
@@ -54,6 +56,16 @@
   5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
+
+## ✅ Completado v1.49.0 - Tutorial móvil, indicadores y rendimiento
+
+- **Tutorial adaptable:** mantiene sus 5 páginas, entra en celulares apaisados y permite desplazamiento interno cuando falta altura. La página de controles muestra únicamente el modo elegido (mouse/teclado reasignable, joystick o touch con layout clásico/invertido). La página de mejoras usa el botón real de mejoras en lugar de indicar la tecla `P`.
+- **Avisos bajo la nave:** al sumar puntaje aparece `+N Puntos`; las partículas recolectadas se agrupan y muestran `+N` con `assets/pboids_Icon.png`. Usan Comic Sans a 12 px, color azul claro, sin borde ni negrita y se apilan verticalmente para no superponerse.
+- **Boids optimizados:** grilla con claves numéricas, celdas reutilizadas, fuerzas calculadas en una sola pasada y comparaciones con distancia al cuadrado. Reduce arreglos, objetos temporales y raíces cuadradas durante cada frame.
+- **Limpieza de enemigos:** el límite de distancia se calcula una vez por actualización, se eliminó el segundo recorrido duplicado y se limpian referencias de naves ya destruidas en partidas largas.
+- **Correcciones de destrucción:** las naves enemigas destruidas al chocar con asteroides reproducen su sonido; los asteroides usan la explosión PNG y reservan las partículas procedurales como fallback cuando falta la textura.
+- **Versión y Android:** la versión visible del menú y la firma de créditos salen de `CONFIG.APP.VERSION`. Release preparada como `v1.49.0`, `versionCode 8`, con `www` y assets Android sincronizados para regenerar el AAB.
+- **Pendientes conservados:** optimización de actualizaciones del HUD PixiJS y pool de canales de audio.
 
 ## ✅ Completado v1.48.9 - Mundo toroidal 3× → 5×
 

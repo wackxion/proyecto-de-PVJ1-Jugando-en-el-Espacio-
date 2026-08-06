@@ -34,7 +34,7 @@ import { CONFIG } from '../../config.js';
 
 // === MÓDULOS REFACTORIZADOS ===
 import { crearProyectil, actualizarProyectiles, actualizarProyectilesJugador, actualizarProyectilesEnemigos, procesarColisionesProyectiles } from './GameProjectiles.js';
-import { generarEnemigo, actualizarEnemigos, generarNaveEnemiga, actualizarNavesEnemigas, actualizarNavesEnemigasCompleto, verificarPosicionLibre, actualizarGeneracion, procesarColisionesJugador, procesarColisionesEnemigos, limpiarEnemigosLejanos } from './GameEnemies.js';
+import { generarEnemigo, actualizarEnemigos, generarNaveEnemiga, actualizarNavesEnemigas, actualizarNavesEnemigasCompleto, verificarPosicionLibre, actualizarGeneracion, procesarColisionesJugador, procesarColisionesEnemigos, procesarColisionesMiniEspeciales } from './GameEnemies.js';
 import { actualizarHabilidadCohetes, actualizarHabilidadDevorador, actualizarHabilidadPropulsor } from './GameSkills.js';
 import { activarUlti, actualizarUlti, actualizarEfectosImpacto } from './GameEffects.js';
 import { crearParticulaFuera, actualizarParticulasBoid, resetearContadorCapturadas, actualizarSistemaBoid } from './GameBoids.js';
@@ -331,9 +331,20 @@ export class Game {
             texturasPboids.push(PIXI.Texture.WHITE);
         }
 
-        // Usar Pboids2 como textura de partícula Boid
+        // Cargar el icono dedicado que muestra el HUD al recolectar partículas.
+        let texturaIconoParticulaBoid = null;
+        try {
+            texturaIconoParticulaBoid = await PIXI.Assets.load('assets/pboids_Icon.png');
+        } catch (e) {
+            // El HUD usará Pboids2 o el primer frame como respaldo.
+        }
+
+        // Usar el primer frame como textura base de la animación Boid.
         this.texturaParticulaBoid = texturasPboids[0] || PIXI.Texture.WHITE;
         this.texturasPboids = texturasPboids;
+        this.texturaIconoParticulaBoid = texturaIconoParticulaBoid
+            || texturasPboids[1]
+            || this.texturaParticulaBoid;
 
         // Textura del proyectil cohete. Primero se crea un rectángulo rojo de
         // FALLBACK y luego se intenta cargar el sprite real; si el archivo carga
@@ -2136,8 +2147,8 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
             // === ACTUALIZAR NAVES ENEMIGAS - usando módulo ===
             actualizarNavesEnemigasCompleto(this, delta);
 
-            // Eliminar enemigos que están muy lejos de la pantalla (fuera de vista)
-            limpiarEnemigosLejanos(this);
+            // Colisiones de asteroides con mini especiales que orbitan al jugador
+            procesarColisionesMiniEspeciales(this);
 
             // === ACTUALIZAR EFECTO ULTI - usando módulo ===
             actualizarUlti(this, delta);

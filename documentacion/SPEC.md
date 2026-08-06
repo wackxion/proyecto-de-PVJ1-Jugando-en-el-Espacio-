@@ -3,7 +3,7 @@
 ## 1. Información del Proyecto
 
 - **Nombre del Juego:** Jugando en el Espacio
-- **Versión:** v1.12.0 (ACTUAL)
+- **Versión:** v1.49.0 (ACTUAL)
 - **Curso:** Programación de Videojuegos 1 - UNAHUR
 - **Profesor:** Facundo Saiegh
 - **Integrantes:** Braian Zapater
@@ -536,5 +536,4 @@ El HUD se renderiza completamente en el canvas de PixiJS mediante la clase `Pixi
 ---
 
 *Documento actualizado para v1.4.6*
-
 

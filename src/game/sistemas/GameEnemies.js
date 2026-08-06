@@ -282,7 +282,10 @@ export function actualizarEnemigos(game, delta) {
     if (!game.enemigos || !Array.isArray(game.enemigos)) {
         return;
     }
-    
+
+    // La distancia máxima depende de la pantalla, no de cada asteroide.
+    const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
+
     // Actualizar enemigos normales
     for (let i = game.enemigos.length - 1; i >= 0; i--) {
         const enemy = game.enemigos[i];
@@ -309,14 +312,8 @@ export function actualizarEnemigos(game, delta) {
         // al jugador, no a los bordes de la pantalla).
         // Distancia TOROIDAL: en mundo toroidal, un enemigo "detrás" por el wrap está
         // cerca aunque en línea recta esté lejos → no se lo culea por error.
-        const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
         if (game.jugador && game.distanciaToroidal(enemy.x, enemy.y, game.jugador.x, game.jugador.y) > limite) {
-
-            // Destruir sprite
-            if (enemy.imagen && enemy.imagen.parent) {
-                enemy.imagen.parent.removeChild(enemy.imagen);
-            }
-            enemy.active = false;
+            enemy.destroy();
             game.enemigos.splice(i, 1);
         }
     }
@@ -411,7 +408,12 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
     for (let i = game.enemigosNaves.length - 1; i >= 0; i--) {
         const naveEnemiga = game.enemigosNaves[i];
         
-        if (!naveEnemiga.active) continue;
+        // Quitar referencias destruidas para que la lista no crezca durante
+        // partidas largas. Algunas habilidades destruyen la nave fuera de este sistema.
+        if (!naveEnemiga || !naveEnemiga.active) {
+            game.enemigosNaves.splice(i, 1);
+            continue;
+        }
         
         // Actualizar la nave enemiga
         naveEnemiga.update(delta);
@@ -473,6 +475,9 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                 
                 // Destruir la nave enemiga
                 naveEnemiga.destroy();
+                if (game.gestorSonido) {
+                    game.gestorSonido.reproducir('destruccionNave');
+                }
                 game.enemigos.splice(j, 1);
                 break;
             }
@@ -634,33 +639,16 @@ export function procesarColisionesEnemigos(game) {
 }
 
 /**
- * Elimina enemigos que están muy lejos de la pantalla
+ * Procesa las colisiones entre asteroides normales y mini especiales en órbita.
+ * La limpieza por distancia ya se realiza dentro de `actualizarEnemigos`.
  * 
  * @param {Game} game - Referencia al objeto Game principal
  */
-export function limpiarEnemigosLejanos(game) {
-    if (!game.enemigos || !Array.isArray(game.enemigos)) {
+export function procesarColisionesMiniEspeciales(game) {
+    if (!Array.isArray(game.enemigos) || !Array.isArray(game.enemigosSpeciales)) {
         return;
     }
-    
-    const limite = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
 
-    for (let i = game.enemigos.length - 1; i >= 0; i--) {
-        const enemy = game.enemigos[i];
-
-        if (game.jugador && game.distanciaToroidal(enemy.x, enemy.y, game.jugador.x, game.jugador.y) > limite) {
-            
-            const enemyVisual = enemy.imagen || enemy.sprite;
-            if (enemyVisual && enemyVisual.parent) {
-                enemyVisual.parent.removeChild(enemyVisual);
-            }
-            
-            enemy.destroy();
-            game.enemigos.splice(i, 1);
-        }
-    }
-    
-    // Verificar colisiones entre enemigos normales y especiales (mini orbitando)
     for (let i = 0; i < game.enemigos.length; i++) {
         const enemy = game.enemigos[i];
         if (!enemy.active) continue;

@@ -160,6 +160,17 @@ export class PixiHUD {
 
         // Estado
         this._escudosAnterior = 100;
+
+        // Indicadores temporales de ganancias, dibujados debajo de la nave.
+        // Guardamos los totales anteriores para detectar el valor exacto sumado
+        // sin tener que duplicar llamadas en cada sistema que otorga puntos.
+        this.contenedorIndicadores = null;
+        this._indicadoresGanancia = [];
+        this._puntuacionAnteriorIndicadores = Number(this.game?.puntuacion) || 0;
+        this._particulasAnterioresIndicadores = Number(this.game?.particulasCapturadas) || 0;
+        this._particulasPendientesIndicador = 0;
+        this._timerParticulasIndicador = 0;
+
         this.inicializado = false;
 
         // DIFERIR inicialización al próximo frame para asegurar que el canvas
@@ -195,6 +206,12 @@ export class PixiHUD {
         this.contenedorEscudo = new PIXI.Container();
         this.contenedorEscudo.sortableChildren = true;
 
+        // Avisos de puntos y particulas. Vive en coordenadas de pantalla como el
+        // escudo curvo, pero cada frame se posiciona debajo de la nave.
+        this.contenedorIndicadores = new PIXI.Container();
+        this.contenedorIndicadores.sortableChildren = true;
+        this.contenedorIndicadores.zIndex = 30;
+
         // Columnas laterales de habilidades (rediseño del HUD)
         this.contenedorIzq = new PIXI.Container();
         this.contenedorIzq.sortableChildren = true;
@@ -211,6 +228,7 @@ export class PixiHUD {
         this.container.addChild(this.contenedorDer);
         this.container.addChild(this.contenedorTop);
         this.container.addChild(this.contenedorEscudo);
+        this.container.addChild(this.contenedorIndicadores);
     }
 
     /**
@@ -426,6 +444,8 @@ export class PixiHUD {
      * @public
      */
     reinicializar() {
+        this._limpiarIndicadoresGanancia();
+
         // Destruir elementos actuales si existen
         if (this.container) {
             try {
@@ -450,6 +470,11 @@ export class PixiHUD {
         this.puntuacionText = null;
         this.scorePanel = null;
         this._escudosAnterior = 100;
+        this.contenedorIndicadores = null;
+        this._puntuacionAnteriorIndicadores = Number(this.game?.puntuacion) || 0;
+        this._particulasAnterioresIndicadores = Number(this.game?.particulasCapturadas) || 0;
+        this._particulasPendientesIndicador = 0;
+        this._timerParticulasIndicador = 0;
         this.inicializado = false;
 
         // Recrear los grupos anclados (removeChildren los eliminó), recalcular
@@ -1748,6 +1773,7 @@ export class PixiHUD {
             () => this._actualizarIconoTiempo(),
             () => this._actualizarContadorDevorador(),
             () => this._actualizarEscudoCurvo(),
+            () => this._actualizarIndicadoresGanancia(),
             () => this._actualizarPreciosMejora(),
             () => this._actualizarIluminacionIconos(),
         ];
@@ -1932,6 +1958,211 @@ export class PixiHUD {
         if (!this.contadorDevoradorText || !this.game) return;
         const cantidad = this.game.particulasCapturadas || 0;
         this.contadorDevoradorText.text = cantidad.toString();
+    }
+
+    // ========================================================================
+    // INDICADORES FLOTANTES DE PUNTOS Y PARTICULAS
+    // ========================================================================
+
+    /**
+     * Detecta cuanto aumentaron el puntaje y las particulas desde el frame
+     * anterior. Las particulas se agrupan durante una ventana corta para mostrar,
+     * por ejemplo, un solo "+10" cuando el Devorador captura varias seguidas.
+     * @private
+     */
+    _actualizarIndicadoresGanancia() {
+        const game = this.game;
+        if (!game || !this.contenedorIndicadores) return;
+
+        const cfg = (CONFIG.HUD && CONFIG.HUD.INDICADORES_GANANCIA) || {};
+        const delta = Math.min(0.05, Math.max(0, (this.app?.ticker?.deltaMS || 16.67) / 1000));
+        const puntuacion = Number(game.puntuacion) || 0;
+        const particulas = Number(game.particulasCapturadas) || 0;
+
+        // Una baja de puntaje indica que empezo una partida nueva.
+        if (puntuacion < this._puntuacionAnteriorIndicadores) {
+            this._limpiarIndicadoresGanancia();
+            this._particulasPendientesIndicador = 0;
+            this._timerParticulasIndicador = 0;
+        } else {
+            const puntosGanados = puntuacion - this._puntuacionAnteriorIndicadores;
+            if (puntosGanados > 0) this._crearIndicadorPuntos(puntosGanados);
+        }
+        this._puntuacionAnteriorIndicadores = puntuacion;
+
+        const particulasGanadas = particulas - this._particulasAnterioresIndicadores;
+        if (particulasGanadas > 0) {
+            this._particulasPendientesIndicador += particulasGanadas;
+            if (this._timerParticulasIndicador <= 0) {
+                this._timerParticulasIndicador = cfg.AGRUPAR_PARTICULAS || 0.16;
+            }
+        } else if (particulasGanadas < 0) {
+            // Al comprar una mejora baja el saldo: no es una recoleccion.
+            this._particulasPendientesIndicador = 0;
+            this._timerParticulasIndicador = 0;
+        }
+        this._particulasAnterioresIndicadores = particulas;
+
+        if (this._timerParticulasIndicador > 0) {
+            this._timerParticulasIndicador -= delta;
+            if (this._timerParticulasIndicador <= 0 && this._particulasPendientesIndicador > 0) {
+                this._crearIndicadorParticulas(this._particulasPendientesIndicador);
+                this._particulasPendientesIndicador = 0;
+            }
+        }
+
+        this._animarIndicadoresGanancia(delta, cfg);
+    }
+
+    /** Crea el texto "+N Puntos". @private */
+    _crearIndicadorPuntos(cantidad) {
+        const grupo = new PIXI.Container();
+        const cfg = (CONFIG.HUD && CONFIG.HUD.INDICADORES_GANANCIA) || {};
+        const texto = new PIXI.Text({
+            text: `+${cantidad} Puntos`,
+            style: {
+                fontFamily: cfg.FUENTE || 'Comic Sans MS, Comic Sans, cursive',
+                fontSize: cfg.TAM_TEXTO || 12,
+                fontWeight: 'normal',
+                fill: 0xDCEBFF,
+            },
+        });
+        texto.anchor.set(0.5);
+        grupo.addChild(texto);
+        this._registrarIndicadorGanancia(grupo, 'puntos');
+    }
+
+    /** Crea "+N" seguido por el icono real de las particulas BOID. @private */
+    _crearIndicadorParticulas(cantidad) {
+        const grupo = new PIXI.Container();
+        const cfg = (CONFIG.HUD && CONFIG.HUD.INDICADORES_GANANCIA) || {};
+        const texto = new PIXI.Text({
+            text: `+${cantidad}`,
+            style: {
+                fontFamily: cfg.FUENTE || 'Comic Sans MS, Comic Sans, cursive',
+                fontSize: cfg.TAM_TEXTO || 12,
+                fontWeight: 'normal',
+                fill: 0xDCEBFF,
+            },
+        });
+        texto.anchor.set(0, 0.5);
+
+        // Usar el icono dedicado; Pboids2 y el primer frame quedan como respaldo.
+        const texturaIcono = this.game?.texturaIconoParticulaBoid
+            || this.game?.texturasPboids?.[1]
+            || this.game?.texturaParticulaBoid
+            || PIXI.Texture.WHITE;
+        const icono = new PIXI.Sprite(texturaIcono);
+        icono.anchor.set(0.5);
+        icono.width = 24;
+        icono.height = 24;
+
+        const separacion = 7;
+        const anchoTotal = texto.width + separacion + icono.width;
+        texto.x = -anchoTotal / 2;
+        icono.x = texto.x + texto.width + separacion + icono.width / 2;
+        grupo.addChild(texto, icono);
+        this._registrarIndicadorGanancia(grupo, 'particulas');
+    }
+
+    /** Agrega un aviso al contenedor y respeta el limite de elementos. @private */
+    _registrarIndicadorGanancia(grupo, tipo) {
+        if (!grupo || !this.contenedorIndicadores) return;
+        const cfg = (CONFIG.HUD && CONFIG.HUD.INDICADORES_GANANCIA) || {};
+        const max = cfg.MAX_VISIBLES || 6;
+
+        while (this._indicadoresGanancia.length >= max) {
+            const viejo = this._indicadoresGanancia.shift();
+            if (viejo?.grupo) {
+                viejo.grupo.removeFromParent();
+                viejo.grupo.destroy({ children: true });
+            }
+        }
+
+        grupo.scale.set(0.82);
+        this.contenedorIndicadores.addChild(grupo);
+        this._indicadoresGanancia.push({
+            grupo,
+            tipo,
+            edad: 0,
+            duracion: cfg.DURACION || 1.2,
+        });
+    }
+
+    /** Sigue a la nave, apila los avisos hacia abajo y los desvanece. @private */
+    _animarIndicadoresGanancia(delta, cfg) {
+        const jugador = this.game?.jugador;
+        const mundo = this.game?.mundo;
+        if (!jugador || !jugador.active || !mundo) {
+            this.contenedorIndicadores.visible = false;
+            return;
+        }
+        this.contenedorIndicadores.visible = true;
+
+        const zoom = mundo.scale.x || 1;
+        const naveX = mundo.x + jugador.x * zoom;
+        const naveY = mundo.y + jugador.y * zoom;
+        const recorrido = cfg.DESPLAZAMIENTO || 24;
+        const separacion = cfg.SEPARACION_VERTICAL || 28;
+
+        // Primero avanzar el tiempo y retirar los avisos que terminaron.
+        for (let i = this._indicadoresGanancia.length - 1; i >= 0; i--) {
+            const indicador = this._indicadoresGanancia[i];
+            indicador.edad += delta;
+            const progreso = Math.min(1, indicador.edad / indicador.duracion);
+
+            if (progreso >= 1) {
+                indicador.grupo.removeFromParent();
+                indicador.grupo.destroy({ children: true });
+                this._indicadoresGanancia.splice(i, 1);
+            }
+        }
+
+        // Los más nuevos quedan cerca de la nave. Los anteriores se desplazan
+        // hacia abajo respetando la separación, incluso si tienen distinta edad.
+        let siguienteOffset = cfg.OFFSET_PARTICULAS || 58;
+        for (let i = this._indicadoresGanancia.length - 1; i >= 0; i--) {
+            const indicador = this._indicadoresGanancia[i];
+            if (indicador.tipo !== 'particulas') continue;
+            siguienteOffset = this._posicionarIndicadorGanancia(
+                indicador, naveX, naveY, zoom,
+                cfg.OFFSET_PARTICULAS || 58,
+                siguienteOffset, recorrido, separacion
+            );
+        }
+
+        siguienteOffset = Math.max(siguienteOffset, cfg.OFFSET_PUNTOS || 88);
+        for (let i = this._indicadoresGanancia.length - 1; i >= 0; i--) {
+            const indicador = this._indicadoresGanancia[i];
+            if (indicador.tipo !== 'puntos') continue;
+            siguienteOffset = this._posicionarIndicadorGanancia(
+                indicador, naveX, naveY, zoom,
+                cfg.OFFSET_PUNTOS || 88,
+                siguienteOffset, recorrido, separacion
+            );
+        }
+    }
+
+    /** Posiciona un aviso y devuelve el offset mínimo para el siguiente. @private */
+    _posicionarIndicadorGanancia(indicador, naveX, naveY, zoom, offsetBase, offsetMinimo, recorrido, separacion) {
+        const progreso = Math.min(1, indicador.edad / indicador.duracion);
+        const offset = Math.max(offsetBase + recorrido * progreso, offsetMinimo);
+
+        indicador.grupo.position.set(naveX, naveY + offset * zoom);
+        indicador.grupo.scale.set(0.82 + 0.18 * Math.min(1, progreso / 0.12));
+        indicador.grupo.alpha = progreso < 0.68 ? 1 : Math.max(0, (1 - progreso) / 0.32);
+
+        return offset + separacion;
+    }
+
+    /** Elimina todos los avisos activos y reinicia su lista. @private */
+    _limpiarIndicadoresGanancia() {
+        for (const indicador of this._indicadoresGanancia || []) {
+            if (!indicador?.grupo) continue;
+            indicador.grupo.removeFromParent();
+            indicador.grupo.destroy({ children: true });
+        }
+        this._indicadoresGanancia = [];
     }
 
     /**

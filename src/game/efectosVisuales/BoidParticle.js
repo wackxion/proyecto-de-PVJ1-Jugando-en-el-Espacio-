@@ -64,22 +64,32 @@ export class BoidParticle extends GameObject {
         this.fuerzaFuga = CONFIG.BOIDS.FUERZA_FUGA;
         this.rangoVision = CONFIG.BOIDS.RANGO_VISION;
         this.rangoFuga = CONFIG.BOIDS.RANGO_FUGA;
+
+        // Resultados reutilizables: evitan crear vectores temporales en cada frame.
+        this._separacionX = 0;
+        this._separacionY = 0;
+        this._cohesionX = 0;
+        this._cohesionY = 0;
+        this._alineacionX = 0;
+        this._alineacionY = 0;
+        this._fugaX = 0;
+        this._fugaY = 0;
     }
     
     /**
      * Actualizar el comportamiento Boid
      * @param {number} delta - Tiempo transcurrido
-     * @param {Array} vecinos - Array de partículas vecinas
+     * @param {Object} contextoVecinos - Celdas cercanas y cantidad de celdas ocupadas
      * @param {Object} jugador - Nave del jugador para huir
      * @param {Array} enemigos - Naves enemigas para huir
      * @param {Array} asteroides - Asteroides para rebotar
      * @param {number} anchoJuego - Ancho del juego
      * @param {number} altoJuego - Alto del juego
      */
-    actualizar(delta, vecinos, jugador = null, enemigos = [], asteroides = [], anchoJuego = 800, altoJuego = 600) {
+    actualizar(delta, contextoVecinos, jugador = null, enemigos = [], asteroides = [], anchoJuego = 800, altoJuego = 600) {
         if (!this.active) return;
 
-        // Guardar el tamaño del mundo para los cálculos toroidales (calcularFuga).
+        // Guardar el tamaño del mundo para los cálculos toroidales de fuga.
         this._wMundo = anchoJuego; this._hMundo = altoJuego;
         
         // Animación: 1,2,3,4,3,2,1 en bucle
@@ -113,49 +123,50 @@ export class BoidParticle extends GameObject {
             return;
         }
         
-        // Calcular fuerzas Boids
-        const fuerzaSeparacion = this.calcularSeparacion(vecinos);
-        const fuerzaCohesion = this.calcularCohesion(vecinos);
-        const fuerzaAlineacion = this.calcularAlineacion(vecinos);
+        // Calcular separación, cohesión y alineación recorriendo los vecinos una sola vez.
+        this._calcularFuerzasBoid(contextoVecinos);
         
         // Fuerza de huir de la nave (jugador)
-        let fuerzaFugaNave = { x: 0, y: 0 };
+        let fugaNaveX = 0;
+        let fugaNaveY = 0;
         if (jugador && jugador.active) {
-            fuerzaFugaNave = this.calcularFuga(jugador);
+            this._calcularFuga(jugador);
+            fugaNaveX = this._fugaX;
+            fugaNaveY = this._fugaY;
         }
         
         // Fuerza de huir de las naves enemigas
-        let fuerzaFugaEnemiga = { x: 0, y: 0 };
-        for (const enemigo of enemigos) {
+        let fugaEnemigaX = 0;
+        let fugaEnemigaY = 0;
+        for (let i = 0; i < enemigos.length; i++) {
+            const enemigo = enemigos[i];
             if (enemigo && enemigo.active) {
-                const fuga = this.calcularFuga(enemigo, 80);
-                fuerzaFugaEnemiga.x += fuga.x;
-                fuerzaFugaEnemiga.y += fuga.y;
+                this._calcularFuga(enemigo, 80);
+                fugaEnemigaX += this._fugaX;
+                fugaEnemigaY += this._fugaY;
             }
         }
         
         // Aplicar fuerzas a la velocidad
-        this.velX += fuerzaSeparacion.x * this.fuerzaSeparacion;
-        this.velY += fuerzaSeparacion.y * this.fuerzaSeparacion;
-        
-        this.velX += fuerzaCohesion.x * this.fuerzaCohesion;
-        this.velY += fuerzaCohesion.y * this.fuerzaCohesion;
-        
-        this.velX += fuerzaAlineacion.x * this.fuerzaAlineacion;
-        this.velY += fuerzaAlineacion.y * this.fuerzaAlineacion;
+        this.velX += this._separacionX * this.fuerzaSeparacion;
+        this.velY += this._separacionY * this.fuerzaSeparacion;
+        this.velX += this._cohesionX * this.fuerzaCohesion;
+        this.velY += this._cohesionY * this.fuerzaCohesion;
+        this.velX += this._alineacionX * this.fuerzaAlineacion;
+        this.velY += this._alineacionY * this.fuerzaAlineacion;
         
         // Aplicar fuerza de fuga
-        this.velX += fuerzaFugaNave.x * this.fuerzaFuga;
-        this.velY += fuerzaFugaNave.y * this.fuerzaFuga;
-        
-        this.velX += fuerzaFugaEnemiga.x * this.fuerzaFuga;
-        this.velY += fuerzaFugaEnemiga.y * this.fuerzaFuga;
+        this.velX += fugaNaveX * this.fuerzaFuga;
+        this.velY += fugaNaveY * this.fuerzaFuga;
+        this.velX += fugaEnemigaX * this.fuerzaFuga;
+        this.velY += fugaEnemigaY * this.fuerzaFuga;
         
         // Limitar velocidad máxima
-        const velocidad = Math.sqrt(this.velX * this.velX + this.velY * this.velY);
-        if (velocidad > this.velocidadMax) {
-            this.velX = (this.velX / velocidad) * this.velocidadMax;
-            this.velY = (this.velY / velocidad) * this.velocidadMax;
+        const velocidadCuadrada = this.velX * this.velX + this.velY * this.velY;
+        if (velocidadCuadrada > this.velocidadMax * this.velocidadMax) {
+            const escalaVelocidad = this.velocidadMax / Math.sqrt(velocidadCuadrada);
+            this.velX *= escalaVelocidad;
+            this.velY *= escalaVelocidad;
         }
         
         // Guardar posición anterior para detectar colisiones
@@ -170,7 +181,7 @@ export class BoidParticle extends GameObject {
         this.verificarReboteAsteroides(asteroides, prevX, prevY);
         
         // Verificar colisiones con otras partículas Boid
-        this.verificarColisionParticulas(vecinos);
+        this._verificarColisionParticulas(contextoVecinos);
         
         this._actualizarVisualMovimiento();
         
@@ -192,8 +203,8 @@ export class BoidParticle extends GameObject {
         this.imagen.x = this.x;
         this.imagen.y = this.y;
 
-        const velocidad = Math.hypot(this.velX, this.velY);
-        if (velocidad > 1) {
+        const velocidadCuadrada = this.velX * this.velX + this.velY * this.velY;
+        if (velocidadCuadrada > 1) {
             this.imagen.rotation = Math.atan2(this.velY, this.velX);
         }
 
@@ -202,111 +213,68 @@ export class BoidParticle extends GameObject {
     }
     
     /**
-     * Calcular fuerza de separación (evitar colisiones)
-     * @param {Array} vecinos - Partículas vecinas
-     * @returns {Object} Vector de fuerza
+     * Calcula separación, cohesión y alineación en una sola pasada.
+     * Las celdas ya limitan los candidatos; aquí se aplica el rango exacto.
+     * @param {Object} contextoVecinos - Celdas cercanas reutilizadas por el sistema
      */
-    calcularSeparacion(vecinos) {
-        let fuerzaX = 0;
-        let fuerzaY = 0;
-        let conteo = 0;
-        
-        for (const otro of vecinos) {
-            if (otro === this || !otro.active) continue;
-            
-            const distancia = this.calcularDistancia(otro);
-            
-            if (distancia > 0 && distancia < this.rangoVision * 0.5) {
-                const diffX = this.x - otro.x;
-                const diffY = this.y - otro.y;
-                
-                fuerzaX += diffX / (distancia * distancia);
-                fuerzaY += diffY / (distancia * distancia);
-                
-                conteo++;
-            }
-        }
-        
-        if (conteo > 0) {
-            fuerzaX /= conteo;
-            fuerzaY /= conteo;
-        }
-        
-        return { x: fuerzaX, y: fuerzaY };
-    }
-    
-    /**
-     * Calcular fuerza de cohesión (ir hacia el centro del grupo)
-     * @param {Array} vecinos - Partículas vecinas
-     * @returns {Object} Vector de fuerza
-     */
-    calcularCohesion(vecinos) {
+    _calcularFuerzasBoid(contextoVecinos) {
+        let separacionX = 0;
+        let separacionY = 0;
         let centroX = 0;
         let centroY = 0;
-        let conteo = 0;
-        
-        for (const otro of vecinos) {
-            if (otro === this || !otro.active) continue;
-            
-            const distancia = this.calcularDistancia(otro);
-            
-            if (distancia > 0 && distancia < this.rangoVision) {
-                centroX += otro.x;
-                centroY += otro.y;
-                conteo++;
-            }
-        }
-        
-        if (conteo > 0) {
-            centroX /= conteo;
-            centroY /= conteo;
-            
-            return { x: centroX - this.x, y: centroY - this.y };
-        }
-        
-        return { x: 0, y: 0 };
-    }
-    
-    /**
-     * Calcular fuerza de alineación (sincronizar dirección)
-     * @param {Array} vecinos - Partículas vecinas
-     * @returns {Object} Vector de fuerza
-     */
-    calcularAlineacion(vecinos) {
         let promedioVelX = 0;
         let promedioVelY = 0;
-        let conteo = 0;
-        
-        for (const otro of vecinos) {
-            if (otro === this || !otro.active) continue;
-            
-            const distancia = this.calcularDistancia(otro);
-            
-            if (distancia > 0 && distancia < this.rangoVision) {
+        let cantidadSeparacion = 0;
+        let cantidadGrupo = 0;
+
+        const rangoVisionCuadrado = this.rangoVision * this.rangoVision;
+        const rangoSeparacionCuadrado = rangoVisionCuadrado * 0.25;
+        const celdas = contextoVecinos ? contextoVecinos.celdas : null;
+        const cantidadCeldas = contextoVecinos ? contextoVecinos.cantidad : 0;
+
+        for (let i = 0; i < cantidadCeldas; i++) {
+            const celda = celdas[i];
+            for (let j = 0; j < celda.length; j++) {
+                const otro = celda[j];
+                if (otro === this || !otro.active) continue;
+
+                const dx = this.x - otro.x;
+                const dy = this.y - otro.y;
+                const distanciaCuadrada = dx * dx + dy * dy;
+                if (distanciaCuadrada <= 0 || distanciaCuadrada >= rangoVisionCuadrado) continue;
+
+                centroX += otro.x;
+                centroY += otro.y;
                 promedioVelX += otro.velX;
                 promedioVelY += otro.velY;
-                conteo++;
+                cantidadGrupo++;
+
+                if (distanciaCuadrada < rangoSeparacionCuadrado) {
+                    separacionX += dx / distanciaCuadrada;
+                    separacionY += dy / distanciaCuadrada;
+                    cantidadSeparacion++;
+                }
             }
         }
-        
-        if (conteo > 0) {
-            promedioVelX /= conteo;
-            promedioVelY /= conteo;
-            
-            return { x: promedioVelX - this.velX, y: promedioVelY - this.velY };
-        }
-        
-        return { x: 0, y: 0 };
+
+        this._separacionX = cantidadSeparacion > 0 ? separacionX / cantidadSeparacion : 0;
+        this._separacionY = cantidadSeparacion > 0 ? separacionY / cantidadSeparacion : 0;
+        this._cohesionX = cantidadGrupo > 0 ? centroX / cantidadGrupo - this.x : 0;
+        this._cohesionY = cantidadGrupo > 0 ? centroY / cantidadGrupo - this.y : 0;
+        this._alineacionX = cantidadGrupo > 0 ? promedioVelX / cantidadGrupo - this.velX : 0;
+        this._alineacionY = cantidadGrupo > 0 ? promedioVelY / cantidadGrupo - this.velY : 0;
     }
     
     /**
      * Calcular fuerza de fuga (huir de un objeto)
      * @param {Object} objetivo - Objetivo del que huir
      * @param {number} rango - Rango de detección
-     * @returns {Object} Vector de fuerza
      */
-    calcularFuga(objetivo, rango = null) {
+    _calcularFuga(objetivo, rango = null) {
         const rangoFuga = rango || this.rangoFuga;
+
+        this._fugaX = 0;
+        this._fugaY = 0;
 
         // Delta al objetivo por el camino corto del toroide (así huye para el lado
         // correcto aunque el objetivo esté del otro lado de la costura).
@@ -317,17 +285,14 @@ export class BoidParticle extends GameObject {
             if (dx > h1) dx -= this._wMundo; else if (dx < -h1) dx += this._wMundo;
             if (dy > h2) dy -= this._hMundo; else if (dy < -h2) dy += this._hMundo;
         }
-        const distancia = Math.sqrt(dx * dx + dy * dy);
+        const distanciaCuadrada = dx * dx + dy * dy;
         
-        if (distancia > 0 && distancia < rangoFuga) {
+        if (distanciaCuadrada > 0 && distanciaCuadrada < rangoFuga * rangoFuga) {
+            const distancia = Math.sqrt(distanciaCuadrada);
             const intensidad = (rangoFuga - distancia) / rangoFuga;
-            return {
-                x: (dx / distancia) * intensidad * 2,
-                y: (dy / distancia) * intensidad * 2
-            };
+            this._fugaX = (dx / distancia) * intensidad * 2;
+            this._fugaY = (dy / distancia) * intensidad * 2;
         }
-        
-        return { x: 0, y: 0 };
     }
     
     /**
@@ -342,11 +307,12 @@ export class BoidParticle extends GameObject {
             
             const dx = this.x - ast.x;
             const dy = this.y - ast.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);
-            
             const radioAst = ast.radio || 32;
+            const radioColision = this.radio + radioAst;
+            const distanciaCuadrada = dx * dx + dy * dy;
             
-            if (distancia < this.radio + radioAst) {
+            if (distanciaCuadrada > 0 && distanciaCuadrada < radioColision * radioColision) {
+                const distancia = Math.sqrt(distanciaCuadrada);
                 const normalX = dx / distancia;
                 const normalY = dy / distancia;
                 
@@ -369,44 +335,34 @@ export class BoidParticle extends GameObject {
     
     /**
      * Verificar colisión con otras partículas Boid y separarlas si se superponen
-     * @param {Array} particulas - Lista de partículas
+     * @param {Object} contextoVecinos - Celdas cercanas reutilizadas por el sistema
      */
-    verificarColisionParticulas(particulas) {
-        for (const otra of particulas) {
-            if (otra === this || !otra.active) continue;
-            
-            const dx = this.x - otra.x;
-            const dy = this.y - otra.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);
-            
-            // Verificar si se superponen (suma de radios)
-            if (distancia > 0 && distancia < this.radio + otra.radio) {
-                // Calcular separación necesaria
-                const overlap = (this.radio + otra.radio) - distancia;
-                const normalX = dx / distancia;
-                const normalY = dy / distancia;
-                
-                // Separar cada una a la mitad de la superposición
-                const separacionX = normalX * overlap * 0.5;
-                const separacionY = normalY * overlap * 0.5;
-                
-                this.x += separacionX;
-                this.y += separacionY;
-                
-                // NO modificar la otra para evitar doble cálculo
+    _verificarColisionParticulas(contextoVecinos) {
+        const celdas = contextoVecinos ? contextoVecinos.celdas : null;
+        const cantidadCeldas = contextoVecinos ? contextoVecinos.cantidad : 0;
+
+        for (let i = 0; i < cantidadCeldas; i++) {
+            const celda = celdas[i];
+            for (let j = 0; j < celda.length; j++) {
+                const otra = celda[j];
+                if (otra === this || !otra.active) continue;
+
+                const dx = this.x - otra.x;
+                const dy = this.y - otra.y;
+                const distanciaCuadrada = dx * dx + dy * dy;
+                const radioColision = this.radio + otra.radio;
+
+                if (distanciaCuadrada > 0 && distanciaCuadrada < radioColision * radioColision) {
+                    const distancia = Math.sqrt(distanciaCuadrada);
+                    const overlap = radioColision - distancia;
+                    const escalaSeparacion = overlap * 0.5 / distancia;
+
+                    // Solo se mueve este boid para que el vecino no se procese dos veces aquí.
+                    this.x += dx * escalaSeparacion;
+                    this.y += dy * escalaSeparacion;
+                }
             }
         }
-    }
-    
-    /**
-     * Calcular distancia a otra partícula
-     * @param {BoidParticle} otro - Otra partícula
-     * @returns {number} Distancia
-     */
-    calcularDistancia(otro) {
-        const dx = this.x - otro.x;
-        const dy = this.y - otro.y;
-        return Math.sqrt(dx * dx + dy * dy);
     }
     
     /**
@@ -436,11 +392,9 @@ export class BoidParticle extends GameObject {
             if (dx > h1) dx -= nave.anchoJuego; else if (dx < -h1) dx += nave.anchoJuego;
             if (dy > h2) dy -= nave.altoJuego; else if (dy < -h2) dy += nave.altoJuego;
         }
-        const distancia = Math.sqrt(dx * dx + dy * dy);
-
         const radioCaptura = nave.radio + 15;
         
-        return distancia < radioCaptura;
+        return dx * dx + dy * dy < radioCaptura * radioCaptura;
     }
     
     /**

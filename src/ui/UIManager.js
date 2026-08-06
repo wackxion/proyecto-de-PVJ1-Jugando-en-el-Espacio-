@@ -676,7 +676,7 @@ export class UIManager {
         // Versión (esquina inferior derecha)
         const versionDisplay = document.createElement('div');
         versionDisplay.id = 'version-display';
-        versionDisplay.textContent = 'v1.12.0';
+        versionDisplay.textContent = `v${CONFIG.APP.VERSION}`;
         versionDisplay.style.cssText = `
             position: absolute;
             bottom: 10px;
@@ -1262,6 +1262,7 @@ export class UIManager {
      */
     mostrarTutorial() {
         const modal = document.createElement('div');
+        modal.id = 'tutorial-modal';
         modal.style.cssText = `
             position: absolute;
             top: 0;
@@ -1274,31 +1275,87 @@ export class UIManager {
             align-items: center;
             z-index: 600;
         `;
-        
-        // Estilos y filas reutilizables (con los íconos reales de las habilidades)
-        const KEY = "display:inline-block;min-width:30px;text-align:center;padding:3px 9px;border:2px solid #0044CC;border-radius:6px;font-weight:bold;font-family:Arial,sans-serif;background:rgba(0,68,204,0.10);";
-        const ICON = "width:24px;height:24px;object-fit:contain;vertical-align:middle;margin-right:7px;";
 
-        // Filas de controles: [tecla] + (icono opcional) + descripción
-        const filasControles = [
-            ['MOUSE', null, 'Apuntar la nave (mira al cursor)'],
-            ['CLICK IZQ', null, 'Disparar'],
-            ['CLICK DER', null, 'Acelerar (avanzar hacia el cursor)'],
-            ['W / ESPACIO', null, 'Acelerar / Disparar (teclado, alternativo)'],
-            ['JOYSTICK', null, 'Stick izq: apuntar · RT/A: acelerar · LT/X: disparar · B: Ulti · LB: Devorador · RB: Cohetes · Y: Propulsor'],
-            ['CELULAR', null, 'Joystick: apuntar · Botón FUEGO: disparar · Acelerar y habilidades: tocá su icono en el HUD · Mejoras: icono de arriba'],
-            ['Q', 'assets/cohetes.png', 'Cohetes teledirigidos'],
-            ['E', 'assets/deborador.png', 'Devorador (atrae partículas)'],
-            ['R', 'assets/propulsor.png', 'Propulsor (dash)'],
-            ['P', null, 'Pausa / Abrir MEJORAS'],
-            ['T', null, 'Ver Top 5 (en pausa)'],
-            ['ESC', null, 'Volver al menú'],
-        ].map(([k, ic, d]) =>
+        // En celular apaisado hay muy poca altura: compactamos borde, texto,
+        // espacios e imagenes para que el tutorial sea legible sin tapar botones.
+        const esCompacto = this.height <= 430 || this.width <= 850;
+        const marcoBorde = esCompacto ? 24 : 36;
+        const paddingMarco = esCompacto ? '14px 18px' : '60px 55px';
+        const anchoMarco = Math.min(esCompacto ? 760 : 750, this.width * (esCompacto ? 0.96 : 0.9));
+        const altoMarco = Math.min(esCompacto ? 340 : 700, this.height * (esCompacto ? 0.94 : 0.9));
+        const tituloSize = esCompacto ? 21 : 30;
+        const cuerpoSize = esCompacto ? 13 : 17;
+        const cuerpoGrandeSize = esCompacto ? 14 : 18;
+        const notaSize = esCompacto ? 12 : 15;
+        const iconoGrande = esCompacto ? 46 : 68;
+        const iconoBoid = esCompacto ? 52 : 76;
+        const anchoBoton = esCompacto ? 112 : 150;
+        const margenTitulo = esCompacto ? 8 : 16;
+        const justificarContenido = esCompacto ? 'flex-start' : 'center';
+
+        // Estilos y filas reutilizables (con los iconos reales de las habilidades)
+        const KEY = `display:inline-block;min-width:${esCompacto ? 24 : 30}px;text-align:center;padding:${esCompacto ? '2px 6px' : '3px 9px'};border:2px solid #0044CC;border-radius:6px;font-weight:bold;font-family:Arial,sans-serif;background:rgba(0,68,204,0.10);`;
+        const ICON = `width:${esCompacto ? 18 : 24}px;height:${esCompacto ? 18 : 24}px;object-fit:contain;vertical-align:middle;margin-right:${esCompacto ? 5 : 7}px;`;
+
+        // La pagina de controles usa el modo elegido en Opciones. Para mouse y
+        // teclado tambien lee las asignaciones guardadas, asi el tutorial refleja
+        // cualquier tecla que el jugador haya personalizado.
+        const modoControl = GestorEntrada.cargarModoControl();
+        const nombreModoControl = GestorEntrada.MODOS.find(m => m.id === modoControl)?.label || 'Mouse y teclado';
+        const iconosAccion = {
+            ulti: 'assets/ultiicon1.png',
+            devorar: 'assets/deborador.png',
+            cohetes: 'assets/cohetes.png',
+            propulsor: 'assets/propulsor.png',
+        };
+
+        const controlesMouseTeclado = () => {
+            const controles = GestorEntrada.cargarControlesConfig();
+            const filas = [['MOUSE', null, 'Apuntar la nave hacia el cursor']];
+            for (const [accion, cfg] of Object.entries(controles)) {
+                const teclas = (cfg.teclas || []).map(GestorEntrada.nombreCodigo).join(' / ') || 'SIN ASIGNAR';
+                filas.push([teclas, iconosAccion[accion] || null, cfg.label || accion]);
+            }
+            filas.push(['ESC', null, 'Volver al menú']);
+            return filas;
+        };
+
+        const controlesJoystick = [
+            ['STICK', null, 'Apuntar la nave (izquierdo o derecho)'],
+            ['RT / A', null, 'Acelerar'],
+            ['LT / X', null, 'Disparar'],
+            ['B', 'assets/ultiicon1.png', 'Ulti'],
+            ['LB', 'assets/deborador.png', 'Devorador'],
+            ['RB', 'assets/cohetes.png', 'Cohetes teledirigidos'],
+            ['Y', 'assets/propulsor.png', 'Propulsor'],
+        ];
+
+        let touchLayout = 'clasico';
+        try { touchLayout = localStorage.getItem('touchLayoutJEE') || 'clasico'; } catch (e) {}
+        const controlesTouch = [
+            ['LAYOUT', null, touchLayout === 'invertido' ? 'Invertido: joystick derecha' : 'Clásico: joystick izquierda'],
+            ['JOYSTICK', null, 'Apuntar y acelerar según la intensidad'],
+            ['FUEGO', null, 'Disparar'],
+            ['BOTÓN', 'assets/ultiicon1.png', 'Ulti'],
+            ['BOTÓN', 'assets/deborador.png', 'Devorador'],
+            ['BOTÓN', 'assets/cohetes.png', 'Cohetes teledirigidos'],
+            ['BOTÓN', 'assets/propulsor.png', 'Propulsor'],
+            ['MEJORAS', 'assets/upgreate.png', 'Abrir la ventana de mejoras'],
+        ];
+
+        const controlesDelModo = modoControl === 'joystick'
+            ? controlesJoystick
+            : modoControl === 'touch'
+                ? controlesTouch
+                : controlesMouseTeclado();
+
+        // Filas de controles: [tecla o boton] + (icono opcional) + descripcion.
+        const filasControles = controlesDelModo.map(([k, ic, d]) =>
             `<span style="${KEY}">${k}</span>` +
             `<span style="text-align:left;">${ic ? `<img src="${ic}" style="${ICON}">` : ''}${d}</span>`
         ).join('');
 
-        // Filas de mejoras: [icono] nombre — efecto (las 8 habilidades)
+        // Filas de mejoras: [icono] nombre - efecto (las 8 habilidades)
         const filasMejoras = [
             ['assets/proyectil1.png', 'Daño', '+ daño por disparo'],
             ['assets/escudo1.png', 'Escudo', '+50 HP máx c/u'],
@@ -1309,93 +1366,82 @@ export class UIManager {
             ['assets/deborador.png', 'Devorador', '+ rango/velocidad'],
             ['assets/cohetes.png', 'Cohetes', '+1 cohete c/u'],
         ].map(([ic, n, e]) =>
-            `<div style="display:flex;align-items:center;gap:8px;text-align:left;">` +
-            `<img src="${ic}" style="width:28px;height:28px;object-fit:contain;flex:0 0 auto;">` +
+            `<div style="display:flex;align-items:center;gap:${esCompacto ? 6 : 8}px;text-align:left;">` +
+            `<img src="${ic}" style="width:${esCompacto ? 22 : 28}px;height:${esCompacto ? 22 : 28}px;object-fit:contain;flex:0 0 auto;">` +
             `<span><strong>${n}</strong> — ${e}</span></div>`
         ).join('');
 
         // Contenido de cada paso del tutorial
         const pasos = [
-            // Paso 1: Objetivo
             {
-                titulo: 'TUTORIAL - OBJETIVO',
                 contenido: `
-                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:14px;text-align:center;">OBJETIVO DEL JUEGO</div>
-                    <div style="display:flex;justify-content:center;align-items:center;gap:22px;margin-bottom:16px;">
-                        <img src="assets/asteroide250.png" style="width:68px;height:68px;object-fit:contain;">
-                        <img src="assets/Pboids2.png" style="width:64px;height:64px;object-fit:contain;">
-                        <img src="assets/Nave322.png" style="width:68px;height:68px;object-fit:contain;">
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:${tituloSize}px;font-weight:bold;margin-bottom:${margenTitulo}px;text-align:center;">OBJETIVO DEL JUEGO</div>
+                    <div style="display:flex;justify-content:center;align-items:center;gap:${esCompacto ? 14 : 22}px;margin-bottom:${esCompacto ? 8 : 16}px;">
+                        <img src="assets/asteroide250.png" style="width:${iconoGrande}px;height:${iconoGrande}px;object-fit:contain;">
+                        <img src="assets/Pboids2.png" style="width:${iconoGrande}px;height:${iconoGrande}px;object-fit:contain;">
+                        <img src="assets/Nave322.png" style="width:${iconoGrande}px;height:${iconoGrande}px;object-fit:contain;">
                     </div>
-                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:18px;text-align:center;line-height:1.5;">
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:${cuerpoGrandeSize}px;text-align:center;line-height:${esCompacto ? 1.32 : 1.5};">
                         Destruí <strong>asteroides</strong> para soltar <strong>partículas BOIDS</strong>, recolectalas y usalas para <strong>mejorar tu nave</strong>.<br><br>
                         Cuanto más avanzás, más enemigos aparecen. ¡Sobreviví la mayor cantidad de oleadas posible!
                     </div>
                 `
             },
-            // Paso 2: Controles
             {
-                titulo: 'TUTORIAL - CONTROLES',
                 contenido: `
-                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:18px;text-align:center;">CONTROLES</div>
-                    <div style="display:grid;grid-template-columns:auto 1fr;gap:9px 16px;align-items:center;color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;max-width:430px;margin:0 auto;">
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:${tituloSize}px;font-weight:bold;margin-bottom:${esCompacto ? 8 : 18}px;text-align:center;">CONTROLES</div>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:${notaSize}px;font-weight:bold;text-align:center;margin-bottom:${esCompacto ? 6 : 12}px;">${nombreModoControl}</div>
+                    <div style="display:grid;grid-template-columns:auto 1fr;gap:${esCompacto ? '5px 9px' : '9px 16px'};align-items:center;color:#0044CC;font-family:'Arial',sans-serif;font-size:${cuerpoSize}px;max-width:${esCompacto ? 610 : 430}px;margin:0 auto;">
                         ${filasControles}
                     </div>
                 `
             },
-            // Paso 3: Sistema de Mejoras
             {
-                titulo: 'TUTORIAL - MEJORAS',
                 contenido: `
-                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:8px;text-align:center;">MEJORAS</div>
-                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:15px;text-align:center;margin-bottom:16px;">Abrí el panel con <strong>P</strong> y compralas con partículas. Cada habilidad tiene <strong>5 niveles</strong>.</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;color:#0044CC;font-family:'Arial',sans-serif;font-size:15px;max-width:520px;margin:0 auto;">
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:${tituloSize}px;font-weight:bold;margin-bottom:${esCompacto ? 5 : 8}px;text-align:center;">MEJORAS</div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:${esCompacto ? 6 : 9}px;color:#0044CC;font-family:'Arial',sans-serif;font-size:${notaSize}px;text-align:center;margin-bottom:${esCompacto ? 8 : 16}px;">
+                        <span>Presioná</span>
+                        <img src="assets/upgreate.png" alt="Mejoras" style="width:${esCompacto ? 25 : 34}px;height:${esCompacto ? 25 : 34}px;object-fit:contain;flex:0 0 auto;">
+                        <span>para abrir la ventana de mejoras y comprarlas según la habilidad que quieras mejorar.</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:${esCompacto ? '7px 14px' : '12px 22px'};color:#0044CC;font-family:'Arial',sans-serif;font-size:${notaSize}px;max-width:${esCompacto ? 610 : 520}px;margin:0 auto;">
                         ${filasMejoras}
                     </div>
                 `
             },
-            // Paso 4: Partículas
             {
-                titulo: 'TUTORIAL - PARTÍCULAS',
                 contenido: `
-                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:12px;text-align:center;">PARTÍCULAS BOIDS</div>
-                    <div style="text-align:center;margin-bottom:14px;">
-                        <img src="assets/Pboids2.png" style="width:76px;height:76px;object-fit:contain;">
+                    <div style="color:#0044CC;font-family:'Segoe Script',cursive;font-size:${tituloSize}px;font-weight:bold;margin-bottom:${esCompacto ? 7 : 12}px;text-align:center;">PARTÍCULAS BOIDS</div>
+                    <div style="text-align:center;margin-bottom:${esCompacto ? 7 : 14}px;">
+                        <img src="assets/Pboids2.png" style="width:${iconoBoid}px;height:${iconoBoid}px;object-fit:contain;">
                     </div>
-                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;text-align:center;line-height:1.5;">
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:${cuerpoSize}px;text-align:center;line-height:${esCompacto ? 1.35 : 1.5};">
                         Al destruir enemigos aparecen <strong>partículas BOIDS</strong>.<br>
                         Activá el <strong>Devorador (E)</strong> para atraerlas, o tocálas con la nave.<br><br>
-                        Son la <strong>moneda</strong> para comprar mejoras (panel con <strong>P</strong>).
+                        Son la <strong>moneda</strong> que usás para comprar mejoras.
                     </div>
                 `
             },
-            // Paso 5: Sobrecalentamiento
             {
-                titulo: 'TUTORIAL - SOBRECALENTAMIENTO',
                 contenido: `
-                    <div style="color:#CC0000;font-family:'Segoe Script',cursive;font-size:30px;font-weight:bold;margin-bottom:16px;text-align:center;">SOBRECALENTAMIENTO</div>
-                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:17px;text-align:center;line-height:1.55;">
+                    <div style="color:#CC0000;font-family:'Segoe Script',cursive;font-size:${tituloSize}px;font-weight:bold;margin-bottom:${margenTitulo}px;text-align:center;">SOBRECALENTAMIENTO</div>
+                    <div style="color:#0044CC;font-family:'Arial',sans-serif;font-size:${cuerpoSize}px;text-align:center;line-height:${esCompacto ? 1.38 : 1.55};">
                         Si tus escudos llegan a <strong>0</strong> entrás en <strong style="color:#CC0000;">sobrecalentamiento</strong> por <strong>10 segundos</strong>: quedás vulnerable (sin escudos).<br><br>
                         Al terminar recuperás algo de escudos. Las mejoras de <strong>Escudo</strong> (+50 HP c/u) suben tu vida máxima para aguantar más.
                     </div>
                 `
             }
         ];
-        
-        let pasoActual = 0;
-        
-        // Crear función para mostrar el paso actual
+
+        // Crear funcion para mostrar el paso actual
         const mostrarPaso = (indice) => {
             // Limpiar contenido anterior
             container.innerHTML = '';
-            
+
             const paso = pasos[indice];
 
-            // (El título va dentro de cada `contenido`, no se repite acá.)
-
-            // Contenido: ocupa el espacio disponible y centra su contenido dentro.
-            // Con flex:1 empuja el progreso y los botones SIEMPRE al fondo (misma
-            // ubicación en las 5 páginas). overflow-y:auto evita que una página con
-            // mucho contenido se superponga con los botones (scrollea en su área).
+            // El contenido scrollea por dentro si una pantalla baja no alcanza.
+            // Progreso y botones quedan fuera de ese scroll para poder navegar siempre.
             const contenido = document.createElement('div');
             contenido.innerHTML = paso.contenido;
             contenido.style.cssText = `
@@ -1404,35 +1450,39 @@ export class UIManager {
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: ${justificarContenido};
                 align-items: center;
                 width: 100%;
+                box-sizing: border-box;
+                padding-right: ${esCompacto ? 2 : 4}px;
             `;
             container.appendChild(contenido);
-            
+
             // Indicador de progreso
             const progreso = document.createElement('div');
             progreso.textContent = `${indice + 1} / ${pasos.length}`;
             progreso.style.cssText = `
                 color: #0044CC;
                 font-family: 'Arial', sans-serif;
-                font-size: 16px;
-                margin-top: 15px;
+                font-size: ${esCompacto ? 12 : 16}px;
+                margin-top: ${esCompacto ? 6 : 15}px;
                 font-weight: bold;
+                flex: 0 0 auto;
             `;
             container.appendChild(progreso);
-            
+
             // Contenedor de botones
             const botones = document.createElement('div');
             botones.style.cssText = `
                 display: flex;
                 justify-content: center;
-                gap: 15px;
-                margin-top: 20px;
+                gap: ${esCompacto ? 10 : 15}px;
+                margin-top: ${esCompacto ? 8 : 20}px;
                 width: 100%;
+                flex: 0 0 auto;
             `;
-            
-            // Botón Anterior con imagen (invisible si es el primer paso)
+
+            // Boton Anterior con imagen (invisible si es el primer paso)
             const btnAnterior = document.createElement('img');
             btnAnterior.src = 'assets/botonAnterior.png';
             btnAnterior.alt = 'ANTERIOR';
@@ -1440,7 +1490,7 @@ export class UIManager {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: block;
-                width: 150px;
+                width: ${anchoBoton}px;
                 height: auto;
                 visibility: ${indice > 0 ? 'visible' : 'hidden'};
             `;
@@ -1456,8 +1506,8 @@ export class UIManager {
                 btnAnterior.addEventListener('click', () => { this._click(); mostrarPaso(indice - 1); });
             }
             botones.appendChild(btnAnterior);
-            
-            // Botón Siguiente / Finalizar con imagen
+
+            // Boton Siguiente / Finalizar con imagen
             const btnSiguiente = document.createElement('img');
             btnSiguiente.src = 'assets/botonSiguiente.png';
             btnSiguiente.alt = indice < pasos.length - 1 ? 'SIGUIENTE' : 'FINALIZAR';
@@ -1465,7 +1515,7 @@ export class UIManager {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: block;
-                width: 150px;
+                width: ${anchoBoton}px;
                 height: auto;
             `;
             btnSiguiente.addEventListener('mouseenter', () => {
@@ -1485,10 +1535,10 @@ export class UIManager {
                 }
             });
             botones.appendChild(btnSiguiente);
-            
+
             container.appendChild(botones);
         };
-        
+
         // Crear contenedor
         const container = document.createElement('div');
         container.style.cssText = `
@@ -1497,19 +1547,20 @@ export class UIManager {
             align-items: center;
             justify-content: center;
             border-style: solid;
-            border-width: 36px;
-            border-image: url('assets/gameOver.png') 100 fill / 36px / 0 stretch;
+            border-width: ${marcoBorde}px;
+            border-image: url('assets/gameOver.png') 100 fill / ${marcoBorde}px / 0 stretch;
             box-sizing: border-box;
-            width: ${Math.min(750, this.width * 0.9)}px;
-            height: ${Math.min(700, this.height * 0.9)}px;
-            padding: 60px 55px;
+            width: ${anchoMarco}px;
+            height: ${altoMarco}px;
+            padding: ${paddingMarco};
         `;
-        
+
         // Mostrar primer paso
         mostrarPaso(0);
-        
+
         modal.appendChild(container);
         this.mainMenu.appendChild(modal);
+        this._hacerModalResponsive(modal, container);
     }
     
 /**
@@ -1790,8 +1841,29 @@ export class UIManager {
         container.appendChild(contenido);
         container.appendChild(this.crearBotonVolver(() => modal.remove()));
         exterior.appendChild(container);
+
+        // Firma de versión: queda anclada a la pantalla y no se achica junto al
+        // marco, para que siga siendo legible en celulares con poca altura.
+        const firmaVersion = document.createElement('div');
+        firmaVersion.id = 'creditos-version';
+        firmaVersion.textContent = `Versión v${CONFIG.APP.VERSION}`;
+        firmaVersion.style.cssText = `
+            position: absolute;
+            right: max(14px, env(safe-area-inset-right));
+            bottom: max(10px, env(safe-area-inset-bottom));
+            color: rgba(255, 255, 255, 0.72);
+            font-family: 'Segoe Script', cursive;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0;
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+        `;
+
         this._hacerModalResponsive(modal, exterior);
         modal.appendChild(exterior);
+        modal.appendChild(firmaVersion);
         this.mainMenu.appendChild(modal);
     }
     

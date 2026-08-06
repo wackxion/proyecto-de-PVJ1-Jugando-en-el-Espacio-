@@ -112,7 +112,7 @@ export function soltarParticulasEn(game, x, y, cantidad = 1) {
 }
 
 /**
- * Construye una grilla espacial (Map "cx,cy" -> array de partículas activas).
+ * Construye una grilla espacial con mapas numéricos: columna X -> celda Y -> boids.
  * El tamaño de celda es el rango de visión, así que todos los vecinos de un boid
  * dentro de ese rango quedan en su celda o en una adyacente. @private
  */
@@ -120,31 +120,46 @@ function _construirGrillaBoids(particulas, cellSize) {
     const grilla = new Map();
     for (const p of particulas) {
         if (!p || !p.active) continue;
-        const key = Math.floor(p.x / cellSize) + ',' + Math.floor(p.y / cellSize);
-        let arr = grilla.get(key);
-        if (!arr) { arr = []; grilla.set(key, arr); }
-        arr.push(p);
+        const cx = Math.floor(p.x / cellSize);
+        const cy = Math.floor(p.y / cellSize);
+
+        let columna = grilla.get(cx);
+        if (!columna) {
+            columna = new Map();
+            grilla.set(cx, columna);
+        }
+
+        let celda = columna.get(cy);
+        if (!celda) {
+            celda = [];
+            columna.set(cy, celda);
+        }
+        celda.push(p);
     }
     return grilla;
 }
 
 /**
- * Devuelve las partículas de la celda de `particula` + las 8 adyacentes (3×3).
- * Cubre todo lo que esté dentro del rango de visión sin recorrer las 100. @private
+ * Guarda en `salida` las celdas ocupadas alrededor de la partícula.
+ * El mismo array se reutiliza para todos los boids, evitando crear una lista por partícula.
+ * @returns {number} Cantidad de celdas válidas guardadas en `salida`. @private
  */
-function _vecinosCercanosBoids(grilla, particula, cellSize) {
+function _obtenerCeldasVecinas(grilla, particula, cellSize, salida) {
     const cx = Math.floor(particula.x / cellSize);
     const cy = Math.floor(particula.y / cellSize);
-    const vecinos = [];
+    let cantidad = 0;
+
     for (let dx = -1; dx <= 1; dx++) {
+        const columna = grilla.get(cx + dx);
+        if (!columna) continue;
+
         for (let dy = -1; dy <= 1; dy++) {
-            const arr = grilla.get((cx + dx) + ',' + (cy + dy));
-            if (arr) {
-                for (let k = 0; k < arr.length; k++) vecinos.push(arr[k]);
-            }
+            const celda = columna.get(cy + dy);
+            if (celda) salida[cantidad++] = celda;
         }
     }
-    return vecinos;
+
+    return cantidad;
 }
 
 /**
@@ -160,14 +175,15 @@ export function actualizarParticulasBoid(game, delta) {
         return;
     }
     
-    const maxParticulas = CONFIG.BOIDS.MAX_PARTICULAS;
-
     // OPTIMIZACIÓN — GRILLA ESPACIAL: en vez de que cada boid compare contra TODAS las
     // partículas (O(n²)), se agrupan en celdas del tamaño del rango de visión. Cada boid
-    // solo mira su celda + las 8 adyacentes → ~O(n). Comportamiento idéntico: todos los
-    // vecinos dentro del rango caen en esas 9 celdas (las fuerzas ya filtran por distancia).
-    const _cellSize = CONFIG.BOIDS.RANGO_VISION || 100;
-    const _grilla = _construirGrillaBoids(game.particulasBoid, _cellSize);
+    // solo mira su celda + las 8 adyacentes. Las celdas se pasan sin aplanarlas para no
+    // crear arreglos temporales ni claves de texto por cada partícula.
+    const cellSize = CONFIG.BOIDS.RANGO_VISION || 100;
+    const grilla = _construirGrillaBoids(game.particulasBoid, cellSize);
+    const celdasVecinas = new Array(9);
+    const contextoVecinos = { celdas: celdasVecinas, cantidad: 0 };
+    const limiteRecycle = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
 
     for (let i = game.particulasBoid.length - 1; i >= 0; i--) {
         const particula = game.particulasBoid[i];
@@ -187,12 +203,15 @@ export function actualizarParticulasBoid(game, delta) {
             }
         }
         
-        // Actualizar comportamiento Boid (fuga de nave y asteroides).
-        // Vecinos = solo los de la celda + 8 adyacentes (no las 100 partículas).
-        const vecinos = _vecinosCercanosBoids(_grilla, particula, _cellSize);
+        // Las atraídas ignoran el enjambre, por eso no necesitan buscar vecinos.
+        contextoVecinos.cantidad = particula.siendoAtraida
+            ? 0
+            : _obtenerCeldasVecinas(grilla, particula, cellSize, celdasVecinas);
+
+        // Actualizar comportamiento Boid (enjambre, fuga y rebote).
         particula.actualizar(
             delta,
-            vecinos,
+            contextoVecinos,
             game.jugador,
             game.enemigosNaves,
             game.enemigos,
@@ -200,15 +219,8 @@ export function actualizarParticulasBoid(game, delta) {
             game.mundoAlto
         );
         
-        // Sincronizar sprite
-        if (particula.imagen) {
-            particula.imagen.x = particula.x;
-            particula.imagen.y = particula.y;
-        }
-        
         // Reciclado: si está demasiado lejos de la NAVE por más de 5 s, traerla
         // de vuelta cerca (con cámara, se mide distancia al jugador, no a la pantalla).
-        const limiteRecycle = Math.hypot(game.anchoJuego, game.altoJuego) * 1.4;
         const fueraDeLosBordes = game.jugador &&
             game.distanciaToroidal(particula.x, particula.y, game.jugador.x, game.jugador.y) > limiteRecycle;
 

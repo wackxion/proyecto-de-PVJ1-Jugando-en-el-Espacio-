@@ -27,6 +27,11 @@ function hayLugarParaAsteroide(game) {
     return contarAsteroidesActivos(game) < max;
 }
 
+/** Indica si la animación PNG de explosión está disponible. */
+function hayTexturasExplosion(texturas) {
+    return Array.isArray(texturas) && texturas.length > 0 && texturas[0];
+}
+
 /**
  * Crea un nuevo proyectil desde la posición del jugador
  * Función auxiliar paraGame.js - líneas 895-904
@@ -272,17 +277,15 @@ export function procesarColisionesProyectiles(game) {
                 explocion.render(game.mundo);
                 game.efectosImpacto.push(explocion);
 
-                const hit = new HitEffect(enemy.x, enemy.y, 'hit', 2);
-                hit.render(game.mundo);
-                game.efectosImpacto.push(hit);
-
                 // Daño normal a enemigos
                 const newAsteroids = enemy.recibirDano(projectile.dano);
 
-                if (newAsteroids && newAsteroids.length > 0) {
-                    const hitFrag = new HitEffect(enemy.x, enemy.y, 'fragment', 4, 0xCC0000);
-                    hitFrag.render(game.mundo);
-                    game.efectosImpacto.push(hitFrag);
+                // Si sobrevivió, mostrar solamente el impacto pequeño. Cuando se
+                // destruye, la animación PNG de abajo reemplaza este efecto.
+                if (enemy.active) {
+                    const hit = new HitEffect(enemy.x, enemy.y, 'hit', 2);
+                    hit.render(game.mundo);
+                    game.efectosImpacto.push(hit);
                 }
 
                 for (const nuevoEnemigo of newAsteroids) {
@@ -307,9 +310,19 @@ export function procesarColisionesProyectiles(game) {
                         else if (enemy.tamanio === 'medium_rezagado') escalaAnim = 0.42;
                         else if (enemy.tamanio === 'small_rezagado') escalaAnim = 0.24;
 
-                        const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
-                        astroExplosion.render(game.mundo);
-                        game.efectosExplosion.push(astroExplosion);
+                        if (hayTexturasExplosion(game.texturaExplosionAsteroide)) {
+                            const astroExplosion = new AsteroidExplosion(enemy.x, enemy.y, game.texturaExplosionAsteroide, escalaAnim);
+                            astroExplosion.render(game.mundo);
+                            game.efectosExplosion.push(astroExplosion);
+                        } else {
+                            // Fallback antiguo: partículas procedurales solo si no
+                            // se pudo cargar la animación PNG de destrucción.
+                            const tipoFallback = newAsteroids.length > 0 ? 'fragment' : 'explosion';
+                            const escalaFallback = newAsteroids.length > 0 ? 4 : 2;
+                            const fallback = new HitEffect(enemy.x, enemy.y, tipoFallback, escalaFallback, 0xCC0000);
+                            fallback.render(game.mundo);
+                            game.efectosImpacto.push(fallback);
+                        }
 
                         // Soltar partículas Boid donde se destruyó el asteroide
                         // (más cuanto más grande). El jugador las recolecta con el Devorador (E).
