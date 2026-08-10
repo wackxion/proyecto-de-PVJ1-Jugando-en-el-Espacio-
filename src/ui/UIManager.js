@@ -1239,17 +1239,21 @@ export class UIManager {
                 
                 await callback(updateProgress);
                 updateProgress(100, 'LISTO!');
-                // Congelar el juego mientras se muestra el 100%, para que arranque
-                // FRESCO tras la espera (si no, corre 2 s escondido detrás de la carga).
                 const juego = (typeof window !== 'undefined') ? window.game : null;
-                if (juego) juego.ejecutando = false;
-                // Mantener el 100% ("LISTO!") visible 2 s antes de dar inicio al juego.
+                // NO congelamos el juego: dejamos que corra estos 2 s DETRÁS de la
+                // pantalla de carga para que la cámara, el HUD y el escudo se
+                // acomoden. Así el primer frame visible ya está en su lugar (inicio
+                // nítido, sin cosas "fuera de lugar" durante el primer segundo).
                 await new Promise((resolve) => setTimeout(resolve, 2000));
+                // Barrer lo que haya spawneado en esos 2 s → arranque acomodado Y
+                // limpio (mantiene nave, HUD, boids y estado de cámara).
+                if (juego && typeof juego.prepararInicioLimpio === 'function') {
+                    juego.prepararInicioLimpio();
+                }
                 loadingScreen.style.transition = 'opacity 0.5s ease';
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
                     loadingScreen.remove();
-                    if (juego) juego.ejecutando = true;   // dar inicio al juego (fresco)
                 }, 500);
             } catch (error) {
                 loadingScreen.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">Error: ${error.message}</p>`;

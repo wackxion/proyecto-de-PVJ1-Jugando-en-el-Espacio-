@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.49.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.49.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.1)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.49.0 (Actual)
+### v1.49.1 (Actual)
+> **Inicio más nítido: el juego se acomoda detrás de la pantalla de carga**
+
+- ✨ Los 2 s finales de la pantalla de carga ("LISTO! 100%") ahora dejan correr el juego **detrás** de la carga, para que la cámara, el HUD y el escudo curvo **se acomoden** antes de mostrarse. Se acabó el "parpadeo" con cosas fuera de lugar durante el primer segundo (`UIManager.js`)
+- 🧹 Nuevo `Game.prepararInicioLimpio()`: justo antes de revelar, barre todo lo que haya spawneado en esos 2 s (asteroides, naves, especiales, proyectiles, efectos) y **resetea la puntuación a 0** → el arranque queda acomodado **y** limpio, como partida nueva. Mantiene nave, HUD, partículas Boid y estado de cámara
+- 🤖 Android preparado como `versionCode 9` / `versionName 1.49.1` para regenerar el AAB
+
+### v1.49.0
 > **Tutorial móvil, avisos de ganancias y optimizaciones de juego**
 
 - 📱 Tutorial de 5 páginas ajustado para celular apaisado, con controles adaptados al modo seleccionado y botón real de mejoras

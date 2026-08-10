@@ -1537,7 +1537,43 @@ _crearParticulaBoidFuera() {
             });
         }
     }
-    
+
+    /**
+     * Deja el juego LISTO para un arranque nítido tras la pantalla de carga.
+     * El juego corre detrás de la carga (para que la cámara/HUD/escudo se
+     * acomoden), y esto barre todo lo que haya spawneado en esos segundos
+     * (asteroides, naves, especiales, proyectiles, efectos) para que el primer
+     * frame visible esté YA acomodado y ADEMÁS limpio, sin cosas fuera de lugar.
+     * Mantiene la nave, el HUD, las partículas Boid y el estado de cámara.
+     */
+    prepararInicioLimpio() {
+        const barrer = (lista) => {
+            if (!Array.isArray(lista)) return;
+            for (const e of lista) {
+                try {
+                    const sp = e && (e.imagen || e.sprite || e.graphics || e.contenedor);
+                    if (sp && sp.parent) sp.parent.removeChild(sp);
+                    if (e && typeof e.destroy === 'function') e.destroy();
+                    else if (sp && typeof sp.destroy === 'function') sp.destroy();
+                } catch (err) { /* ignorar */ }
+            }
+            lista.length = 0;
+        };
+        barrer(this.enemigos);
+        barrer(this.enemigosNaves);
+        barrer(this.enemigosSpeciales);
+        barrer(this.proyectiles);
+        barrer(this.proyectilesEnemigos);
+        barrer(this.efectosExplosion);
+        barrer(this.efectosImpacto);
+        this.efectoUlti = null;
+        this.efectoSuccion = null;
+        // El juego corrió 2 s detrás de la carga, así que la puntuación (que sube
+        // con el tiempo) quedó en algo > 0. La reseteamos para que el marcador
+        // arranque en 0, como corresponde a una partida nueva.
+        this.puntuacion = 0;
+    }
+
 /**
  * Crea botones HTML nativos para Game Over
  * Se posicionan a la derecha de la imagen de Game Over
