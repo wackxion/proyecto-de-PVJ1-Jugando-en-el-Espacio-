@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.49.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.49.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.2)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.49.1 (Actual)
+### v1.49.2 (Actual)
+> **Auto-apuntado más sutil: punto medio entre asistir y no asistir**
+
+- 🎯 La asistencia de apuntado (touch/joystick) se sentía "pegajosa" y a veces enganchaba al enemigo equivocado. Se afinó a un punto intermedio: `CONO_GRADOS` **20° → 12°** (solo asiste si ya estás bien alineado) y `FUERZA` **0.6 → 0.3** (corrige la mitad de suave). Resultado: apuntado más fluido, sin tirones ni enganches indeseados (`config.js`)
+- 🤖 Android preparado como `versionCode 10` / `versionName 1.49.2` para regenerar el AAB
+
+### v1.49.1
 > **Inicio más nítido: el juego se acomoda detrás de la pantalla de carga**
 
 - ✨ Los 2 s finales de la pantalla de carga ("LISTO! 100%") ahora dejan correr el juego **detrás** de la carga, para que la cámara, el HUD y el escudo curvo **se acomoden** antes de mostrarse. Se acabó el "parpadeo" con cosas fuera de lugar durante el primer segundo (`UIManager.js`)

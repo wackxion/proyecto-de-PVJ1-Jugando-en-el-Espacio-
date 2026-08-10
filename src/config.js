@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.49.1',               // Versión visible en la pantalla de créditos
+        VERSION: '1.49.2',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -44,8 +44,11 @@ export const CONFIG = {
     // apuntado queda 100% preciso (no se toca). Subir FUERZA/CONO = más ayuda.
     AUTOAPUNTADO: {
         ACTIVO: true,
-        CONO_GRADOS: 20,   // semiángulo: ayuda si el enemigo está a <=20° de tu mira
-        FUERZA: 0.6,       // cuánto corrige hacia el enemigo (0 = nada · 1 = apunta exacto)
+        CONO_GRADOS: 12,   // semiángulo: ayuda si el enemigo está a <=12° de tu mira
+                           //   (angosto → solo asiste si ya estás bien alineado, evita
+                           //    "enganchar" al enemigo equivocado)
+        FUERZA: 0.3,       // cuánto corrige hacia el enemigo (0 = nada · 1 = apunta exacto).
+                           //   0.3 = punto intermedio entre asistir fuerte y no tener nada
         RANGO: 600,        // alcance en px (≈ rango de tiro); ignora enemigos más lejos
     },
 
