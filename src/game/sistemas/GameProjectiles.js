@@ -56,7 +56,7 @@ export function crearProyectil(game, x, y, direction, multiplicadorVelocidad = 1
 
 /**
  * Actualiza todos los proyectiles del jugador
- * Función auxiliar paraGame.js - gestión de proyectiles en _actualizarUI
+ * Función auxiliar de Game.js — se llama cada frame desde el game loop
  *
  * @param {Game} game - Referencia al objeto Game principal
  * @param {number} delta - Tiempo transcurrido desde el último frame

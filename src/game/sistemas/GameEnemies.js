@@ -273,7 +273,7 @@ export function verificarPosicionLibre(game, x, y, radio) {
 
 /**
  * Actualiza todos los enemigos (asteroides) en pantalla
- * Función auxiliar para Game.js - gestión de enemigos en _actualizarUI
+ * Función auxiliar de Game.js — se llama cada frame desde el game loop
  * 
  * @param {Game} game - Referencia al objeto Game principal
  * @param {number} delta - Tiempo transcurrido desde el último frame
