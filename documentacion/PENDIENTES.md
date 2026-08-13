@@ -19,7 +19,7 @@
 
 ## 📋 Pendiente / Backlog (para más adelante)
 
-> **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 8 / versionName 1.49.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
+> **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 12 / versionName 1.50.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 
@@ -56,6 +56,26 @@
   5. **Object pooling (esfuerzo MEDIO-ALTO, riesgo MEDIO — evaluar si hace falta)**: reusar objetos de mucho churn en vez de crear/destruir para reducir pausas de GC (stutter). Estado: la infra está a MEDIAS — `Projectile` y `BoidParticle` tienen `destroyAndRelease(pool)` pero **no se usa** (llaman a `destroy()` pelado, sin pool manager). Lo pendiente: (a) crear los pool managers; (b) agregar un `reset(...)` a `Projectile` para reusar el sprite (hoy el constructor hace `new PIXI.Sprite` cada vez) y que `destroy()` no destruya el sprite; (c) cablear los ~8 sitios de creación/destrucción de proyectiles; (d) para efectos es más grande: `HitEffect`/`AsteroidExplosion`/`ProyectilExplosion` se crean en **~34 lugares** (GameEnemies 12, GameProjectiles 10, UltiEffect 7, GameEffects 3, GameSkills 1, Player 1). Riesgo típico: objeto reusado con estado viejo → glitches (balas/explosiones fantasma). **Beneficio modesto** (churn de ~5 proyectiles/seg + efectos) y el juego ya no anda trabado → hacerlo solo si tras #1/#2/#3 todavía hay stutter perceptible en el G04.
 
 ---
+
+## ✅ Completado v1.50.0 - Aceleración constante (sin sobrecalentamiento)
+
+- **Se eliminó el sobrecalentamiento de la aceleración (tecla W).** Antes, mantener W llenaba una barra (`cargaAceleracion`) y al toparse la nave dejaba de acelerar y frenaba por 2.5s. Ahora la aceleración es **constante**: se mantiene W y la nave sube hasta `velocidadMax` y se queda ahí, sin penalización; al soltar frena por inercia (`Player.js`).
+- **La mejora de Aceleración ahora sube el TOPE de velocidad** en vez de agrandar la barra: **+40 px/s por nivel** (`CONFIG.JUGADOR.VELOCIDAD_MAX_POR_MEJORA`), de 300 a **500** con los 5 niveles (`Game.aplicarMejoras`).
+- **HUD reutilizado:** el arco curvo alrededor de la nave y la barra rectangular (que marcaban el recalentamiento en rojo) ahora muestran la **velocidad actual** como fracción del tope, siempre azul (`PixiHUD.js`).
+- **Limpieza de código muerto:** se eliminaron los campos `cargaAceleracion`, `sobrecalentadoAceleracion`, `cargaMax`, `velocidadCarga`, `temporizadorEnfriamientoAcel`/`duracionEnfriamientoAcel`, el bloque `CONFIG.ACELERACION`, la variable `estabaAvanzando` y la carga del sonido `sobrecalentamientoW` (ya no se reproduce). Neto: −35 líneas.
+- **Verificado en runtime:** manteniendo W la velocidad llega a 300 y se queda (antes caía a 0); al soltar frena; la mejora lleva el tope 300→340→420→500; el arco sigue la velocidad en azul; sin errores de consola. Android: `versionCode 12` / `1.50.0`.
+
+## ✅ Completado v1.49.3 - Fix: el "Volver" del Top 5 no queda flotando al revivir
+
+- Si en el Game Over se abría el **TOP 5** y desde ahí se tocaba **Revivir (ver anuncio)**, tras el anuncio el botón **Volver** del Top 5 quedaba flotando sobre la partida. Causa: `_limpiarFinJuego()` removía `btn-reiniciar/top5/revivir` por ID pero NO el `btn-volver`, y descartaba `botonesHTML` sin recorrerlo. Ahora la limpieza remueve `btn-volver` por ID **y** recorre `botonesHTML` sacando del DOM cualquier botón guardado (`Game.js`). Verificado en runtime reproduciendo Game Over → Top 5 → limpieza. Android: `versionCode 11` / `1.49.3`.
+
+## ✅ Completado v1.49.2 - Auto-apuntado más sutil (touch/joystick)
+
+- La asistencia de apuntado se sentía "pegajosa" y a veces enganchaba al enemigo equivocado. Se afinó a un punto intermedio: `CONFIG.AUTOAPUNTADO` **CONO_GRADOS 20°→12°** (solo asiste si ya estás bien alineado) y **FUERZA 0.6→0.3** (corrige la mitad de suave). El mouse sigue 100% preciso. Probado en el G04. Android: `versionCode 10` / `1.49.2`.
+
+## ✅ Completado v1.49.1 - Inicio más nítido (el juego se acomoda detrás de la carga)
+
+- Los 2s finales de la pantalla de carga ("LISTO! 100%") ya no **congelan** el juego: lo dejan correr **detrás** de la carga para que cámara, HUD y escudo curvo se acomoden antes de mostrarse → se acabó el parpadeo con cosas "fuera de lugar" en el primer segundo (`UIManager.js`). Nuevo `Game.prepararInicioLimpio()`: justo antes de revelar, barre lo que haya spawneado en esos 2s (asteroides, naves, especiales, proyectiles, efectos) y resetea la puntuación a 0 → arranque acomodado **y** limpio. Mantiene nave, HUD, boids y cámara. Android: `versionCode 9` / `1.49.1`.
 
 ## ✅ Completado v1.49.0 - Tutorial móvil, indicadores y rendimiento
 
