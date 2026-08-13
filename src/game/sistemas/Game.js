@@ -691,8 +691,11 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         // la barra de sobrecalentamiento (+40 por mejora → base 100, hasta 300 =
         // 3× el tiempo antes de sobrecalentar). La barra sigue siendo 0-100%.
         if (this.jugador) {
+            // La mejora de Aceleración sube el TOPE de velocidad (antes agrandaba la
+            // barra de sobrecalentamiento, ya eliminada). +40 px/s por nivel → con
+            // los 5 niveles pasa de 300 a 500.
             const nAcel = nivelSeccion(20);
-            this.jugador.cargaMax = CONFIG.ACELERACION.CARGA_MAXIMA + nAcel * 40;
+            this.jugador.velocidadMax = CONFIG.JUGADOR.VELOCIDAD_MAX + nAcel * CONFIG.JUGADOR.VELOCIDAD_MAX_POR_MEJORA;
         }
 
         // Propulsor (25-29): -2 s de cooldown por mejora (base 15 s, mínimo 3 s).
@@ -865,7 +868,6 @@ _crearParticulaBoidFuera() {
         this.gestorSonido.cargar('ulti', 'assets/audio/ulti.mp3', V.ulti);
         this.gestorSonido.cargar('propulsor', 'assets/audio/propulsor.mp3', V.propulsor);
         this.gestorSonido.cargar('roturaEscudos', 'assets/audio/rotura de escudos.mp3', V.roturaEscudos);
-        this.gestorSonido.cargar('sobrecalentamientoW', 'assets/audio/sobrecalentamiento(w).mp3', V.sobrecalentamientoW);
         this.gestorSonido.cargar('devorador', 'assets/audio/deborador.mp3', V.devorador);
         this.gestorSonido.cargar('cohetes', 'assets/audio/cohetes.mp3', V.cohetes);
 
@@ -1507,8 +1509,6 @@ _crearParticulaBoidFuera() {
         if (j) {
             j.escudos = j.escudosMax;
             j.sobrecalentado = false;
-            j.sobrecalentadoAceleracion = false;
-            j.cargaAceleracion = 0;
             j.velocidad = 0;
             j.active = true;
             if (j.imagen) j.imagen.visible = true;

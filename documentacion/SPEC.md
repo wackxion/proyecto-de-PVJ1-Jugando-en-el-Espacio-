@@ -19,7 +19,7 @@
 
 **Mecánicas Principales (controles actualizados en v1.38.1):**
 - **Apuntar** la nave con el **mouse** (la nave mira siempre al cursor)
-- **Avanzar / acelerar** con **click derecho** (o W) - inercia + sobrecalentamiento
+- **Avanzar / acelerar** con **click derecho** (o W) - aceleración constante con inercia hasta el tope de velocidad (sin sobrecalentamiento; la mejora de Aceleración sube ese tope)
 - **Disparar** con **click izquierdo** (o Espacio) hacia el cursor
 - **Joystick / gamepad** (alternativa, convive con teclado y mouse): **stick izquierdo** apunta la nave (el derecho como alternativa), **RT/A** acelera, **LT/X** dispara, **B** Ulti, **LB** Devorador, **RB** Cohetes, **Y** Propulsor
 - **Controles reasignables** desde Opciones → CONTROLES (se guardan en localStorage)

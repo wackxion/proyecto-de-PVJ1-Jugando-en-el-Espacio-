@@ -1812,7 +1812,7 @@ export class PixiHUD {
         const j = g.jugador;
         if (j) {
             luz(this.ulti,  !!j.ultiListo);              // cargado
-            luz(this.nuevo, !j.sobrecalentadoAceleracion); // aceleración no sobrecalentada
+            luz(this.nuevo, true);                       // aceleración: siempre disponible (sin sobrecalentamiento)
         }
     }
 
@@ -1860,33 +1860,28 @@ export class PixiHUD {
     }
 
     /**
-     * Ajusta el ancho del relleno de la barra de aceleración (W) según
-     * jugador.cargaAceleracion (0-100%) y lo pinta rojo si está sobrecalentado,
-     * azul si no. @private
+     * Ajusta el ancho del relleno de la barra de aceleración (W): ahora muestra la
+     * VELOCIDAD ACTUAL como fracción del tope (velocidadMax, que sube con la mejora).
+     * Siempre azul — ya no hay sobrecalentamiento. @private
      */
     _actualizarBarraAceleracion() {
         if (!this.barraAceleracionFill || !this.game || !this.game.jugador) return;
 
         const jugador = this.game.jugador;
-        // % relativo al máximo actual (cargaMax sube con las mejoras de aceleración)
-        const cargaMax = jugador.cargaMax || 100;
-        const porcentaje = Math.max(0, Math.min(100, (jugador.cargaAceleracion / cargaMax) * 100));
+        // % de la velocidad actual respecto del tope actual (velocidadMax con mejoras)
+        const velMax = jugador.velocidadMax || 300;
+        const porcentaje = Math.max(0, Math.min(100, ((jugador.velocidad || 0) / velMax) * 100));
         const anchoMax = this._anchoBarraAceleracion || 100;
         const alto = this._altoBarraAceleracion || 20;
 
         this.barraAceleracionFill.clear();
-        if (jugador.sobrecalentadoAceleracion) {
-            this.barraAceleracionFill.beginFill(0xCC0000);
-        } else {
-            this.barraAceleracionFill.beginFill(0x0044CC);
-        }
+        this.barraAceleracionFill.beginFill(0x0044CC);
         this.barraAceleracionFill.drawRect(0, 0, (porcentaje / 100) * anchoMax, alto);
         this.barraAceleracionFill.endFill();
 
-        // Cambiar color del borde también
         this.barraAceleracionBg.clear();
         this.barraAceleracionBg.beginFill(0xFFFFFF);
-        this.barraAceleracionBg.lineStyle(2, jugador.sobrecalentadoAceleracion ? 0xCC0000 : 0x0044CC, 1);
+        this.barraAceleracionBg.lineStyle(2, 0x0044CC, 1);
         this.barraAceleracionBg.drawRect(0, 0, anchoMax, alto);
         this.barraAceleracionBg.endFill();
     }
@@ -2195,10 +2190,10 @@ export class PixiHUD {
 
     /**
      * Pega la barra al borde del escudo de la nave (sigue su posición cada frame,
-     * sin rotar con ella) y redibuja el arco según jugador.cargaAceleracion
-     * (0-100%): crece por la curva y el azul se intensifica (tinta clara → tinta
-     * oscura) al cargarse. Al sobrecalentarse queda llena en el azul más oscuro y
-     * parpadea, para avisar el recalentamiento. Se oculta si la nave no está activa.
+     * sin rotar con ella) y redibuja el arco según la VELOCIDAD ACTUAL de la nave
+     * (fracción de velocidadMax): crece por la curva y el azul se intensifica
+     * (tinta clara → tinta oscura) a más velocidad. Se oculta si la nave no está
+     * activa. (Antes mostraba la carga de sobrecalentamiento, ya eliminado.)
      * @private
      */
     _actualizarEscudoCurvo() {
@@ -2250,10 +2245,11 @@ export class PixiHUD {
         let activa = false;   // en uso / activa -> opacidad plena
 
         if (def.id === 'aceleracion') {
-            sobre = !!jugador.sobrecalentadoAceleracion;
-            // Relativo al máximo actual (cargaMax crece con las mejoras)
-            fraccion = sobre ? 1 : this._clamp01((jugador.cargaAceleracion || 0) / (jugador.cargaMax || 100));
-            activa = sobre || (jugador.cargaAceleracion || 0) > 0;
+            // Ahora el arco muestra la VELOCIDAD ACTUAL como fracción del tope
+            // (velocidadMax, que sube con la mejora). Ya no hay sobrecalentamiento,
+            // así que nunca se pinta de rojo (sobre = false).
+            fraccion = this._clamp01((jugador.velocidad || 0) / (jugador.velocidadMax || 300));
+            activa = (jugador.velocidad || 0) > 0;
         } else if (def.id === 'escudos') {
             const max = jugador.escudosMax || 100;
             fraccion = this._clamp01((jugador.escudos || 0) / max);

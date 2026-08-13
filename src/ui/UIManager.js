@@ -1365,7 +1365,7 @@ export class UIManager {
             ['assets/escudo1.png', 'Escudo', '+50 HP máx c/u'],
             ['assets/ultiicon1.png', 'Ulti', '− coste de carga'],
             ['assets/tiempo fuera.png', 'Tiempo Fuera', '+ regeneración'],
-            ['assets/aceleracion.png', 'Aceleración', '+ tiempo de acel.'],
+            ['assets/aceleracion.png', 'Aceleración', '+ velocidad máx'],
             ['assets/propulsor.png', 'Propulsor', '− cooldown (−2s c/u)'],
             ['assets/deborador.png', 'Devorador', '+ rango/velocidad'],
             ['assets/cohetes.png', 'Cohetes', '+1 cohete c/u'],

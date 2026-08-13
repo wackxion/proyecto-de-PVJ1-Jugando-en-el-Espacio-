@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.49.3',               // Versión visible en la pantalla de créditos
+        VERSION: '1.50.0',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -75,19 +75,17 @@ export const CONFIG = {
 
     // === JUGADOR (nave) ===
     JUGADOR: {
-        VELOCIDAD_MAX: 300,             // Velocidad máxima de avance (px/s)
+        VELOCIDAD_MAX: 300,             // Velocidad máxima de avance base (px/s)
+        VELOCIDAD_MAX_POR_MEJORA: 40,   // +px/s al tope por cada nivel de la mejora Aceleración (5 niveles → 300+200 = 500)
         ACELERACION: 400,               // Cuánto sube la velocidad al apretar W (px/s²)
         FRICCION: 0.95,                 // Inercia al soltar W (0.95 = pierde 5% por frame)
         VELOCIDAD_ROTACION: 4,          // Velocidad de giro (rad/s)
         RADIO_COLISION: 32,             // Radio de colisión de la nave (px)
     },
 
-    // === ACELERACIÓN / SOBRECALENTAMIENTO (tecla W) ===
-    ACELERACION: {
-        CARGA_MAXIMA: 100,              // Carga que llena la barra de sobrecalentamiento
-        VELOCIDAD_CARGA: 50,            // % por segundo (50 = llena en 2 s)
-        DURACION_ENFRIAMIENTO: 2.5,     // Segundos de enfriamiento tras sobrecargar
-    },
+    // NOTA: el viejo sistema de sobrecalentamiento de la aceleración (tecla W) se
+    // eliminó. Ahora la aceleración es constante (sube hasta VELOCIDAD_MAX y se
+    // queda ahí) y la mejora de Aceleración sube el tope (VELOCIDAD_MAX_POR_MEJORA).
 
     // === ESCUDOS (vida) ===
     ESCUDOS: {
@@ -241,7 +239,7 @@ export const CONFIG = {
         COSTOS_ESCUDO:       [50, 50, 50, 50, 50],   // Más escudos
         COSTOS_ULTI:         [50, 50, 50, 50, 50],   // Reducción de carga de ulti
         COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
-        COSTOS_ACELERACION:  [10, 20, 30, 40, 50],   // +tiempo de aceleración (W)
+        COSTOS_ACELERACION:  [10, 20, 30, 40, 50],   // +velocidad máxima (tope de avance)
         COSTOS_PROPULSOR:    [10, 20, 30, 40, 50],   // -cooldown del propulsor (R)
         COSTOS_DEVORADOR:    [30, 35, 40, 45, 50],   // +rango/velocidad de atracción (E)
         COSTOS_COHETES:      [20, 25, 30, 35, 40],   // +1 cohete por mejora (Q)
@@ -263,7 +261,6 @@ export const CONFIG = {
 
             // --- Estados del jugador ---
             roturaEscudos: 0.5,         // en bucle mientras dura el sobrecalentamiento
-            sobrecalentamientoW: 0.5,   // barra W al tope
             recibirImpacto: 0.5,        // te pegan
 
             // --- Combate ---

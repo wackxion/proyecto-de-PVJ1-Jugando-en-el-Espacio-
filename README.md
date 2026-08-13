@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.49.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.49.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.0)
 
 ---
 
@@ -22,7 +22,7 @@ Este proyecto forma parte de la cursada de **Programación de Videojuegos 1** en
 
 ### Mecánicas del Juego (v1.5.0)
 - **Movimiento tipo tanque** - La nave rota (A/D) y avanza (W) con inercia
-- **Sistema de aceleración** - Mantén W para acelerar (1s), luego sobrecalentamiento (3s)
+- **Sistema de aceleración** - Mantén W para acelerar hasta el tope de velocidad (constante, sin sobrecalentamiento); la mejora de Aceleración sube ese tope
 - **Disparar** proyectiles (Espacio) hacia la dirección que apunta la nave
 - **Ataque especial (Ulti)** - Pulso expansivo que destruye todo a su paso (radio 18% diagonal)
 - Los asteroides vienen en **4 tamaños** (grande, mediano, pequeño, especial)
@@ -361,7 +361,17 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.49.3 (Actual)
+### v1.50.0 (Actual)
+> **Aceleración constante: adiós al sobrecalentamiento; la mejora sube el tope de velocidad**
+
+- 🚀 Se **eliminó el sobrecalentamiento de la aceleración**: antes, mantener W mucho llenaba una barra y la nave dejaba de acelerar y frenaba por 2.5s. Ahora la aceleración es **constante** — mantenés W y la nave sube hasta su tope de velocidad y se queda ahí, sin penalización (`Player.js`)
+- ⬆️ La **mejora de Aceleración** ahora sube el **tope de velocidad** en vez de agrandar la barra de sobrecalentamiento: **+40 px/s por nivel** → de 300 a **500** con los 5 niveles (`Game.js`, `config.js` `VELOCIDAD_MAX_POR_MEJORA`)
+- 🎯 El **arco curvo alrededor de la nave** se reutilizó: antes marcaba el recalentamiento (se ponía rojo), ahora muestra la **velocidad actual** como fracción del tope (`PixiHUD.js`). Ídem la barra rectangular del HUD
+- 🧹 Limpieza: se eliminaron los campos muertos (`cargaAceleracion`, `sobrecalentadoAceleracion`, etc.), el bloque `CONFIG.ACELERACION`, la variable `estabaAvanzando` y la carga del sonido `sobrecalentamientoW` (ya no se usa)
+- ✅ Verificado en runtime: manteniendo W la velocidad llega a 300 y **se queda** (antes caía a 0); al soltar frena por inercia; la mejora lleva el tope 300→340→420→500; el arco sigue la velocidad en azul; sin errores de consola
+- 🤖 Android preparado como `versionCode 12` / `versionName 1.50.0` para regenerar el AAB
+
+### v1.49.3
 > **Fix: el "Volver" del Top 5 ya no queda flotando al revivir**
 
 - 🐛 Si en el Game Over abrías el **TOP 5** y desde ahí tocabas **Revivir (ver anuncio)**, tras el anuncio el botón **Volver** del Top 5 quedaba flotando sobre la partida. Causa: `_limpiarFinJuego()` removía `btn-reiniciar/top5/revivir` por ID pero no el `btn-volver`, y descartaba el array `botonesHTML` sin recorrerlo. Ahora la limpieza remueve el `btn-volver` **y** recorre `botonesHTML` sacando del DOM cualquier botón guardado (`Game.js`). Verificado en runtime reproduciendo el camino Game Over → Top 5 → limpieza

@@ -160,21 +160,12 @@ this.rotacion = 0;
         this.friccion = CONFIG.JUGADOR.FRICCION;
         // direccionMovimiento: Dirección en la que se mueve
         this.direccionMovimiento = this.rotacion;
-        
-        // =========================================
-        // SOBRECALENTAMIENTO DE ACELERACIÓN (W)
-        // =========================================
-        // Este sobrecalentamiento se activa cuando acelerás con W por 2 segundos seguidos
-        // Te impide acelerar por 2.5 segundos, pero seguís jugando normalmente
-        // cargaAceleracion: Carga que se llena mientras presionas W (0-100)
-        this.cargaAceleracion = 0;
-        this.cargaMax = CONFIG.ACELERACION.CARGA_MAXIMA;
-        this.velocidadCarga = CONFIG.ACELERACION.VELOCIDAD_CARGA; // 50% por segundo (llena en 2 segundos)
-        // sobrecalentadoAceleracion: Flag que indica si está sobrecalentado por usar W demasiado
-        this.sobrecalentadoAceleracion = false;
-        // temporizadorEnfriamientoAcel: Temporizador de enfriamiento (2.5 segundos)
-        this.temporizadorEnfriamientoAcel = 0;
-        this.duracionEnfriamientoAcel = CONFIG.ACELERACION.DURACION_ENFRIAMIENTO;
+
+        // ACELERACIÓN CONSTANTE (sin sobrecalentamiento): manteniendo avanzar, la
+        // nave acelera hasta `velocidadMax` y se queda ahí; al soltar frena por
+        // inercia (friccion). La mejora de Aceleración sube `velocidadMax`. El viejo
+        // sistema de sobrecalentamiento de W (cargaAceleracion / enfriamiento) se
+        // eliminó por completo.
     }
     
     /**
@@ -264,48 +255,19 @@ this.rotacion = 0;
         // joystick; en PC/gamepad es 1 (thrust completo) cuando se presiona avanzar.
         const intensidadAcel = input.intensidadAvance ? input.intensidadAvance() : (input.debeAvanzar(delta) ? 1 : 0);
         const estaPresionandoW = intensidadAcel > 0;
-        const estabaAvanzando = this.velocidad > 0;
-        
-        // Si está sobrecalentado
-        if (this.sobrecalentadoAceleracion) {
-            // Enfriar siempre (aunque siga apretando W)
-            this.temporizadorEnfriamientoAcel -= delta;
-            this.cargaAceleracion = Math.max(this.cargaAceleracion - this.velocidadCarga * delta, 0);
-            
-            if (this.temporizadorEnfriamientoAcel <= 0) {
-                this.sobrecalentadoAceleracion = false;
-                this.cargaAceleracion = 0;
-                this.temporizadorEnfriamientoAcel = this.duracionEnfriamientoAcel;
-            }
-            
-            // Frenar
-            this.velocidad *= this.friccion;
-            if (this.velocidad < 1) this.velocidad = 0;
-        } 
-        // Si presiona W y no está sobrecalentado
-        else if (estaPresionandoW) {
-            // Actualizar dirección de movimiento continuamente para permitir giro mientras acelera
+
+        // ACELERACIÓN CONSTANTE (sin sobrecalentamiento):
+        if (estaPresionandoW) {
+            // Actualizar dirección de movimiento continuamente para permitir giro mientras acelera.
             this.direccionMovimiento = this.rotacion;
-            
-            // Escaladas por intensidad: empujar más = acelerar más fuerte Y gastar
-            // (llenar la barra de sobrecalentamiento) más rápido. En PC intensidad=1.
-            this.cargaAceleracion = Math.min(this.cargaAceleracion + this.velocidadCarga * intensidadAcel * delta, this.cargaMax);
+            // Escalada por intensidad (en táctil, cuánto se empuja el joystick;
+            // en PC/gamepad = 1). La nave acelera hasta su tope actual (velocidadMax,
+            // que sube con la mejora de Aceleración) y se queda ahí, sin penalización.
             this.velocidad = Math.min(this.velocidad + this.aceleracion * intensidadAcel * delta, this.velocidadMax);
-            
-            if (this.cargaAceleracion >= this.cargaMax) {
-                // Sonido solo en la transición (no cada frame mientras está lleno)
-                if (!this.sobrecalentadoAceleracion && this.juego && this.juego.gestorSonido) {
-                    this.juego.gestorSonido.reproducir('sobrecalentamientoW');
-                }
-                this.sobrecalentadoAceleracion = true;
-                this.temporizadorEnfriamientoAcel = this.duracionEnfriamientoAcel;
-            }
-        } 
-        // Normal - no presiona W
-        else {
+        } else {
+            // Al soltar: frena por inercia.
             this.velocidad *= this.friccion;
             if (this.velocidad < 1) this.velocidad = 0;
-            this.cargaAceleracion = Math.max(this.cargaAceleracion - this.velocidadCarga * delta, 0);
         }
         
         // Movimiento
