@@ -1440,16 +1440,24 @@ _crearParticulaBoidFuera() {
         if (this.limpiezaEnProgreso) return;
         this.limpiezaEnProgreso = true;
         
-        // Remover botones HTML por ID
+        // Remover botones HTML por ID. Incluye el "Volver" del Top 5 (btn-volver):
+        // si el jugador abre el Top 5 y desde ahí revive, ese botón NO estaba entre
+        // los que se removían y quedaba flotando huérfano sobre la partida.
         const btnReiniciar = document.getElementById('btn-reiniciar');
         const btnTop5 = document.getElementById('btn-top5');
         const btnRevivir = document.getElementById('btn-revivir');
+        const btnVolver = document.getElementById('btn-volver');
         if (btnReiniciar) btnReiniciar.remove();
         if (btnTop5) btnTop5.remove();
         if (btnRevivir) btnRevivir.remove();
-        
-        // Limpiar array de botones
+        if (btnVolver) btnVolver.remove();
+
+        // Limpiar array de botones: remover del DOM cualquier otro botón guardado
+        // (p. ej. el "Volver" del Top 5) antes de descartar el array.
         if (this.botonesHTML) {
+            for (const b of this.botonesHTML) {
+                try { if (b && b.remove) b.remove(); } catch (e) { /* ignorar */ }
+            }
             this.botonesHTML = null;
         }
         
