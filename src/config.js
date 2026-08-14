@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.50.0',               // Versión visible en la pantalla de créditos
+        VERSION: '1.50.1',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -75,8 +75,8 @@ export const CONFIG = {
 
     // === JUGADOR (nave) ===
     JUGADOR: {
-        VELOCIDAD_MAX: 300,             // Velocidad máxima de avance base (px/s)
-        VELOCIDAD_MAX_POR_MEJORA: 40,   // +px/s al tope por cada nivel de la mejora Aceleración (5 niveles → 300+200 = 500)
+        VELOCIDAD_MAX: 200,             // Velocidad máxima de avance base (px/s)
+        VELOCIDAD_MAX_POR_MEJORA: 40,   // +px/s al tope por cada nivel de la mejora Aceleración (5 niveles → 200+200 = 400)
         ACELERACION: 400,               // Cuánto sube la velocidad al apretar W (px/s²)
         FRICCION: 0.95,                 // Inercia al soltar W (0.95 = pierde 5% por frame)
         VELOCIDAD_ROTACION: 4,          // Velocidad de giro (rad/s)

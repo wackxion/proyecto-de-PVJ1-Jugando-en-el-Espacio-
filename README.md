@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.1)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.0 (Actual)
+### v1.50.1 (Actual)
+> **Ajuste de velocidad base + limpieza de créditos**
+
+- 🐢 Velocidad máxima **base** bajada de **300 → 200 px/s** (`config.js`), para una nave más manejable. Con la mejora de Aceleración (+40/nivel) el tope máximo queda en **400**
+- 📝 Créditos: se quitaron los bloques **"Curso"** (Programación de Videojuegos 1 / UNAHUR 2026) y **"Profesor"** (`UIManager.js`)
+- 🤖 Android preparado como `versionCode 13` / `versionName 1.50.1` para regenerar el AAB
+
+### v1.50.0
 > **Aceleración constante: adiós al sobrecalentamiento; la mejora sube el tope de velocidad**
 
 - 🚀 Se **eliminó el sobrecalentamiento de la aceleración**: antes, mantener W mucho llenaba una barra y la nave dejaba de acelerar y frenaba por 2.5s. Ahora la aceleración es **constante** — mantenés W y la nave sube hasta su tope de velocidad y se queda ahí, sin penalización (`Player.js`)

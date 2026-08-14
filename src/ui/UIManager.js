@@ -1830,11 +1830,6 @@ export class UIManager {
             <div>Braian Zapater</div>
             <div>Copilot</div>
             <div>Chat GPT</div>
-            <div style="margin-top: 10px; font-weight: bold;">Curso:</div>
-            <div>Programación de Videojuegos 1</div>
-            <div>UNAHUR 2026</div>
-            <div style="margin-top: 10px; font-weight: bold;">Profesor:</div>
-            <div>Facundo Saiegh</div>
             <div style="margin-top: 10px; font-weight: bold;">Tecnologías:</div>
             <div>PixiJS v8 | Firebase Firestore</div>
             <div style="margin-top: 10px; font-weight: bold;">Asistencia IA:</div>
