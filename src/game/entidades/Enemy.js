@@ -87,9 +87,15 @@ export class Enemigo extends GameObject {
         // tieneTrayectoriaHeredada = flag que indica si el asteroide tiene trayectoria heredada
         this.tieneTrayectoriaHeredada = tieneHerencia;
         
-        // temporizadorTrayectoria = tiempo que dura la trayectoria heredada (en frames)
-        // Cuando llega a 0, el asteroide usa su movimiento normal
-        this.temporizadorTrayectoria = tieneHerencia ? 60 : 0;
+        // temporizadorTrayectoria = cuánto dura la trayectoria heredada del padre.
+        // ⚠️ EN SEGUNDOS: se descuenta con `delta` en update(), y `delta` viene en
+        // segundos (~0.016). Por eso el valor tiene que ser un TIEMPO en segundos,
+        // no un conteo de frames.
+        // Bug histórico (arreglado): antes valía 60 pensado como "60 frames ≈ 1s",
+        // pero al restarle `delta` (segundos) la herencia duraba ~60 SEGUNDOS → los
+        // fragmentos de un asteroide grande quedaban "flotando" sin perseguir a la
+        // nave casi un minuto. Ahora dura 1 s real.
+        this.temporizadorTrayectoria = tieneHerencia ? 1.0 : 0;
         
         // EnfriamientoColision - evita que los asteroides se queden pegados
         // Después de una colisión, no puede chocar por 0.5 segundos
@@ -411,9 +417,19 @@ export class Enemigo extends GameObject {
         // Si el asteroide no está activo o no tiene sprite, salir
         if (!this.active || !this.imagen) return;
         
-        // Reducir el cooldown de colisión
+        // Reducir el cooldown de colisión.
+        // Además, cuando ese enfriamiento se agota, reseteamos `direccionAlterada`:
+        // el cambio de dirección al chocar es un EMPUJÓN TEMPORAL (dura lo que dura
+        // el cooldown, ~0.5s). Al terminar, el asteroide vuelve a perseguir a la nave.
+        // Bug histórico (arreglado): antes `direccionAlterada` no se reseteaba nunca,
+        // así que un medium/small que chocaba UNA vez se iba en línea recta PARA
+        // SIEMPRE y no volvía a apuntar a la nave (en oleadas altas, con muchos
+        // choques, casi todos terminaban vagando → el juego se hacía más fácil).
         if (this.enfriamientoColision > 0) {
             this.enfriamientoColision -= delta;
+            if (this.enfriamientoColision <= 0) {
+                this.direccionAlterada = false;   // fin del empujón → re-persigue a la nave
+            }
         }
         
         // === TRAYECTORIA HEREDADA ===
@@ -521,11 +537,17 @@ export class Enemigo extends GameObject {
     }
     
     /**
-     * Alterar dirección al chocar con otro asteroide
-     * Se llama desde Game.js cuando hay colisión entre asteroides
+     * Alterar dirección al chocar con otro asteroide (un "empujón" por el impacto).
+     * Se llama desde GameEnemies.procesarColisionesEnemigos al detectar la colisión.
+     *
+     * El efecto es TEMPORAL: marca `direccionAlterada = true` y elige una dirección
+     * recta al azar. En update(), cuando se agota `enfriamientoColision` (~0.5s), el
+     * flag se vuelve a poner en false y el asteroide retoma la persecución normal.
+     * (Solo afecta a medium/small, que usan `_moverConcéntrico`; large orbita y los
+     * rezagados siguen su línea, así que a ellos el flag no los cambia de modo.)
      */
     alterDirection() {
-        // Marcar que la dirección fue alterada
+        // Marcar que la dirección fue alterada (se resetea al terminar el cooldown)
         this.direccionAlterada = true;
         
         // Nueva dirección aleatoria

@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.2)
 
 ---
 
@@ -361,7 +361,17 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.1 (Actual)
+### v1.50.2 (Actual)
+> **Fix de lógica de asteroides: persecución y "flotado" tras romperse**
+
+- 🐛 **Los asteroides dejaban de perseguir para siempre tras chocar**: `direccionAlterada` se ponía en `true` al colisionar pero nunca volvía a `false`, así que un asteroide medium/small que chocaba una vez se iba en línea recta y no volvía a apuntar a la nave. Ahora el flag se resetea al terminar el enfriamiento de colisión (~0.5s) → el "empujón" es temporal y el asteroide retoma la persecución (`Enemy.js`)
+- 🐛 **Fragmentos que "flotaban" ~1 minuto**: `temporizadorTrayectoria` valía `60` (pensado como frames) pero se descontaba con `delta` en segundos → la trayectoria heredada duraba ~60s en vez de ~1s. Los fragmentos de un asteroide grande quedaban derivando sin perseguir. Corregido a 1s real (`Enemy.js`)
+- 💡 Efecto secundario: al no vagar/flotar fuera de vista, mueren más dentro de la pantalla → **se ven mejor sus animaciones de destrucción** (la explosión se dibuja donde está el asteroide)
+- 📝 Comentarios agregados en el código explicando ambos procesos (empujón temporal por colisión y trayectoria heredada en segundos)
+- ✅ Verificado en runtime: tras chocar, `direccionAlterada` vuelve a `false` al vencer el cooldown; el fragmento nace con timer 1 y suelta la herencia en ~1s
+- 🤖 Android preparado como `versionCode 14` / `versionName 1.50.2` para regenerar el AAB
+
+### v1.50.1
 > **Ajuste de velocidad base + limpieza de créditos**
 
 - 🐢 Velocidad máxima **base** bajada de **300 → 200 px/s** (`config.js`), para una nave más manejable. Con la mejora de Aceleración (+40/nivel) el tope máximo queda en **400**

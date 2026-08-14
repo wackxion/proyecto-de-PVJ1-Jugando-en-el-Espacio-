@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.50.1 (ACTUAL)
+**Versión:** v1.50.2 (ACTUAL)
 
 ---
 
@@ -20,6 +20,12 @@
 ## 📋 Pendiente / Backlog (para más adelante)
 
 > **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 12 / versionName 1.50.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
+
+- **Lógica de asteroides — pendientes de la revisión (v1.50.2)**: se arreglaron los 2 bugs graves (persecución tras chocar + fragmentos "flotando"). Quedan, por prioridad:
+  - **(4) La gravedad de la nave atrae a los rezagados** (`Enemy.js` ~L459-473, campo gravitatorio dentro de 100px): aplica a todos los no-especiales, incluidos los rezagados, que deberían "pasar de largo sin homing". Si era intencional, dejar; si no, excluir con `&& !this.esRezagado`.
+  - **(5) Los fragmentos no heredan `multiplicadorVelocidad`** (`Enemy.js` ~L437): en oleadas altas los asteroides frescos van +X% más rápido, pero al romper un large sus fragmentos vuelven a velocidad base. Pasar el multiplicador del padre al fragmento en `_crearFragmento*`.
+  - **(6) Limpieza**: `esRomptible` (`Enemy.js` ~L134) se asigna `true` y nunca se lee (romper se decide por `tamanio`) → código muerto. Y el comentario "aumenta cada 10 oleadas" (~L436) debería decir "+10% cada 5 oleadas".
+  - **(8) Balance a confirmar (no es bug)**: los puntos van al revés del tamaño (small=30 > large=10); romper un large entero da 170 pts. Confirmar si es la intención antes de tocar.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 
