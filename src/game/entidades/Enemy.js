@@ -137,7 +137,6 @@ export class Enemigo extends GameObject {
         this.puntos = stats.PUNTOS;
         this.cargaUlti = stats.CARGA_ULTI;
         this.dano = stats.DANO;
-        this.esRomptible = true;
 
         // Comportamiento de movimiento según el tipo
         this.esRezagado = this.tamanio.endsWith('_rezagado');
@@ -322,11 +321,16 @@ export class Enemigo extends GameObject {
             this.objetivo, 
             this.textura, 
             trajectory, 
-            inheritOrbit, 
-            this.anchoJuego, 
+            inheritOrbit,
+            this.anchoJuego,
             this.altoJuego
         );
-        
+
+        // Heredar el multiplicador de velocidad del padre (sube +10% cada 5 oleadas).
+        // Sin esto, en oleadas altas el asteroide entero venía rápido pero sus
+        // fragmentos volvían a velocidad base → se sentía un "frenazo" al romperlo.
+        fragment.multiplicadorVelocidad = this.multiplicadorVelocidad || 1;
+
         return fragment;
     }
     
@@ -359,6 +363,10 @@ export class Enemigo extends GameObject {
             this.altoJuego
         );
         
+        // Heredar el multiplicador de velocidad del padre (sube +10% cada 5 oleadas),
+        // igual que los fragmentos normales, para no perder velocidad al romperse.
+        fragment.multiplicadorVelocidad = this.multiplicadorVelocidad || 1;
+
         // Asignar dirección rezagada
         fragment.esRezagado = true;
         fragment.direccionX = directionX;
@@ -449,7 +457,7 @@ export class Enemigo extends GameObject {
         // === MOVIMIENTO NORMAL ===
         else if (this.objetivo) {
             // Si hay slowdown activo, mover más lento (30% de velocidad)
-            // Multiplicar por el multiplicador de velocidad (aumenta cada 10 oleadas)
+            // Multiplicar por el multiplicador de velocidad (+10% cada 5 oleadas, tope +60%)
             let velocidadActual = this.velocidad * (this.multiplicadorVelocidad || 1);
             if (this.slowdownTimer > 0) {
                 velocidadActual *= 0.3;
@@ -470,9 +478,11 @@ export class Enemigo extends GameObject {
             }
             
             // === CAMPO GRAVITATORIO DE LA NAVE ===
-            // Si está dentro de 100px del jugador, atraer hacia él
-            // NO aplica para especiales ni mini asteroides en órbita
-            if (this.objetivo && this.tamanio !== 'special') {
+            // Si está dentro de 100px del jugador, atraer hacia él.
+            // NO aplica para: especiales, ni REZAGADOS. Los rezagados están pensados
+            // para "pasar de largo" en línea recta sin homing; si la gravedad los
+            // chupaba hacia la nave, contradecía su rol (parecían perseguir).
+            if (this.objetivo && this.tamanio !== 'special' && !this.esRezagado) {
                 const dx = this.objetivo.x - this.x;
                 const dy = this.objetivo.y - this.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);

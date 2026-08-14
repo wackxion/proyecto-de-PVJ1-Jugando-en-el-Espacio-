@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.3)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.4)
 
 ---
 
@@ -361,7 +361,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.3 (Actual)
+### v1.50.4 (Actual)
+> **Pulido de asteroides: rezagados sin homing, fragmentos con velocidad heredada, limpieza**
+
+- 🛸 **Los rezagados ya no son atraídos por la gravedad de la nave**: el campo gravitatorio (dentro de 100px) aplicaba a todos los no-especiales, incluidos los rezagados, que están pensados para "pasar de largo" en línea recta. Ahora se excluyen → cruzan sin desviarse hacia vos (`Enemy.js`)
+- 🌀 **Los fragmentos heredan el multiplicador de velocidad del padre** (+10% cada 5 oleadas): antes, al romper un asteroide veloz de oleada alta, sus fragmentos volvían a velocidad base ("frenazo"). Ahora mantienen el ritmo (`Enemy.js`)
+- 🧹 Limpieza: se eliminó `esRomptible` (código muerto, nunca se leía) y se corrigió el comentario del multiplicador ("+10% cada 5 oleadas", antes decía "cada 10")
+- ✅ Verificado en runtime: un rezagado a 44px del jugador no se desvía (dy=0), un asteroide normal sí es atraído (dy=−2.9, control), y el fragmento de un large con multiplicador 1.6 lo hereda
+- 🤖 Android preparado como `versionCode 16` / `versionName 1.50.4` para regenerar el AAB
+
+### v1.50.3
 > **Fix: las naves enemigas de la periferia ahora sí disparan (zoom)**
 
 - 🐛 El chequeo de "¿la nave está en pantalla para disparar?" usaba `anchoJuego/altoJuego` (tamaño **sin** zoom), pero con `ZOOM 0.70` la vista real abarca `anchoJuego/ZOOM` (~43% más área). Resultado: naves visibles en la **periferia** de la pantalla **se veían pero no disparaban** (el cuadro cubría solo el ~70% de lo visible). Ahora se compara contra la vista real con zoom (`GameEnemies.js`)

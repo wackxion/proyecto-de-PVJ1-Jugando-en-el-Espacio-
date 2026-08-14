@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.50.3 (ACTUAL)
+**Versión:** v1.50.4 (ACTUAL)
 
 ---
 
@@ -21,11 +21,8 @@
 
 > **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 12 / versionName 1.50.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
-- **Lógica de asteroides — pendientes de la revisión (v1.50.2)**: se arreglaron los 2 bugs graves (persecución tras chocar + fragmentos "flotando"). Quedan, por prioridad:
-  - **(4) La gravedad de la nave atrae a los rezagados** (`Enemy.js` ~L459-473, campo gravitatorio dentro de 100px): aplica a todos los no-especiales, incluidos los rezagados, que deberían "pasar de largo sin homing". Si era intencional, dejar; si no, excluir con `&& !this.esRezagado`.
-  - **(5) Los fragmentos no heredan `multiplicadorVelocidad`** (`Enemy.js` ~L437): en oleadas altas los asteroides frescos van +X% más rápido, pero al romper un large sus fragmentos vuelven a velocidad base. Pasar el multiplicador del padre al fragmento en `_crearFragmento*`.
-  - **(6) Limpieza**: `esRomptible` (`Enemy.js` ~L134) se asigna `true` y nunca se lee (romper se decide por `tamanio`) → código muerto. Y el comentario "aumenta cada 10 oleadas" (~L436) debería decir "+10% cada 5 oleadas".
-  - **(8) Balance a confirmar (no es bug)**: los puntos van al revés del tamaño (small=30 > large=10); romper un large entero da 170 pts. Confirmar si es la intención antes de tocar.
+- **Lógica de asteroides — revisión (bugs #1,#2 en v1.50.2; #4,#5,#6 en v1.50.4)**: solo queda 1 punto, y es una decisión de diseño:
+  - **(8) Balance a confirmar (no es bug)**: los puntos van al revés del tamaño (small=30 > large=10); romper un large entero (→2 medium→4 small) da **170 pts**. Es coherente internamente (lo chico cuesta más pegarle), pero confirmar si es la intención antes de tocar (`config.js` ASTEROIDES).
 
 - **Lógica de naves enemigas — pendientes de la revisión (v1.50.3)**: se arregló el #1 (naves de la periferia no disparaban por el zoom). Quedan:
   - **(2) La nave apunta toroidal pero dispara euclidiano**: `direccionDisparo` se calcula con wrap toroidal en `EnemyShip.js` (~L144) pero **nunca se usa** (código muerto); `GameEnemies.js` (~L428-430) recalcula el ángulo con distancia cruda y dispara con ese. Cerca de la costura del mundo la nave apunta a un lado y tira al otro. Fix: usar `naveEnemiga.direccionDisparo`. (Impacto bajo: orbitan cerca.)
