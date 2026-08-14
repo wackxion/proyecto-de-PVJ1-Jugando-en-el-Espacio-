@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.3)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.2 (Actual)
+### v1.50.3 (Actual)
+> **Fix: las naves enemigas de la periferia ahora sí disparan (zoom)**
+
+- 🐛 El chequeo de "¿la nave está en pantalla para disparar?" usaba `anchoJuego/altoJuego` (tamaño **sin** zoom), pero con `ZOOM 0.70` la vista real abarca `anchoJuego/ZOOM` (~43% más área). Resultado: naves visibles en la **periferia** de la pantalla **se veían pero no disparaban** (el cuadro cubría solo el ~70% de lo visible). Ahora se compara contra la vista real con zoom (`GameEnemies.js`)
+- ✅ Verificado en runtime: 6 naves fijadas en la banda periférica (x≈2618, fuera del cuadro viejo que terminaba en 2450) disparando 723 proyectiles; con el código viejo no habrían disparado
+- 🤖 Android preparado como `versionCode 15` / `versionName 1.50.3` para regenerar el AAB
+
+### v1.50.2
 > **Fix de lógica de asteroides: persecución y "flotado" tras romperse**
 
 - 🐛 **Los asteroides dejaban de perseguir para siempre tras chocar**: `direccionAlterada` se ponía en `true` al colisionar pero nunca volvía a `false`, así que un asteroide medium/small que chocaba una vez se iba en línea recta y no volvía a apuntar a la nave. Ahora el flag se resetea al terminar el enfriamiento de colisión (~0.5s) → el "empujón" es temporal y el asteroide retoma la persecución (`Enemy.js`)

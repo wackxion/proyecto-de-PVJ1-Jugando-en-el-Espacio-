@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.50.2 (ACTUAL)
+**Versión:** v1.50.3 (ACTUAL)
 
 ---
 
@@ -26,6 +26,12 @@
   - **(5) Los fragmentos no heredan `multiplicadorVelocidad`** (`Enemy.js` ~L437): en oleadas altas los asteroides frescos van +X% más rápido, pero al romper un large sus fragmentos vuelven a velocidad base. Pasar el multiplicador del padre al fragmento en `_crearFragmento*`.
   - **(6) Limpieza**: `esRomptible` (`Enemy.js` ~L134) se asigna `true` y nunca se lee (romper se decide por `tamanio`) → código muerto. Y el comentario "aumenta cada 10 oleadas" (~L436) debería decir "+10% cada 5 oleadas".
   - **(8) Balance a confirmar (no es bug)**: los puntos van al revés del tamaño (small=30 > large=10); romper un large entero da 170 pts. Confirmar si es la intención antes de tocar.
+
+- **Lógica de naves enemigas — pendientes de la revisión (v1.50.3)**: se arregló el #1 (naves de la periferia no disparaban por el zoom). Quedan:
+  - **(2) La nave apunta toroidal pero dispara euclidiano**: `direccionDisparo` se calcula con wrap toroidal en `EnemyShip.js` (~L144) pero **nunca se usa** (código muerto); `GameEnemies.js` (~L428-430) recalcula el ángulo con distancia cruda y dispara con ese. Cerca de la costura del mundo la nave apunta a un lado y tira al otro. Fix: usar `naveEnemiga.direccionDisparo`. (Impacto bajo: orbitan cerca.)
+  - **(3) `verificarColision` de la nave es euclidiana** (`EnemyShip.js` ~L302-309), no toroidal como el resto (`game._verificarColision`). Nave-vs-asteroide cerca de la costura puede no detectarse. Bajo impacto.
+  - **(4) Código muerto**: `puedeMoverse` (`EnemyShip.js` ~L64) nunca se pone en false → el guard es dead. `disparoCreado` no se inicializa en el constructor (funciona por orden). Comentarios del radio de órbita no coinciden con los valores reales (300-500).
+  - **(obs, no bug)**: las naves no escalan velocidad con la oleada (fijas 225, suben en cantidad); y si al disparar no están apuntando (±30°) pierden el tiro. Probablemente intencional.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 

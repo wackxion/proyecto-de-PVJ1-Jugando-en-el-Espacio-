@@ -418,10 +418,18 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
         // Actualizar la nave enemiga
         naveEnemiga.update(delta);
         
-        // Solo disparar si está dentro de lo que ve la cámara
-        if (naveEnemiga.x > game._camaraX && naveEnemiga.x < game._camaraX + game.anchoJuego &&
-            naveEnemiga.y > game._camaraY && naveEnemiga.y < game._camaraY + game.altoJuego) {
-            
+        // Solo disparar si la nave está dentro de la VISTA REAL de la cámara.
+        // ⚠️ Zoom: `_camaraX/Y` es la esquina superior-izquierda de la vista, y con
+        // ZOOM<1 (0.70) esa vista abarca `anchoJuego/ZOOM` en coords de mundo (~43%
+        // más área que el canvas). Antes se comparaba contra `anchoJuego` a secas
+        // (tamaño sin zoom) → el cuadro de disparo cubría solo el ~70% de lo visible
+        // y las naves de la periferia se VEÍAN en pantalla pero NO disparaban.
+        const _Z = (CONFIG.CAMARA && CONFIG.CAMARA.ZOOM) || 1;
+        const _vistaW = game.anchoJuego / _Z;   // ancho real de la vista (con zoom)
+        const _vistaH = game.altoJuego / _Z;    // alto real de la vista (con zoom)
+        if (naveEnemiga.x > game._camaraX && naveEnemiga.x < game._camaraX + _vistaW &&
+            naveEnemiga.y > game._camaraY && naveEnemiga.y < game._camaraY + _vistaH) {
+
             // Verificar si dispara (cada 3 segundos)
             if (naveEnemiga.yaDisparo && !naveEnemiga.disparoCreado) {
                 // Calcular ángulo hacia el jugador
