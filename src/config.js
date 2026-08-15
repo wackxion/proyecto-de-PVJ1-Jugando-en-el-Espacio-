@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.3',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.4',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -184,7 +184,7 @@ export const CONFIG = {
         VELOCIDAD: 400,                 // px/s
         DANO: 200,                      // El impacto DIRECTO vaporiza cualquier enemigo (destroy directo, no usa este número). Este valor lo usa el daño en ÁREA, que hace la MITAD (100): mata normales pero deja vivo al especial (200 HP)
         RADIO: 8,                       // Radio de colisión del cohete (px)
-        DISTANCIA_MAXIMA: 1500,         // px que puede recorrer; si no llega al blanco, explota (evita que circule el toroide para siempre)
+        DISTANCIA_MAXIMA: 500,          // px que puede recorrer; si no llega al blanco, explota (evita que circule el toroide para siempre)
         RADIO_EXPLOSION: 32,            // radio del daño en área al explotar por distancia (≈ diámetro de un asteroide chico)
     },
 
