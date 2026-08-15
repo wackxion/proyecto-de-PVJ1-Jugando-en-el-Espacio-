@@ -196,7 +196,7 @@ export function procesarColisionesProyectiles(game) {
                 if (!projEnemigo || !projEnemigo.active) continue;
 
                 if (game._verificarColision(projectile, projEnemigo)) {
-                    const explosion = new ProyectilExplosion(projectile.x, projectile.y, game.texturaExplosion, 1.0);
+                    const explosion = new ProyectilExplosion(projectile.x, projectile.y, game.texturaExplosion);
                     explosion.render(game.mundo);
                     game.efectosImpacto.push(explosion);
 

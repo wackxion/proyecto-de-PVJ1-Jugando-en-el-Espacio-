@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.51.4 (ACTUAL)
+**Versión:** v1.51.5 (ACTUAL)
 
 ---
 

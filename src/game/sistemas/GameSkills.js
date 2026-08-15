@@ -17,6 +17,7 @@
 import { Cohete } from '../mecanicas/Cohete.js';
 import { SuccionEffect } from '../efectosVisuales/SuccionEffect.js';
 import { AsteroidExplosion } from '../efectosVisuales/AsteroidExplosion.js';
+import { ProyectilExplosion } from '../efectosVisuales/ProyectilExplosion.js';
 import { SpecialEnemy } from '../entidades/SpecialEnemy.js';
 import { CONFIG } from '../../config.js';
 
@@ -218,11 +219,13 @@ export function actualizarCohetes(game, delta) {
             const rExpl = CONFIG.COHETE.RADIO_EXPLOSION || 32;
             // El daño en área hace la MITAD del daño del cohete.
             const danoArea = (cohete.dano || CONFIG.COHETE.DANO) / 2;
-            // Explosión visual DEL TAMAÑO DEL ÁREA: la escala se deriva del radio de
-            // explosión (misma convención que las explosiones de asteroide, donde
-            // escala = radio/64 · 0.5), así el "boom" cubre justo la zona de daño.
-            const escalaBlast = (rExpl / 64) * 0.5;
-            const blast = new AsteroidExplosion(cohete.x, cohete.y, game.texturaExplosionAsteroide, escalaBlast);
+            // Explosión visual = la MISMA animación que la de los proyectiles al
+            // colisionar (ProyectilExplosion / texturaExplosion), DEL TAMAÑO DEL ÁREA:
+            // la escala se deriva del ancho real de la textura para cubrir el diámetro
+            // del daño (2·rExpl), sin importar el tamaño nativo de la imagen.
+            const texW = (game.texturaExplosion && game.texturaExplosion[0] && game.texturaExplosion[0].width) || 100;
+            const escalaBlast = (rExpl * 2) / texW;
+            const blast = new ProyectilExplosion(cohete.x, cohete.y, game.texturaExplosion, escalaBlast);
             blast.render(game.mundo);
             game.efectosImpacto.push(blast);
             if (game.gestorSonido) game.gestorSonido.reproducir('destruccionMeteorito');

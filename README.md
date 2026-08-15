@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.5)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.4 (Actual)
+### v1.51.5 (Actual)
+> **La detonación por distancia del cohete usa la animación de los proyectiles**
+
+- 🎇 El "blast" cuando un cohete explota por **límite de alcance** (sin pegarle a nada) ahora usa la **misma animación que los proyectiles al colisionar** (`ProyectilExplosion` / `texturaExplosion`) en vez de la explosión roja de asteroide, manteniéndose del tamaño del área. Las explosiones de kills directos (verde nave / roja asteroide) quedan igual (`GameSkills.js`)
+- 🔧 `ProyectilExplosion` ahora acepta una escala opcional (default 0.35), para que el cohete la escale al área (verificado: escala 0.516 = 64/124px de la textura)
+- 🤖 Android preparado como `versionCode 25` / `versionName 1.51.5` para regenerar el AAB
+
+### v1.51.4
 > **Ajuste: alcance del cohete de 1500 → 500px**
 
 - 🎯 `CONFIG.COHETE.DISTANCIA_MAXIMA` bajó de 1500 a **500px** → el cohete explota antes si no llega al blanco (correa más corta, ~1.25s de vuelo)

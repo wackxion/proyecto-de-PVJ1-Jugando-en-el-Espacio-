@@ -18,24 +18,25 @@ export class ProyectilExplosion extends GameObject {
      * @param {number} x - Posición X donde ocurre el impacto
      * @param {number} y - Posición Y donde ocurre el impacto
      * @param {Array} texturas - Array de 5 texturas para la animación
+     * @param {number} escala - Escala del efecto (por defecto 0.35, el de un impacto de proyectil)
      */
-    constructor(x, y, texturas) {
+    constructor(x, y, texturas, escala = 0.35) {
         super(x, y);
-        
+
         this.active = true;
-        
+
         // Array de texturas para la animación
         this.texturas = texturas;
-        
+
         // Tiempo total de la animación
         this.duracionTotal = 0.5; // 0.5 segundos total
         this.tiempoActual = 0;
-        
+
         // Duración de cada frame
         this.duracionFrame = 0.1; // 0.1 segundos por frame
-        
-        // Escala de la explosión
-        this.escala = 0.35;
+
+        // Escala de la explosión (parametrizable; el cohete la usa para el tamaño del área)
+        this.escala = escala;
         
         // Crear el sprite con el primer frame
         this.imagen = new PIXI.Sprite(texturas[0]);
