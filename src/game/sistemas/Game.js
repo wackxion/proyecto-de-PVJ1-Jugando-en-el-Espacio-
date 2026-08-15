@@ -33,7 +33,7 @@ import { GestorSonido } from '../../systems/SoundManager.js';
 import { CONFIG } from '../../config.js';
 
 // === MÓDULOS REFACTORIZADOS ===
-import { crearProyectil, actualizarProyectiles, actualizarProyectilesJugador, actualizarProyectilesEnemigos, procesarColisionesProyectiles } from './GameProjectiles.js';
+import { actualizarProyectiles, actualizarProyectilesJugador, actualizarProyectilesEnemigos, procesarColisionesProyectiles } from './GameProjectiles.js';
 import { generarEnemigo, actualizarEnemigos, generarNaveEnemiga, actualizarNavesEnemigas, actualizarNavesEnemigasCompleto, verificarPosicionLibre, actualizarGeneracion, procesarColisionesJugador, procesarColisionesEnemigos, procesarColisionesMiniEspeciales } from './GameEnemies.js';
 import { actualizarHabilidadCohetes, actualizarHabilidadDevorador, actualizarHabilidadPropulsor } from './GameSkills.js';
 import { activarUlti, actualizarUlti, actualizarEfectosImpacto } from './GameEffects.js';
@@ -2029,18 +2029,26 @@ _crearBotonesGameOverHTML(xCentro, yCentro, ancho) {
         if (!(CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL) || !this.jugador) return;
         const W = this.mundoAncho, H = this.mundoAlto;
         const sx = this.jugador.x, sy = this.jugador.y;
+        // Incluye los EFECTOS (explosiones, impactos): antes no se remapeaban, así que
+        // si un enemigo moría cerca de la costura del mundo, se lo veía cerca (por el
+        // wrap) pero su explosión se creaba en la coord lógica LEJANA y no se veía
+        // (bug "a veces no aparece la animación de destrucción").
         const listas = [this.enemigos, this.enemigosSpeciales, this.enemigosNaves,
-                        this.proyectiles, this.proyectilesEnemigos, this.particulasBoid, this.cohetes];
+                        this.proyectiles, this.proyectilesEnemigos, this.particulasBoid, this.cohetes,
+                        this.efectosImpacto, this.efectosExplosion];
         for (const lista of listas) {
             if (!lista) continue;
             for (const e of lista) {
-                if (!e || !e.imagen) continue;
+                if (!e) continue;
+                // La mayoría usa `.imagen`; algunos efectos (HitEffect) usan `.sprite`.
+                const vis = e.imagen || e.sprite;
+                if (!vis) continue;
                 // B: envolver la posición lógica al mundo
                 e.x = ((e.x % W) + W) % W;
                 e.y = ((e.y % H) + H) % H;
                 // A: render en la copia más cercana a la nave (sin costura)
-                e.imagen.x = sx + this._wrapDelta(e.x - sx, W);
-                e.imagen.y = sy + this._wrapDelta(e.y - sy, H);
+                vis.x = sx + this._wrapDelta(e.x - sx, W);
+                vis.y = sy + this._wrapDelta(e.y - sy, H);
             }
         }
     }

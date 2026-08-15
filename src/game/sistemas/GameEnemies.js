@@ -534,13 +534,11 @@ function _crearProyectilEnemigo(game, x, y, direction) {
     const origenX = x + Math.cos(direction) * distanciaPuntera;
     const origenY = y + Math.sin(direction) * distanciaPuntera;
     
-    // Crear proyectil teledirigido
+    // Crear proyectil (disparo recto en la dirección con la que se disparó)
     const projectile = new EnemyProjectile(
         origenX, origenY, direction,
         game.mundoAncho, game.mundoAlto,
-        game.texturaProyectil,
-        game.jugador,
-        game.enemigos
+        game.texturaProyectil
     );
     
     // Renderizarlo

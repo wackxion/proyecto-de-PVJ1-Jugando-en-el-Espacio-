@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.5',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.6',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -138,7 +138,7 @@ export const CONFIG = {
         TIEMPO_DE_VIDA: 0.75,           // Segundos antes de autodestruirse (800×0.75 = 600px de alcance)
     },
 
-    // === PROYECTIL ENEMIGO (teledirigido) ===
+    // === PROYECTIL ENEMIGO (disparo recto; la nave apunta al jugador al disparar) ===
     PROYECTIL_ENEMIGO: {
         VELOCIDAD: 400,                 // px/s
         DANO: 25,                       // Daño que hace a los escudos del jugador

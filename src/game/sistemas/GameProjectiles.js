@@ -32,27 +32,10 @@ function hayTexturasExplosion(texturas) {
     return Array.isArray(texturas) && texturas.length > 0 && texturas[0];
 }
 
-/**
- * Crea un nuevo proyectil desde la posición del jugador
- * Función auxiliar paraGame.js - líneas 895-904
- *
- * @param {Game} game - Referencia al objeto Game principal
- * @param {number} x - Posición X donde nace el proyectil
- * @param {number} y - Posición Y donde nace el proyectil
- * @param {number} direction - Dirección del proyectil en radianes (ángulo)
- */
-export function crearProyectil(game, x, y, direction, multiplicadorVelocidad = 1.0) {
-    // Crear proyectil SIN usar pool (forma original)
-    const projectile = new Proyectil(x, y, direction, game.mundoAncho, game.mundoAlto, game.texturaProyectil, multiplicadorVelocidad);
-
-    // Renderizar
-    projectile.render(game.mundo);
-
-    // Agregar a la lista
-    game.proyectiles.push(projectile);
-
-    return projectile;
-}
+// NOTA: la creación de proyectiles del jugador vive en Game.crearProyectil()
+// (Game.js), que además aplica el bonus de daño de las mejoras. Antes había acá
+// un `crearProyectil` exportado que nunca se usaba (y encima no importaba la clase
+// Proyectil, así que habría dado ReferenceError si se llamaba): eliminado.
 
 /**
  * Actualiza todos los proyectiles del jugador

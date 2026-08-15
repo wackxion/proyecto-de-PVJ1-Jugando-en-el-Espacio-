@@ -6,9 +6,9 @@
  * 
  * Características:
  * - Se renderiza usando una textura (proyectil1.png)
- * - Tiene una velocidad alta (600 px/s)
- * - Tiene un tiempo de vida limitado (2 segundos)
- * - Se destruye cuando sale de la pantalla
+ * - Velocidad alta (CONFIG.PROYECTIL.VELOCIDAD, 800 px/s)
+ * - Tiempo de vida limitado (CONFIG.PROYECTIL.TIEMPO_DE_VIDA, 0.75s → ~600px de alcance)
+ * - Se autodestruye al vencer el tiempo de vida (el chequeo de bordes es un fallback)
  */
 import { GameObject } from './GameObject.js';
 import { CONFIG } from '../../config.js';
@@ -24,13 +24,12 @@ export class Proyectil extends GameObject {
      * @param {number} altoJuego - Alto del área de juego
      * @param {object} textura - Textura del proyectil (proyectil1.png)
      */
-    constructor(x, y, direccion, anchoJuego = 800, altoJuego = 600, textura = null, multiplicadorVelocidad = 1.0) {
+    constructor(x, y, direccion, anchoJuego = 800, altoJuego = 600, textura = null) {
         // Llamar al constructor de GameObject
         super(x, y);
-        
+
         // Velocidad: Qué tan rápido se mueve el proyectil (píxeles por segundo)
-        // Se aplica el multiplicador de las mejoras Proyectil2
-        this.velocidad = CONFIG.PROYECTIL.VELOCIDAD * multiplicadorVelocidad;
+        this.velocidad = CONFIG.PROYECTIL.VELOCIDAD;
         
         // Direccion: Ángulo hacia donde se mueve el proyectil
         // Se mide en radianes (0 = derecha, π/2 = abajo, π = izquierda, etc.)
@@ -73,11 +72,10 @@ export class Proyectil extends GameObject {
         
         // Rotar la imagen para que apunte en la dirección del disparo
         this.imagen.rotation = direccion;
-        
-        // Width y Height para colisiones
-        this.ancho = this.largo;
-        this.alto = 4;
-        
+
+        // NOTA: las colisiones del proyectil usan `radio` (círculo), no ancho/alto.
+        // (Antes había un `this.ancho = this.largo` con `largo` inexistente → undefined.)
+
         // IMPORTANTE: Mover el proyectil un poco hacia adelante
         // Esto evita que nazca "dentro" de la nave
         // Math.cos(direccion) = componente X de la dirección

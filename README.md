@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.6)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.5 (Actual)
+### v1.51.6 (Actual)
+> **Fix: animación de destrucción que "a veces" no se veía + limpieza de proyectiles**
+
+- 🎆 **Las explosiones ahora se remapean por el toroide**: antes, si un enemigo (nave o asteroide) moría cerca de la **costura del mundo**, se lo veía cerca tuyo (por el wrap) pero su explosión se creaba en la coord **lógica lejana** → no se veía la animación de destrucción. Ahora `Game._actualizarToroide` también reposiciona los efectos (`efectosImpacto`/`efectosExplosion`, tanto `.imagen` como `.sprite`) → la explosión aparece donde el enemigo se veía. Resuelve el bug "a veces destruyo una nave y no aparece la animación" (y el mismo síntoma en asteroides)
+- 🧹 **Limpieza de proyectiles**: se eliminó `GameProjectiles.crearProyectil` (export muerto que ni siquiera importaba la clase `Proyectil` → habría dado ReferenceError; el real es `Game.crearProyectil`), su import, y el `multiplicadorVelocidad` de proyectil (nunca se usaba, no existe mejora de velocidad de disparo). También los params muertos `jugador`/`enemigos` de `EnemyProjectile` (sobra de cuando era teledirigido), el `this.ancho = this.largo` (con `largo` inexistente) y varios comentarios desactualizados (velocidad/vida del proyectil, "teledirigido")
+- ✅ Verificado en runtime: efecto lejano (borde opuesto del mundo) se remapea al lado del jugador; proyectiles del jugador (vel 800/daño 25) y enemigos (vel 400/daño 25) siguen andando sin el código muerto
+- 🤖 Android preparado como `versionCode 26` / `versionName 1.51.6` para regenerar el AAB
+
+### v1.51.5
 > **La detonación por distancia del cohete usa la animación de los proyectiles**
 
 - 🎇 El "blast" cuando un cohete explota por **límite de alcance** (sin pegarle a nada) ahora usa la **misma animación que los proyectiles al colisionar** (`ProyectilExplosion` / `texturaExplosion`) en vez de la explosión roja de asteroide, manteniéndose del tamaño del área. Las explosiones de kills directos (verde nave / roja asteroide) quedan igual (`GameSkills.js`)

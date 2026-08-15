@@ -12,22 +12,22 @@ import { GameObject } from './GameObject.js';
 import { CONFIG } from '../../config.js';
 
 export class EnemyProjectile extends GameObject {
-    constructor(x, y, direccion, anchoJuego, altoJuego, textura, jugador, enemigos) {
+    constructor(x, y, direccion, anchoJuego, altoJuego, textura) {
         super(x, y);
-        
+
         this.velocidad = CONFIG.PROYECTIL_ENEMIGO.VELOCIDAD;
         this.direccion = direccion;
-        
+
         this.dano = CONFIG.PROYECTIL_ENEMIGO.DANO;
         this.tiempoDeVida = CONFIG.PROYECTIL_ENEMIGO.TIEMPO_DE_VIDA;
-        
+
         this.radio = 6;  // Reducido 50% (12 → 6)
         this.anchoJuego = anchoJuego;
         this.altoJuego = altoJuego;
-        
-        this.jugador = jugador;
-        this.enemigos = enemigos;
-        
+
+        // (Ya no guarda jugador/enemigos: eran de cuando era teledirigido; ahora
+        //  el disparo es recto y no los usa.)
+
         this.active = true;
         
         this.escala = 0.175;  // Reducido 50% (0.35 → 0.175)
