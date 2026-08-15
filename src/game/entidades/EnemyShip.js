@@ -99,7 +99,13 @@ export class EnemyShip extends GameObject {
         
         // Radio de órbita (distancia del jugador)
         this.radioOrbita = 250 + Math.random() * 150;
-        
+
+        // "Pasada agresiva" (dive): cada tanto la nave se acerca de golpe y después
+        // vuelve a su órbita. Da variedad al movimiento (no siempre a media distancia).
+        this.diveTimer = 4 + Math.random() * 6;   // primera pasada en 4-10s
+        this.enDive = false;                       // ¿está en una pasada cercana ahora?
+        this.diveDuracion = 0;                     // segundos que le quedan a la pasada
+
         // Velocidad actual (para inercia)
         this.vx = 0;
         this.vy = 0;
@@ -152,9 +158,23 @@ export class EnemyShip extends GameObject {
         // Cambiar ángulo de órbita gradualmente (movimiento suave y circular)
         this.anguloOrbita += 0.4 * delta;
         
-        // Variar el radio para que no sea siempre el mismo (oscila entre 300 y 500px)
-        const radioDeseado = 400 + Math.sin(this.tiempoMovimiento * 0.5) * 100;
-        this.radioOrbita += (radioDeseado - this.radioOrbita) * 0.05 * delta;
+        // Radio de órbita: normalmente oscila 300-500px. Cada tanto la nave hace una
+        // PASADA agresiva más cerca (dive) y después vuelve a su órbita.
+        this.diveTimer -= delta;
+        if (this.diveTimer <= 0 && !this.enDive) {
+            this.enDive = true;
+            this.diveDuracion = 2;                    // la pasada cercana dura ~2s
+            this.diveTimer = 8 + Math.random() * 8;   // próxima pasada en 8-16s
+        }
+        if (this.enDive) {
+            this.diveDuracion -= delta;
+            if (this.diveDuracion <= 0) this.enDive = false;
+        }
+        // En dive se acerca a ~150px; si no, oscila suave entre 300 y 500px.
+        const radioDeseado = this.enDive ? 150 : (400 + Math.sin(this.tiempoMovimiento * 0.5) * 100);
+        // Convergencia frame-independiente (~2/s): antes usaba 0.05·delta, que era
+        // tan lento que el radio casi no cambiaba.
+        this.radioOrbita += (radioDeseado - this.radioOrbita) * Math.min(1, 2 * delta);
         
         const destinoX = jugX + Math.cos(this.anguloOrbita) * this.radioOrbita;
         const destinoY = jugY + Math.sin(this.anguloOrbita) * this.radioOrbita;
@@ -215,11 +235,11 @@ export class EnemyShip extends GameObject {
         acelX *= this.velocidad * constFactor;
         acelY *= this.velocidad * constFactor;
         
-        // Aplicar inercia: mezclar velocidad actual con aceleración deseada
-        // Suavizado (factor 0.05 = mucha inercia, 0.5 = poco)
-        const suavizado = 0.05;
-        
-        // Interpolación hacia la aceleración deseada (inercia)
+        // Aplicar inercia: mezclar velocidad actual con la deseada.
+        // Frame-INDEPENDIENTE: antes era 0.05 fijo por frame (más lento a menos FPS,
+        // p. ej. en el G04 si baja de 60). Ahora ~3/s da el mismo feel a 60fps pero
+        // se mantiene consistente a cualquier framerate.
+        const suavizado = Math.min(1, 3 * delta);
         this.vx = this.vx * (1 - suavizado) + acelX * suavizado;
         this.vy = this.vy * (1 - suavizado) + acelY * suavizado;
         
@@ -230,17 +250,27 @@ export class EnemyShip extends GameObject {
         this.y += this.vy * delta;
         
         // ----------------------------------------
-        // 7. ROTACIÓN SUAVE CON INERCIA
+        // 7. ROTACIÓN
         // ----------------------------------------
-        // La rotación sigue a la velocidad (hacia donde se mueve)
-        const anguloMovimiento = Math.atan2(this.vy, this.vx);
-        let diffAngulo = anguloMovimiento - this.rotacion;
+        // Normalmente la nave mira hacia donde se MUEVE (tangencial a la órbita).
+        // PERO si tiene un disparo pendiente, ENCARA al jugador para poder dispararle
+        // (antes miraba siempre de costado ~96° → casi nunca podía tirar). Mientras
+        // encara, mantiene la mira fresca hacia el jugador y gira más rápido.
+        const disparoPendiente = this.yaDisparo && !this.disparoCreado;
+        let anguloObjetivo;
+        if (disparoPendiente) {
+            this.direccionDisparo = anguloJugador;   // mira fresca (el jugador se mueve)
+            anguloObjetivo = anguloJugador;           // encarar al jugador
+        } else {
+            anguloObjetivo = Math.atan2(this.vy, this.vx);  // seguir el movimiento
+        }
+        let diffAngulo = anguloObjetivo - this.rotacion;
         while (diffAngulo > Math.PI) diffAngulo -= Math.PI * 2;
         while (diffAngulo < -Math.PI) diffAngulo += Math.PI * 2;
-        
-        // Doblar suavemente según la velocidad (más lento = más suave)
+
+        // Gira RÁPIDO cuando está encarando para disparar; suave si solo se mueve.
         const velocidadActual = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-        const factorGiro = velocidadActual > 50 ? 2 : 1; // Giro más suave cuando está despacio
+        const factorGiro = disparoPendiente ? 8 : (velocidadActual > 50 ? 2 : 1);
         this.rotacion += diffAngulo * factorGiro * delta;
         
         // Actualizar sprite

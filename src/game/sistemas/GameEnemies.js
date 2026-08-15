@@ -442,26 +442,22 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                     ? naveEnemiga.direccionDisparo
                     : Math.atan2(game.jugador.y - naveEnemiga.y, game.jugador.x - naveEnemiga.x);
 
-                // Verificar si la nave está apuntando hacia el jugador (diferencia < 30°)
+                // ¿La nave ya está apuntando al jugador (±30°)? La nave gira hacia él
+                // en EnemyShip.update mientras el disparo está pendiente, así que se
+                // alinea en una fracción de segundo.
                 let diff = anguloDisparo - naveEnemiga.rotacion;
                 while (diff > Math.PI) diff -= Math.PI * 2;
                 while (diff < -Math.PI) diff += Math.PI * 2;
-                
-                // Solo dispara si está apuntando hacia el jugador (±30° = ±PI/6)
+
+                // Solo DISPARA (y consume el tiro) cuando está alineada. Si todavía no,
+                // deja el disparo PENDIENTE para el próximo frame → así no pierde el tiro.
+                // Antes reseteaba `yaDisparo` siempre, apuntara o no, por eso las naves
+                // casi nunca llegaban a disparar (perdían ~el 96% de los tiros).
                 if (Math.abs(diff) < Math.PI / 6) {
-                    // Gira hacia el jugador
-                    naveEnemiga.rotacion += diff * 8 * delta;
-                    
-                    // Crear el proyectil desde la punta de la nave
                     _crearProyectilEnemigo(game, naveEnemiga.x, naveEnemiga.y, anguloDisparo);
                     naveEnemiga.disparoCreado = true;
-                } else {
-                    // Si no está apuntando, girar hacia el jugador sin disparar
-                    naveEnemiga.rotacion += diff * 5 * delta;
+                    naveEnemiga.yaDisparo = false;   // tiro consumido
                 }
-                
-                // Resetear para el siguiente disparo
-                naveEnemiga.yaDisparo = false;
             }
         }
         

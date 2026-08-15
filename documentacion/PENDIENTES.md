@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.50.7 (ACTUAL)
+**Versión:** v1.51.0 (ACTUAL)
 
 ---
 
@@ -21,7 +21,7 @@
 
 > **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 19 / versionName 1.50.7**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
-- **🔜 Revisar la INTELIGENCIA / MOVIMIENTO de las naves enemigas (anotado 15/08/2026)**: repasar cómo se mueven y "piensan" las naves (`EnemyShip.update`): la órbita alrededor del jugador (ángulo `+0.4·delta`, radio que oscila 300-500px, inercia con suavizado 0.05), la fuerza de esquiva de asteroides (radio 100px, mezcla 60/40), la rotación que sigue a la velocidad, y cuándo deciden disparar (±30° del jugador). Objetivo: ver si el comportamiento se siente bien / natural o si hay que ajustar (que orbiten mejor, que esquiven mejor, que apunten/disparen más seguido, etc.). Es una pasada de *game feel*, no un bug puntual.
+- **✅ IA / MOVIMIENTO de las naves enemigas — HECHO (v1.51.0)**: se resolvió el problema principal (casi no disparaban: apuntaban de costado y perdían el tiro). Ahora encaran al jugador cuando les toca disparar y no pierden el tiro; hacen pasadas agresivas (dive) cada tanto; y se arregló la inercia frame-dependiente. Si al probar en el G04 se sienten **demasiado activas** (disparan mucho), la palanca directa es subir `CONFIG.NAVE_ENEMIGA.INTERVALO_DISPARO` (hoy 3s). Otras ideas futuras si se quiere más profundidad: que huyan/cambien cuando tienen poca vida, o que varíen el sentido de la órbita entre naves.
 
 - **Lógica de naves enemigas — revisión de COHERENCIA COMPLETA** (#1 en v1.50.3; #2,#3,#4 en v1.50.6). Solo quedan observaciones de diseño (no bugs, no requieren acción salvo que se quieran cambiar): las naves no escalan velocidad con la oleada (fijas 225, suben en cantidad); y si al disparar no están apuntando al jugador (±30°) pierden ese tiro y esperan el próximo ciclo.
 

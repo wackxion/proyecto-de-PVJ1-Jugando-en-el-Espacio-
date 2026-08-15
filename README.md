@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.7)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.0)
 
 ---
 
@@ -361,7 +361,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.7 (Actual)
+### v1.51.0 (Actual)
+> **IA de naves enemigas: ahora te encaran y disparan + pasadas agresivas**
+
+- 🎯 **Las naves ahora sí te disparan**: antes miraban de costado (tangencial a su órbita, ~96° del jugador) y solo tiraban si estaban apuntándote (±30°) → disparaban muy poco (medido: 5 tiros en 10s con 6 naves). Ahora, cuando les toca disparar, **giran para encararte** y tiran; además el disparo no se pierde si aún no están alineadas (se mantiene pendiente hasta que apuntan). Medido tras el cambio: **44 tiros en 10s** (`EnemyShip.js`, `GameEnemies.js`)
+- 💨 **Pasadas agresivas (dive)**: cada 8-16s cada nave hace una pasada más cerca (~150px) durante ~2s y después vuelve a su órbita → movimiento más dinámico, no siempre a media distancia
+- 🩹 **Fix de framerate**: la inercia del movimiento de las naves era `0.05` fijo por frame (no multiplicado por `delta`) → respondían más lento a menos FPS (p. ej. en el G04). Ahora es frame-independiente (mismo feel a 60fps, consistente a cualquier framerate)
+- ✅ Verificado en runtime: tiros 5→44 en 10s; las naves entran en "dive" ~9% del tiempo (acercándose a ~65px); sin errores de consola
+- 🤖 Android preparado como `versionCode 20` / `versionName 1.51.0` para regenerar el AAB
+
+### v1.50.7
 > **Animación de destrucción de naves consistente (siempre verde) + doble explosión en choques**
 
 - 🟢 **La nave enemiga ahora explota SIEMPRE con la animación verde** (la común), sin importar cómo la destruyas. Antes, si la matabas con un **cohete** usaba la explosión roja del asteroide; ahora usa la verde igual que al dispararle (`GameSkills.js`)
