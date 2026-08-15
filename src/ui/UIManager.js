@@ -1363,7 +1363,7 @@ export class UIManager {
         const filasMejoras = [
             ['assets/proyectil1.png', 'Daño', '+ daño por disparo'],
             ['assets/escudo1.png', 'Escudo', '+50 HP máx c/u'],
-            ['assets/ultiicon1.png', 'Ulti', '− coste de carga'],
+            ['assets/ultiicon1.png', 'Ulti', '− coste · + radio'],
             ['assets/tiempo fuera.png', 'Tiempo Fuera', '+ regeneración'],
             ['assets/aceleracion.png', 'Aceleración', '+ velocidad máx'],
             ['assets/propulsor.png', 'Propulsor', '− cooldown (−2s c/u)'],

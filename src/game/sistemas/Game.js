@@ -646,12 +646,17 @@ const [naveTexture, asteroideTexture, fondoTexture, proyectilTexture, explocion1
         // Cada compra reduce 50, máximo 250 de reducción (500 - 250 = 250 mínimo)
         if (this.jugador && this.mejoras) {
             let reduccionUlti = 0;
+            let nivelUlti = 0;
             for (let i = 10; i <= 14; i++) {
                 if (this.mejoras[i] >= 1) {
                     reduccionUlti += 50;
+                    nivelUlti++;
                 }
             }
             this.jugador.cargaMaxUlti = Math.max(250, this.jugador.cargaMaxUltiBase - reduccionUlti);
+            // Cada mejora de ULTI también AMPLÍA el radio del pulso: +10% por nivel,
+            // así con las 5 mejoras el radio crece un 50% (1.0 → 1.5). Lo lee UltiEffect.
+            this.ultiRadioMult = 1 + nivelUlti * 0.10;
         }
         
         // Guardar bonificación de regeneración para tiempo fuera (indices 15-19)

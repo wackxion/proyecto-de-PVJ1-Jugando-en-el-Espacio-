@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.7)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.8-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.8)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.7 (Actual)
+### v1.51.8 (Actual)
+> **La mejora de ULTI ahora también amplía el radio (+50% con las 5)**
+
+- 💥 Cada mejora de **ULTI**, además de bajar el coste de carga, ahora **amplía el radio** del pulso **+10% por nivel** → con las 5 mejoras el radio crece un **50%** (`Game.aplicarMejoras` guarda `ultiRadioMult`, `UltiEffect` lo aplica al `maxRadius`). Verificado en runtime: radio base 215 → 323 con 5 mejoras (×1.5)
+- 📝 Descripción de la mejora en el menú: "− coste · + radio"
+- 🤖 Android preparado como `versionCode 28` / `versionName 1.51.8` para regenerar el AAB
+
+### v1.51.7
 > **Las naves enemigas giran más suave para apuntar**
 
 - 🎯 El giro con el que la nave encara al jugador para disparar bajó de **8 → 4** (`CONFIG.NAVE_ENEMIGA.FACTOR_GIRO_APUNTADO`): se sentía muy brusco el "snap" al apuntar. Ahora es un giro más parejo, y siguen disparando igual de seguido (verificado: 33 tiros en 6s con 6 naves). Es una palanca configurable

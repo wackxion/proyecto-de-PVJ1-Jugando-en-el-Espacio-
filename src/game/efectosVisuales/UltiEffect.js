@@ -63,7 +63,9 @@ export class UltiEffect extends GameObject {
         // Se divide por el zoom para que la ULTI cubra la MISMA proporción de la vista
         // visible que antes del zoom (si no, con zoom 0.70 se veía y afectaba más chica).
         const zoom = (CONFIG.CAMARA && CONFIG.CAMARA.ZOOM) ? CONFIG.CAMARA.ZOOM : 1;
-        this.maxRadius = Math.sqrt(gameWidth * gameWidth + gameHeight * gameHeight) * 0.18 / zoom;
+        // Multiplicador de radio por las mejoras de ULTI (+10% por nivel, hasta +50%).
+        const radioMult = (gameRef && gameRef.ultiRadioMult) || 1;
+        this.maxRadius = Math.sqrt(gameWidth * gameWidth + gameHeight * gameHeight) * 0.18 / zoom * radioMult;
         
         // ExpansionSpeed: Qué tan rápido se expande el aro (800 píxeles por segundo)
         this.expansionSpeed = 800;
