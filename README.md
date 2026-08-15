@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.8-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.8)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.9-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.9)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.8 (Actual)
+### v1.51.9 (Actual)
+> **Costos de mejoras unificados: 10 · 20 · 30 · 60 · 100**
+
+- 💰 Las **8 categorías de mejoras** ahora usan la misma progresión de costo: **[10, 20, 30, 60, 100]** partículas (antes cada una tenía su curva). Sube más fuerte en los últimos niveles (`config.js` `MEJORAS`)
+- 🤖 Android preparado como `versionCode 29` / `versionName 1.51.9` para regenerar el AAB
+
+### v1.51.8
 > **La mejora de ULTI ahora también amplía el radio (+50% con las 5)**
 
 - 💥 Cada mejora de **ULTI**, además de bajar el coste de carga, ahora **amplía el radio** del pulso **+10% por nivel** → con las 5 mejoras el radio crece un **50%** (`Game.aplicarMejoras` guarda `ultiRadioMult`, `UltiEffect` lo aplica al `maxRadius`). Verificado en runtime: radio base 215 → 323 con 5 mejoras (×1.5)

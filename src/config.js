@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.8',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.9',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -238,14 +238,14 @@ export const CONFIG = {
     // === MEJORAS (tienda) ===
     // 8 categorías × 5 niveles = 40 mejoras. Costo en partículas Boid capturadas.
     MEJORAS: {
-        COSTOS_PROYECTIL:    [5, 15, 25, 25, 50],    // Daño de proyectil
-        COSTOS_ESCUDO:       [50, 50, 50, 50, 50],   // Más escudos
-        COSTOS_ULTI:         [50, 50, 50, 50, 50],   // Reducción de carga de ulti
-        COSTOS_TIEMPO_FUERA: [30, 35, 40, 45, 100],  // Regeneración en Tiempo Fuera
-        COSTOS_ACELERACION:  [10, 20, 30, 40, 50],   // +velocidad máxima (tope de avance)
-        COSTOS_PROPULSOR:    [10, 20, 30, 40, 50],   // -cooldown del propulsor (R)
-        COSTOS_DEVORADOR:    [30, 35, 40, 45, 50],   // +rango/velocidad de atracción (E)
-        COSTOS_COHETES:      [20, 25, 30, 35, 40],   // +1 cohete por mejora (Q)
+        COSTOS_PROYECTIL:    [10, 20, 30, 60, 100],  // Daño de proyectil
+        COSTOS_ESCUDO:       [10, 20, 30, 60, 100],  // Más escudos
+        COSTOS_ULTI:         [10, 20, 30, 60, 100],  // Reducción de carga de ulti + radio
+        COSTOS_TIEMPO_FUERA: [10, 20, 30, 60, 100],  // Regeneración en Tiempo Fuera
+        COSTOS_ACELERACION:  [10, 20, 30, 60, 100],  // +velocidad máxima (tope de avance)
+        COSTOS_PROPULSOR:    [10, 20, 30, 60, 100],  // -cooldown del propulsor (R)
+        COSTOS_DEVORADOR:    [10, 20, 30, 60, 100],  // +rango/velocidad de atracción (E)
+        COSTOS_COHETES:      [10, 20, 30, 60, 100],  // +1 cohete por mejora (Q)
         ESCUDO_RESTAURACION: 50,                      // Escudos que restaura al comprar mejora de escudo
     },
 
