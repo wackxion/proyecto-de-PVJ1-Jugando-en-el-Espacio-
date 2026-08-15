@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.2)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.3-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.3)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.2 (Actual)
+### v1.51.3 (Actual)
+> **Balance: daño del cohete a 200 → el área ya no mata al especial**
+
+- ⚖️ `CONFIG.COHETE.DANO` bajó de 999 a **200**. El impacto **directo** sigue vaporizando cualquier enemigo (usa `destroy()` directo, no el número), pero el **área** —que hace la mitad— ahora hace **100**: mata a todos los normales (chico 25, mediano 50, grande 75, nave 25) pero **deja vivo al asteroide especial** (200 HP). Así el área es de verdad más débil que el impacto directo
+
+### v1.51.2
 > **Explosión de área del cohete: animación del tamaño del área + mitad de daño**
 
 - 💥 La explosión por **límite de alcance** (cohete sin impacto directo) ahora tiene la **animación del tamaño del área de daño** (escala derivada de `RADIO_EXPLOSION`) en vez de un tamaño fijo
