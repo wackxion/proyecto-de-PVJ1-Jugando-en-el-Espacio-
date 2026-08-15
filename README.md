@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.7)
 
 ---
 
@@ -361,7 +361,13 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.6 (Actual)
+### v1.51.7 (Actual)
+> **Las naves enemigas giran más suave para apuntar**
+
+- 🎯 El giro con el que la nave encara al jugador para disparar bajó de **8 → 4** (`CONFIG.NAVE_ENEMIGA.FACTOR_GIRO_APUNTADO`): se sentía muy brusco el "snap" al apuntar. Ahora es un giro más parejo, y siguen disparando igual de seguido (verificado: 33 tiros en 6s con 6 naves). Es una palanca configurable
+- 🤖 Android preparado como `versionCode 27` / `versionName 1.51.7` para regenerar el AAB
+
+### v1.51.6
 > **Fix: animación de destrucción que "a veces" no se veía + limpieza de proyectiles**
 
 - 🎆 **Las explosiones ahora se remapean por el toroide**: antes, si un enemigo (nave o asteroide) moría cerca de la **costura del mundo**, se lo veía cerca tuyo (por el wrap) pero su explosión se creaba en la coord **lógica lejana** → no se veía la animación de destrucción. Ahora `Game._actualizarToroide` también reposiciona los efectos (`efectosImpacto`/`efectosExplosion`, tanto `.imagen` como `.sprite`) → la explosión aparece donde el enemigo se veía. Resuelve el bug "a veces destruyo una nave y no aparece la animación" (y el mismo síntoma en asteroides)

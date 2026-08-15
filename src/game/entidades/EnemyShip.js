@@ -268,9 +268,11 @@ export class EnemyShip extends GameObject {
         while (diffAngulo > Math.PI) diffAngulo -= Math.PI * 2;
         while (diffAngulo < -Math.PI) diffAngulo += Math.PI * 2;
 
-        // Gira RÁPIDO cuando está encarando para disparar; suave si solo se mueve.
+        // Gira un poco más rápido cuando encara para disparar (configurable), suave si
+        // solo se mueve. Antes era 8 fijo → se sentía un giro muy brusco al apuntar.
         const velocidadActual = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-        const factorGiro = disparoPendiente ? 8 : (velocidadActual > 50 ? 2 : 1);
+        const giroApuntado = (CONFIG.NAVE_ENEMIGA && CONFIG.NAVE_ENEMIGA.FACTOR_GIRO_APUNTADO) || 4;
+        const factorGiro = disparoPendiente ? giroApuntado : (velocidadActual > 50 ? 2 : 1);
         this.rotacion += diffAngulo * factorGiro * delta;
         
         // Actualizar sprite

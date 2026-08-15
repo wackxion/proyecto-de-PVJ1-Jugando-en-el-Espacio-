@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.6',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.7',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -166,6 +166,7 @@ export const CONFIG = {
         VELOCIDAD: 225,                 // px/s
         RADIO_COLISION: 15,
         INTERVALO_DISPARO: 3,           // Segundos entre disparos
+        FACTOR_GIRO_APUNTADO: 4,        // Qué tan rápido gira para encarar al jugador al disparar (más alto = más brusco; el giro normal de movimiento es 2)
     },
 
     // === HABILIDADES ACTIVAS (Q / E / R) ===
