@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.1)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.2-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.2)
 
 ---
 
@@ -361,7 +361,14 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.1 (Actual)
+### v1.51.2 (Actual)
+> **Explosión de área del cohete: animación del tamaño del área + mitad de daño**
+
+- 💥 La explosión por **límite de alcance** (cohete sin impacto directo) ahora tiene la **animación del tamaño del área de daño** (escala derivada de `RADIO_EXPLOSION`) en vez de un tamaño fijo
+- ➗ El **daño en área es la MITAD del daño del cohete** (aplicado con `salud`): si es letal destruye al enemigo (con su explosión/puntos/etc.), si no, solo lo lastima. Verificado en runtime: un enemigo tanque recibió exactamente 500 (mitad de 999) y el blast salió con escala 0.25 (`GameSkills.js`)
+- 🤖 Android preparado como `versionCode 22` / `versionName 1.51.2` para regenerar el AAB
+
+### v1.51.1
 > **Cohetes: límite de alcance con explosión en área (no más "dar la vuelta al toroide")**
 
 - 🎯 **Un cohete que pierde su objetivo ya no vaga para siempre**: antes, si el blanco se destruía antes de que el cohete llegara, el cohete seguía derecho y — como su posición envuelve el toroide (`_actualizarToroide`) — **circulaba el mundo indefinidamente** hasta chocar algo por casualidad (el corte "fuera del mundo" nunca se cumplía por el wrap). Ahora tiene un **límite de alcance** (`CONFIG.COHETE.DISTANCIA_MAXIMA = 1500px`): si no llega al blanco, **explota con daño en área** (radio ≈ diámetro de un asteroide chico, 32px) destruyendo lo que esté cerca (`Cohete.js`, `GameSkills.js`)

@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.1',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.2',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===

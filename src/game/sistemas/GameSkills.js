@@ -216,14 +216,18 @@ export function actualizarCohetes(game, delta) {
         // siempre hasta chocar algo por casualidad.
         if (cohete.distanciaRecorrida >= (CONFIG.COHETE.DISTANCIA_MAXIMA || 1500)) {
             const rExpl = CONFIG.COHETE.RADIO_EXPLOSION || 32;
-            // Explosión visual en la posición del cohete.
-            const blast = new AsteroidExplosion(cohete.x, cohete.y, game.texturaExplosionAsteroide, 0.4);
+            // El daño en área hace la MITAD del daño del cohete.
+            const danoArea = (cohete.dano || CONFIG.COHETE.DANO) / 2;
+            // Explosión visual DEL TAMAÑO DEL ÁREA: la escala se deriva del radio de
+            // explosión (misma convención que las explosiones de asteroide, donde
+            // escala = radio/64 · 0.5), así el "boom" cubre justo la zona de daño.
+            const escalaBlast = (rExpl / 64) * 0.5;
+            const blast = new AsteroidExplosion(cohete.x, cohete.y, game.texturaExplosionAsteroide, escalaBlast);
             blast.render(game.mundo);
             game.efectosImpacto.push(blast);
             if (game.gestorSonido) game.gestorSonido.reproducir('destruccionMeteorito');
-            // Destruir todo enemigo cuyo cuerpo toque el radio de explosión (distancia
-            // toroidal). Los mini especiales en órbita no reciben daño (igual que el
-            // homing de los cohetes).
+            // Enemigos cuyo cuerpo toca el radio de explosión (distancia toroidal). Los
+            // mini especiales en órbita no reciben daño (igual que el homing del cohete).
             const enRango = (e) => {
                 if (!e || !e.active || e.enOrbita) return false;
                 let dx = cohete.x - e.x, dy = cohete.y - e.y;
@@ -234,7 +238,17 @@ export function actualizarCohetes(game, delta) {
                 return Math.sqrt(dx * dx + dy * dy) < rExpl + (e.radio || 16);
             };
             const objetivos = [...game.enemigos, ...game.enemigosNaves, ...game.enemigosSpeciales].filter(enRango);
-            for (const obj of objetivos) destruirEnemigoConCohete(game, obj);
+            for (const obj of objetivos) {
+                // Aplica la MITAD del daño del cohete. Si es letal, lo destruye (con su
+                // explosión / puntos / carga de ulti / fragmentos del especial); si no,
+                // solo lo lastima (y a los asteroides los ralentiza, como un impacto).
+                if (danoArea >= (obj.salud || 1)) {
+                    destruirEnemigoConCohete(game, obj);
+                } else {
+                    obj.salud -= danoArea;
+                    if (typeof obj._activarRalentizacion === 'function') obj._activarRalentizacion();
+                }
+            }
             cohete.destroy();
             game.cohetes.splice(i, 1);
             continue;
