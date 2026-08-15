@@ -1,7 +1,7 @@
 # Pendientes - Jugando en el Espacio
 
 **Última actualización:** 10/08/2026<br>
-**Versión:** v1.50.5 (ACTUAL)
+**Versión:** v1.50.6 (ACTUAL)
 
 ---
 
@@ -21,11 +21,7 @@
 
 > **Estado mobile (05/08/2026):** la app está en **prueba cerrada "Alpha"** de Google Play. ✅ Ícono/splash propios · ✅ AdMob (revive con anuncio) · ✅ política de privacidad. Corre en el **Motorola G04** (Capacitor, landscape, controles táctiles maduros). **🎯 HITO (03/08/2026):** el dev ya consiguió los **12+ testers** y **arrancaron los 14 días** de verificación de prueba activa (termina aprox. el **17/08/2026**). El próximo `.aab` queda preparado como **versionCode 12 / versionName 1.50.0**, con `www` y Android sincronizados. **Falta para producción:** completar esos 14 días manteniendo ≥12 testers y la pista activa (subir updates NO reinicia el contador). Detalle en `documentacion/appAndroidGDD.md` (local) y en la memoria de setup Android.
 
-- **Lógica de naves enemigas — pendientes de la revisión (v1.50.3)**: se arregló el #1 (naves de la periferia no disparaban por el zoom). Quedan:
-  - **(2) La nave apunta toroidal pero dispara euclidiano**: `direccionDisparo` se calcula con wrap toroidal en `EnemyShip.js` (~L144) pero **nunca se usa** (código muerto); `GameEnemies.js` (~L428-430) recalcula el ángulo con distancia cruda y dispara con ese. Cerca de la costura del mundo la nave apunta a un lado y tira al otro. Fix: usar `naveEnemiga.direccionDisparo`. (Impacto bajo: orbitan cerca.)
-  - **(3) `verificarColision` de la nave es euclidiana** (`EnemyShip.js` ~L302-309), no toroidal como el resto (`game._verificarColision`). Nave-vs-asteroide cerca de la costura puede no detectarse. Bajo impacto.
-  - **(4) Código muerto**: `puedeMoverse` (`EnemyShip.js` ~L64) nunca se pone en false → el guard es dead. `disparoCreado` no se inicializa en el constructor (funciona por orden). Comentarios del radio de órbita no coinciden con los valores reales (300-500).
-  - **(obs, no bug)**: las naves no escalan velocidad con la oleada (fijas 225, suben en cantidad); y si al disparar no están apuntando (±30°) pierden el tiro. Probablemente intencional.
+- **Lógica de naves enemigas — revisión COMPLETA** (#1 en v1.50.3; #2,#3,#4 en v1.50.6). Solo quedan observaciones de diseño (no bugs, no requieren acción salvo que se quieran cambiar): las naves no escalan velocidad con la oleada (fijas 225, suben en cantidad); y si al disparar no están apuntando al jugador (±30°) pierden ese tiro y esperan el próximo ciclo.
 
 - **HUD — rediseño visual (opcional, para más adelante)**: el reacomodo táctil ya se hizo (v1.43.0–v1.45.0). Si se quiere un rediseño visual más profundo (colores, marcos, tipografía del HUD de mejoras y del HUD común), queda anotado. HUD in-game 100% PixiJS (`PixiHUD.js`), base 1080×720, celular usa `CONFIG.HUD.BOOST_TACTIL` (1.25). Mantener el modelo de PC intacto.
 

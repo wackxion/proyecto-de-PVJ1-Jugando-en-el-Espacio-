@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.5)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.6)
 
 ---
 
@@ -361,7 +361,16 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.5 (Actual)
+### v1.50.6 (Actual)
+> **Naves enemigas: coherencia toroidal + limpieza de código**
+
+- 🧭 **#2 Apuntado y disparo consistentes cerca de la costura del toroide**: la nave calculaba el ángulo al jugador por el camino corto (`EnemyShip.direccionDisparo`) pero ese valor **no se usaba** — al crear el proyectil se recalculaba con distancia cruda (sin wrap), así que cerca del borde apuntaba a un lado y disparaba al otro. Ahora el proyectil usa el ángulo toroidal ya calculado (`GameEnemies.js`)
+- 🧭 **#3 Colisión nave-asteroide toroidal**: usaba una comprobación euclidiana propia (`EnemyShip.verificarColision`); ahora usa `game._verificarColision` (toroidal), igual que el resto del juego → detecta choques a través de la costura del mundo
+- 🧹 **#4 Limpieza**: se eliminó `puedeMoverse` (nunca se ponía en false) y `EnemyShip.verificarColision` (quedó sin uso); se inicializa `disparoCreado` en el constructor; comentario del radio de órbita corregido (300-500px)
+- ✅ Verificado en runtime: `direccionDisparo` da el ángulo toroidal correcto (π con nave/jugador en bordes opuestos); las naves siguen disparando y apuntando al jugador (sin regresión); `_verificarColision` detecta el choque nave-asteroide incluso por la costura
+- 🤖 Android preparado como `versionCode 18` / `versionName 1.50.6` para regenerar el AAB
+
+### v1.50.5
 > **Balance: los asteroides grandes ahora valen más que los chicos**
 
 - 🏆 Se invirtió el puntaje por tamaño (antes iba al revés): **large = 30, medium = 20, small = 10** (y sus variantes rezagado igual). El especial sigue en 100. Romper un large entero (→2 medium→4 small) ahora da 30+40+40 = 110 pts, con el golpe grande valiendo más y los pedazos menos (`config.js`). Decisión del dev

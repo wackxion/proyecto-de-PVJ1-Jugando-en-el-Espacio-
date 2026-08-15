@@ -432,11 +432,16 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
 
             // Verificar si dispara (cada 3 segundos)
             if (naveEnemiga.yaDisparo && !naveEnemiga.disparoCreado) {
-                // Calcular ángulo hacia el jugador
-                const dx = game.jugador.x - naveEnemiga.x;
-                const dy = game.jugador.y - naveEnemiga.y;
-                const anguloDisparo = Math.atan2(dy, dx);
-                
+                // Ángulo hacia el jugador. Usamos el que ya calculó la nave por el
+                // CAMINO CORTO del toroide (EnemyShip.direccionDisparo), así apunta Y
+                // dispara de forma consistente cerca de la costura del mundo. Antes acá
+                // se recalculaba con distancia CRUDA (sin wrap) → cerca del borde la
+                // nave apuntaba a un lado y el proyectil salía al otro. Fallback al
+                // ángulo directo por si aún no está seteado.
+                const anguloDisparo = (typeof naveEnemiga.direccionDisparo === 'number')
+                    ? naveEnemiga.direccionDisparo
+                    : Math.atan2(game.jugador.y - naveEnemiga.y, game.jugador.x - naveEnemiga.x);
+
                 // Verificar si la nave está apuntando hacia el jugador (diferencia < 30°)
                 let diff = anguloDisparo - naveEnemiga.rotacion;
                 while (diff > Math.PI) diff -= Math.PI * 2;
@@ -465,7 +470,10 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
             const asteroid = game.enemigos[j];
             if (!asteroid.active) continue;
             
-            if (naveEnemiga.verificarColision(asteroid)) {
+            // Colisión TOROIDAL (camino corto), igual que el resto del juego. Antes
+            // usaba naveEnemiga.verificarColision (euclidiana) → cerca de la costura
+            // podía no detectar un choque que se veía pegado.
+            if (game._verificarColision(naveEnemiga, asteroid)) {
                 // Ambos se destruyen
                 asteroid.salud = 0;
                 asteroid.active = false;

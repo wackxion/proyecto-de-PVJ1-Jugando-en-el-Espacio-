@@ -57,11 +57,11 @@ export class EnemyShip extends GameObject {
         // Rotación actual
         this.rotacion = 0;
         
-        // Ya disparó?
+        // Ya disparó? (flag que GameEnemies consume para crear el proyectil)
         this.yaDisparo = false;
-        
-        // Puede moverse?
-        this.puedeMoverse = true;
+        // disparoCreado: evita crear más de un proyectil por ciclo de disparo.
+        // Se inicializa acá (antes quedaba undefined hasta el primer disparo).
+        this.disparoCreado = false;
         
         // Crear el sprite - usar la textura original
         if (textura) {
@@ -112,7 +112,7 @@ export class EnemyShip extends GameObject {
      * @param {number} delta - Tiempo transcurrido (segundos)
      */
     update(delta) {
-        if (!this.active || !this.puedeMoverse) return;
+        if (!this.active) return;
         
         // Actualizar temporizador de movimiento
         this.tiempoMovimiento += delta;
@@ -152,7 +152,7 @@ export class EnemyShip extends GameObject {
         // Cambiar ángulo de órbita gradualmente (movimiento suave y circular)
         this.anguloOrbita += 0.4 * delta;
         
-        // Variar el radio para que no sea siempre el mismo (entre 350-500px)
+        // Variar el radio para que no sea siempre el mismo (oscila entre 300 y 500px)
         const radioDeseado = 400 + Math.sin(this.tiempoMovimiento * 0.5) * 100;
         this.radioOrbita += (radioDeseado - this.radioOrbita) * 0.05 * delta;
         
@@ -291,21 +291,5 @@ export class EnemyShip extends GameObject {
         if (this.imagen && this.imagen.parent) {
             this.imagen.parent.removeChild(this.imagen);
         }
-    }
-    
-    /**
-     * Verifica colisión con otro objeto (como un asteroide)
-     * 
-     * @param {object} otro - Otro objeto con x, y, radio
-     * @returns {boolean} - true si hay colisión
-     */
-    verificarColision(otro) {
-        if (!otro || !otro.active) return false;
-        
-        const dx = this.x - otro.x;
-        const dy = this.y - otro.y;
-        const distancia = Math.sqrt(dx * dx + dy * dy);
-        
-        return distancia < (this.radio + (otro.radio || 30));
     }
 }
