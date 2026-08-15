@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.50.4',               // Versión visible en la pantalla de créditos
+        VERSION: '1.50.5',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -149,13 +149,13 @@ export const CONFIG = {
     // La clave es el string de tipo usado en el código (this.tamanio).
     // RADIO en px (también define colisión) · VELOCIDAD en px/s.
     ASTEROIDES: {
-        small:           { RADIO: 16, ESCALA: 0.16, VELOCIDAD: 150, SALUD: 25,  PUNTOS: 30,  DANO: 10, CARGA_ULTI: 15 },
+        small:           { RADIO: 16, ESCALA: 0.16, VELOCIDAD: 150, SALUD: 25,  PUNTOS: 10,  DANO: 10, CARGA_ULTI: 15 },
         medium:          { RADIO: 32, ESCALA: 0.32, VELOCIDAD: 100, SALUD: 50,  PUNTOS: 20,  DANO: 25, CARGA_ULTI: 15 },
-        large:           { RADIO: 64, ESCALA: 0.64, VELOCIDAD: 50,  SALUD: 75,  PUNTOS: 10,  DANO: 50, CARGA_ULTI: 15 },
+        large:           { RADIO: 64, ESCALA: 0.64, VELOCIDAD: 50,  SALUD: 75,  PUNTOS: 30,  DANO: 50, CARGA_ULTI: 15 },
         special:         { RADIO: 48, ESCALA: 0.48, VELOCIDAD: 120, SALUD: 200, PUNTOS: 100, DANO: 0,  CARGA_ULTI: 0 },
-        large_rezagado:  { RADIO: 64, ESCALA: 0.64, VELOCIDAD: 60,  SALUD: 75,  PUNTOS: 10,  DANO: 50, CARGA_ULTI: 15 },
+        large_rezagado:  { RADIO: 64, ESCALA: 0.64, VELOCIDAD: 60,  SALUD: 75,  PUNTOS: 30,  DANO: 50, CARGA_ULTI: 15 },
         medium_rezagado: { RADIO: 32, ESCALA: 0.32, VELOCIDAD: 80,  SALUD: 50,  PUNTOS: 20,  DANO: 25, CARGA_ULTI: 15 },
-        small_rezagado:  { RADIO: 16, ESCALA: 0.16, VELOCIDAD: 120, SALUD: 25,  PUNTOS: 30,  DANO: 10, CARGA_ULTI: 15 },
+        small_rezagado:  { RADIO: 16, ESCALA: 0.16, VELOCIDAD: 120, SALUD: 25,  PUNTOS: 10,  DANO: 10, CARGA_ULTI: 15 },
     },
 
     // === NAVE ENEMIGA ===

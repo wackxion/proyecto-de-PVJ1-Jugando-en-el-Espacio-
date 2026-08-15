@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.4-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.4)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.5-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.5)
 
 ---
 
@@ -361,7 +361,12 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.4 (Actual)
+### v1.50.5 (Actual)
+> **Balance: los asteroides grandes ahora valen más que los chicos**
+
+- 🏆 Se invirtió el puntaje por tamaño (antes iba al revés): **large = 30, medium = 20, small = 10** (y sus variantes rezagado igual). El especial sigue en 100. Romper un large entero (→2 medium→4 small) ahora da 30+40+40 = 110 pts, con el golpe grande valiendo más y los pedazos menos (`config.js`). Decisión del dev
+
+### v1.50.4
 > **Pulido de asteroides: rezagados sin homing, fragmentos con velocidad heredada, limpieza**
 
 - 🛸 **Los rezagados ya no son atraídos por la gravedad de la nave**: el campo gravitatorio (dentro de 100px) aplicaba a todos los no-especiales, incluidos los rezagados, que están pensados para "pasar de largo" en línea recta. Ahora se excluyen → cruzan sin desviarse hacia vos (`Enemy.js`)
