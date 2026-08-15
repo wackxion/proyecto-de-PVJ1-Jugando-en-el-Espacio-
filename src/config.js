@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.0',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.1',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -184,6 +184,8 @@ export const CONFIG = {
         VELOCIDAD: 400,                 // px/s
         DANO: 999,                      // Destruye cualquier enemigo de un hit
         RADIO: 8,                       // Radio de colisión del cohete (px)
+        DISTANCIA_MAXIMA: 1500,         // px que puede recorrer; si no llega al blanco, explota (evita que circule el toroide para siempre)
+        RADIO_EXPLOSION: 32,            // radio del daño en área al explotar por distancia (≈ diámetro de un asteroide chico)
     },
 
     // === GENERACIÓN DE ENEMIGOS (escalado de dificultad) ===

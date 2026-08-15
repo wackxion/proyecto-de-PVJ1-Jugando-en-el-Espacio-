@@ -19,6 +19,9 @@ export class Cohete extends GameObject {
         this.velocidad = CONFIG.COHETE.VELOCIDAD;
         this.active = true;
         this.dano = CONFIG.COHETE.DANO;
+        // Distancia recorrida (para el límite de alcance: si no llega al blanco en
+        // COHETE.DISTANCIA_MAXIMA, explota en área en vez de vagar por el toroide).
+        this.distanciaRecorrida = 0;
         
         // Crear sprite. Se dimensiona a un "largo" fijo manteniendo la proporción
         // real de la textura, para que el sprite del cohete no se deforme (antes
@@ -81,7 +84,10 @@ export class Cohete extends GameObject {
         // Mover
         this.x += this.velX * delta;
         this.y += this.velY * delta;
-        
+
+        // Acumular distancia recorrida (la magnitud de la velocidad es constante).
+        this.distanciaRecorrida += this.velocidad * delta;
+
         // Actualizar sprite
         this.imagen.x = this.x;
         this.imagen.y = this.y;

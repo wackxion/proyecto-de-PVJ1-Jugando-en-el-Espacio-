@@ -200,94 +200,127 @@ export function actualizarCohetes(game, delta) {
             }
         }
         
-        // Si hubo impacto, destruir objetivo y cohete
+        // Si hubo impacto, destruir el objetivo y el cohete.
         if (impacto && cohete.objetivo && cohete.objetivo.active) {
-            const objetivo = cohete.objetivo;
-            
-            // Crear explosión según el objetivo:
-            //  - NAVE      → verde (la explosión común de naves, igual que al dispararle)
-            //  - ESPECIAL  → asset azul (viejo, tintado)
-            //  - ASTEROIDE → roja
-            const escala = (objetivo.radio || 32) / 64;
-            const esObjetivoEspecial = game.enemigosSpeciales.includes(objetivo);
-            const esNave = game.enemigosNaves.includes(objetivo);
-            let texturaExpl, tinteExpl, escalaExpl;
-            if (esNave) {
-                texturaExpl = game.texturaExplosionNave; tinteExpl = null; escalaExpl = 0.5;
-            } else if (esObjetivoEspecial) {
-                texturaExpl = game.texturaAsteroidExplosion; tinteExpl = 0x0000FF; escalaExpl = escala * 0.5;
-            } else {
-                texturaExpl = game.texturaExplosionAsteroide; tinteExpl = null; escalaExpl = escala * 0.5;
-            }
-            const explosion = new AsteroidExplosion(objetivo.x, objetivo.y, texturaExpl, escalaExpl, tinteExpl);
-            explosion.render(game.mundo);
-            game.efectosImpacto.push(explosion);
-
-            // Sonido de destrucción por cohete: nave y especial → explosión de nave;
-            // asteroide común → sonido de meteorito.
-            if (game.gestorSonido) {
-                const usaSonidoNave = esNave || esObjetivoEspecial;
-                game.gestorSonido.reproducir(usaSonidoNave ? 'destruccionNave' : 'destruccionMeteorito');
-            }
-
-            // Agregar puntos, carga Ulti y actualizar contador de oleada
-            game.puntuacion += objetivo.puntos || 10;
-            game.jugador.agregarCargaUlti(objetivo.cargaUlti || 10);
-            game.asteroidesDestruidos++;
-
-            // Actualizar oleada
-            if (game.asteroidesDestruidos >= game.objetivoOleada) {
-                game.contadorOleadas++;
-                game.asteroidesDestruidos = 0;
-                game.objetivoOleada = 10 + (game.contadorOleadas * 10);
-                if (game.intervaloSpawn > game.intervaloMinimoSpawn) {
-                    game.intervaloSpawn = Math.max(game.intervaloMinimoSpawn, game.intervaloSpawn - game.tasaDisminucionSpawn);
-                }
-            }
-
-            // Si el objetivo es un asteroide ESPECIAL, hacer su EFECTO: generar 1
-            // mini especial que orbita al jugador (igual que al destruirlo con un
-            // proyectil). Antes el cohete solo lo destruía, sin este efecto.
-            const esEspecial = game.enemigosSpeciales.includes(objetivo) && !objetivo.enOrbita;
-            if (esEspecial) {
-                const angulo = Math.random() * Math.PI * 2;
-                const xMini = game.jugador.x + Math.cos(angulo) * 130;
-                const yMini = game.jugador.y + Math.sin(angulo) * 130;
-                const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.mundoAncho, game.mundoAlto, true);
-                mini.enOrbita = true;
-                mini.indiceOrbita = 0;
-                mini.render(game.mundo);
-                game.enemigosSpeciales.push(mini);
-            }
-
-            // Destruir objetivo
-            if (objetivo.destroy) {
-                objetivo.destroy();
-            } else {
-                objetivo.active = false;
-                if (objetivo.imagen) {
-                    objetivo.imagen.visible = false;
-                    objetivo.imagen.parent?.removeChild(objetivo.imagen);
-                }
-            }
-            if (esEspecial) {
-                const idx = game.enemigosSpeciales.indexOf(objetivo);
-                if (idx >= 0) game.enemigosSpeciales.splice(idx, 1);
-            }
-
-            // Destruir cohete
+            destruirEnemigoConCohete(game, cohete.objetivo);
             cohete.destroy();
             game.cohetes.splice(i, 1);
             continue;
         }
-        
-        // Eliminar si está fuera del MUNDO (no de la pantalla): el cohete nace en
-        // la posición de la nave en coords de mundo, que quedan fuera de la pantalla.
+
+        // LÍMITE DE ALCANCE: si el cohete recorrió su distancia máxima sin dar en el
+        // blanco (p. ej. porque su objetivo fue destruido antes de llegar), EXPLOTA con
+        // daño en ÁREA (radio ≈ diámetro de un asteroide chico). Sin esto, un cohete sin
+        // blanco vagaba: su posición envuelve el toroide (Game._actualizarToroide), así
+        // que el corte "fuera del mundo" de abajo nunca se cumplía y circulaba para
+        // siempre hasta chocar algo por casualidad.
+        if (cohete.distanciaRecorrida >= (CONFIG.COHETE.DISTANCIA_MAXIMA || 1500)) {
+            const rExpl = CONFIG.COHETE.RADIO_EXPLOSION || 32;
+            // Explosión visual en la posición del cohete.
+            const blast = new AsteroidExplosion(cohete.x, cohete.y, game.texturaExplosionAsteroide, 0.4);
+            blast.render(game.mundo);
+            game.efectosImpacto.push(blast);
+            if (game.gestorSonido) game.gestorSonido.reproducir('destruccionMeteorito');
+            // Destruir todo enemigo cuyo cuerpo toque el radio de explosión (distancia
+            // toroidal). Los mini especiales en órbita no reciben daño (igual que el
+            // homing de los cohetes).
+            const enRango = (e) => {
+                if (!e || !e.active || e.enOrbita) return false;
+                let dx = cohete.x - e.x, dy = cohete.y - e.y;
+                if (CONFIG.MUNDO && CONFIG.MUNDO.TOROIDAL) {
+                    dx = game._wrapDelta(dx, game.mundoAncho);
+                    dy = game._wrapDelta(dy, game.mundoAlto);
+                }
+                return Math.sqrt(dx * dx + dy * dy) < rExpl + (e.radio || 16);
+            };
+            const objetivos = [...game.enemigos, ...game.enemigosNaves, ...game.enemigosSpeciales].filter(enRango);
+            for (const obj of objetivos) destruirEnemigoConCohete(game, obj);
+            cohete.destroy();
+            game.cohetes.splice(i, 1);
+            continue;
+        }
+
+        // Fallback (modo NO toroidal): eliminar si el cohete se fue del mundo.
         if (cohete.x < -100 || cohete.x > game.mundoAncho + 100 ||
             cohete.y < -100 || cohete.y > game.mundoAlto + 100) {
             cohete.destroy();
             game.cohetes.splice(i, 1);
         }
+    }
+}
+
+/**
+ * Destruye UN enemigo por impacto de cohete: explosión (color según tipo), sonido,
+ * puntos, carga de ulti, avance de oleada y — si es un asteroide especial — su efecto
+ * (genera un mini que orbita al jugador). NO toca el cohete (eso lo maneja quien llama).
+ * Se usa tanto en el impacto directo como en la explosión en área por límite de alcance.
+ * @param {Game} game
+ * @param {Object} objetivo - enemigo (asteroide / nave / especial) a destruir
+ */
+function destruirEnemigoConCohete(game, objetivo) {
+    if (!objetivo || !objetivo.active) return;
+
+    // Explosión según el objetivo: nave = verde · especial = azul · asteroide = roja.
+    const escala = (objetivo.radio || 32) / 64;
+    const esObjetivoEspecial = game.enemigosSpeciales.includes(objetivo);
+    const esNave = game.enemigosNaves.includes(objetivo);
+    let texturaExpl, tinteExpl, escalaExpl;
+    if (esNave) {
+        texturaExpl = game.texturaExplosionNave; tinteExpl = null; escalaExpl = 0.5;
+    } else if (esObjetivoEspecial) {
+        texturaExpl = game.texturaAsteroidExplosion; tinteExpl = 0x0000FF; escalaExpl = escala * 0.5;
+    } else {
+        texturaExpl = game.texturaExplosionAsteroide; tinteExpl = null; escalaExpl = escala * 0.5;
+    }
+    const explosion = new AsteroidExplosion(objetivo.x, objetivo.y, texturaExpl, escalaExpl, tinteExpl);
+    explosion.render(game.mundo);
+    game.efectosImpacto.push(explosion);
+
+    if (game.gestorSonido) {
+        const usaSonidoNave = esNave || esObjetivoEspecial;
+        game.gestorSonido.reproducir(usaSonidoNave ? 'destruccionNave' : 'destruccionMeteorito');
+    }
+
+    // Puntos, carga de ulti y avance de oleada.
+    game.puntuacion += objetivo.puntos || 10;
+    game.jugador.agregarCargaUlti(objetivo.cargaUlti || 10);
+    game.asteroidesDestruidos++;
+    if (game.asteroidesDestruidos >= game.objetivoOleada) {
+        game.contadorOleadas++;
+        game.asteroidesDestruidos = 0;
+        game.objetivoOleada = 10 + (game.contadorOleadas * 10);
+        if (game.intervaloSpawn > game.intervaloMinimoSpawn) {
+            game.intervaloSpawn = Math.max(game.intervaloMinimoSpawn, game.intervaloSpawn - game.tasaDisminucionSpawn);
+        }
+    }
+
+    // Si es un asteroide ESPECIAL (no un mini en órbita), genera su mini que orbita.
+    const esEspecial = esObjetivoEspecial && !objetivo.enOrbita;
+    if (esEspecial) {
+        const angulo = Math.random() * Math.PI * 2;
+        const xMini = game.jugador.x + Math.cos(angulo) * 130;
+        const yMini = game.jugador.y + Math.sin(angulo) * 130;
+        const mini = new SpecialEnemy(xMini, yMini, game.jugador, game.texturaAsteroideSpecial, game.mundoAncho, game.mundoAlto, true);
+        mini.enOrbita = true;
+        mini.indiceOrbita = 0;
+        mini.render(game.mundo);
+        game.enemigosSpeciales.push(mini);
+    }
+
+    // Destruir el objetivo (los asteroides/naves los limpia luego su propio update;
+    // el especial se saca de su lista acá).
+    if (objetivo.destroy) {
+        objetivo.destroy();
+    } else {
+        objetivo.active = false;
+        if (objetivo.imagen) {
+            objetivo.imagen.visible = false;
+            objetivo.imagen.parent?.removeChild(objetivo.imagen);
+        }
+    }
+    if (esEspecial) {
+        const idx = game.enemigosSpeciales.indexOf(objetivo);
+        if (idx >= 0) game.enemigosSpeciales.splice(idx, 1);
     }
 }
 

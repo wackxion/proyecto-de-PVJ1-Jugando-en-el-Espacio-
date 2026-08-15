@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.51.0-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.0)
+[![Versión](https://img.shields.io/badge/Versión-v1.51.1-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.51.1)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.51.0 (Actual)
+### v1.51.1 (Actual)
+> **Cohetes: límite de alcance con explosión en área (no más "dar la vuelta al toroide")**
+
+- 🎯 **Un cohete que pierde su objetivo ya no vaga para siempre**: antes, si el blanco se destruía antes de que el cohete llegara, el cohete seguía derecho y — como su posición envuelve el toroide (`_actualizarToroide`) — **circulaba el mundo indefinidamente** hasta chocar algo por casualidad (el corte "fuera del mundo" nunca se cumplía por el wrap). Ahora tiene un **límite de alcance** (`CONFIG.COHETE.DISTANCIA_MAXIMA = 1500px`): si no llega al blanco, **explota con daño en área** (radio ≈ diámetro de un asteroide chico, 32px) destruyendo lo que esté cerca (`Cohete.js`, `GameSkills.js`)
+- 🧹 De paso se extrajo la lógica de "destruir enemigo por cohete" a un helper reusado por el impacto directo y por la explosión de área (menos duplicación)
+- ✅ Verificado en runtime: 198 cohetes con blanco perdido → explotan y desaparecen (0 quedan circulando); 227 explosiones = blasts + kills en área
+- 🤖 Android preparado como `versionCode 21` / `versionName 1.51.1` para regenerar el AAB
+
+### v1.51.0
 > **IA de naves enemigas: ahora te encaran y disparan + pasadas agresivas**
 
 - 🎯 **Las naves ahora sí te disparan**: antes miraban de costado (tangencial a su órbita, ~96° del jugador) y solo tiraban si estaban apuntándote (±30°) → disparaban muy poco (medido: 5 tiros en 10s con 6 naves). Ahora, cuando les toca disparar, **giran para encararte** y tiran; además el disparo no se pierde si aún no están alineadas (se mantiene pendiente hasta que apuntan). Medido tras el cambio: **44 tiros en 10s** (`EnemyShip.js`, `GameEnemies.js`)
