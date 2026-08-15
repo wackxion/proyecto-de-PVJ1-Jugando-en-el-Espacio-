@@ -479,7 +479,8 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                 asteroid.active = false;
                 asteroid.destroy();
                 
-                // Crear efecto de explosión del asteroide (rojo)
+                // Chocan un asteroide y una nave → se ven LAS DOS animaciones:
+                // 1) explosión ROJA del asteroide (en la posición del asteroide)
                 const escala = asteroid.radio / 64;
                 const astroExplosion = new AsteroidExplosion(
                     asteroid.x, asteroid.y,
@@ -488,7 +489,17 @@ export function actualizarNavesEnemigasCompleto(game, delta) {
                 );
                 astroExplosion.render(game.mundo);
                 game.efectosImpacto.push(astroExplosion);
-                
+
+                // 2) explosión VERDE de la nave (en la posición de la nave), la común
+                //    de naves — igual que cuando la destruís de otra forma.
+                const naveExplosion = new AsteroidExplosion(
+                    naveEnemiga.x, naveEnemiga.y,
+                    game.texturaExplosionNave,
+                    0.5
+                );
+                naveExplosion.render(game.mundo);
+                game.efectosImpacto.push(naveExplosion);
+
                 // Destruir la nave enemiga
                 naveEnemiga.destroy();
                 if (game.gestorSonido) {

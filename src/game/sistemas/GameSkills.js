@@ -204,22 +204,28 @@ export function actualizarCohetes(game, delta) {
         if (impacto && cohete.objetivo && cohete.objetivo.active) {
             const objetivo = cohete.objetivo;
             
-            // Crear explosión: especial usa el asset azul; asteroide usa el rojo
+            // Crear explosión según el objetivo:
+            //  - NAVE      → verde (la explosión común de naves, igual que al dispararle)
+            //  - ESPECIAL  → asset azul (viejo, tintado)
+            //  - ASTEROIDE → roja
             const escala = (objetivo.radio || 32) / 64;
             const esObjetivoEspecial = game.enemigosSpeciales.includes(objetivo);
-            const explosion = new AsteroidExplosion(
-                objetivo.x, objetivo.y,
-                esObjetivoEspecial ? game.texturaAsteroidExplosion : game.texturaExplosionAsteroide,
-                escala * 0.5,
-                esObjetivoEspecial ? 0x0000FF : null
-            );
+            const esNave = game.enemigosNaves.includes(objetivo);
+            let texturaExpl, tinteExpl, escalaExpl;
+            if (esNave) {
+                texturaExpl = game.texturaExplosionNave; tinteExpl = null; escalaExpl = 0.5;
+            } else if (esObjetivoEspecial) {
+                texturaExpl = game.texturaAsteroidExplosion; tinteExpl = 0x0000FF; escalaExpl = escala * 0.5;
+            } else {
+                texturaExpl = game.texturaExplosionAsteroide; tinteExpl = null; escalaExpl = escala * 0.5;
+            }
+            const explosion = new AsteroidExplosion(objetivo.x, objetivo.y, texturaExpl, escalaExpl, tinteExpl);
             explosion.render(game.mundo);
             game.efectosImpacto.push(explosion);
 
             // Sonido de destrucción por cohete: nave y especial → explosión de nave;
             // asteroide común → sonido de meteorito.
             if (game.gestorSonido) {
-                const esNave = game.enemigosNaves.includes(objetivo);
                 const usaSonidoNave = esNave || esObjetivoEspecial;
                 game.gestorSonido.reproducir(usaSonidoNave ? 'destruccionNave' : 'destruccionMeteorito');
             }

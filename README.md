@@ -1,7 +1,7 @@
 ﻿# 🎮 Jugando en el Espacio
 
 [![GitHub Pages](https://img.shields.io/badge/Jugar-Aquí-0044CC?style=for-the-badge)](https://wackxion.github.io/proyecto-de-PVJ1-Jugando-en-el-Espacio-/)
-[![Versión](https://img.shields.io/badge/Versión-v1.50.6-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.6)
+[![Versión](https://img.shields.io/badge/Versión-v1.50.7-FFA500?style=for-the-badge)](https://github.com/wackxion/proyecto-de-PVJ1-Jugando-en-el-Espacio-/releases/tag/v1.50.7)
 
 ---
 
@@ -361,7 +361,15 @@ main.js
 
 ## 📜 Historial de Versiones
 
-### v1.50.6 (Actual)
+### v1.50.7 (Actual)
+> **Animación de destrucción de naves consistente (siempre verde) + doble explosión en choques**
+
+- 🟢 **La nave enemiga ahora explota SIEMPRE con la animación verde** (la común), sin importar cómo la destruyas. Antes, si la matabas con un **cohete** usaba la explosión roja del asteroide; ahora usa la verde igual que al dispararle (`GameSkills.js`)
+- 💥 **Choque nave + asteroide → se ven LAS DOS animaciones**: la roja del asteroide (en su posición) y la verde de la nave (en la suya). Antes solo aparecía la del asteroide y la nave desaparecía sin explotar (`GameEnemies.js`)
+- ✅ Verificado en runtime: choques nave-asteroide crean explosiones verde+roja emparejadas (58 y 56); cohetes matando naves crean 980 explosiones verdes (antes habrían sido rojas)
+- 🤖 Android preparado como `versionCode 19` / `versionName 1.50.7` para regenerar el AAB
+
+### v1.50.6
 > **Naves enemigas: coherencia toroidal + limpieza de código**
 
 - 🧭 **#2 Apuntado y disparo consistentes cerca de la costura del toroide**: la nave calculaba el ángulo al jugador por el camino corto (`EnemyShip.direccionDisparo`) pero ese valor **no se usaba** — al crear el proyectil se recalculaba con distancia cruda (sin wrap), así que cerca del borde apuntaba a un lado y disparaba al otro. Ahora el proyectil usa el ángulo toroidal ya calculado (`GameEnemies.js`)
