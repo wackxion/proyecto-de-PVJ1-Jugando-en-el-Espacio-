@@ -38,6 +38,11 @@ export class EnemyShip extends GameObject {
         // Daño que hace al jugador
         this.dano = CONFIG.NAVE_ENEMIGA.DANO;
 
+        // Puntos al destruirla. IMPORTANTE que exista: el cohete usa `objetivo.puntos`
+        // (destruirEnemigoConCohete); sin esto caía al fallback de 10, así que un cohete
+        // daba 10 y el resto de los métodos 500 → puntaje inconsistente.
+        this.puntos = CONFIG.NAVE_ENEMIGA.PUNTOS;
+
         // Carga de ULTi que da al destroy (10)
         this.cargaUlti = CONFIG.NAVE_ENEMIGA.CARGA_ULTI;
         

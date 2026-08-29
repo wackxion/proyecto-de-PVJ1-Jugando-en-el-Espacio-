@@ -11,7 +11,7 @@ export const CONFIG = {
 
     // === APLICACIÓN ===
     APP: {
-        VERSION: '1.51.9',               // Versión visible en la pantalla de créditos
+        VERSION: '1.51.10',               // Versión visible en la pantalla de créditos
     },
 
     // === MUNDO / ESCENARIO ===
@@ -162,6 +162,7 @@ export const CONFIG = {
     NAVE_ENEMIGA: {
         SALUD: 25,
         DANO: 25,                       // Daño a los escudos del jugador
+        PUNTOS: 500,                    // Puntos que da al destruirla (por cualquier método: proyectil, cohete, ulti, choque)
         CARGA_ULTI: 30,                 // Carga de ulti que da al destruirla
         VELOCIDAD: 225,                 // px/s
         RADIO_COLISION: 15,
